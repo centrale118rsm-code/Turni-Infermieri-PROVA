@@ -80,14 +80,15 @@
         .app-brand { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
         .app-brand img { width: 44px; height: 44px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
         .brand-text { display: flex; flex-direction: column; min-width: 0; justify-content: center; }
-        .github-lbl {
-            font-size: 0.65rem; color: var(--text-sec); text-transform: uppercase;
-            font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center;
-            gap: 4px; margin-bottom: 2px;
+        .app-title-text {
+            font-size: 1.15rem; font-weight: 900; letter-spacing: 1px; color: var(--text-main);
+            line-height: 1.1; white-space: nowrap;
+            background: linear-gradient(135deg, var(--text-main), var(--primary));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
         }
-        #last-update-badge {
-            font-size: 0.95rem; font-weight: 800; color: var(--text-main);
-            line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        .app-subtitle-text {
+            font-size: 0.62rem; font-weight: 800; color: var(--text-sec); letter-spacing: 2.5px;
+            text-transform: uppercase; margin-top: 1px;
         }
         .app-actions { display: flex; align-items: center; gap: 6px; position: relative; }
         .expandable-actions {
@@ -176,6 +177,10 @@
             height: var(--th-h); backdrop-filter: blur(5px);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
+        thead th:not(:first-child)::before {
+            content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 2px; height: 16px; border-radius: 2px; background: var(--primary); opacity: 0.35;
+        }
         thead th:first-child, .td-date {
             width: 60px !important; min-width: 60px !important; max-width: 60px !important;
             left: 0; z-index: 95;
@@ -193,11 +198,17 @@
         }
         .month-label { font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .live-clock {
-            font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1rem;
-            background: rgba(0,0,0,0.25); padding: 2px 10px; border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            display: inline-flex; align-items: center; gap: 7px;
+            font-variant-numeric: tabular-nums; font-weight: 800; font-size: 0.92rem;
+            background: rgba(255,255,255,0.14); padding: 5px 13px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.3px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.12); text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            backdrop-filter: blur(6px);
         }
+        .live-clock .material-icons-round { font-size: 13px; opacity: 0.85; }
+        .live-clock .lc-date { opacity: 0.9; }
+        .live-clock .lc-time { font-weight: 900; }
+        .live-clock .lc-sec { opacity: 0.6; font-weight: 700; margin-left: 1px; }
         tbody td {
             padding: 2px; height: var(--cell-h); vertical-align: middle;
             border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border);
@@ -1190,10 +1201,8 @@
         <div class="app-brand">
             <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
             <div class="brand-text">
-                <div class="github-lbl">
-                    <span class="material-icons-round" style="font-size:12px">update</span> GITHUB UPDATE
-                </div>
-                <span id="last-update-badge">Caricamento...</span>
+                <span class="app-title-text">INFERMIERI</span>
+                <span class="app-subtitle-text">2026</span>
             </div>
         </div>
         <div class="app-actions">
@@ -1974,7 +1983,6 @@
         try {
             const lastUp = new Date(document.lastModified);
             const lastUpText = `${lastUp.toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})} - ${lastUp.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`;
-            document.getElementById('last-update-badge').innerHTML = lastUpText;
             const optUpd = document.getElementById('options-last-update'); if(optUpd) optUpd.innerText = lastUpText;
         } catch(e) {}
         try {
@@ -2185,13 +2193,17 @@
     function startLiveClock() {
         setInterval(() => {
             const now = new Date();
-            document.querySelectorAll('.live-clock').forEach(el => el.innerText = `${now.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})} • ${now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`);
+            const dateShort = now.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+            const hh = String(now.getHours()).padStart(2,'0'), mm = String(now.getMinutes()).padStart(2,'0'), ss = String(now.getSeconds()).padStart(2,'0');
+            document.querySelectorAll('.live-clock').forEach(el => {
+                el.innerHTML = `<span class="material-icons-round">schedule</span><span class="lc-date">${dateShort}</span><span class="lc-time">${hh}:${mm}<span class="lc-sec">:${ss}</span></span>`;
+            });
             const dateEl = document.getElementById('options-live-date');
             const hmEl = document.getElementById('options-live-hm');
             const sEl = document.getElementById('options-live-s');
             if(dateEl) dateEl.innerText = now.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-            if(hmEl) hmEl.innerText = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            if(sEl) sEl.innerText = `:${String(now.getSeconds()).padStart(2,'0')}`;
+            if(hmEl) hmEl.innerText = `${hh}:${mm}`;
+            if(sEl) sEl.innerText = `:${ss}`;
         }, 1000);
     }
 
