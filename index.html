@@ -614,7 +614,7 @@
         #welcome-modal.open .alert-card { transform:scale(1); }
         .welcome-progress-track { height:4px; background:rgba(220,38,38,0.15); margin:0 24px 22px; border-radius:4px; overflow:hidden; }
         .welcome-progress-bar { height:100%; width:100%; background:#dc2626; border-radius:4px; transform:scaleX(1); transform-origin:left; }
-        .welcome-progress-bar.counting { animation: welcomeCountdown 3s linear forwards; }
+        .welcome-progress-bar.counting { animation-name: welcomeCountdown; animation-duration: 3s; animation-timing-function: linear; animation-fill-mode: forwards; }
         @keyframes welcomeCountdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
         #custom-announce-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s ease; padding:20px; }
         #custom-announce-modal.open { opacity:1; }
@@ -998,8 +998,12 @@
                 </div>
                 <div style="margin-bottom:8px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;">Titolo</div>
                 <input type="text" id="admin-welcome-title" class="admin-text-input" placeholder="Es. ATTENZIONE" style="margin-bottom:12px;">
-                <div style="margin-bottom:8px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;">Testo (breve, si chiude da solo in 3 secondi)</div>
+                <div style="margin-bottom:8px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;">Testo (breve, si chiude da solo)</div>
                 <textarea id="admin-welcome-text" class="admin-textarea" placeholder="Testo dell'avviso..." style="min-height:70px;"></textarea>
+                <div class="admin-field-row" style="margin-top:12px;">
+                    <label><span class="material-icons-round" style="font-size:15px;vertical-align:-3px;margin-right:4px;">timer</span> Durata Chiusura Automatica</label>
+                    <input type="number" id="admin-welcome-duration" min="1" max="30" step="1" style="width:70px;text-align:right;border:none;background:none;color:var(--text-main);font-weight:800;font-size:0.9rem;"> <span style="color:var(--text-sec);font-weight:700;font-size:0.8rem;">sec</span>
+                </div>
                 <button class="btn-admin-save" onclick="saveAdminWelcome()"><span class="material-icons-round">save</span> SALVA AVVISO (per tutti)</button>
 
                 <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">post_add</span> Avvisi Aggiuntivi</div>
@@ -1284,7 +1288,7 @@
     const DEFAULT_COLORS_BAKED = {}; // __ADMIN_DEFAULT_COLORS__
     const DEFAULT_NAME_OVERRIDES_BAKED = {}; // __ADMIN_DEFAULT_NAMES__
     const DEFAULT_SCHEDULE_OVERRIDE_BAKED = {"SCHEDULE":{},"SCHEDULE_DIURNI":{}}; // __ADMIN_DEFAULT_SCHEDULE__
-    const DEFAULT_WELCOME_BAKED = {"active":true,"title":"ATTENZIONE","text":"L'app viene aggiornata spesso.\nIn caso di dubbio, verifica sempre i turni cartacei in guardiola."}; // __ADMIN_DEFAULT_WELCOME__
+    const DEFAULT_WELCOME_BAKED = {"active":true,"title":"ATTENZIONE","text":"L'app viene aggiornata spesso.\nIn caso di dubbio, verifica sempre i turni cartacei in guardiola.","duration":3}; // __ADMIN_DEFAULT_WELCOME__
     const DEFAULT_ANNOUNCEMENTS_BAKED = []; // __ADMIN_DEFAULT_ANNOUNCEMENTS__
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -1750,14 +1754,19 @@
         document.getElementById('welcome-active-toggle').checked = welcomeConfig.active !== false;
         document.getElementById('admin-welcome-title').value = welcomeConfig.title || "";
         document.getElementById('admin-welcome-text').value = welcomeConfig.text || "";
+        document.getElementById('admin-welcome-duration').value = welcomeConfig.duration || 3;
         renderAdminAnnouncementsList();
     }
     function saveAdminWelcome() {
         vibrate();
+        let duration = parseInt(document.getElementById('admin-welcome-duration').value);
+        if(isNaN(duration) || duration < 1) duration = 3;
+        if(duration > 30) duration = 30;
         welcomeConfig = {
             active: document.getElementById('welcome-active-toggle').checked,
             title: document.getElementById('admin-welcome-title').value.trim() || "ATTENZIONE",
-            text: document.getElementById('admin-welcome-text').value
+            text: document.getElementById('admin-welcome-text').value,
+            duration: duration
         };
         if(fbReady) {
             db.collection('infermieri26_config').doc('settings').set({ welcome: welcomeConfig }, { merge:true })
@@ -1822,12 +1831,14 @@
         applyWelcomeConfig();
         announcementQueue = (customAnnouncements || []).filter(a => a.active !== false).slice();
         if(welcomeConfig.active === false) { showNextAnnouncement(); return; }
+        const durationSec = welcomeConfig.duration && welcomeConfig.duration > 0 ? welcomeConfig.duration : 3;
         let wm = document.getElementById('welcome-modal');
         const bar = document.getElementById('welcome-progress-bar');
         bar.classList.remove('counting'); void bar.offsetWidth;
+        bar.style.animationDuration = durationSec + 's';
         wm.style.display = 'flex';
         setTimeout(() => { wm.classList.add('open'); bar.classList.add('counting'); }, 50);
-        setTimeout(closeWelcomeModal, 3050);
+        setTimeout(closeWelcomeModal, (durationSec * 1000) + 50);
     }
     function showNextAnnouncement() {
         if(!announcementQueue || announcementQueue.length === 0) return;
