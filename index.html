@@ -612,6 +612,10 @@
         #welcome-modal.open { opacity:1; }
         #welcome-modal .alert-card { transform:scale(0.85); transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
         #welcome-modal.open .alert-card { transform:scale(1); }
+        .welcome-progress-track { height:4px; background:rgba(220,38,38,0.15); margin:0 24px 22px; border-radius:4px; overflow:hidden; }
+        .welcome-progress-bar { height:100%; width:100%; background:#dc2626; border-radius:4px; transform:scaleX(1); transform-origin:left; }
+        .welcome-progress-bar.counting { animation: welcomeCountdown 3s linear forwards; }
+        @keyframes welcomeCountdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
         #custom-announce-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s ease; padding:20px; }
         #custom-announce-modal.open { opacity:1; }
         #custom-announce-modal .alert-card { transform:scale(0.85); transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
@@ -694,22 +698,16 @@
 
 <div id="welcome-modal">
     <div class="alert-card">
-        <div class="alert-header" style="background:#fef2f2;border-bottom:1px solid #fee2e2;">
+        <div class="alert-header" style="background:#fef2f2;border-bottom:1px solid #fee2e2;justify-content:center;flex-direction:column;text-align:center;gap:10px;">
             <div class="alert-icon-box" style="color:#dc2626;border-color:#fca5a5;background:#ffffff;">
                 <span class="material-icons-round" style="font-size:28px;">warning</span>
             </div>
             <div class="alert-title" id="welcome-title-text" style="color:#991b1b;">ATTENZIONE</div>
         </div>
-        <div class="alert-body" id="welcome-body-text">
-            ⚠️ L'applicazione viene aggiornata di frequente.<br><br>
-            È possibile che i turni mostrati differiscano da quelli cartacei.<br><br>
-            Fare sempre riferimento ai turni cartacei e al file Excel presenti in guardiola!
+        <div class="alert-body" id="welcome-body-text" style="text-align:center;">
+            L'app viene aggiornata spesso.<br>In caso di dubbio, verifica sempre i turni cartacei in guardiola.
         </div>
-        <div class="alert-footer">
-            <button class="btn-alert-ok" style="background:#dc2626;box-shadow:0 4px 12px rgba(220,38,38,0.3);" onclick="closeWelcomeModal()">
-                <span class="material-icons-round">done</span> <span id="welcome-btn-text">HO CAPITO</span>
-            </button>
-        </div>
+        <div class="welcome-progress-track"><div class="welcome-progress-bar" id="welcome-progress-bar"></div></div>
     </div>
 </div>
 
@@ -1000,10 +998,8 @@
                 </div>
                 <div style="margin-bottom:8px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;">Titolo</div>
                 <input type="text" id="admin-welcome-title" class="admin-text-input" placeholder="Es. ATTENZIONE" style="margin-bottom:12px;">
-                <div style="margin-bottom:8px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;">Testo (vai a capo con Invio)</div>
-                <textarea id="admin-welcome-text" class="admin-textarea" placeholder="Testo dell'avviso..."></textarea>
-                <div style="margin:12px 0 8px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;">Testo Pulsante</div>
-                <input type="text" id="admin-welcome-btn" class="admin-text-input" placeholder="Es. HO CAPITO">
+                <div style="margin-bottom:8px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;">Testo (breve, si chiude da solo in 3 secondi)</div>
+                <textarea id="admin-welcome-text" class="admin-textarea" placeholder="Testo dell'avviso..." style="min-height:70px;"></textarea>
                 <button class="btn-admin-save" onclick="saveAdminWelcome()"><span class="material-icons-round">save</span> SALVA AVVISO (per tutti)</button>
 
                 <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">post_add</span> Avvisi Aggiuntivi</div>
@@ -1288,7 +1284,7 @@
     const DEFAULT_COLORS_BAKED = {}; // __ADMIN_DEFAULT_COLORS__
     const DEFAULT_NAME_OVERRIDES_BAKED = {}; // __ADMIN_DEFAULT_NAMES__
     const DEFAULT_SCHEDULE_OVERRIDE_BAKED = {"SCHEDULE":{},"SCHEDULE_DIURNI":{}}; // __ADMIN_DEFAULT_SCHEDULE__
-    const DEFAULT_WELCOME_BAKED = {"active":true,"title":"ATTENZIONE","text":"⚠️ L'applicazione viene aggiornata di frequente.\n\nÈ possibile che i turni mostrati differiscano da quelli cartacei.\n\nFare sempre riferimento ai turni cartacei e al file Excel presenti in guardiola!","button":"HO CAPITO"}; // __ADMIN_DEFAULT_WELCOME__
+    const DEFAULT_WELCOME_BAKED = {"active":true,"title":"ATTENZIONE","text":"L'app viene aggiornata spesso.\nIn caso di dubbio, verifica sempre i turni cartacei in guardiola."}; // __ADMIN_DEFAULT_WELCOME__
     const DEFAULT_ANNOUNCEMENTS_BAKED = []; // __ADMIN_DEFAULT_ANNOUNCEMENTS__
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -1754,7 +1750,6 @@
         document.getElementById('welcome-active-toggle').checked = welcomeConfig.active !== false;
         document.getElementById('admin-welcome-title').value = welcomeConfig.title || "";
         document.getElementById('admin-welcome-text').value = welcomeConfig.text || "";
-        document.getElementById('admin-welcome-btn').value = welcomeConfig.button || "";
         renderAdminAnnouncementsList();
     }
     function saveAdminWelcome() {
@@ -1762,8 +1757,7 @@
         welcomeConfig = {
             active: document.getElementById('welcome-active-toggle').checked,
             title: document.getElementById('admin-welcome-title').value.trim() || "ATTENZIONE",
-            text: document.getElementById('admin-welcome-text').value,
-            button: document.getElementById('admin-welcome-btn').value.trim() || "HO CAPITO"
+            text: document.getElementById('admin-welcome-text').value
         };
         if(fbReady) {
             db.collection('infermieri26_config').doc('settings').set({ welcome: welcomeConfig }, { merge:true })
@@ -1823,14 +1817,17 @@
     function applyWelcomeConfig() {
         document.getElementById('welcome-title-text').innerText = welcomeConfig.title || "ATTENZIONE";
         document.getElementById('welcome-body-text').innerHTML = (welcomeConfig.text || "").replace(/\n/g,'<br>');
-        document.getElementById('welcome-btn-text').innerText = welcomeConfig.button || "HO CAPITO";
     }
     function showStartupMessages() {
         applyWelcomeConfig();
         announcementQueue = (customAnnouncements || []).filter(a => a.active !== false).slice();
         if(welcomeConfig.active === false) { showNextAnnouncement(); return; }
         let wm = document.getElementById('welcome-modal');
-        wm.style.display = 'flex'; setTimeout(() => wm.classList.add('open'), 50);
+        const bar = document.getElementById('welcome-progress-bar');
+        bar.classList.remove('counting'); void bar.offsetWidth;
+        wm.style.display = 'flex';
+        setTimeout(() => { wm.classList.add('open'); bar.classList.add('counting'); }, 50);
+        setTimeout(closeWelcomeModal, 3050);
     }
     function showNextAnnouncement() {
         if(!announcementQueue || announcementQueue.length === 0) return;
@@ -2077,7 +2074,12 @@
 
     function closeWelcomeModal() {
         vibrate(); let m = document.getElementById('welcome-modal');
-        m.classList.remove('open'); setTimeout(() => { m.style.display = 'none'; showNextAnnouncement(); }, 400);
+        m.classList.remove('open');
+        setTimeout(() => {
+            m.style.display = 'none';
+            const bar = document.getElementById('welcome-progress-bar'); if(bar) bar.classList.remove('counting');
+            showNextAnnouncement();
+        }, 400);
     }
 
     function initApp() {
