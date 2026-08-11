@@ -14,6 +14,9 @@
     <link rel="icon" type="image/png" href="logo.png">
     <title>INFERMIERI 2026</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
@@ -317,6 +320,59 @@
         .modal-theme-SM .modal-header { background:linear-gradient(135deg,#64748b,#94a3b8); } .modal-theme-SM .header-text h3 { color:white; }
         .option-item { padding:20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); font-weight:600; color:var(--text-main); }
         .option-item:last-child { border-bottom:none; }
+
+        /* ── ADMIN PANEL ────────────────────────────────────────────────── */
+        #admin-login-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9500; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s; padding:20px; }
+        #admin-login-modal.open { opacity:1; }
+        #admin-login-modal .alert-card { transform:scale(0.9); }
+        #admin-login-modal.open .alert-card { transform:scale(1); }
+        .admin-login-input { width:100%; padding:14px 16px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-size:1rem; font-weight:700; letter-spacing:1px; margin-bottom:10px; }
+        .admin-login-error { color:#dc2626; font-size:0.8rem; font-weight:700; margin-bottom:8px; min-height:16px; }
+        #admin-panel-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6000; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #admin-panel-modal.open { opacity:1; }
+        #admin-panel-modal .modal-content { max-width:680px; max-height:92vh; }
+        #admin-panel-modal.open .modal-content { transform:translateY(0); }
+        .admin-header-badge { background:#0f172a; color:#fff; }
+        .admin-header-badge .header-text span { color:#94a3b8; }
+        .admin-header-badge .btn-close-modal { background:#1e293b; color:#fff; }
+        .admin-tabs { display:flex; gap:6px; padding:12px 16px; overflow-x:auto; scrollbar-width:none; background:var(--bg); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:5; }
+        .admin-tab-btn { flex-shrink:0; padding:9px 16px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg-card); color:var(--text-sec); font-weight:800; font-size:0.78rem; cursor:pointer; display:flex; align-items:center; gap:6px; transition:0.2s; white-space:nowrap; }
+        .admin-tab-btn .material-icons-round { font-size:16px; }
+        .admin-tab-btn.active { background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:0 3px 8px rgba(37,99,235,0.3); }
+        .admin-tab-panel { display:none; padding:18px; }
+        .admin-tab-panel.active { display:block; }
+        .admin-section-label { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-sec); margin:18px 0 10px; display:flex; align-items:center; gap:6px; }
+        .admin-section-label:first-child { margin-top:0; }
+        .admin-stat-row { display:flex; gap:10px; margin-bottom:16px; }
+        .admin-stat-box { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:14px; text-align:center; }
+        .admin-stat-num { font-size:1.5rem; font-weight:900; color:var(--primary); line-height:1; }
+        .admin-stat-lbl { font-size:0.65rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:0.4px; margin-top:4px; }
+        .access-row { background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:12px; }
+        .access-dot { width:10px; height:10px; border-radius:50%; background:#94a3b8; flex-shrink:0; box-shadow:0 0 0 3px rgba(148,163,184,0.15); }
+        .access-dot.online { background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,0.2); }
+        .access-info { flex:1; min-width:0; }
+        .access-device { font-weight:800; font-size:0.88rem; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .access-view { font-size:0.75rem; color:var(--primary); font-weight:700; margin-top:2px; }
+        .access-meta { font-size:0.7rem; color:var(--text-sec); margin-top:3px; }
+        .access-duration { text-align:right; flex-shrink:0; }
+        .access-duration b { font-size:0.9rem; color:var(--text-main); display:block; }
+        .access-duration span { font-size:0.62rem; color:var(--text-sec); text-transform:uppercase; font-weight:700; }
+        .admin-empty { text-align:center; padding:40px 20px; color:var(--text-sec); }
+        .admin-empty .material-icons-round { font-size:40px; opacity:0.4; margin-bottom:8px; }
+        .color-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .color-item { display:flex; align-items:center; gap:10px; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
+        .color-item input[type=color] { width:34px; height:34px; border:none; border-radius:8px; padding:0; background:none; cursor:pointer; flex-shrink:0; }
+        .color-item label { font-size:0.75rem; font-weight:700; color:var(--text-main); line-height:1.2; }
+        .admin-field-row { display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin-bottom:8px; }
+        .admin-field-row label { font-size:0.82rem; font-weight:700; color:var(--text-main); flex-shrink:0; }
+        .admin-field-row input[type=text] { flex:1; min-width:0; text-align:right; border:none; background:none; color:var(--text-main); font-weight:700; font-size:0.85rem; padding:6px; }
+        .btn-admin-save { width:100%; padding:14px; border-radius:14px; border:none; background:var(--primary); color:#fff; font-weight:800; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 12px rgba(37,99,235,0.3); margin-top:16px; }
+        .btn-admin-save:active { transform:scale(0.98); }
+        .btn-admin-secondary { width:100%; padding:12px; border-radius:14px; border:1.5px solid var(--border); background:var(--bg-card); color:var(--text-sec); font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; margin-top:8px; }
+        .btn-admin-danger { color:#dc2626; border-color:#fecaca; }
+        .admin-save-toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:#0f172a; color:#fff; padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; z-index:9999; opacity:0; transition:all 0.3s; pointer-events:none; box-shadow:0 8px 24px rgba(0,0,0,0.3); }
+        .admin-save-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+        .admin-save-toast .material-icons-round { color:#22c55e; font-size:18px; }
         .switch { position:relative; display:inline-block; width:50px; height:28px; }
         .switch input { opacity:0; width:0; height:0; }
         .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:var(--border); transition:.4s; border-radius:34px; }
@@ -443,10 +499,10 @@
         </div>
         <div class="alert-body">
             <span style="display:block;margin-bottom:12px;font-weight:800;color:#d97706;font-size:1.05rem;">
-                ⚠️ Questa è un'applicazione test in via di sviluppo.
+                ⚠️ L'applicazione viene aggiornata di frequente.
             </span>
-            È possibile che le ultime modifiche non siano ancora state aggiornate.<br><br>
-            <b style="color:#dc2626;">Fare riferimento sempre ai turni cartacei e al file Excel presenti in guardiola!</b>
+            È possibile che i turni mostrati differiscano da quelli cartacei.<br><br>
+            <b style="color:#dc2626;">Fare sempre riferimento ai turni cartacei e al file Excel presenti in guardiola!</b>
         </div>
         <div class="alert-footer">
             <button class="btn-alert-ok" style="background:#dc2626;box-shadow:0 4px 12px rgba(220,38,38,0.3);" onclick="closeWelcomeModal()">
@@ -582,6 +638,112 @@
         </div>
     </div>
 </div>
+
+<div id="admin-login-modal" onclick="closeAdminLoginModal(event)">
+    <div class="alert-card" onclick="event.stopPropagation()">
+        <div class="alert-header" style="background:#0f172a;border-bottom:1px solid #1e293b;">
+            <div class="alert-icon-box" style="color:#60a5fa;border-color:#334155;background:#1e293b;">
+                <span class="material-icons-round" style="font-size:28px;">lock</span>
+            </div>
+            <div class="alert-title" style="color:#fff;">AREA ADMIN</div>
+        </div>
+        <div class="alert-body">
+            <div style="margin-bottom:14px;color:var(--text-sec);font-size:0.9rem;">Inserisci la password per accedere al pannello di amministrazione.</div>
+            <input type="password" id="admin-pw-input" class="admin-login-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkAdminPassword()">
+            <div class="admin-login-error" id="admin-pw-error"></div>
+        </div>
+        <div class="alert-footer">
+            <button class="btn-alert-ok" style="background:#0f172a;box-shadow:0 4px 12px rgba(15,23,42,0.3);" onclick="checkAdminPassword()">
+                <span class="material-icons-round">login</span> ACCEDI
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="admin-panel-modal" onclick="closeAdminPanel(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header admin-header-badge">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">admin_panel_settings</span> PANNELLO ADMIN</h3>
+                <span>Gestione e Configurazione App</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeAdminPanel()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" data-tab="accessi" onclick="switchAdminTab('accessi',this)"><span class="material-icons-round">insights</span> Accessi</button>
+            <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span> Aspetto</button>
+            <button class="admin-tab-btn" data-tab="operatori" onclick="switchAdminTab('operatori',this)"><span class="material-icons-round">badge</span> Operatori</button>
+            <button class="admin-tab-btn" data-tab="turni" onclick="switchAdminTab('turni',this)"><span class="material-icons-round">schedule</span> Turni</button>
+        </div>
+        <div class="modal-body" style="padding:0;">
+
+            <div class="admin-tab-panel active" id="admin-tab-accessi">
+                <div class="admin-stat-row">
+                    <div class="admin-stat-box"><div class="admin-stat-num" id="admin-stat-online">0</div><div class="admin-stat-lbl">Online Ora</div></div>
+                    <div class="admin-stat-box"><div class="admin-stat-num" id="admin-stat-total">0</div><div class="admin-stat-lbl">Accessi Totali</div></div>
+                </div>
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">devices</span> Sessioni Recenti</div>
+                <div id="admin-access-list"></div>
+            </div>
+
+            <div class="admin-tab-panel" id="admin-tab-aspetto">
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">brush</span> Colore Principale</div>
+                <div class="color-grid">
+                    <div class="color-item"><input type="color" id="col-primary" data-var="--primary"><label>Colore App (accento)</label></div>
+                </div>
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">wb_sunny</span> Turni Base</div>
+                <div class="color-grid">
+                    <div class="color-item"><input type="color" id="col-c-M" data-var="--c-M"><label>Mattina (M)</label></div>
+                    <div class="color-item"><input type="color" id="col-c-P" data-var="--c-P"><label>Pomeriggio (P)</label></div>
+                    <div class="color-item"><input type="color" id="col-c-N" data-var="--c-N"><label>Notte (N)</label></div>
+                    <div class="color-item"><input type="color" id="col-c-R" data-var="--c-R"><label>Riposo (R)</label></div>
+                    <div class="color-item"><input type="color" id="col-c-SM" data-var="--c-SM"><label>Notturno Spec. (SM)</label></div>
+                </div>
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">label</span> Codici Speciali</div>
+                <div class="color-grid">
+                    <div class="color-item"><input type="color" id="col-bg-ferie" data-var="--bg-ferie"><label>Ferie</label></div>
+                    <div class="color-item"><input type="color" id="col-bg-rec" data-var="--bg-rec"><label>Recupero</label></div>
+                    <div class="color-item"><input type="color" id="col-bg-cong" data-var="--bg-cong"><label>Congedo</label></div>
+                    <div class="color-item"><input type="color" id="col-bg-mal" data-var="--bg-mal"><label>Malattia</label></div>
+                    <div class="color-item"><input type="color" id="col-bg-nl" data-var="--bg-nl"><label>NL</label></div>
+                    <div class="color-item"><input type="color" id="col-bg-perm" data-var="--bg-perm"><label>Permesso</label></div>
+                    <div class="color-item"><input type="color" id="col-bg-ng" data-var="--bg-ng"><label>NG</label></div>
+                    <div class="color-item"><input type="color" id="col-bg-stu" data-var="--bg-stu"><label>Studio</label></div>
+                    <div class="color-item"><input type="color" id="col-bg-pn" data-var="--bg-pn"><label>Permesso Notte (PN)</label></div>
+                    <div class="color-item"><input type="color" id="col-bg-coord" data-var="--bg-coord"><label>Coordinatore</label></div>
+                </div>
+                <button class="btn-admin-save" onclick="saveAdminColors()"><span class="material-icons-round">save</span> SALVA COLORI (per tutti)</button>
+                <button class="btn-admin-secondary" onclick="resetAdminColors()"><span class="material-icons-round">restore</span> Ripristina colori predefiniti</button>
+            </div>
+
+            <div class="admin-tab-panel" id="admin-tab-operatori">
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">people</span> Nomi Operatori</div>
+                <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:12px;">Il nome originale arriva dal file Excel. Puoi impostare un nome personalizzato mostrato nell'app: verrà applicato a tutti.</div>
+                <div id="admin-operators-list"></div>
+                <button class="btn-admin-save" onclick="saveAdminOperators()"><span class="material-icons-round">save</span> SALVA NOMI (per tutti)</button>
+            </div>
+
+            <div class="admin-tab-panel" id="admin-tab-turni">
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">access_time</span> Orari Turni Standard</div>
+                <div class="admin-field-row"><label>Mattina (M)</label><input type="text" id="sch-M" data-key="M"></div>
+                <div class="admin-field-row"><label>Pomeriggio (P)</label><input type="text" id="sch-P" data-key="P"></div>
+                <div class="admin-field-row"><label>Notte (N)</label><input type="text" id="sch-N" data-key="N"></div>
+                <div class="admin-field-row"><label>Notturno Spec. (SM)</label><input type="text" id="sch-SM" data-key="SM"></div>
+                <div class="admin-field-row"><label>Riposo (R)</label><input type="text" id="sch-R" data-key="R"></div>
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">wb_twilight</span> Orari Turni Diurni</div>
+                <div class="admin-field-row"><label>Mattina diurno (m)</label><input type="text" id="sch-m" data-key="m"></div>
+                <div class="admin-field-row"><label>Pomeriggio diurno (p)</label><input type="text" id="sch-p" data-key="p"></div>
+                <div class="admin-field-row"><label>Riposo diurno (r)</label><input type="text" id="sch-r" data-key="r"></div>
+                <button class="btn-admin-save" onclick="saveAdminSchedule()"><span class="material-icons-round">save</span> SALVA ORARI (per tutti)</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="admin-save-toast" class="admin-save-toast"><span class="material-icons-round">check_circle</span> <span id="admin-save-toast-text">Salvato</span></div>
 
 <div id="dinner-modal" onclick="closeDinnerModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()" style="height:90vh;max-height:90vh;">
@@ -761,6 +923,9 @@
                 <div class="menu-item" onclick="openOptionsModal()">
                     <span class="material-icons-round">settings</span> Opzioni
                 </div>
+                <div class="menu-item" onclick="openAdminLoginModal()">
+                    <span class="material-icons-round">admin_panel_settings</span> Area Admin
+                </div>
                 <div class="menu-item" onclick="vibrate();location.reload()">
                     <span class="material-icons-round">refresh</span> Aggiorna
                 </div>
@@ -788,6 +953,325 @@
     };
     const SCHEDULE = { "M":"06:30 - 13:15","P":"12:45 - 20:10","N":"19:45 - 00:00","SM":"00:00 - 07:20","S":"00:00 - 07:20","R":"RIPOSO" };
     const SCHEDULE_DIURNI = { "m":"06:30 - 13:42","p":"13:15 - 20:27","r":"RIPOSO" };
+    const DEFAULT_SCHEDULE = Object.assign({}, SCHEDULE);
+    const DEFAULT_SCHEDULE_DIURNI = Object.assign({}, SCHEDULE_DIURNI);
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // FIREBASE — inizializzazione, tracciamento accessi, sincronizzazione config
+    // ═══════════════════════════════════════════════════════════════════════
+    const firebaseConfig = {
+        apiKey: "AIzaSyDCycpsVJus8Mwd-AqaPORZIrFUIyo00VQ",
+        authDomain: "creazione-turni-118.firebaseapp.com",
+        projectId: "creazione-turni-118",
+        storageBucket: "creazione-turni-118.firebasestorage.app",
+        messagingSenderId: "389097635025",
+        appId: "1:389097635025:web:331564551f0e5190a199f0",
+        measurementId: "G-PBBLRX8ZZZ"
+    };
+    let fbApp, db, fbAuth, fbReady = false;
+    try {
+        fbApp = firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        fbAuth = firebase.auth();
+        fbReady = true;
+    } catch(e) { console.error("Errore inizializzazione Firebase:", e); }
+
+    const ADMIN_PASSWORD = "Barbieri!";
+    const DEFAULT_COLORS = {
+        "--primary":"#2563eb","--c-M":"#026bfe","--c-P":"#56a2ff","--c-N":"#003785","--c-R":"#ecfdf5","--c-SM":"#10004f",
+        "--bg-ferie":"#ff782ff6","--bg-rec":"#d00173","--bg-cong":"#ffea00","--bg-mal":"#ef4444","--bg-nl":"#e0f7fa",
+        "--bg-perm":"#00e749","--bg-ng":"#00bfff","--bg-stu":"#3b82f6","--bg-pn":"#14532d","--bg-coord":"#ffffff"
+    };
+    let nameOverrides = {}, colorOverrides = {}, scheduleOverride = {};
+
+    // ── Sessione / tracciamento accessi ─────────────────────────────────────
+    let sessionId = localStorage.getItem('infermieri_session_id');
+    if(!sessionId) {
+        sessionId = 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,10);
+        localStorage.setItem('infermieri_session_id', sessionId);
+    }
+    let sessionStartTime = Date.now();
+    let currentViewLabel = "Avvio app";
+    let adminAccessUnsub = null, adminConfigApplyBusy = false;
+
+    function getDeviceLabel() {
+        const ua = navigator.userAgent;
+        let browser = "Browser";
+        if(/Edg\//.test(ua)) browser = "Edge";
+        else if(/OPR\//.test(ua)) browser = "Opera";
+        else if(/CriOS|Chrome\//.test(ua)) browser = "Chrome";
+        else if(/FxiOS|Firefox\//.test(ua)) browser = "Firefox";
+        else if(/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = "Safari";
+        let os = "Dispositivo";
+        if(/iPhone|iPad|iPod/.test(ua)) os = "iOS";
+        else if(/Android/.test(ua)) os = "Android";
+        else if(/Windows/.test(ua)) os = "Windows";
+        else if(/Mac OS X/.test(ua)) os = "macOS";
+        else if(/Linux/.test(ua)) os = "Linux";
+        return `${browser} • ${os}`;
+    }
+
+    async function initFirebaseTracking() {
+        if(!fbReady) return;
+        try { await fbAuth.signInAnonymously(); } catch(e) { console.error("Auth anonima fallita:", e); }
+        try {
+            await db.collection('infermieri26_accessi').doc(sessionId).set({
+                device: getDeviceLabel(),
+                userAgent: navigator.userAgent,
+                startTime: firebase.firestore.FieldValue.serverTimestamp(),
+                lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                currentView: currentViewLabel,
+                online: true
+            }, { merge:true });
+        } catch(e) { console.error("Errore scrittura sessione:", e); }
+        sendHeartbeat();
+        setInterval(sendHeartbeat, 20000);
+        document.addEventListener('visibilitychange', sendHeartbeat);
+        window.addEventListener('pagehide', () => {
+            try {
+                db.collection('infermieri26_accessi').doc(sessionId).set({ online:false, lastActive: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
+            } catch(e) {}
+        });
+        listenConfigChanges();
+    }
+
+    function sendHeartbeat() {
+        if(!fbReady) return;
+        db.collection('infermieri26_accessi').doc(sessionId).set({
+            lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+            currentView: currentViewLabel,
+            online: document.visibilityState === 'visible'
+        }, { merge:true }).catch(()=>{});
+    }
+
+    function setCurrentView(label) {
+        currentViewLabel = label;
+        sendHeartbeat();
+    }
+
+    // ── Config remota (colori, nomi operatori, orari) ───────────────────────
+    function listenConfigChanges() {
+        if(!fbReady) return;
+        db.collection('infermieri26_config').doc('settings').onSnapshot(doc => {
+            if(!doc.exists) return;
+            const data = doc.data();
+            if(data.colors) { colorOverrides = data.colors; applyColorOverrides(); }
+            if(data.nameOverrides) { nameOverrides = data.nameOverrides; applyNameOverrides(); }
+            if(data.scheduleOverride) { scheduleOverride = data.scheduleOverride; applyScheduleOverride(); }
+        }, err => console.error("Errore ascolto config:", err));
+    }
+
+    function applyColorOverrides() {
+        Object.entries(colorOverrides).forEach(([varName, val]) => {
+            document.documentElement.style.setProperty(varName, val);
+        });
+    }
+    function applyNameOverrides() {
+        if(!drivers || drivers.length === 0) return;
+        let changed = false;
+        drivers.forEach(d => {
+            const orig = d.originalName || d.name;
+            d.originalName = orig;
+            const newName = nameOverrides[orig] || orig;
+            if(d.name !== newName) { d.name = newName; changed = true; }
+        });
+        if(changed) { renderTable(); rebuildDriverNav(); initNotificationOptions(); }
+    }
+    function applyScheduleOverride() {
+        if(scheduleOverride.SCHEDULE) Object.assign(SCHEDULE, scheduleOverride.SCHEDULE);
+        if(scheduleOverride.SCHEDULE_DIURNI) Object.assign(SCHEDULE_DIURNI, scheduleOverride.SCHEDULE_DIURNI);
+        if(typeof renderTable === 'function' && finalData.length) renderTable();
+    }
+    function rebuildDriverNav() {
+        const drvNav = document.getElementById('driver-nav'); if(!drvNav) return;
+        drvNav.innerHTML = "";
+        let btnAll = document.createElement('div'); btnAll.className = "chip chip-driver" + (selectedDrivers.size===0?" active":""); btnAll.innerText = "TUTTI";
+        btnAll.dataset.idx = "all"; btnAll.onclick = () => filterDriver("all", btnAll); drvNav.appendChild(btnAll);
+        drivers.forEach(d => {
+            let btn = document.createElement('div'); btn.className = "chip chip-driver" + (selectedDrivers.has(d.idx)?" active":""); btn.innerText = d.name;
+            btn.dataset.idx = d.idx; btn.onclick = () => filterDriver(d.idx, btn); drvNav.appendChild(btn);
+        });
+    }
+
+    // ── Login Admin ──────────────────────────────────────────────────────
+    function openAdminLoginModal() {
+        toggleMenu();
+        document.getElementById('admin-pw-input').value = "";
+        document.getElementById('admin-pw-error').innerText = "";
+        let m = document.getElementById('admin-login-modal'); m.style.display = 'flex';
+        setTimeout(() => { m.classList.add('open'); document.getElementById('admin-pw-input').focus(); }, 10);
+    }
+    function closeAdminLoginModal(e) { if(e && e.target !== e.currentTarget) return; let m = document.getElementById('admin-login-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300); }
+    function checkAdminPassword() {
+        vibrate();
+        const val = document.getElementById('admin-pw-input').value;
+        if(val === ADMIN_PASSWORD) {
+            closeAdminLoginModal();
+            setTimeout(openAdminPanel, 250);
+        } else {
+            document.getElementById('admin-pw-error').innerText = "Password errata. Riprova.";
+        }
+    }
+
+    // ── Pannello Admin ───────────────────────────────────────────────────
+    function openAdminPanel() {
+        let m = document.getElementById('admin-panel-modal'); m.style.display = 'flex';
+        setTimeout(() => m.classList.add('open'), 10);
+        switchAdminTab('accessi', document.querySelector('.admin-tab-btn[data-tab="accessi"]'));
+        startAdminAccessListener();
+        populateAdminColorInputs();
+        populateAdminOperatorInputs();
+        populateAdminScheduleInputs();
+        if(!window._adminDurationTicker) window._adminDurationTicker = setInterval(refreshAdminDurations, 1000);
+    }
+    function closeAdminPanel(e) {
+        if(e && e.target !== e.currentTarget) return;
+        let m = document.getElementById('admin-panel-modal'); m.classList.remove('open');
+        setTimeout(() => m.style.display = 'none', 250);
+        if(adminAccessUnsub) { adminAccessUnsub(); adminAccessUnsub = null; }
+        if(window._adminDurationTicker) { clearInterval(window._adminDurationTicker); window._adminDurationTicker = null; }
+    }
+    function switchAdminTab(tab, btnEl) {
+        vibrate();
+        document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.remove('active'));
+        if(btnEl) btnEl.classList.add('active');
+        document.getElementById('admin-tab-' + tab).classList.add('active');
+    }
+    function showAdminToast(text) {
+        const t = document.getElementById('admin-save-toast');
+        document.getElementById('admin-save-toast-text').innerText = text;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    let adminAccessDocs = [];
+    function startAdminAccessListener() {
+        if(!fbReady) return;
+        if(adminAccessUnsub) adminAccessUnsub();
+        adminAccessUnsub = db.collection('infermieri26_accessi').orderBy('lastActive','desc').limit(50)
+            .onSnapshot(snap => {
+                adminAccessDocs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+                renderAdminAccessList();
+            }, err => {
+                console.error("Errore listener accessi:", err);
+                document.getElementById('admin-access-list').innerHTML = `<div class="admin-empty"><span class="material-icons-round">error_outline</span><br>Impossibile leggere gli accessi.<br><span style="font-size:0.7rem">Verifica le regole Firestore.</span></div>`;
+            });
+    }
+    function renderAdminAccessList() {
+        const c = document.getElementById('admin-access-list'); if(!c) return;
+        if(adminAccessDocs.length === 0) { c.innerHTML = `<div class="admin-empty"><span class="material-icons-round">devices_other</span><br>Nessun accesso registrato.</div>`; document.getElementById('admin-stat-online').innerText = 0; document.getElementById('admin-stat-total').innerText = 0; return; }
+        let onlineCount = 0;
+        c.innerHTML = adminAccessDocs.map(a => {
+            const isOnline = a.online && a.lastActive && (Date.now() - tsToMillis(a.lastActive)) < 60000;
+            if(isOnline) onlineCount++;
+            const start = tsToMillis(a.startTime) || Date.now();
+            return `<div class="access-row" data-start="${start}">
+                <span class="access-dot ${isOnline?'online':''}"></span>
+                <div class="access-info">
+                    <div class="access-device">${a.device || 'Sconosciuto'}</div>
+                    <div class="access-view">${a.currentView || '—'}</div>
+                    <div class="access-meta">Ultimo accesso: ${formatLastActive(a.lastActive)}</div>
+                </div>
+                <div class="access-duration"><b class="admin-dur-val">--:--</b><span>Sessione</span></div>
+            </div>`;
+        }).join('');
+        document.getElementById('admin-stat-online').innerText = onlineCount;
+        document.getElementById('admin-stat-total').innerText = adminAccessDocs.length;
+        refreshAdminDurations();
+    }
+    function tsToMillis(ts) { if(!ts) return null; if(typeof ts.toMillis === 'function') return ts.toMillis(); if(ts.seconds) return ts.seconds*1000; return null; }
+    function formatLastActive(ts) {
+        const ms = tsToMillis(ts); if(!ms) return "—";
+        return new Date(ms).toLocaleString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    }
+    function refreshAdminDurations() {
+        document.querySelectorAll('.access-row').forEach(row => {
+            const start = parseInt(row.dataset.start); if(!start) return;
+            const diff = Math.max(0, Date.now() - start);
+            const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+            const txt = h > 0 ? `${h}h ${String(m).padStart(2,'0')}m` : `${m}m ${String(s).padStart(2,'0')}s`;
+            const el = row.querySelector('.admin-dur-val'); if(el) el.innerText = txt;
+        });
+    }
+
+    function populateAdminColorInputs() {
+        document.querySelectorAll('#admin-tab-aspetto input[type=color]').forEach(inp => {
+            const varName = inp.dataset.var;
+            const current = colorOverrides[varName] || getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || DEFAULT_COLORS[varName] || "#000000";
+            inp.value = normalizeHexColor(current);
+        });
+    }
+    function normalizeHexColor(c) {
+        c = (c || "").trim();
+        if(/^#[0-9a-fA-F]{6}$/.test(c)) return c;
+        if(/^#[0-9a-fA-F]{8}$/.test(c)) return c.substring(0,7);
+        if(/^#[0-9a-fA-F]{3}$/.test(c)) return "#" + [...c.slice(1)].map(ch => ch+ch).join('');
+        return "#000000";
+    }
+    function saveAdminColors() {
+        vibrate();
+        const newColors = {};
+        document.querySelectorAll('#admin-tab-aspetto input[type=color]').forEach(inp => { newColors[inp.dataset.var] = inp.value; });
+        colorOverrides = newColors;
+        applyColorOverrides();
+        if(fbReady) {
+            db.collection('infermieri26_config').doc('settings').set({ colors: newColors }, { merge:true })
+                .then(() => showAdminToast("Colori salvati e sincronizzati"))
+                .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
+        } else showAdminToast("Colori applicati (offline)");
+    }
+    function resetAdminColors() {
+        vibrate();
+        Object.entries(DEFAULT_COLORS).forEach(([k,v]) => document.documentElement.style.setProperty(k, v));
+        populateAdminColorInputs();
+        colorOverrides = {};
+        if(fbReady) db.collection('infermieri26_config').doc('settings').set({ colors: {} }, { merge:true }).catch(()=>{});
+        showAdminToast("Colori predefiniti ripristinati");
+    }
+
+    function populateAdminOperatorInputs() {
+        const c = document.getElementById('admin-operators-list'); if(!c) return;
+        if(!drivers || drivers.length === 0) { c.innerHTML = `<div class="admin-empty"><span class="material-icons-round">people_outline</span><br>Nessun operatore caricato.<br><span style="font-size:0.7rem">Attendi il caricamento del file turni.</span></div>`; return; }
+        c.innerHTML = drivers.map(d => {
+            const orig = d.originalName || d.name;
+            const val = nameOverrides[orig] || "";
+            return `<div class="admin-field-row"><label>${orig}</label><input type="text" data-orig="${orig.replace(/"/g,'&quot;')}" placeholder="${orig}" value="${val.replace(/"/g,'&quot;')}"></div>`;
+        }).join('');
+    }
+    function saveAdminOperators() {
+        vibrate();
+        const newOverrides = {};
+        document.querySelectorAll('#admin-operators-list input[type=text]').forEach(inp => {
+            const orig = inp.dataset.orig; const val = inp.value.trim();
+            if(val && val !== orig) newOverrides[orig] = val;
+        });
+        nameOverrides = newOverrides;
+        applyNameOverrides();
+        if(fbReady) {
+            db.collection('infermieri26_config').doc('settings').set({ nameOverrides: newOverrides }, { merge:true })
+                .then(() => showAdminToast("Nomi salvati e sincronizzati"))
+                .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
+        } else showAdminToast("Nomi applicati (offline)");
+    }
+
+    function populateAdminScheduleInputs() {
+        Object.keys(DEFAULT_SCHEDULE).forEach(k => { const el = document.getElementById('sch-'+k); if(el) el.value = SCHEDULE[k] || ""; });
+        Object.keys(DEFAULT_SCHEDULE_DIURNI).forEach(k => { const el = document.getElementById('sch-'+k); if(el) el.value = SCHEDULE_DIURNI[k] || ""; });
+    }
+    function saveAdminSchedule() {
+        vibrate();
+        const newSched = {}, newSchedD = {};
+        Object.keys(DEFAULT_SCHEDULE).forEach(k => { const el = document.getElementById('sch-'+k); if(el) newSched[k] = el.value; });
+        Object.keys(DEFAULT_SCHEDULE_DIURNI).forEach(k => { const el = document.getElementById('sch-'+k); if(el) newSchedD[k] = el.value; });
+        scheduleOverride = { SCHEDULE: newSched, SCHEDULE_DIURNI: newSchedD };
+        applyScheduleOverride();
+        if(fbReady) {
+            db.collection('infermieri26_config').doc('settings').set({ scheduleOverride }, { merge:true })
+                .then(() => showAdminToast("Orari salvati e sincronizzati"))
+                .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
+        } else showAdminToast("Orari applicati (offline)");
+    }
 
     const audioGraziella = new Audio('graziella.mp3');
     function playGraziella() {
@@ -837,6 +1321,7 @@
     function openOptionsModal() {
         toggleMenu(); let m = document.getElementById('options-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
         const tg = document.getElementById('dark-mode-toggle'); if(tg) tg.checked = document.body.classList.contains('dark-mode');
+        setCurrentView("Opzioni");
     }
     function closeOptionsModal(e) { if(e && e.target !== e.currentTarget) return; let m = document.getElementById('options-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 200); }
 
@@ -868,6 +1353,7 @@
     });
 
     window.onload = async () => {
+        initFirebaseTracking();
         try {
             const lastUp = new Date(document.lastModified);
             document.getElementById('last-update-badge').innerHTML = `${lastUp.toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})} - ${lastUp.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`;
@@ -966,7 +1452,10 @@
 
     function initApp() {
         let header = finalData[0]; drivers = [];
-        for(let i=3; i<header.length; i++) drivers.push({name:header[i], idx:i});
+        for(let i=3; i<header.length; i++) {
+            const orig = header[i];
+            drivers.push({ name: nameOverrides[orig] || orig, idx:i, originalName: orig });
+        }
         const drvNav = document.getElementById('driver-nav'); drvNav.innerHTML = "";
         let btnAll = document.createElement('div'); btnAll.className = "chip chip-driver active"; btnAll.innerText = "TUTTI";
         btnAll.dataset.idx = "all"; btnAll.onclick = () => filterDriver("all", btnAll); drvNav.appendChild(btnAll);
@@ -977,6 +1466,7 @@
         let savedDr = localStorage.getItem("selected_nurses");
         if(savedDr) { try { const arr = JSON.parse(savedDr); if(Array.isArray(arr)) { selectedDrivers = new Set(arr); updateDriverButtons(); } } catch(e) {} }
         initNotificationOptions(); loadNotificationHistory(); renderTable(); startLiveClock();
+        setCurrentView("Tabella Turni");
         setTimeout(scrollToToday, 600); setTimeout(checkForScheduleChanges, 2000);
         setTimeout(() => { let wm = document.getElementById('welcome-modal'); wm.style.display = 'flex'; setTimeout(() => wm.classList.add('open'), 50); }, 800);
     }
@@ -1025,7 +1515,7 @@
     function loadNotificationHistory() { let saved = localStorage.getItem('notifications_history_nurses'); if(saved) notifHistory = JSON.parse(saved); updateBadge(); }
     function saveNotifications() { localStorage.setItem('notifications_history_nurses', JSON.stringify(notifHistory)); }
     function updateBadge() { const c = notifHistory.filter(n => !n.read).length; const b = document.getElementById('notif-badge'); if(c > 0) b.classList.add('visible'); else b.classList.remove('visible'); }
-    function openNotifCenter() { vibrate(); let modal = document.getElementById('notif-center-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('open'), 10); renderNotifList(); setTimeout(() => { notifHistory.forEach(n => n.read = true); saveNotifications(); updateBadge(); }, 1000); }
+    function openNotifCenter() { vibrate(); let modal = document.getElementById('notif-center-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('open'), 10); renderNotifList(); setCurrentView("Notifiche"); setTimeout(() => { notifHistory.forEach(n => n.read = true); saveNotifications(); updateBadge(); }, 1000); }
     function closeNotifCenter() { let modal = document.getElementById('notif-center-modal'); modal.classList.remove('open'); setTimeout(() => modal.style.display = 'none', 300); }
     function renderNotifList() { const c = document.getElementById('notif-list-container'); c.innerHTML = ""; if(notifHistory.length===0){c.innerHTML='<div class="no-notif">Nessuna notifica.</div>';return;} notifHistory.forEach(item=>{c.innerHTML+=`<div class="notif-item ${item.read?'':'unread'}"><div class="notif-date">${item.date}</div><div class="notif-text">${item.text}</div><button class="btn-del-notif" onclick="deleteNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">close</span></button></div>`;}); }
     function deleteNotif(id) { vibrate(); notifHistory = notifHistory.filter(n => n.id !== id); saveNotifications(); renderNotifList(); updateBadge(); }
@@ -1043,6 +1533,8 @@
         if(val === 'all') selectedDrivers.clear();
         else { const intVal = parseInt(val); if(selectedDrivers.has(intVal)) selectedDrivers.delete(intVal); else selectedDrivers.add(intVal); }
         localStorage.setItem("selected_nurses", JSON.stringify([...selectedDrivers])); updateDriverButtons(); renderTable();
+        if(selectedDrivers.size === 0) setCurrentView("Tabella Turni (Tutti)");
+        else setCurrentView("Filtro: " + drivers.filter(d => selectedDrivers.has(d.idx)).map(d => d.name).join(", "));
     }
     function updateDriverButtons() {
         const allBtn = document.querySelector('.chip-driver[data-idx="all"]');
@@ -1318,6 +1810,7 @@
     function openDinnerModal() {
         toggleMenu();
         let m = document.getElementById('dinner-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+        setCurrentView("Organizza Uscita");
         resetDinnerStep();
         let ml = document.getElementById('dinner-month-list'); ml.innerHTML = "";
         let currentDate = new Date(); let currentMonthIdx = currentDate.getMonth(); let currentYear = currentDate.getFullYear();
@@ -1438,6 +1931,7 @@
         resetWheelFullState();
         document.getElementById('wheel-modal').style.display = 'flex';
         setTimeout(() => document.getElementById('wheel-modal').classList.add('open'), 10);
+        setCurrentView("Ruota della Sfiga");
         goToWheelStep(1);
     }
     function closeWheelModal(e) { if(e && e.target !== e.currentTarget) return; let m = document.getElementById('wheel-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 200); }
