@@ -373,6 +373,21 @@
         .admin-save-toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:#0f172a; color:#fff; padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; z-index:9999; opacity:0; transition:all 0.3s; pointer-events:none; box-shadow:0 8px 24px rgba(0,0,0,0.3); }
         .admin-save-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
         .admin-save-toast .material-icons-round { color:#22c55e; font-size:18px; }
+        .admin-textarea { width:100%; min-height:110px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-family:'Inter',sans-serif; font-size:0.85rem; padding:12px 14px; resize:vertical; line-height:1.5; }
+        .admin-text-input { width:100%; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-family:'Inter',sans-serif; font-weight:700; font-size:0.9rem; padding:12px 14px; }
+        .admin-toggle-row { display:flex; align-items:center; justify-content:space-between; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-bottom:14px; }
+        .admin-toggle-row span { font-weight:700; font-size:0.85rem; color:var(--text-main); }
+        .announce-card { background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:12px; }
+        .announce-card-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+        .announce-card-head select { flex-shrink:0; border-radius:8px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-size:0.8rem; padding:6px 8px; }
+        .announce-card-head input[type=text] { flex:1; min-width:0; border-radius:8px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-weight:700; font-size:0.85rem; padding:8px 10px; }
+        .announce-remove-btn { flex-shrink:0; width:32px; height:32px; border-radius:8px; border:none; background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .announce-toggle-inline { display:flex; align-items:center; gap:8px; margin-top:10px; font-size:0.75rem; font-weight:700; color:var(--text-sec); }
+        .btn-admin-add { width:100%; padding:12px; border-radius:12px; border:1.5px dashed var(--primary); background:transparent; color:var(--primary); font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:14px; }
+        .export-info-box { background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:16px; font-size:0.82rem; color:var(--text-sec); line-height:1.6; margin-bottom:16px; }
+        .export-info-box b { color:var(--text-main); }
+        .btn-export { width:100%; padding:16px; border-radius:14px; border:none; background:linear-gradient(135deg,#059669,#10b981); color:#fff; font-weight:800; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 14px rgba(5,150,105,0.35); }
+        .btn-export:active { transform:scale(0.98); }
         .switch { position:relative; display:inline-block; width:50px; height:28px; }
         .switch input { opacity:0; width:0; height:0; }
         .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:var(--border); transition:.4s; border-radius:34px; }
@@ -468,6 +483,10 @@
         #welcome-modal.open { opacity:1; }
         #welcome-modal .alert-card { transform:scale(0.85); transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
         #welcome-modal.open .alert-card { transform:scale(1); }
+        #custom-announce-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s ease; padding:20px; }
+        #custom-announce-modal.open { opacity:1; }
+        #custom-announce-modal .alert-card { transform:scale(0.85); transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+        #custom-announce-modal.open .alert-card { transform:scale(1); }
         .graziella-icon { position:absolute; top:-8px; right:-8px; width:26px; height:26px; border-radius:50%; border:2px solid var(--bg-card); box-shadow:0 2px 5px rgba(0,0,0,0.3); z-index:10; background:#fff; object-fit:cover; cursor:pointer; transition:transform 0.2s; }
         .graziella-icon:active { transform:scale(0.85); }
         #graziella-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:11000; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s; padding:20px; cursor:pointer; }
@@ -495,17 +514,32 @@
             <div class="alert-icon-box" style="color:#dc2626;border-color:#fca5a5;background:#ffffff;">
                 <span class="material-icons-round" style="font-size:28px;">warning</span>
             </div>
-            <div class="alert-title" style="color:#991b1b;">ATTENZIONE</div>
+            <div class="alert-title" id="welcome-title-text" style="color:#991b1b;">ATTENZIONE</div>
         </div>
-        <div class="alert-body">
-            <span style="display:block;margin-bottom:12px;font-weight:800;color:#d97706;font-size:1.05rem;">
-                ⚠️ L'applicazione viene aggiornata di frequente.
-            </span>
+        <div class="alert-body" id="welcome-body-text">
+            ⚠️ L'applicazione viene aggiornata di frequente.<br><br>
             È possibile che i turni mostrati differiscano da quelli cartacei.<br><br>
-            <b style="color:#dc2626;">Fare sempre riferimento ai turni cartacei e al file Excel presenti in guardiola!</b>
+            Fare sempre riferimento ai turni cartacei e al file Excel presenti in guardiola!
         </div>
         <div class="alert-footer">
             <button class="btn-alert-ok" style="background:#dc2626;box-shadow:0 4px 12px rgba(220,38,38,0.3);" onclick="closeWelcomeModal()">
+                <span class="material-icons-round">done</span> <span id="welcome-btn-text">HO CAPITO</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="custom-announce-modal">
+    <div class="alert-card">
+        <div class="alert-header" style="background:#eff6ff;border-bottom:1px solid #dbeafe;">
+            <div class="alert-icon-box" style="color:#2563eb;border-color:#93c5fd;background:#ffffff;">
+                <span class="material-icons-round" id="announce-icon-el" style="font-size:28px;">campaign</span>
+            </div>
+            <div class="alert-title" id="announce-title-text" style="color:#1e3a8a;">AVVISO</div>
+        </div>
+        <div class="alert-body" id="announce-body-text"></div>
+        <div class="alert-footer">
+            <button class="btn-alert-ok" style="background:#2563eb;box-shadow:0 4px 12px rgba(37,99,235,0.3);" onclick="closeAnnounceModal()">
                 <span class="material-icons-round">done</span> HO CAPITO
             </button>
         </div>
@@ -676,6 +710,8 @@
             <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span> Aspetto</button>
             <button class="admin-tab-btn" data-tab="operatori" onclick="switchAdminTab('operatori',this)"><span class="material-icons-round">badge</span> Operatori</button>
             <button class="admin-tab-btn" data-tab="turni" onclick="switchAdminTab('turni',this)"><span class="material-icons-round">schedule</span> Turni</button>
+            <button class="admin-tab-btn" data-tab="testi" onclick="switchAdminTab('testi',this)"><span class="material-icons-round">campaign</span> Testi</button>
+            <button class="admin-tab-btn" data-tab="esporta" onclick="switchAdminTab('esporta',this)"><span class="material-icons-round">file_download</span> Esporta</button>
         </div>
         <div class="modal-body" style="padding:0;">
 
@@ -737,6 +773,39 @@
                 <div class="admin-field-row"><label>Pomeriggio diurno (p)</label><input type="text" id="sch-p" data-key="p"></div>
                 <div class="admin-field-row"><label>Riposo diurno (r)</label><input type="text" id="sch-r" data-key="r"></div>
                 <button class="btn-admin-save" onclick="saveAdminSchedule()"><span class="material-icons-round">save</span> SALVA ORARI (per tutti)</button>
+            </div>
+
+            <div class="admin-tab-panel" id="admin-tab-testi">
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">warning</span> Avviso Iniziale</div>
+                <div class="admin-toggle-row">
+                    <span>Mostra avviso all'avvio</span>
+                    <label class="switch">
+                        <input type="checkbox" id="welcome-active-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="margin-bottom:8px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;">Titolo</div>
+                <input type="text" id="admin-welcome-title" class="admin-text-input" placeholder="Es. ATTENZIONE" style="margin-bottom:12px;">
+                <div style="margin-bottom:8px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;">Testo (vai a capo con Invio)</div>
+                <textarea id="admin-welcome-text" class="admin-textarea" placeholder="Testo dell'avviso..."></textarea>
+                <div style="margin:12px 0 8px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;">Testo Pulsante</div>
+                <input type="text" id="admin-welcome-btn" class="admin-text-input" placeholder="Es. HO CAPITO">
+                <button class="btn-admin-save" onclick="saveAdminWelcome()"><span class="material-icons-round">save</span> SALVA AVVISO (per tutti)</button>
+
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">post_add</span> Avvisi Aggiuntivi</div>
+                <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:12px;">Vengono mostrati in coda dopo l'avviso iniziale, uno alla volta, all'apertura dell'app.</div>
+                <div id="admin-announce-list"></div>
+                <button class="btn-admin-add" onclick="addAdminAnnouncement()"><span class="material-icons-round">add</span> AGGIUNGI NUOVO AVVISO</button>
+                <button class="btn-admin-save" onclick="saveAdminAnnouncements()"><span class="material-icons-round">save</span> SALVA AVVISI AGGIUNTIVI (per tutti)</button>
+            </div>
+
+            <div class="admin-tab-panel" id="admin-tab-esporta">
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">file_download</span> Esporta File Aggiornato</div>
+                <div class="export-info-box">
+                    Le modifiche fatte da qui (colori, nomi, orari, avvisi) vengono <b>già applicate in tempo reale</b> a tutti tramite Firebase, senza bisogno di ricaricare nulla su GitHub.<br><br>
+                    Se però vuoi anche <b>salvare queste modifiche direttamente nel file index.html</b> — così restano impostate anche se in futuro Firebase non fosse raggiungibile, o per tenere un backup aggiornato — scarica il file qui sotto e ricaricalo su GitHub al posto di quello attuale.
+                </div>
+                <button class="btn-export" onclick="exportUpdatedHTML()"><span class="material-icons-round">download</span> SCARICA index.html AGGIORNATO</button>
             </div>
 
         </div>
@@ -956,6 +1025,16 @@
     const DEFAULT_SCHEDULE = Object.assign({}, SCHEDULE);
     const DEFAULT_SCHEDULE_DIURNI = Object.assign({}, SCHEDULE_DIURNI);
 
+    // ── DATI DI DEFAULT "INCORPORATI" NEL FILE ──────────────────────────────
+    // Queste costanti vengono lette/sovrascritte automaticamente dalla funzione
+    // di esportazione del Pannello Admin (tab "Esporta"). Non modificarle a mano
+    // se non sai cosa stai facendo: usa il pannello Admin dell'app.
+    const DEFAULT_COLORS_BAKED = {}; // __ADMIN_DEFAULT_COLORS__
+    const DEFAULT_NAME_OVERRIDES_BAKED = {}; // __ADMIN_DEFAULT_NAMES__
+    const DEFAULT_SCHEDULE_OVERRIDE_BAKED = {"SCHEDULE":{},"SCHEDULE_DIURNI":{}}; // __ADMIN_DEFAULT_SCHEDULE__
+    const DEFAULT_WELCOME_BAKED = {"active":true,"title":"ATTENZIONE","text":"⚠️ L'applicazione viene aggiornata di frequente.\n\nÈ possibile che i turni mostrati differiscano da quelli cartacei.\n\nFare sempre riferimento ai turni cartacei e al file Excel presenti in guardiola!","button":"HO CAPITO"}; // __ADMIN_DEFAULT_WELCOME__
+    const DEFAULT_ANNOUNCEMENTS_BAKED = []; // __ADMIN_DEFAULT_ANNOUNCEMENTS__
+
     // ═══════════════════════════════════════════════════════════════════════
     // FIREBASE — inizializzazione, tracciamento accessi, sincronizzazione config
     // ═══════════════════════════════════════════════════════════════════════
@@ -982,7 +1061,15 @@
         "--bg-ferie":"#ff782ff6","--bg-rec":"#d00173","--bg-cong":"#ffea00","--bg-mal":"#ef4444","--bg-nl":"#e0f7fa",
         "--bg-perm":"#00e749","--bg-ng":"#00bfff","--bg-stu":"#3b82f6","--bg-pn":"#14532d","--bg-coord":"#ffffff"
     };
-    let nameOverrides = {}, colorOverrides = {}, scheduleOverride = {};
+    let nameOverrides = Object.assign({}, DEFAULT_NAME_OVERRIDES_BAKED);
+    let colorOverrides = Object.assign({}, DEFAULT_COLORS_BAKED);
+    let scheduleOverride = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE_OVERRIDE_BAKED));
+    let welcomeConfig = Object.assign({}, DEFAULT_WELCOME_BAKED);
+    let customAnnouncements = JSON.parse(JSON.stringify(DEFAULT_ANNOUNCEMENTS_BAKED));
+    let announcementQueue = [];
+    applyColorOverrides();
+    Object.assign(SCHEDULE, scheduleOverride.SCHEDULE || {});
+    Object.assign(SCHEDULE_DIURNI, scheduleOverride.SCHEDULE_DIURNI || {});
 
     // ── Sessione / tracciamento accessi ─────────────────────────────────────
     let sessionId = localStorage.getItem('infermieri_session_id');
@@ -1058,6 +1145,8 @@
             if(data.colors) { colorOverrides = data.colors; applyColorOverrides(); }
             if(data.nameOverrides) { nameOverrides = data.nameOverrides; applyNameOverrides(); }
             if(data.scheduleOverride) { scheduleOverride = data.scheduleOverride; applyScheduleOverride(); }
+            if(data.welcome) { welcomeConfig = Object.assign({}, DEFAULT_WELCOME_BAKED, data.welcome); }
+            if(data.announcements) { customAnnouncements = data.announcements; }
         }, err => console.error("Errore ascolto config:", err));
     }
 
@@ -1080,7 +1169,7 @@
     function applyScheduleOverride() {
         if(scheduleOverride.SCHEDULE) Object.assign(SCHEDULE, scheduleOverride.SCHEDULE);
         if(scheduleOverride.SCHEDULE_DIURNI) Object.assign(SCHEDULE_DIURNI, scheduleOverride.SCHEDULE_DIURNI);
-        if(typeof renderTable === 'function' && finalData.length) renderTable();
+        if(typeof finalData !== 'undefined' && finalData.length) renderTable();
     }
     function rebuildDriverNav() {
         const drvNav = document.getElementById('driver-nav'); if(!drvNav) return;
@@ -1122,6 +1211,7 @@
         populateAdminColorInputs();
         populateAdminOperatorInputs();
         populateAdminScheduleInputs();
+        populateAdminTextsInputs();
         if(!window._adminDurationTicker) window._adminDurationTicker = setInterval(refreshAdminDurations, 1000);
     }
     function closeAdminPanel(e) {
@@ -1130,6 +1220,7 @@
         setTimeout(() => m.style.display = 'none', 250);
         if(adminAccessUnsub) { adminAccessUnsub(); adminAccessUnsub = null; }
         if(window._adminDurationTicker) { clearInterval(window._adminDurationTicker); window._adminDurationTicker = null; }
+        adminAnnouncementsDraft = null;
     }
     function switchAdminTab(tab, btnEl) {
         vibrate();
@@ -1271,6 +1362,139 @@
                 .then(() => showAdminToast("Orari salvati e sincronizzati"))
                 .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
         } else showAdminToast("Orari applicati (offline)");
+    }
+
+    // ── Testi: avviso iniziale + avvisi aggiuntivi ──────────────────────────
+    function populateAdminTextsInputs() {
+        document.getElementById('welcome-active-toggle').checked = welcomeConfig.active !== false;
+        document.getElementById('admin-welcome-title').value = welcomeConfig.title || "";
+        document.getElementById('admin-welcome-text').value = welcomeConfig.text || "";
+        document.getElementById('admin-welcome-btn').value = welcomeConfig.button || "";
+        renderAdminAnnouncementsList();
+    }
+    function saveAdminWelcome() {
+        vibrate();
+        welcomeConfig = {
+            active: document.getElementById('welcome-active-toggle').checked,
+            title: document.getElementById('admin-welcome-title').value.trim() || "ATTENZIONE",
+            text: document.getElementById('admin-welcome-text').value,
+            button: document.getElementById('admin-welcome-btn').value.trim() || "HO CAPITO"
+        };
+        if(fbReady) {
+            db.collection('infermieri26_config').doc('settings').set({ welcome: welcomeConfig }, { merge:true })
+                .then(() => showAdminToast("Avviso salvato e sincronizzato"))
+                .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
+        } else showAdminToast("Avviso applicato (offline)");
+    }
+
+    let adminAnnouncementsDraft = null;
+    function renderAdminAnnouncementsList() {
+        if(adminAnnouncementsDraft === null) adminAnnouncementsDraft = JSON.parse(JSON.stringify(customAnnouncements || []));
+        const c = document.getElementById('admin-announce-list'); if(!c) return;
+        if(adminAnnouncementsDraft.length === 0) { c.innerHTML = `<div class="admin-empty" style="padding:20px;"><span class="material-icons-round">notifications_none</span><br>Nessun avviso aggiuntivo.</div>`; return; }
+        const icons = ["campaign","info","celebration","build","warning","event","update","favorite"];
+        c.innerHTML = adminAnnouncementsDraft.map((a, i) => `
+            <div class="announce-card">
+                <div class="announce-card-head">
+                    <select onchange="updateAnnouncementField(${i},'icon',this.value)">
+                        ${icons.map(ic => `<option value="${ic}" ${a.icon===ic?'selected':''}>${ic}</option>`).join('')}
+                    </select>
+                    <input type="text" value="${(a.title||'').replace(/"/g,'&quot;')}" placeholder="Titolo avviso" oninput="updateAnnouncementField(${i},'title',this.value)">
+                    <button class="announce-remove-btn" onclick="removeAdminAnnouncement(${i})"><span class="material-icons-round" style="font-size:18px">delete</span></button>
+                </div>
+                <textarea class="admin-textarea" style="min-height:70px;" placeholder="Testo avviso..." oninput="updateAnnouncementField(${i},'text',this.value)">${a.text||''}</textarea>
+                <label class="announce-toggle-inline">
+                    <input type="checkbox" ${a.active!==false?'checked':''} onchange="updateAnnouncementField(${i},'active',this.checked)"> Avviso attivo
+                </label>
+            </div>
+        `).join('');
+    }
+    function updateAnnouncementField(idx, field, value) {
+        if(!adminAnnouncementsDraft[idx]) return;
+        adminAnnouncementsDraft[idx][field] = value;
+    }
+    function addAdminAnnouncement() {
+        vibrate();
+        if(adminAnnouncementsDraft === null) adminAnnouncementsDraft = JSON.parse(JSON.stringify(customAnnouncements || []));
+        adminAnnouncementsDraft.push({ id: 'ann_' + Date.now(), icon:'campaign', title:'', text:'', active:true });
+        renderAdminAnnouncementsList();
+    }
+    function removeAdminAnnouncement(idx) {
+        vibrate();
+        adminAnnouncementsDraft.splice(idx, 1);
+        renderAdminAnnouncementsList();
+    }
+    function saveAdminAnnouncements() {
+        vibrate();
+        customAnnouncements = (adminAnnouncementsDraft || []).filter(a => (a.title && a.title.trim()) || (a.text && a.text.trim()));
+        if(fbReady) {
+            db.collection('infermieri26_config').doc('settings').set({ announcements: customAnnouncements }, { merge:true })
+                .then(() => showAdminToast("Avvisi salvati e sincronizzati"))
+                .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
+        } else showAdminToast("Avvisi applicati (offline)");
+    }
+
+    // ── Messaggi di avvio (avviso principale + coda avvisi aggiuntivi) ──────
+    function applyWelcomeConfig() {
+        document.getElementById('welcome-title-text').innerText = welcomeConfig.title || "ATTENZIONE";
+        document.getElementById('welcome-body-text').innerHTML = (welcomeConfig.text || "").replace(/\n/g,'<br>');
+        document.getElementById('welcome-btn-text').innerText = welcomeConfig.button || "HO CAPITO";
+    }
+    function showStartupMessages() {
+        applyWelcomeConfig();
+        announcementQueue = (customAnnouncements || []).filter(a => a.active !== false).slice();
+        if(welcomeConfig.active === false) { showNextAnnouncement(); return; }
+        let wm = document.getElementById('welcome-modal');
+        wm.style.display = 'flex'; setTimeout(() => wm.classList.add('open'), 50);
+    }
+    function showNextAnnouncement() {
+        if(!announcementQueue || announcementQueue.length === 0) return;
+        const item = announcementQueue.shift();
+        document.getElementById('announce-title-text').innerText = item.title || "AVVISO";
+        document.getElementById('announce-body-text').innerHTML = (item.text || "").replace(/\n/g,'<br>');
+        document.getElementById('announce-icon-el').innerText = item.icon || "campaign";
+        let m = document.getElementById('custom-announce-modal');
+        m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 30);
+    }
+    function closeAnnounceModal() {
+        vibrate();
+        let m = document.getElementById('custom-announce-modal');
+        m.classList.remove('open');
+        setTimeout(() => { m.style.display = 'none'; showNextAnnouncement(); }, 300);
+    }
+
+    // ── Esportazione file HTML con le personalizzazioni incorporate ────────
+    function bakeMarkerConst(src, marker, varName, value) {
+        const json = JSON.stringify(value);
+        const re = new RegExp('const ' + varName + ' = .*?; // ' + marker);
+        if(re.test(src)) return src.replace(re, 'const ' + varName + ' = ' + json + '; // ' + marker);
+        console.warn('Marker non trovato nel sorgente:', marker);
+        return src;
+    }
+    async function exportUpdatedHTML() {
+        vibrate();
+        showAdminToast("Preparazione file in corso...");
+        try {
+            const res = await fetch(location.pathname + '?export=' + Date.now(), { cache:'no-store' });
+            if(!res.ok) throw new Error('Impossibile leggere il file corrente (' + res.status + ')');
+            let src = await res.text();
+            src = bakeMarkerConst(src, '__ADMIN_DEFAULT_COLORS__', 'DEFAULT_COLORS_BAKED', colorOverrides);
+            src = bakeMarkerConst(src, '__ADMIN_DEFAULT_NAMES__', 'DEFAULT_NAME_OVERRIDES_BAKED', nameOverrides);
+            src = bakeMarkerConst(src, '__ADMIN_DEFAULT_SCHEDULE__', 'DEFAULT_SCHEDULE_OVERRIDE_BAKED', scheduleOverride);
+            src = bakeMarkerConst(src, '__ADMIN_DEFAULT_WELCOME__', 'DEFAULT_WELCOME_BAKED', welcomeConfig);
+            src = bakeMarkerConst(src, '__ADMIN_DEFAULT_ANNOUNCEMENTS__', 'DEFAULT_ANNOUNCEMENTS_BAKED', customAnnouncements);
+
+            const blob = new Blob([src], { type:'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'index.html';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+            showAdminToast("File scaricato: carica su GitHub per pubblicare");
+        } catch(e) {
+            console.error(e);
+            showAdminToast("Errore durante l'esportazione del file");
+        }
     }
 
     const audioGraziella = new Audio('graziella.mp3');
@@ -1447,7 +1671,7 @@
 
     function closeWelcomeModal() {
         vibrate(); let m = document.getElementById('welcome-modal');
-        m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 400);
+        m.classList.remove('open'); setTimeout(() => { m.style.display = 'none'; showNextAnnouncement(); }, 400);
     }
 
     function initApp() {
@@ -1468,7 +1692,7 @@
         initNotificationOptions(); loadNotificationHistory(); renderTable(); startLiveClock();
         setCurrentView("Tabella Turni");
         setTimeout(scrollToToday, 600); setTimeout(checkForScheduleChanges, 2000);
-        setTimeout(() => { let wm = document.getElementById('welcome-modal'); wm.style.display = 'flex'; setTimeout(() => wm.classList.add('open'), 50); }, 800);
+        setTimeout(showStartupMessages, 800);
     }
 
     function initNotificationOptions() {
