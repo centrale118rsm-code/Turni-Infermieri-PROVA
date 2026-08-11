@@ -336,12 +336,12 @@
         @keyframes splashDotPulse { 0%,100%{opacity:0.25; transform:scale(0.8);} 50%{opacity:1; transform:scale(1.15);} }
 
         /* MODALI */
-        #shift-modal,#dinner-modal,#options-modal,#notif-center-modal,#month-select-modal,#wheel-modal {
+        #shift-modal,#dinner-modal,#options-modal,#notif-center-modal,#wheel-modal {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:3000;
             backdrop-filter:blur(8px); align-items:flex-end; justify-content:center;
             opacity:0; transition:opacity 0.3s;
         }
-        #shift-modal.open,#dinner-modal.open,#options-modal.open,#notif-center-modal.open,#month-select-modal.open,#wheel-modal.open { opacity:1; }
+        #shift-modal.open,#dinner-modal.open,#options-modal.open,#notif-center-modal.open,#wheel-modal.open { opacity:1; }
         .modal-content {
             background:var(--bg-card); width:100%; max-width:600px; border-radius:24px 24px 0 0;
             box-shadow:0 -10px 40px rgba(0,0,0,0.3); overflow:hidden;
@@ -350,13 +350,20 @@
         }
         #shift-modal.open .modal-content,#dinner-modal.open .modal-content,
         #options-modal.open .modal-content,#notif-center-modal.open .modal-content,
-        #month-select-modal.open .modal-content,#wheel-modal.open .modal-content { transform:translateY(0); }
+        #wheel-modal.open .modal-content { transform:translateY(0); }
         .modal-header { background:var(--bg); color:var(--text-main); padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); }
         .header-text h3 { margin:0; font-size:1.3rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:10px; }
         .header-text span { display:block; font-size:0.9rem; font-weight:600; color:var(--text-sec); margin-top:4px; }
         .btn-close-modal { background:var(--bg); border:none; color:var(--text-sec); cursor:pointer; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:0.2s; }
         .modal-body { padding:0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-        .month-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:20px; }
+        #month-select-dropdown {
+            position: fixed; top: calc(var(--header-h) + 8px); left: 12px; right: 12px; background: var(--bg-card);
+            border-radius: 20px; box-shadow: 0 14px 44px rgba(8,13,24,0.25); border: 1px solid var(--border);
+            display: none; z-index: 5000; max-height: 65vh; overflow-y: auto; padding: 16px;
+            transform-origin: top center;
+        }
+        #month-select-dropdown.open { display: block; animation: scaleIn 0.2s cubic-bezier(0.175,0.885,0.32,1.275); }
+        .month-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
         .month-btn { aspect-ratio:2/1; background:var(--bg); border:1px solid var(--border); border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--text-main); font-size:0.9rem; cursor:pointer; text-transform:uppercase; transition:0.2s; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
         .month-btn:active { transform:scale(0.96); background:var(--bg-card); }
         .modal-section-title { padding:16px 20px 8px 20px; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--text-sec); display:flex; align-items:center; gap:8px; background:var(--bg); position:sticky; top:0; z-index:5; border-bottom:1px solid var(--border); }
@@ -421,18 +428,37 @@
         .admin-stat-box { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:14px; text-align:center; }
         .admin-stat-num { font-size:1.5rem; font-weight:900; color:var(--primary); line-height:1; }
         .admin-stat-lbl { font-size:0.65rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:0.4px; margin-top:4px; }
-        .access-row { background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:12px; }
+        .access-row { background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:0.2s; }
+        .access-row:active { transform:scale(0.98); background:var(--bg-card); }
         .access-dot { width:10px; height:10px; border-radius:50%; background:#94a3b8; flex-shrink:0; box-shadow:0 0 0 3px rgba(148,163,184,0.15); }
         .access-dot.online { background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,0.2); }
         .access-info { flex:1; min-width:0; }
         .access-device { font-weight:800; font-size:0.88rem; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .access-view { font-size:0.75rem; color:var(--primary); font-weight:700; margin-top:2px; }
         .access-meta { font-size:0.7rem; color:var(--text-sec); margin-top:3px; }
-        .access-duration { text-align:right; flex-shrink:0; }
-        .access-duration b { font-size:0.9rem; color:var(--text-main); display:block; }
-        .access-duration span { font-size:0.62rem; color:var(--text-sec); text-transform:uppercase; font-weight:700; }
+        .access-duration { text-align:right; flex-shrink:0; display:flex; align-items:center; gap:6px; }
+        .access-duration-inner b { font-size:0.9rem; color:var(--text-main); display:block; }
+        .access-duration-inner span { font-size:0.62rem; color:var(--text-sec); text-transform:uppercase; font-weight:700; }
+        .access-chevron { color:var(--text-sec); font-size:20px !important; }
         .admin-empty { text-align:center; padding:40px 20px; color:var(--text-sec); }
         .admin-empty .material-icons-round { font-size:40px; opacity:0.4; margin-bottom:8px; }
+        #access-detail-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6500; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #access-detail-modal.open { opacity:1; }
+        #access-detail-modal .modal-content { max-width:520px; }
+        #access-detail-modal.open .modal-content { transform:translateY(0); }
+        .access-detail-hero { display:flex; align-items:center; gap:14px; padding:20px; background:linear-gradient(135deg, rgba(29,78,216,0.08), transparent); }
+        .access-detail-avatar { width:52px; height:52px; border-radius:15px; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.2rem; flex-shrink:0; }
+        .access-detail-status-pill { display:inline-flex; align-items:center; gap:5px; font-size:0.68rem; font-weight:800; text-transform:uppercase; padding:3px 9px; border-radius:20px; margin-top:4px; background:var(--bg); color:var(--text-sec); }
+        .access-detail-status-pill.online { background:rgba(34,197,94,0.15); color:#16a34a; }
+        .access-detail-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 20px 16px; }
+        .access-detail-stat-box { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
+        .access-detail-stat-box span { font-size:0.65rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; display:block; margin-bottom:3px; }
+        .access-detail-stat-box b { font-size:0.85rem; color:var(--text-main); }
+        .history-item { display:flex; align-items:center; gap:12px; padding:12px 20px; background-image: linear-gradient(to right, transparent, var(--border) 10%, var(--border) 90%, transparent); background-position: bottom; background-repeat: no-repeat; background-size: 100% 1px; }
+        .history-item:last-child { background-image:none; }
+        .history-item-text { display:flex; flex-direction:column; }
+        .history-item-text b { font-size:0.82rem; color:var(--text-main); font-weight:700; }
+        .history-item-text span { font-size:0.7rem; color:var(--text-sec); margin-top:2px; }
         .color-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
         .color-item { display:flex; align-items:center; gap:10px; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
         .color-item input[type=color] { width:34px; height:34px; border:none; border-radius:8px; padding:0; background:none; cursor:pointer; flex-shrink:0; }
@@ -561,6 +587,10 @@
         #custom-announce-modal.open { opacity:1; }
         #custom-announce-modal .alert-card { transform:scale(0.85); transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
         #custom-announce-modal.open .alert-card { transform:scale(1); }
+        #identity-info-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10400; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s ease; padding:20px; }
+        #identity-info-modal.open { opacity:1; }
+        #identity-info-modal .alert-card { transform:scale(0.85); transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+        #identity-info-modal.open .alert-card { transform:scale(1); }
         #identity-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:10500; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s ease; padding:20px; }
         #identity-modal.open { opacity:1; }
         #identity-modal .identity-card { background:var(--bg-card); width:100%; max-width:420px; max-height:88vh; border-radius:24px; box-shadow:0 20px 60px rgba(0,0,0,0.5); overflow:hidden; transform:scale(0.9); transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); border:1px solid var(--border); display:flex; flex-direction:column; }
@@ -599,6 +629,26 @@
 
 <div id="graziella-modal" onclick="closeGraziellaModal()">
     <img src="graziella.jpg" alt="Graziella" id="graziella-large-img">
+</div>
+
+<div id="identity-info-modal">
+    <div class="alert-card">
+        <div class="alert-header" style="background:#eff6ff;border-bottom:1px solid #dbeafe;">
+            <div class="alert-icon-box" style="color:#1d4ed8;border-color:#93c5fd;background:#ffffff;">
+                <span class="material-icons-round" style="font-size:28px;">notifications_active</span>
+            </div>
+            <div class="alert-title" style="color:#1e3a8a;">PERCHÉ CHIEDIAMO IL TUO NOME</div>
+        </div>
+        <div class="alert-body">
+            Selezionando il tuo nome potrai ricevere avvisi automatici su eventuali <b>spostamenti di turno</b>, variazioni di <b>reperibilità</b> e altre comunicazioni utili che ti riguardano da vicino.<br><br>
+            Se preferisci restare anonimo, puoi sempre scegliere <b>Ospite</b>.
+        </div>
+        <div class="alert-footer">
+            <button class="btn-alert-ok" style="background:#1d4ed8;box-shadow:0 4px 12px rgba(29,78,216,0.3);" onclick="closeIdentityInfoPopup()">
+                <span class="material-icons-round">arrow_forward</span> OK, CONTINUA
+            </button>
+        </div>
+    </div>
 </div>
 
 <div id="identity-modal">
@@ -688,21 +738,9 @@
     </div>
 </div>
 
-<div id="month-select-modal" onclick="closeMonthModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <div class="modal-header">
-            <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">calendar_month</span> VAI AL MESE</h3>
-                <span>Selezione Rapida</span>
-            </div>
-            <button class="btn-close-modal" onclick="closeMonthModal()">
-                <span class="material-icons-round">close</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class="month-grid" id="month-grid-container"></div>
-        </div>
-    </div>
+<div id="month-select-dropdown" onclick="event.stopPropagation()">
+    <div class="driver-filter-title"><span class="material-icons-round" style="font-size:14px">calendar_month</span> Vai al Mese</div>
+    <div class="month-grid" id="month-grid-container"></div>
 </div>
 
 <div id="loader">
@@ -948,6 +986,37 @@
 
 <div id="admin-save-toast" class="admin-save-toast"><span class="material-icons-round">check_circle</span> <span id="admin-save-toast-text">Salvato</span></div>
 
+<div id="access-detail-modal" onclick="closeAccessDetail(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">person_search</span> DETTAGLIO ACCESSO</h3>
+                <span>Connessione e cronologia visualizzazioni</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeAccessDetail()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="modal-body" id="access-detail-body" style="padding:0">
+            <div class="access-detail-hero">
+                <div class="access-detail-avatar" id="access-detail-avatar">?</div>
+                <div>
+                    <div style="font-weight:800;font-size:1.05rem;color:var(--text-main);" id="access-detail-name">—</div>
+                    <div class="access-detail-status-pill" id="access-detail-status-pill">Offline</div>
+                </div>
+            </div>
+            <div class="access-detail-stats">
+                <div class="access-detail-stat-box"><span>Dispositivo</span><b id="access-detail-device">—</b></div>
+                <div class="access-detail-stat-box"><span>Durata sessione</span><b id="access-detail-duration">--:--</b></div>
+                <div class="access-detail-stat-box"><span>Inizio sessione</span><b id="access-detail-start">—</b></div>
+                <div class="access-detail-stat-box"><span>Ultimo accesso</span><b id="access-detail-last">—</b></div>
+            </div>
+            <div class="admin-section-label" style="padding-left:20px;"><span class="material-icons-round" style="font-size:14px">history</span> Cronologia Visualizzazioni</div>
+            <div id="access-detail-history"></div>
+        </div>
+    </div>
+</div>
+
 <div id="dinner-modal" onclick="closeDinnerModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()" style="height:90vh;max-height:90vh;">
         <div class="modal-header" style="background:#fff7ed;border-bottom-color:#ffedd5;">
@@ -1113,7 +1182,7 @@
             </div>
             <div class="expandable-actions" id="expandable-actions-container">
                 <button class="action-circle-as" onclick="vibrate();window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/','_blank')">A.S.</button>
-                <button class="action-circle" onclick="openMonthModal()">
+                <button class="action-circle" onclick="toggleMonthDropdown(event)">
                     <span class="material-icons-round">calendar_month</span>
                 </button>
                 <button class="action-circle" onclick="openNotifCenter()" style="position:relative">
@@ -1225,6 +1294,7 @@
     let sessionId = 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,10);
     let sessionStartTime = Date.now();
     let currentViewLabel = "Avvio app";
+    let sessionViewHistory = [];
     let adminAccessUnsub = null, adminConfigApplyBusy = false;
 
     // ── Identità utente ("Chi sei?") ─────────────────────────────────────────
@@ -1296,6 +1366,15 @@
             return locked;
         } catch(e) { console.error("Errore lettura identità attive:", e); return new Set(); }
     }
+    function showIdentityInfoPopup() {
+        let m = document.getElementById('identity-info-modal'); m.style.display = 'flex';
+        setTimeout(() => m.classList.add('open'), 20);
+    }
+    function closeIdentityInfoPopup() {
+        vibrate();
+        let m = document.getElementById('identity-info-modal'); m.classList.remove('open');
+        setTimeout(() => { m.style.display = 'none'; openIdentityModal(); }, 300);
+    }
     async function openIdentityModal() {
         const locked = await getLockedIdentities();
         const names = (drivers && drivers.length) ? drivers.map(d => d.name) : [];
@@ -1343,8 +1422,20 @@
     }
 
     function setCurrentView(label) {
+        const changed = currentViewLabel !== label;
         currentViewLabel = label;
-        sendHeartbeat();
+        if(changed) {
+            sessionViewHistory.push({ view: label, time: Date.now() });
+            if(sessionViewHistory.length > 40) sessionViewHistory.shift();
+        }
+        if(!fbReady) return;
+        const payload = {
+            lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+            currentView: currentViewLabel,
+            online: document.visibilityState === 'visible'
+        };
+        if(changed) payload.viewHistory = sessionViewHistory;
+        db.collection('infermieri26_accessi').doc(sessionId).set(payload, { merge:true }).catch(()=>{});
     }
 
     // ── Config remota (colori, nomi operatori, orari) ───────────────────────
@@ -1421,6 +1512,7 @@
         setTimeout(() => m.style.display = 'none', 250);
         if(adminAccessUnsub) { adminAccessUnsub(); adminAccessUnsub = null; }
         if(window._adminDurationTicker) { clearInterval(window._adminDurationTicker); window._adminDurationTicker = null; }
+        if(accessDetailTicker) { clearInterval(accessDetailTicker); accessDetailTicker = null; }
         adminAnnouncementsDraft = null;
     }
     function switchAdminTab(tab, btnEl) {
@@ -1460,14 +1552,17 @@
             const start = tsToMillis(a.startTime) || Date.now();
             const mainLabel = a.identity ? a.identity : 'Non identificato';
             const subLabel = a.identity ? (a.device || '') : (a.device || 'Sconosciuto');
-            return `<div class="access-row" data-start="${start}">
+            return `<div class="access-row" data-start="${start}" onclick="openAccessDetail('${a.id}')">
                 <span class="access-dot ${isOnline?'online':''}"></span>
                 <div class="access-info">
                     <div class="access-device">${mainLabel}</div>
                     <div class="access-view">${a.currentView || '—'}</div>
                     <div class="access-meta">${subLabel} • Ultimo accesso: ${formatLastActive(a.lastActive)}</div>
                 </div>
-                <div class="access-duration"><b class="admin-dur-val">--:--</b><span>Sessione</span></div>
+                <div class="access-duration">
+                    <div class="access-duration-inner"><b class="admin-dur-val">--:--</b><span>Sessione</span></div>
+                    <span class="material-icons-round access-chevron">chevron_right</span>
+                </div>
             </div>`;
         }).join('');
         document.getElementById('admin-stat-online').innerText = onlineCount;
@@ -1479,6 +1574,53 @@
         const ms = tsToMillis(ts); if(!ms) return "—";
         return new Date(ms).toLocaleString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
     }
+
+    // ── Dettaglio singolo accesso ────────────────────────────────────────
+    let accessDetailTicker = null;
+    function openAccessDetail(docId) {
+        const a = adminAccessDocs.find(d => d.id === docId); if(!a) return;
+        vibrate();
+        const isOnline = a.online && a.lastActive && (Date.now() - tsToMillis(a.lastActive)) < 60000;
+        const name = a.identity || 'Non identificato';
+        document.getElementById('access-detail-name').innerText = name;
+        document.getElementById('access-detail-avatar').innerText = name.substring(0,2).toUpperCase();
+        const pill = document.getElementById('access-detail-status-pill');
+        pill.innerText = isOnline ? 'Online ora' : 'Offline';
+        pill.classList.toggle('online', isOnline);
+        document.getElementById('access-detail-device').innerText = a.device || 'Sconosciuto';
+        document.getElementById('access-detail-start').innerText = formatLastActive(a.startTime);
+        document.getElementById('access-detail-last').innerText = formatLastActive(a.lastActive);
+        const startMs = tsToMillis(a.startTime) || Date.now();
+        document.getElementById('access-detail-body').dataset.start = startMs;
+        renderAccessDetailHistory(a.viewHistory || []);
+        let m = document.getElementById('access-detail-modal'); m.style.display = 'flex';
+        setTimeout(() => m.classList.add('open'), 10);
+        if(!accessDetailTicker) accessDetailTicker = setInterval(refreshAccessDetailDuration, 1000);
+        refreshAccessDetailDuration();
+    }
+    function closeAccessDetail(e) {
+        if(e && e.target !== e.currentTarget) return;
+        let m = document.getElementById('access-detail-modal'); m.classList.remove('open');
+        setTimeout(() => m.style.display = 'none', 250);
+        if(accessDetailTicker) { clearInterval(accessDetailTicker); accessDetailTicker = null; }
+    }
+    function refreshAccessDetailDuration() {
+        const body = document.getElementById('access-detail-body'); if(!body) return;
+        const start = parseInt(body.dataset.start); if(!start) return;
+        const diff = Math.max(0, Date.now() - start);
+        const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+        document.getElementById('access-detail-duration').innerText = h > 0 ? `${h}h ${String(m).padStart(2,'0')}m` : `${m}m ${String(s).padStart(2,'0')}s`;
+    }
+    function renderAccessDetailHistory(history) {
+        const c = document.getElementById('access-detail-history'); if(!c) return;
+        if(!history || history.length === 0) { c.innerHTML = `<div class="admin-empty"><span class="material-icons-round">visibility_off</span><br>Nessuna cronologia disponibile.</div>`; return; }
+        const sorted = history.slice().reverse();
+        c.innerHTML = sorted.map(h => `<div class="history-item">
+            <span class="material-icons-round" style="font-size:18px;color:var(--primary)">visibility</span>
+            <div class="history-item-text"><b>${h.view}</b><span>${new Date(h.time).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span></div>
+        </div>`).join('');
+    }
+
     function refreshAdminDurations() {
         document.querySelectorAll('.access-row').forEach(row => {
             const start = parseInt(row.dataset.start); if(!start) return;
@@ -1764,26 +1906,32 @@
         document.querySelector('#theme-color-meta').setAttribute('content', isDark ? '#080d18' : '#e9edf3');
     }
 
-    function openMonthModal() {
+    function toggleMonthDropdown(e) {
+        if(e) e.stopPropagation();
         vibrate();
-        const grid = document.getElementById('month-grid-container'); grid.innerHTML = "";
-        if(globalMonthsList.length === 0) { grid.innerHTML = "<div style='grid-column:1/-1;text-align:center;'>Nessun mese disponibile</div>"; }
-        else {
-            globalMonthsList.forEach(m => {
-                let btn = document.createElement('div'); btn.className = 'month-btn'; btn.innerText = m.name.substr(0,3);
-                btn.onclick = () => { vibrate(); closeMonthModal(); const el = document.getElementById(m.id); if(el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 120, behavior:"smooth" }); };
-                grid.appendChild(btn);
-            });
-        }
-        let m = document.getElementById('month-select-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+        const dd = document.getElementById('month-select-dropdown');
+        if(dd.classList.contains('open')) { closeMonthDropdown(); return; }
+        renderMonthDropdown();
+        dd.classList.add('open');
     }
-    function closeMonthModal(e) { if(e && e.target !== e.currentTarget) return; let m = document.getElementById('month-select-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 200); }
+    function closeMonthDropdown() { document.getElementById('month-select-dropdown').classList.remove('open'); }
+    function renderMonthDropdown() {
+        const grid = document.getElementById('month-grid-container'); grid.innerHTML = "";
+        if(globalMonthsList.length === 0) { grid.innerHTML = "<div style='grid-column:1/-1;text-align:center;color:var(--text-sec);padding:10px;'>Nessun mese disponibile</div>"; return; }
+        globalMonthsList.forEach(m => {
+            let btn = document.createElement('div'); btn.className = 'month-btn'; btn.innerText = m.name.substr(0,3);
+            btn.onclick = () => { vibrate(); closeMonthDropdown(); const el = document.getElementById(m.id); if(el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 120, behavior:"smooth" }); };
+            grid.appendChild(btn);
+        });
+    }
 
     document.addEventListener('click', function(event) {
         let m = document.getElementById('menu-dropdown'); let btn = document.querySelector('.action-circle.menu-trigger');
         if(m.style.display === 'flex' && !m.contains(event.target) && !btn.contains(event.target)) toggleMenu();
         let dd = document.getElementById('driver-filter-dropdown'); let dbtn = document.querySelector('.driver-filter-btn');
         if(dd.classList.contains('open') && !dd.contains(event.target) && !dbtn.contains(event.target)) closeDriverFilterDropdown();
+        let md = document.getElementById('month-select-dropdown');
+        if(md.classList.contains('open') && !md.contains(event.target)) closeMonthDropdown();
     });
 
     window.onload = async () => {
@@ -1901,7 +2049,7 @@
         setTimeout(scrollToToday, 600); setTimeout(checkForScheduleChanges, 2500);
         setTimeout(() => {
             if(userIdentity) { writeIdentityToSession(); showStartupMessages(); }
-            else openIdentityModal();
+            else showIdentityInfoPopup();
         }, 1700);
     }
 
