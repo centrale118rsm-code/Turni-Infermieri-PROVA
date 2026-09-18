@@ -696,16 +696,34 @@
         .notif-item { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:15px; position:relative; transition:all 0.2s; }
         .notif-item.unread { border-left:4px solid var(--primary); background:#f0f9ff; }
         body.dark-mode .notif-item.unread { background:#1e293b; border-color:#334155; border-left-color:var(--primary); }
+        .notif-item.notif-richiesta { border-left:4px solid #7c3aed; }
+        .notif-item.notif-richiesta.unread { background:#f5f3ff; border-left-color:#7c3aed; }
+        body.dark-mode .notif-item.notif-richiesta.unread { background:#2e1a47; border-color:#4c1d95; border-left-color:#a78bfa; }
         .notif-date { font-size:0.7rem; color:var(--text-sec); margin-bottom:4px; font-weight:600; }
-        .notif-text { font-size:0.9rem; color:var(--text-main); line-height:1.4; }
+        .notif-text { font-size:0.9rem; color:var(--text-main); line-height:1.4; padding-right:70px; }
         .btn-del-notif { position:absolute; top:10px; right:10px; color:#ef4444; background:none; border:none; cursor:pointer; padding:5px; border-radius:50%; }
+        .notif-actions { position:absolute; top:10px; right:10px; display:flex; gap:4px; }
+        .notif-action-btn { background:none; border:none; cursor:pointer; padding:5px; border-radius:50%; display:flex; }
+        .notif-action-btn.check { color:#059669; }
+        .notif-action-btn.open { color:#7c3aed; }
         .no-notif { text-align:center; padding:40px 20px; color:var(--text-sec); font-size:0.9rem; }
+        .notif-section-title { display:flex; align-items:center; gap:8px; font-size:0.75rem; font-weight:900; text-transform:uppercase; letter-spacing:1px; color:#7c3aed; margin:4px 2px 8px; }
+        .notif-section-title.turno { color:var(--primary); }
+        .notif-section-title .material-icons-round { font-size:16px; }
+        .notif-section-count { font-size:0.65rem; font-weight:700; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:1px 8px; color:var(--text-sec); }
         .notif-group-year { font-size:0.72rem; font-weight:900; color:var(--text-sec); text-transform:uppercase; letter-spacing:1.2px; margin:18px 4px 6px; padding-bottom:6px; border-bottom:2px solid var(--border); }
         .notif-group-year:first-child { margin-top:2px; }
         .notif-group-day { display:flex; align-items:center; gap:8px; margin:12px 2px 4px; }
         .notif-group-day-label { font-size:0.8rem; font-weight:800; color:var(--primary); text-transform:capitalize; }
         .notif-group-day-count { font-size:0.65rem; font-weight:700; color:var(--text-sec); background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:1px 8px; }
         .notif-archived-tag { font-size:0.6rem; font-weight:800; color:var(--text-sec); background:var(--bg-card); border:1px solid var(--border); border-radius:6px; padding:1px 5px; margin-left:6px; }
+        /* Spunta di una richiesta: breve bagliore verde, poi svanisce prima di archiviarla davvero */
+        .notif-item.notif-flash-green { animation: notifFlashOut 0.6s ease forwards; pointer-events:none; }
+        @keyframes notifFlashOut {
+            0% { opacity:1; transform:scale(1); background:var(--bg); }
+            35% { opacity:1; transform:scale(1.015); background:#bbf7d0; border-color:#4ade80; }
+            100% { opacity:0; transform:scale(0.97); background:#bbf7d0; border-color:#4ade80; }
+        }
         .btn-install { background:var(--text-main); color:var(--bg); border:none; padding:10px 18px; border-radius:12px; font-weight:700; display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
         .dinner-checkbox-list { padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
         .dinner-check-item { background:var(--bg-card); padding:12px; border-radius:12px; border:1px solid var(--border); display:flex; align-items:center; gap:10px; cursor:pointer; font-size:0.85rem; font-weight:600; color:var(--text-sec); transition:all 0.2s; }
@@ -783,6 +801,15 @@
         .alert-body { padding:24px; font-size:1rem; color:var(--text-main); line-height:1.5; }
         .alert-footer { padding:0 24px 24px; }
         .btn-alert-ok { width:100%; padding:14px; border-radius:14px; border:none; background:#d97706; color:white; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 4px 12px rgba(217,119,6,0.3); display:flex; align-items:center; justify-content:center; gap:8px; }
+
+        /* Popup dedicato alle nuove richieste — stile viola distinto dall'avviso turni,
+           con l'icona che pulsa per farsi notare subito appena si apre. */
+        #richiesta-alert-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s; padding:20px; }
+        #richiesta-alert-modal.open { opacity:1; }
+        #richiesta-alert-modal .alert-card { transform:scale(0.9); }
+        #richiesta-alert-modal.open .alert-card { transform:scale(1); }
+        .richiesta-alert-icon-box { background:rgba(255,255,255,0.18) !important; color:#ede9fe !important; border-color:rgba(255,255,255,0.35) !important; animation:richiestaPulse 1.4s infinite; }
+        @keyframes richiestaPulse { 0%,100% { box-shadow:0 0 0 0 rgba(237,233,254,0.5); } 50% { box-shadow:0 0 0 9px rgba(237,233,254,0); } }
         #welcome-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s ease; padding:20px; }
         #welcome-modal.open { opacity:1; }
         #welcome-modal .alert-card { transform:scale(0.85); transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
@@ -843,14 +870,14 @@
             width: 24px; height: 60px; border-radius: 12px 0 0 12px;
             background: var(--primary); box-shadow: -3px 0 12px rgba(0,0,0,0.25);
             display: flex; align-items: center; justify-content: center;
-            cursor: grab; touch-action: none; z-index: 8100;
+            cursor: grab; touch-action: none; z-index: 2600;
         }
         #side-drag-handle .material-icons-round { font-size: 18px; color: #fff; transition: transform 0.25s ease; }
         #side-drag-handle.is-open .material-icons-round { transform: rotate(180deg); }
 
         #richieste-panel {
             position: fixed; top: 0; right: 0; bottom: 0; width: 100%;
-            background: var(--bg); z-index: 8000;
+            background: var(--bg); z-index: 2500;
             transform: translateX(100%);
             box-shadow: -10px 0 30px rgba(0,0,0,0.25);
             display: flex; flex-direction: column;
@@ -948,9 +975,35 @@
             <div class="alert-title" id="alert-title-text">AVVISO</div>
         </div>
         <div class="alert-body" id="alert-message-text">Contenuto avviso...</div>
-        <div class="alert-footer">
-            <button class="btn-alert-ok" onclick="closeAlertAndSave()">
+        <div class="alert-footer" style="display:flex; gap:10px;">
+            <button class="btn-alert-ok" style="flex:1; background:#f1f5f9; color:#334155; box-shadow:none;" onclick="openNotificationsFromAlert()">
+                <span class="material-icons-round">notifications</span> Vedi tutte
+            </button>
+            <button class="btn-alert-ok" style="flex:1;" onclick="closeAlertAndSave()">
                 <span class="material-icons-round">done</span> HO CAPITO
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Popup dedicato alle nuove richieste in arrivo dal portale Richieste — separato
+     dall'avviso "Cambi turno" qui sopra, stile viola coerente con l'Area Coordinatore,
+     per farlo risaltare subito come qualcosa che richiede un'azione (approvazione). -->
+<div id="richiesta-alert-modal">
+    <div class="alert-card richiesta-alert-card">
+        <div class="alert-header" style="background:linear-gradient(135deg,#4338ca,#7c3aed); border-bottom:1px solid #5b21b6;">
+            <div class="alert-icon-box richiesta-alert-icon-box">
+                <span class="material-icons-round" style="font-size:28px;">mark_email_unread</span>
+            </div>
+            <div class="alert-title" style="color:#fff;">NUOVA RICHIESTA</div>
+        </div>
+        <div class="alert-body" id="richiesta-alert-text">Contenuto...</div>
+        <div class="alert-footer" style="display:flex; gap:10px;">
+            <button class="btn-alert-ok" style="flex:1; background:#f1f5f9; color:#334155; box-shadow:none;" onclick="closeRichiestaAlert()">
+                <span class="material-icons-round">close</span> Più tardi
+            </button>
+            <button class="btn-alert-ok" style="flex:1; background:linear-gradient(135deg,#4338ca,#7c3aed); box-shadow:0 4px 12px rgba(124,58,237,0.35);" onclick="openRequestFromAlert()">
+                <span class="material-icons-round">open_in_new</span> Apri
             </button>
         </div>
     </div>
@@ -2054,11 +2107,11 @@
                 if(!richiesteListenerReady) { richiesteListenerReady = true; return; } // salta il carico iniziale
                 snap.docChanges().forEach(change => {
                     if(change.type !== 'added') return;
-                    notifyCoordinatorOfNewRequest(change.doc.data());
+                    notifyCoordinatorOfNewRequest(change.doc.data(), change.doc.id);
                 });
             }, err => console.error('Errore ascolto richieste infermieri:', err));
     }
-    function notifyCoordinatorOfNewRequest(r) {
+    function notifyCoordinatorOfNewRequest(r, reqId) {
         if(!isCoordinator) return;
         const label = RICHIESTE_TYPE_LABELS[r.type] || r.type || 'Richiesta';
         let periodo = '';
@@ -2067,9 +2120,10 @@
             if(parts.length === 3) periodo = parts[2] + '/' + parts[1];
         }
         const swap = r.swapWith ? (' con ' + r.swapWith) : '';
-        const msg = `<b>📋 Nuova richiesta - ${r.name || '—'}</b><br><span style="font-size:0.85rem;color:var(--text-sec)">${label}${swap}${periodo ? ' · ' + periodo : ''}</span>`;
-        notifHistory.unshift({ id: Date.now()+Math.random(), ts: Date.now(), text: msg, read:false, archived:false, date:new Date().toLocaleString() });
+        const msg = `<b>${r.name || '—'}</b><br><span style="font-size:0.85rem;color:var(--text-sec)">${label}${swap}${periodo ? ' · ' + periodo : ''}</span>`;
+        notifHistory.unshift({ id: Date.now()+Math.random(), ts: Date.now(), text: msg, read:false, archived:false, date:new Date().toLocaleString(), type:'richiesta', reqId: reqId || null });
         saveNotifications(); updateBadge();
+        showRichiestaAlert(r.name, label, swap, periodo, reqId);
     }
 
     function applyColorOverrides() {
@@ -2770,13 +2824,14 @@
             for(const [dateKey, newVal] of Object.entries(currentSnapshot)) {
                 let oldVal = oldSnapshot[dateKey];
                 if(oldVal !== undefined && oldVal !== newVal) {
+                    const dateLabel = formatNotifDateKey(dateKey);
                     let detailMsg = oldVal === ""
-                        ? `<b>Nuovo turno inserito</b> - ${dateKey}<br><span style="font-size:0.85rem;color:var(--text-sec)">Turno: <b>${newVal || '—'}</b></span>`
+                        ? `<b>🆕 Nuovo turno inserito</b> — ${dateLabel}<br><span style="font-size:0.85rem;color:var(--text-sec)">Turno assegnato: <b>${formatShiftLabel(newVal)}</b></span>`
                         : newVal === ""
-                        ? `<b>Turno rimosso</b> - ${dateKey}<br><span style="font-size:0.85rem;color:var(--text-sec)">Era: <b>${oldVal}</b></span>`
-                        : `<b>Turno modificato</b> - ${dateKey}<br><span style="font-size:0.85rem;color:var(--text-sec)">Da: <b>${oldVal}</b> &rarr; A: <b>${newVal}</b></span>`;
+                        ? `<b>🗑️ Turno rimosso</b> — ${dateLabel}<br><span style="font-size:0.85rem;color:var(--text-sec)">Era: <b>${formatShiftLabel(oldVal)}</b></span>`
+                        : `<b>🔄 Turno modificato</b> — ${dateLabel}<br><span style="font-size:0.85rem;color:var(--text-sec)">Da <b>${formatShiftLabel(oldVal)}</b> a <b>${formatShiftLabel(newVal)}</b></span>`;
                     changesFound.push(detailMsg);
-                    notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:detailMsg, read:false, archived:false, date:new Date().toLocaleString() });
+                    notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:detailMsg, read:false, archived:false, date:new Date().toLocaleString(), type:'turno' });
                 }
             }
             if(changesFound.length > 0) { saveNotifications(); updateBadge(); showChangeAlert(changesFound); }
@@ -2802,7 +2857,7 @@
                     if(!localStorage.getItem(reminderKey)) {
                         const dateLabel = tomorrow.toLocaleDateString('it-IT', { day:'2-digit', month:'long' });
                         const msg = `<b>📟 Promemoria Reperibilità</b><br><span style="font-size:0.85rem;color:var(--text-sec)">Domani, <b>${dateLabel}</b>, sei <b>reperibile</b>.</span>`;
-                        notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:msg, read:false, archived:false, date:new Date().toLocaleString() });
+                        notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:msg, read:false, archived:false, date:new Date().toLocaleString(), type:'turno' });
                         saveNotifications(); updateBadge();
                         localStorage.setItem(reminderKey, '1');
                     }
@@ -2838,8 +2893,16 @@
     // salvate prima di questa revisione, non hanno "ts" — si ricava dalla data testuale.
     function getNotifTs(item) {
         if(item.ts) return item.ts;
+        // Notifiche salvate prima di avere il campo "ts": il testo è in formato italiano
+        // "GG/MM/AAAA, HH:MM:SS", che Date.parse legge in modo inaffidabile (spesso fallisce
+        // o lo scambia per MM/GG, finendo raggruppato sotto "1970"). Lo leggiamo a mano.
+        const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4}),?\s*(\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(item.date || '');
+        if(m) {
+            const dt = new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]), parseInt(m[4]), parseInt(m[5]), m[6]?parseInt(m[6]):0);
+            if(!isNaN(dt.getTime())) return dt.getTime();
+        }
         const t = Date.parse(item.date);
-        return isNaN(t) ? 0 : t;
+        return isNaN(t) ? Date.now() : t; // meglio "adesso" che finire scorrettamente nel 1970
     }
     function formatNotifDayLabel(d) {
         const today = new Date(); today.setHours(0,0,0,0);
@@ -2862,7 +2925,26 @@
             c.innerHTML = `<div class="no-notif">${emptyMsg}</div>`;
             return;
         }
-        const sorted = items.sort((a,b) => getNotifTs(b) - getNotifTs(a));
+        // Le richieste dal portale Richieste hanno un elenco a parte, sempre in cima,
+        // rispetto agli avvisi di cambio turno/reperibilità: sono cose diverse (una
+        // richiede un'azione di approvazione, l'altra è solo un'informazione).
+        const richiesteItems = items.filter(n => n.type === 'richiesta');
+        const turnoItems     = items.filter(n => n.type !== 'richiesta');
+        let html = '';
+        if(richiesteItems.length > 0) {
+            html += `<div class="notif-section-title richiesta"><span class="material-icons-round">assignment</span> Richieste <span class="notif-section-count">${richiesteItems.length}</span></div>`;
+            html += renderNotifGroup(richiesteItems);
+        }
+        if(turnoItems.length > 0) {
+            html += `<div class="notif-section-title turno" style="${richiesteItems.length > 0 ? 'margin-top:22px;' : ''}"><span class="material-icons-round">event_note</span> Turni e Reperibilità <span class="notif-section-count">${turnoItems.length}</span></div>`;
+            html += renderNotifGroup(turnoItems);
+        }
+        c.innerHTML = html;
+    }
+    // Raggruppa per anno/giorno un sottoinsieme di notifiche (richieste oppure turni) e
+    // genera le card, con le azioni giuste secondo la scheda attiva e il tipo di notifica.
+    function renderNotifGroup(items) {
+        const sorted = items.slice().sort((a,b) => getNotifTs(b) - getNotifTs(a));
         let html = ''; let lastYear = null, lastDayKey = null;
         sorted.forEach(item => {
             const d = new Date(getNotifTs(item));
@@ -2879,26 +2961,120 @@
             }
             const timeStr = getNotifTs(item) ? d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }) : item.date;
             const archivedTag = (currentNotifTab === 'storico' && item.archived) ? `<span class="notif-archived-tag">Archiviata</span>` : '';
-            const actionBtn = currentNotifTab === 'archivio'
-                ? `<button class="btn-del-notif" title="Ripristina" onclick="restoreNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">unarchive</span></button>
-                   <button class="btn-del-notif" title="Elimina definitivamente" onclick="permanentDeleteNotif(${item.id})" style="color:#dc2626"><span class="material-icons-round" style="font-size:18px">delete_forever</span></button>`
-                : currentNotifTab === 'attive'
-                ? `<button class="btn-del-notif" title="Archivia" onclick="deleteNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">archive</span></button>`
-                : ''; // nello storico niente azioni: è una consultazione, non una gestione
-            html += `<div class="notif-item ${item.read?'':'unread'}">
+            const isRichiesta = item.type === 'richiesta';
+            const icon = isRichiesta ? '📋 ' : '';
+
+            let actionsHtml = '';
+            if(currentNotifTab === 'archivio') {
+                actionsHtml = `<div class="notif-actions">
+                    <button class="btn-del-notif" title="Ripristina" style="position:static;" onclick="restoreNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">unarchive</span></button>
+                    <button class="btn-del-notif" title="Elimina definitivamente" style="position:static;color:#dc2626" onclick="permanentDeleteNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">delete_forever</span></button>
+                </div>`;
+            } else if(currentNotifTab === 'attive' && isRichiesta) {
+                // Le richieste hanno due azioni: spuntarla (archivia con un bagliore verde)
+                // oppure aprirla direttamente nel portale Richieste.
+                actionsHtml = `<div class="notif-actions">
+                    <button class="notif-action-btn open" title="Apri nel portale Richieste" onclick="openRequestFromNotif(${item.reqId ? `'${item.reqId}'` : 'null'})"><span class="material-icons-round" style="font-size:19px">open_in_new</span></button>
+                    <button class="notif-action-btn check" title="Segna come gestita e archivia" onclick="checkOffRichiesta(${item.id})"><span class="material-icons-round" style="font-size:20px">check_circle</span></button>
+                </div>`;
+            } else if(currentNotifTab === 'attive') {
+                actionsHtml = `<div class="notif-actions">
+                    <button class="btn-del-notif" title="Archivia" style="position:static;" onclick="deleteNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">archive</span></button>
+                </div>`;
+            } // storico: nessuna azione, è solo consultazione
+
+            html += `<div class="notif-item ${item.read?'':'unread'} ${isRichiesta?'notif-richiesta':''}" data-id="${item.id}">
                 <div class="notif-date">${timeStr}${archivedTag}</div>
-                <div class="notif-text">${item.text}</div>
-                ${actionBtn ? `<div style="display:flex;gap:4px;">${actionBtn}</div>` : ''}
+                <div class="notif-text">${icon}${item.text}</div>
+                ${actionsHtml}
             </div>`;
         });
-        c.innerHTML = html;
+        return html;
     }
     function deleteNotif(id) { vibrate(); const n = notifHistory.find(x => x.id === id); if(n) n.archived = true; saveNotifications(); renderNotifList(); updateBadge(); }
     function restoreNotif(id) { vibrate(); const n = notifHistory.find(x => x.id === id); if(n) n.archived = false; saveNotifications(); renderNotifList(); updateBadge(); }
     function permanentDeleteNotif(id) { if(!confirm("Eliminare definitivamente questa notifica?")) return; vibrate(); notifHistory = notifHistory.filter(n => n.id !== id); saveNotifications(); renderNotifList(); updateBadge(); }
     function clearAllNotif() { if(confirm("Archiviare tutte le notifiche attive?")) { vibrate(); notifHistory.forEach(n => { if(!n.archived) n.archived = true; }); saveNotifications(); renderNotifList(); updateBadge(); } }
-    function showChangeAlert(changes) { document.getElementById('alert-message-text').innerHTML = "Cambi turno:<br>" + changes.slice(0,5).join("<br>"); let m = document.getElementById('alert-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 100); vibrate(); }
+    // Spunta una richiesta: bagliore verde sulla card, poi la archivia davvero e ridisegna.
+    function checkOffRichiesta(id) {
+        vibrate();
+        const el = document.querySelector(`.notif-item[data-id="${id}"]`);
+        if(el) el.classList.add('notif-flash-green');
+        setTimeout(() => {
+            const n = notifHistory.find(x => x.id === id);
+            if(n) n.archived = true;
+            saveNotifications(); renderNotifList(); updateBadge();
+        }, 600);
+    }
+    // Apre il pannello Richieste direttamente da una notifica (chiude prima il centro notifiche).
+    function openRequestFromNotif(reqId) {
+        closeNotifCenter();
+        setTimeout(() => { window.openRichiestePanel(reqId); }, 320);
+    }
+    // Converte una chiave data "MESE-giorno" (es. "SETTEMBRE-18") in un'etichetta leggibile.
+    function formatNotifDateKey(dateKey) {
+        const parts = (dateKey || "").split('-');
+        if(parts.length !== 2) return dateKey;
+        const monthName = parts[0].charAt(0) + parts[0].slice(1).toLowerCase();
+        return `${parseInt(parts[1])} ${monthName}`;
+    }
+    // Converte un codice turno grezzo (M, P, N, M+N, "P/R"...) nel nome completo, includendo
+    // l'eventuale reperibilità associata — usata nelle notifiche di cambio turno.
+    function formatShiftLabel(rawCode) {
+        let val = (rawCode || "").toString().trim();
+        if(!val || val === "-") return "Libero / Nessun turno";
+        let repSuffix = "";
+        if(isRepStr(val)) {
+            repSuffix = " + Reperibilità";
+            const si = val.indexOf('/'); if(si !== -1) val = val.substring(0, si).trim();
+        }
+        const upper = val.toUpperCase().replace(/\s+/g,'');
+        if(isMN(upper)) return "Mattina + Notte" + repSuffix;
+        const SHIFT_FULL_LABELS = { M:"Mattina", P:"Pomeriggio", N:"Notte", SM:"Smonto", R:"Riposo" };
+        return (SHIFT_FULL_LABELS[upper] || val) + repSuffix;
+    }
+    function showChangeAlert(changes) {
+        const box = document.getElementById('alert-message-text');
+        const shown = changes.slice(0, 5);
+        const extra = changes.length - shown.length;
+        box.innerHTML =
+            `<div style="font-weight:800; margin-bottom:12px;">${changes.length === 1 ? 'È cambiato 1 turno:' : `Sono cambiati ${changes.length} turni:`}</div>` +
+            shown.map(c => `<div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:8px; text-align:left;">${c}</div>`).join('') +
+            (extra > 0 ? `<div style="font-size:0.78rem; color:var(--text-sec); text-align:center; margin-top:4px;">+ altri ${extra} cambiamenti — vedi tutto nelle notifiche</div>` : '');
+        let m = document.getElementById('alert-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 100); vibrate();
+    }
+    // Chiude questo avviso e apre direttamente il centro notifiche sullo Storico completo.
+    function openNotificationsFromAlert() {
+        closeAlertAndSave();
+        setTimeout(() => {
+            openNotifCenter();
+            switchNotifTab('storico', document.querySelector('#notif-center-modal .admin-tab-btn[data-notiftab="storico"]'));
+        }, 320);
+    }
     function closeAlertAndSave() { vibrate(); let m = document.getElementById('alert-modal'); m.classList.remove('open'); setTimeout(() => m.style.display='none', 300); }
+
+    // ── Popup dedicato alle nuove richieste dal portale Richieste ───────────
+    let lastRichiestaAlertReqId = null;
+    function showRichiestaAlert(name, label, swap, periodo, reqId) {
+        lastRichiestaAlertReqId = reqId || null;
+        document.getElementById('richiesta-alert-text').innerHTML =
+            `<div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px 14px; text-align:left;">
+                <div style="font-weight:900; font-size:1rem; margin-bottom:4px;">${name || '—'}</div>
+                <div style="font-size:0.88rem; color:var(--text-sec);">${label}${swap}${periodo ? ' · ' + periodo : ''}</div>
+             </div>
+             <div style="font-size:0.8rem; color:var(--text-sec); margin-top:12px;">Da approvare come coordinatore.</div>`;
+        let m = document.getElementById('richiesta-alert-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 100);
+        if(navigator.vibrate) navigator.vibrate([40,60,40]); // vibrazione doppia: si distingue da un avviso normale
+    }
+    function closeRichiestaAlert() {
+        vibrate();
+        let m = document.getElementById('richiesta-alert-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+    }
+    function openRequestFromAlert() {
+        const reqId = lastRichiestaAlertReqId;
+        closeRichiestaAlert();
+        setTimeout(() => { window.openRichiestePanel(reqId); }, 320);
+    }
 
     function scrollToToday() {
         const el = document.getElementById('today-row');
@@ -4373,6 +4549,7 @@
         'graziella-modal': closeGraziellaModal,
         'custom-announce-modal': closeAnnounceModal,
         'alert-modal': closeAlertAndSave,
+        'richiesta-alert-modal': closeRichiestaAlert,
         'notif-center-modal': closeNotifCenter,
         'month-select-dropdown': closeMonthDropdown,
         'shift-modal': closeShiftModal,
@@ -4450,7 +4627,7 @@
 
         function W() { return window.innerWidth; }
 
-        function ensureLoaded() {
+        function ensureLoaded(reqId) {
             const identity = (typeof userIdentity !== 'undefined' && userIdentity) ? userIdentity : null;
             // Passa l'identità già selezionata qui in Turni Infermieri, così nel portale
             // Richieste non serve un secondo login: si accede in automatico con lo stesso
@@ -4459,9 +4636,15 @@
             if (!iframeLoaded || iframeLoadedIdentity !== identity) {
                 const url = new URL(RICHIESTE_URL);
                 if (identity) url.searchParams.set('nome', identity);
+                if (reqId) url.searchParams.set('richiesta', reqId);
                 iframe.src = url.toString();
                 iframeLoaded = true;
                 iframeLoadedIdentity = identity;
+            } else if (reqId) {
+                // L'iframe è già caricato con l'identità giusta: non serve ricaricarlo,
+                // gli chiediamo direttamente di aprire quella richiesta (stesso dominio,
+                // quindi possiamo chiamare una sua funzione globale senza postMessage).
+                try { iframe.contentWindow.openDeepLinkRequest(reqId); } catch(e) { console.error("Impossibile aprire la richiesta nel pannello:", e); }
             }
         }
 
@@ -4517,6 +4700,7 @@
         });
 
         window.closeRichiestePanel = function() { snapTo(W(), false); };
+        window.openRichiestePanel = function(reqId) { ensureLoaded(reqId); snapTo(0, true); };
     })();
 </script>
 </body>
