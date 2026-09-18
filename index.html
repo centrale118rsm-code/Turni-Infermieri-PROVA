@@ -4387,7 +4387,13 @@
 
         function ensureLoaded() {
             if (!iframeLoaded) {
-                iframe.src = RICHIESTE_URL;
+                // Passa l'identità già selezionata qui in Turni Infermieri, così nel
+                // portale Richieste non serve un secondo login: si accede in automatico
+                // con lo stesso operatore (evita anche di ereditare per errore l'identità
+                // di un'altra app sullo stesso dominio, es. quella degli Autisti).
+                const url = new URL(RICHIESTE_URL);
+                if (typeof userIdentity !== 'undefined' && userIdentity) url.searchParams.set('nome', userIdentity);
+                iframe.src = url.toString();
                 iframeLoaded = true;
             }
         }
