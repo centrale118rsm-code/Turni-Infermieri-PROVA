@@ -17,6 +17,7 @@
     <link rel="icon" type="image/png" href="logo.png">
     <title>INFERMIERI 2026</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -227,6 +228,23 @@
         .td-date small { display: block; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: var(--text-sec); margin-top: 2px; }
         .td-date.date-red { color: #dc2626; background: #fef2f2; border-right-color: #fca5a5; }
         .td-date.date-red small { color: #ef4444; }
+        .day-staff-counts { display:flex; gap:2px; margin-top:3px; }
+        .day-staff-counts span { font-size:0.46rem; font-weight:800; line-height:1.3; padding:1px 3px; border-radius:4px; display:flex; align-items:center; gap:2px; }
+        .day-staff-counts span b { font-size:0.6rem; }
+        .dsc-m { background:#dbeafe; color:#1e40af; }
+        .dsc-p { background:#e0e7ff; color:#3730a3; }
+        .dsc-n { background:#1e293b; color:#fff; }
+        .th-balance { font-size:0.6rem; font-weight:800; margin-top:3px; padding:1px 6px; border-radius:6px; display:inline-block; }
+        .th-balance.pos { background:#dcfce7; color:#166534; }
+        .th-balance.neg { background:#fee2e2; color:#991b1b; }
+        .th-ai-badge { display:inline-flex; align-items:center; gap:3px; font-size:0.56rem; font-weight:800; margin-top:3px; padding:2px 6px; border-radius:6px; cursor:pointer; }
+        .th-ai-badge .material-icons-round { font-size:12px; }
+        .th-ai-badge.debito { background:#fee2e2; color:#991b1b; }
+        .th-ai-badge.credito { background:#fef3c7; color:#92400e; }
+        #ai-advice-popup { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9700; align-items:center; justify-content:center; opacity:0; transition:opacity 0.25s; padding:16px; }
+        #ai-advice-popup.open { opacity:1; }
+        #ai-advice-popup .alert-card { max-width:420px; transform:scale(0.9); }
+        #ai-advice-popup.open .alert-card { transform:scale(1); }
         body.dark-mode .td-date.date-red { background: #450a0a; color: #fca5a5; border-right-color: #7f1d1d; }
         body.dark-mode .td-date.date-red small { color: #fecaca; }
         .holiday-name { font-size: 0.55rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 3px; max-width: 55px; white-space: normal; }
@@ -468,6 +486,130 @@
         #admin-panel-modal.open { opacity:1; }
         #admin-panel-modal .modal-content { max-width:680px; max-height:92vh; }
         #admin-panel-modal.open .modal-content { transform:translateY(0); }
+
+        /* ── CONTEGGIO ORARIO ──────────────────────────────────────────────── */
+        #hours-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6200; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #hours-modal.open { opacity:1; }
+        #hours-modal .modal-content { max-width:680px; max-height:94vh; }
+        #hours-modal.open .modal-content { transform:translateY(0); }
+        .hc-header-badge { background:linear-gradient(135deg,#0f172a,#1e293b); color:#fff; }
+        .hc-header-badge .header-text span { color:#94a3b8; }
+        .hc-header-badge .btn-close-modal { background:#1e293b; color:#fff; }
+        .hc-search { margin:14px 18px 6px; position:relative; }
+        .hc-search input { width:100%; padding:12px 14px 12px 40px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-size:0.9rem; font-weight:600; }
+        .hc-search .material-icons-round { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-sec); font-size:20px; }
+        .hc-op-list { padding:6px 14px 18px; display:flex; flex-direction:column; gap:8px; }
+        .hc-op-item { display:flex; align-items:center; gap:12px; background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:12px 14px; cursor:pointer; transition:0.2s; }
+        .hc-op-item:active { transform:scale(0.98); background:var(--bg-card); }
+        .hc-op-avatar { width:38px; height:38px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem; flex-shrink:0; }
+        .hc-op-name { font-weight:700; font-size:0.92rem; color:var(--text-main); flex:1; }
+        .hc-back-row { display:flex; align-items:center; gap:10px; padding:14px 18px 4px; }
+        .hc-back-btn { background:var(--bg); border:1.5px solid var(--border); color:var(--text-sec); cursor:pointer; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+        .hc-detail-name { font-weight:800; font-size:1.05rem; color:var(--text-main); }
+        .hc-period-tabs { display:flex; gap:6px; padding:10px 18px; }
+        .hc-period-tab { flex:1; padding:9px; text-align:center; border-radius:10px; border:1.5px solid var(--border); background:var(--bg-card); color:var(--text-sec); font-weight:800; font-size:0.78rem; cursor:pointer; }
+        .hc-period-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .hc-subnav { display:flex; align-items:center; justify-content:space-between; padding:0 18px 12px; gap:10px; }
+        .hc-subnav-btn { background:var(--bg); border:1.5px solid var(--border); color:var(--text-sec); cursor:pointer; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .hc-subnav-label { font-weight:700; font-size:0.85rem; color:var(--text-main); text-align:center; flex:1; }
+        .hc-subnav select { flex:1; padding:9px 10px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:700; font-size:0.85rem; }
+        .hc-summary-row { display:flex; gap:10px; padding:0 18px 14px; }
+        .hc-summary-box { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:12px; text-align:center; }
+        .hc-summary-num { font-size:1.35rem; font-weight:900; color:var(--text-main); }
+        .hc-summary-lbl { font-size:0.62rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-sec); margin-top:2px; }
+        .hc-summary-box.ok .hc-summary-num { color:#16a34a; }
+        .hc-summary-box.low .hc-summary-num { color:#dc2626; }
+        .hc-chart-wrap { padding:0 18px 8px; height:220px; position:relative; }
+        .hc-check-badge { margin:0 18px 14px; padding:10px 12px; border-radius:12px; font-size:0.75rem; font-weight:700; display:flex; align-items:center; gap:8px; }
+        .hc-check-badge.ok { background:#dcfce7; color:#166534; }
+        .hc-check-badge.warn { background:#fee2e2; color:#991b1b; }
+        .hc-breakdown { padding:0 18px 20px; }
+        .hc-bd-row { display:flex; justify-content:space-between; align-items:center; padding:10px 4px; border-bottom:1px solid var(--border); font-size:0.82rem; }
+        .hc-bd-row:last-child { border-bottom:none; }
+        .hc-bd-main { font-weight:700; color:var(--text-main); }
+        .hc-bd-sub { font-size:0.68rem; color:var(--text-sec); font-weight:600; }
+        .hc-bd-hours { font-weight:800; color:var(--text-main); }
+        .hc-bd-delta.pos { color:#16a34a; } .hc-bd-delta.neg { color:#dc2626; }
+        .hc-today-card { display:flex; align-items:center; gap:12px; margin:0 18px 10px; padding:14px; border-radius:14px; }
+        .hc-today-card.ok { background:#dcfce7; color:#166534; }
+        .hc-today-card.low { background:#fee2e2; color:#991b1b; }
+        .hc-today-card .material-icons-round { font-size:26px; flex-shrink:0; }
+        .hc-today-main { font-weight:900; font-size:0.95rem; }
+        .hc-today-sub { font-size:0.72rem; font-weight:600; opacity:0.85; margin-top:2px; }
+        .hc-cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin:0 18px 4px; font-size:0.6rem; font-weight:800; color:var(--text-sec); text-align:center; }
+        .hc-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin:0 18px 14px; }
+        .hc-cal-cell { aspect-ratio:1; border-radius:8px; padding:2px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--bg); border:1px solid var(--border); font-size:0.55rem; font-weight:800; overflow:hidden; }
+        .hc-cal-cell.empty { background:transparent; border:none; }
+        .hc-cal-cell.worked { background:#dbeafe; border-color:#bfdbfe; color:#1e40af; }
+        .hc-cal-cell.absence { background:#fef3c7; border-color:#fde68a; color:#92400e; }
+        .hc-cal-cell.riposo { background:#f1f5f9; border-color:#e2e8f0; color:#64748b; }
+        .hc-cal-cell.unrecognized { background:#fee2e2; border-color:#fecaca; color:#991b1b; }
+        .hc-cal-cell.is-today { outline:2px solid var(--primary); outline-offset:1px; }
+        .hc-cal-daynum { font-size:0.66rem; }
+        .hc-cal-code { font-size:0.5rem; opacity:0.85; }
+
+        /* ── AREA COORDINATORE ──────────────────────────────────────────────── */
+        #coord-login-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9500; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s; padding:20px; }
+        #coord-login-modal.open { opacity:1; }
+        #coord-login-modal .alert-card { transform:scale(0.9); }
+        #coord-login-modal.open .alert-card { transform:scale(1); }
+        #coord-panel-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6100; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #coord-panel-modal.open { opacity:1; }
+        #coord-panel-modal .modal-content { max-width:680px; max-height:92vh; }
+        #coord-panel-modal.open .modal-content { transform:translateY(0); }
+        .coord-header-badge { background:linear-gradient(135deg,#4338ca,#7c3aed); color:#fff; }
+        .coord-header-badge .header-text span { color:#ddd6fe; }
+        .coord-header-badge .btn-close-modal { background:rgba(255,255,255,0.18); color:#fff; }
+        .coord-sync-item { background:var(--bg); border:1px solid var(--border); border-left:4px solid #7c3aed; border-radius:14px; padding:12px 14px; margin-bottom:10px; display:flex; gap:12px; align-items:flex-start; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+        .coord-sync-check { width:26px; height:26px; border-radius:8px; border:2px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:2px; color:transparent; transition:0.15s; }
+        .coord-sync-check:active { transform:scale(0.9); }
+        .coord-sync-check.checked { background:#16a34a; border-color:#16a34a; color:#fff; }
+        .coord-sync-txt { flex:1; }
+        .coord-sync-main { font-size:0.85rem; font-weight:800; color:var(--text-main); }
+        .coord-sync-diff { font-size:0.78rem; color:var(--text-sec); margin-top:3px; }
+        .coord-sync-diff b { color:var(--text-main); }
+        .coord-sync-empty { text-align:center; padding:34px 20px; color:var(--text-sec); font-size:0.85rem; }
+        .coord-sync-empty .material-icons-round { color:#7c3aed; }
+        .coord-edit-toggle-row { display:flex; align-items:center; justify-content:space-between; gap:14px; background:linear-gradient(135deg,rgba(124,58,237,0.08),rgba(67,56,202,0.04)); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:16px; }
+        #coord-edit-bar { position:fixed; top:var(--header-h); left:0; right:0; z-index:2500; display:none; flex-direction:column; }
+        #coord-edit-bar.show { display:flex; }
+        .coord-edit-toolbar { display:flex; gap:6px; padding:8px 18px; background:var(--bg-card); border-bottom:1px solid var(--border); box-shadow:0 6px 16px rgba(0,0,0,0.08); align-items:center; }
+        #coord-paint-palette { display:flex; gap:6px; padding:8px 18px; overflow-x:auto; scrollbar-width:none; background:var(--bg-card); border-bottom:1px solid var(--border); box-shadow:0 6px 16px rgba(0,0,0,0.06); }
+        #coord-paint-palette::-webkit-scrollbar { display:none; }
+        .paint-tool-btn { flex-shrink:0; display:flex; align-items:center; gap:6px; padding:8px 12px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:800; font-size:0.7rem; cursor:pointer; white-space:nowrap; transition:0.15s; }
+        .paint-tool-btn .ptb-swatch { width:14px; height:14px; border-radius:4px; background:var(--btn-bg,var(--border)); border:1px solid rgba(0,0,0,0.15); flex-shrink:0; }
+        .paint-tool-btn.diurno .ptb-swatch { border-style:dashed; border-width:2px; }
+        .paint-tool-btn.active { border-color:var(--primary); box-shadow:0 0 0 2px rgba(37,99,235,0.3); background:var(--btn-bg,var(--bg)); color:var(--btn-fg,var(--text-main)); }
+        .paint-tool-btn.stop-tool.active { background:#e2e8f0; color:#334155; border-color:#94a3b8; }
+        .paint-tool-btn.clear-tool .ptb-swatch { background:#fff; border:2px dashed #dc2626; }
+        .paint-tool-btn.clear-tool.active { background:#fee2e2; color:#991b1b; border-color:#dc2626; }
+        .paint-group-sep { flex-shrink:0; width:1px; align-self:stretch; background:var(--border); margin:2px 2px; }
+        body.coord-edit-mode.paint-active td[data-col] { cursor:crosshair; }
+        body.paint-active #main-table td[data-col] { touch-action:none; }
+        .coord-tool-btn { flex:0 0 auto; width:38px; height:38px; padding:0; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .coord-tool-btn .material-icons-round { font-size:19px; }
+        .coord-tool-btn:disabled { opacity:0.35; cursor:default; }
+        .coord-tool-btn.primary { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .coord-tool-btn.danger { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
+        .coord-tool-sep { width:1px; align-self:stretch; background:var(--border); margin:0 4px; }
+        body.coord-edit-mode td[data-col] { cursor:grab; }
+        body.coord-edit-mode td[data-col] .cell { outline:1.5px dashed rgba(37,99,235,0.35); outline-offset:-2px; }
+        body.coord-edit-mode td.coord-dragging { opacity:0.4; }
+        body.coord-edit-mode td.coord-dragover { outline:2.5px solid var(--primary); background:rgba(37,99,235,0.12); }
+        body.coord-edit-mode td.coord-fillover { outline:2.5px solid #16a34a; background:rgba(22,163,74,0.14); }
+        body.coord-edit-mode td.coord-selected { outline:3px solid #f59e0b; outline-offset:-3px; z-index:50; }
+        #shift-edit-popup { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9700; align-items:center; justify-content:center; opacity:0; transition:opacity 0.25s; padding:16px; }
+        #shift-edit-popup.open { opacity:1; }
+        #shift-edit-popup .alert-card { max-width:420px; max-height:80vh; display:flex; flex-direction:column; transform:scale(0.9); }
+        #shift-edit-popup.open .alert-card { transform:scale(1); }
+        .sep-grid { padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+        .sep-group-label { font-size:0.66rem; font-weight:800; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-sec); margin:8px 0 2px; }
+        .sep-group-label:first-child { margin-top:0; }
+        .sep-btn { text-align:left; padding:12px 14px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+        .sep-btn small { color:var(--text-sec); font-weight:600; }
+        .sep-btn.clear-btn { border-color:#fecaca; background:#fee2e2; color:#991b1b; }
+        .sep-swatch { width:14px; height:14px; border-radius:4px; background:var(--btn-bg, var(--border)); display:inline-block; margin-right:8px; vertical-align:middle; border:1px solid rgba(0,0,0,0.15); }
+        .sep-swatch.dashed { border-style:dashed; border-width:2px; }
         .admin-header-badge { background:#0f172a; color:#fff; }
         .admin-header-badge .header-text span { color:#94a3b8; }
         .admin-header-badge .btn-close-modal { background:#1e293b; color:#fff; }
@@ -685,6 +827,39 @@
             background: rgba(0,0,0,0.12); border-radius: 4px; padding: 1px 5px;
             letter-spacing: 0.3px;
         }
+
+        /* MANIGLIA LATERALE — apre/chiude il pannello Richieste trascinando orizzontalmente.
+           Resta sempre nella stessa posizione sul bordo destro, così si trova facilmente sia
+           per aprire che per richiudere il pannello. Identica a quella degli Autisti. */
+        #side-drag-handle {
+            position: fixed; top: 50%; right: 0; transform: translateY(-50%);
+            width: 24px; height: 60px; border-radius: 12px 0 0 12px;
+            background: var(--primary); box-shadow: -3px 0 12px rgba(0,0,0,0.25);
+            display: flex; align-items: center; justify-content: center;
+            cursor: grab; touch-action: none; z-index: 8100;
+        }
+        #side-drag-handle .material-icons-round { font-size: 18px; color: #fff; transition: transform 0.25s ease; }
+        #side-drag-handle.is-open .material-icons-round { transform: rotate(180deg); }
+
+        #richieste-panel {
+            position: fixed; top: 0; right: 0; bottom: 0; width: 100%;
+            background: var(--bg); z-index: 8000;
+            transform: translateX(100%);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.25);
+            display: flex; flex-direction: column;
+        }
+        .richieste-panel-header {
+            height: 46px; flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+            padding: env(safe-area-inset-top) 8px 0 14px; background: var(--primary); color: #fff;
+            font-weight: 800; font-size: 0.78rem; letter-spacing: 0.6px;
+            height: calc(46px + env(safe-area-inset-top));
+        }
+        .richieste-panel-header .rp-close-btn {
+            margin-left: auto; width: 32px; height: 32px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.18); color: #fff; display: flex; align-items: center;
+            justify-content: center; cursor: pointer;
+        }
+        #richieste-iframe { flex: 1; border: none; width: 100%; background: #fff; }
     </style>
 </head>
 <body>
@@ -1058,6 +1233,171 @@
 
 <div id="admin-save-toast" class="admin-save-toast"><span class="material-icons-round">check_circle</span> <span id="admin-save-toast-text">Salvato</span></div>
 
+<!-- ══════════════ CONTEGGIO ORARIO ══════════════ -->
+<div id="hours-modal" onclick="closeHoursModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header hc-header-badge">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">query_stats</span> CONTEGGIO ORARIO</h3>
+                <span>Ore lavorate per operatore</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeHoursModal()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div id="hc-list-view">
+                <div class="hc-search">
+                    <span class="material-icons-round">search</span>
+                    <input type="text" id="hc-search-input" placeholder="Cerca operatore..." oninput="renderHoursOperatorList()">
+                </div>
+                <div class="hc-op-list" id="hc-op-list"></div>
+            </div>
+            <div id="hc-detail-view" style="display:none;">
+                <div class="hc-back-row">
+                    <button class="hc-back-btn" onclick="hoursBackToList()"><span class="material-icons-round">arrow_back</span></button>
+                    <div class="hc-detail-name" id="hc-detail-name"></div>
+                </div>
+                <div id="hc-today-status"></div>
+                <div id="hc-projection"></div>
+                <div class="hc-period-tabs">
+                    <div class="hc-period-tab" data-period="settimana" onclick="setHoursPeriod('settimana')">SETTIMANA</div>
+                    <div class="hc-period-tab" data-period="mese" onclick="setHoursPeriod('mese')">MESE</div>
+                    <div class="hc-period-tab" data-period="anno" onclick="setHoursPeriod('anno')">ANNO</div>
+                </div>
+                <div class="hc-subnav" id="hc-subnav"></div>
+                <div class="hc-summary-row" id="hc-summary-row"></div>
+                <div id="hc-calendar-grid"></div>
+                <div class="hc-chart-wrap"><canvas id="hc-chart"></canvas></div>
+                <div id="hc-check-badge"></div>
+                <div class="hc-breakdown" id="hc-breakdown"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════ AREA COORDINATORE ══════════════ -->
+<div id="coord-login-modal" onclick="closeCoordLoginModal(event)">
+    <div class="alert-card" onclick="event.stopPropagation()">
+        <div class="alert-header" style="background:linear-gradient(135deg,#4338ca,#7c3aed);border-bottom:1px solid #5b21b6;">
+            <div class="alert-icon-box" style="color:#ddd6fe;border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.15);">
+                <span class="material-icons-round" style="font-size:28px;">supervisor_account</span>
+            </div>
+            <div class="alert-title" style="color:#fff;">AREA COORDINATORE</div>
+        </div>
+        <div class="alert-body">
+            <div style="margin-bottom:14px;color:var(--text-sec);font-size:0.9rem;">Inserisci la password per accedere alla gestione turni.</div>
+            <input type="password" id="coord-pw-input" class="admin-login-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkCoordPassword()">
+            <div class="admin-login-error" id="coord-pw-error"></div>
+        </div>
+        <div class="alert-footer">
+            <button class="btn-alert-ok" style="background:linear-gradient(135deg,#4338ca,#7c3aed);box-shadow:0 4px 12px rgba(124,58,237,0.35);" onclick="checkCoordPassword()">
+                <span class="material-icons-round">login</span> ACCEDI
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="coord-panel-modal" onclick="closeCoordPanel(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header coord-header-badge">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">supervisor_account</span> AREA COORDINATORE</h3>
+                <span>Gestione turni e promemoria Excel</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeCoordPanel()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" data-ctab="sync" onclick="switchCoordTab('sync',this)"><span class="material-icons-round">fact_check</span> Da Riportare</button>
+            <button class="admin-tab-btn" data-ctab="modifica" onclick="switchCoordTab('modifica',this)"><span class="material-icons-round">edit_calendar</span> Modifica Turni</button>
+            <button class="admin-tab-btn" data-ctab="ia" onclick="switchCoordTab('ia',this)"><span class="material-icons-round">smart_toy</span> Consigli IA</button>
+            <button class="admin-tab-btn" data-ctab="coordinatore" onclick="switchCoordTab('coordinatore',this)"><span class="material-icons-round">badge</span> Coordinatore</button>
+        </div>
+        <div class="modal-body" style="padding:0;">
+            <div class="admin-tab-panel active" id="coord-tab-sync" style="padding:18px;">
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">fact_check</span> Modifiche da riportare su Excel</div>
+                <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:14px;">Ogni turno creato o modificato dall'app va poi inserito anche nel file Excel. Spunta la voce quando l'hai riportata.</div>
+                <div id="coord-sync-list"></div>
+            </div>
+            <div class="admin-tab-panel" id="coord-tab-modifica" style="padding:18px;">
+                <div class="coord-edit-toggle-row">
+                    <div>
+                        <div style="font-weight:800;font-size:0.9rem;color:var(--text-main);">Modalità modifica turni</div>
+                        <div style="font-size:0.75rem;color:var(--text-sec);margin-top:2px;">Attiva la tavolozza colorata in alto: scegli un turno e "dipingi" le caselle del calendario toccandole</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="coord-edit-toggle" onchange="toggleCoordEditMode(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="font-size:0.78rem;color:var(--text-sec);line-height:1.5;">Attiva la modalità, poi chiudi questo pannello per vedere il calendario: in alto trovi la tavolozza con tutti i turni e le assenze colorate, come in un programma di disegno. Seleziona un colore e tocca (o trascina) le caselle da modificare. Con "Sposta/Scambia" selezionato puoi invece trascinare un turno su un altro operatore per scambiarli, oppure trascinarlo in verticale per estenderlo su più giorni. Tocca una casella singola per le opzioni complete, oppure selezionala e premi Canc per svuotarla. Usa i tasti in alto per annullare, ripetere, confermare o azzerare tutto.</div>
+            </div>
+            <div class="admin-tab-panel" id="coord-tab-ia" style="padding:18px;">
+                <div class="coord-edit-toggle-row">
+                    <div>
+                        <div style="font-weight:800;font-size:0.9rem;color:var(--text-main);">Consigli intelligenti sulle ore</div>
+                        <div style="font-size:0.75rem;color:var(--text-sec);margin-top:2px;">Segnala sul calendario gli operatori troppo sopra o sotto ore, con un consiglio su come sistemare la situazione</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="ai-advice-toggle" onchange="toggleAiAdvice(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div style="font-size:0.78rem;color:var(--text-sec);">Quando attivo, sopra il nome degli operatori in difficoltà compare un'icona <span class="material-icons-round" style="font-size:12px;vertical-align:middle;">smart_toy</span>: toccala per vedere il problema e il consiglio su come risolverlo.</div>
+            </div>
+            <div class="admin-tab-panel" id="coord-tab-coordinatore" style="padding:18px;">
+                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">badge</span> Chi è il Coordinatore</div>
+                <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:14px;">Tutte le richieste inviate dal portale Richieste verranno notificate (🔔) all'operatore qui selezionato, quando risulta loggato con il proprio nome.</div>
+                <select id="coord-select-name" class="admin-login-input" style="margin-bottom:12px;">
+                    <option value="" disabled selected>Seleziona operatore...</option>
+                </select>
+                <button class="btn-alert-ok" style="background:linear-gradient(135deg,#4338ca,#7c3aed);box-shadow:0 4px 12px rgba(124,58,237,0.35);width:100%;" onclick="saveCoordinatorName()">
+                    <span class="material-icons-round">save</span> SALVA COORDINATORE
+                </button>
+                <div id="coord-current-label" style="margin-top:12px;font-size:0.8rem;font-weight:700;color:var(--text-sec);">Nessun coordinatore impostato</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="coord-edit-bar">
+    <div class="coord-edit-toolbar" id="coord-edit-toolbar">
+        <button class="coord-tool-btn" id="coord-btn-undo" onclick="coordUndo()" disabled title="Indietro"><span class="material-icons-round">undo</span></button>
+        <button class="coord-tool-btn" id="coord-btn-redo" onclick="coordRedo()" disabled title="Avanti"><span class="material-icons-round">redo</span></button>
+        <div class="coord-tool-sep"></div>
+        <button class="coord-tool-btn primary" onclick="coordConfirmChanges()" title="Conferma"><span class="material-icons-round">check_circle</span></button>
+        <button class="coord-tool-btn danger" onclick="coordResetChanges()" title="Reset"><span class="material-icons-round">restart_alt</span></button>
+    </div>
+    <div id="coord-paint-palette"></div>
+</div>
+
+<div id="shift-edit-popup" onclick="closeShiftEditPopup(event)">
+    <div class="alert-card" onclick="event.stopPropagation()">
+        <div class="alert-header" style="background:#0f172a;border-bottom:1px solid #1e293b;">
+            <div class="alert-icon-box" style="color:#60a5fa;border-color:#334155;background:#1e293b;">
+                <span class="material-icons-round" style="font-size:24px;">edit_calendar</span>
+            </div>
+            <div class="alert-title" style="color:#fff;font-size:0.95rem;" id="sep-title">Modifica turno</div>
+        </div>
+        <div class="sep-grid" id="sep-grid"></div>
+    </div>
+</div>
+
+<div id="ai-advice-popup" onclick="closeAiAdvicePopup(event)">
+    <div class="alert-card" onclick="event.stopPropagation()">
+        <div class="alert-header" style="background:#4c1d95;border-bottom:1px solid #5b21b6;">
+            <div class="alert-icon-box" style="color:#c4b5fd;border-color:#5b21b6;background:#5b21b6;">
+                <span class="material-icons-round" style="font-size:24px;">smart_toy</span>
+            </div>
+            <div class="alert-title" style="color:#fff;font-size:0.95rem;" id="ai-advice-title">Consiglio</div>
+        </div>
+        <div class="alert-body">
+            <div id="ai-advice-text" style="font-size:0.88rem;color:var(--text-main);line-height:1.5;"></div>
+        </div>
+        <div class="alert-footer">
+            <button class="btn-alert-ok" style="background:#4c1d95;" id="ai-advice-gotohours"><span class="material-icons-round">query_stats</span> Vedi Conteggio Orario</button>
+        </div>
+    </div>
+</div>
+
 <div id="access-detail-modal" onclick="closeAccessDetail(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -1276,6 +1616,12 @@
                 <div class="menu-item" onclick="openOptionsModal()">
                     <span class="material-icons-round">settings</span> Opzioni
                 </div>
+                <div class="menu-item" onclick="openHoursModal()">
+                    <span class="material-icons-round">query_stats</span> Conteggio Orario
+                </div>
+                <div class="menu-item" onclick="openCoordLoginModal()">
+                    <span class="material-icons-round">supervisor_account</span> Area Coordinatore
+                </div>
                 <div class="menu-item" onclick="openAdminLoginModal()">
                     <span class="material-icons-round">admin_panel_settings</span> Area Admin
                 </div>
@@ -1290,6 +1636,24 @@
     </div>
 </header>
 
+<!-- Maniglia laterale: trascina verso sinistra per aprire l'area Richieste, verso destra
+     per tornare ai turni. È uno switch fra due pagine già caricate (un iframe tenuto vivo
+     fuori schermo), non una navigazione — niente ricaricamenti. Identica agli Autisti. -->
+<div id="side-drag-handle" title="Trascina per aprire/chiudere Richieste">
+    <span class="material-icons-round" id="side-drag-icon">chevron_left</span>
+</div>
+<div id="richieste-panel">
+    <div class="richieste-panel-header">
+        <span class="material-icons-round">assignment</span>
+        <span>RICHIESTE</span>
+        <button class="rp-close-btn" onclick="closeRichiestePanel()">
+            <span class="material-icons-round">chevron_right</span>
+        </button>
+    </div>
+    <iframe id="richieste-iframe" title="Richieste"></iframe>
+</div>
+
+<div id="coord-edit-spacer" style="height:0;"></div>
 <div class="container">
     <table id="main-table">
         <thead><tr id="table-head"></tr></thead>
@@ -1428,6 +1792,7 @@
             } catch(e) {}
         });
         listenConfigChanges();
+        listenIncomingRequests();
     }
 
     // Rete di sicurezza: se il browser ha cancellato i dati salvati sul dispositivo
@@ -1445,6 +1810,7 @@
                 userIdentity = doc.data().name;
                 localStorage.setItem('infermieri_identity_name', userIdentity);
                 applySplashWelcome();
+                checkIfIAmCoordinator();
                 console.log('[Identità] Recuperata dal backup UID:', userIdentity);
             } else {
                 console.log('[Identità] Nessun backup trovato per questo UID.');
@@ -1533,6 +1899,7 @@
         localStorage.setItem('infermieri_identity_name', name);
         writeIdentityToSession();
         persistIdentityToUidBackup();
+        checkIfIAmCoordinator();
         let m = document.getElementById('identity-modal'); m.classList.remove('open');
         setTimeout(() => { m.style.display = 'none'; showStartupMessages(); }, 300);
     }
@@ -1584,7 +1951,104 @@
             if(data.scheduleOverride) { scheduleOverride = data.scheduleOverride; applyScheduleOverride(); }
             if(data.welcome) { welcomeConfig = Object.assign({}, DEFAULT_WELCOME_BAKED, data.welcome); }
             if(data.announcements) { customAnnouncements = data.announcements; }
+            if(data.manualOverrides !== undefined && (!coordEditModeActive || coordUndoStack.length === 0)) {
+                manualOverrides = data.manualOverrides || {};
+                if(!coordEditModeActive) { coordEditBaseline = JSON.parse(JSON.stringify(manualOverrides)); }
+                applyManualOverrides();
+                if(typeof finalData !== 'undefined' && finalData.length) renderTable();
+                if(document.getElementById('hours-modal')?.classList.contains('open')) renderHoursDetail();
+            }
+            if(data.excelSyncedMarks !== undefined) {
+                excelSyncedMarks = data.excelSyncedMarks || {};
+                renderCoordSyncList();
+            }
+            if(data.coordinatorName !== undefined) {
+                coordinatorName = data.coordinatorName || null;
+                checkIfIAmCoordinator();
+                renderCoordinatorTab();
+            }
         }, err => console.error("Errore ascolto config:", err));
+    }
+
+    // ── Coordinatore designato: selezionabile in Area Coordinatore, notifiche
+    // in arrivo dal portale Richieste vengono inviate SOLO a chi risulta loggato
+    // con lo stesso nome qui impostato. ──────────────────────────────────────
+    let coordinatorName = null;
+    let isCoordinator = false;
+    function normalizeNameForMatch(n) {
+        return (n || "").toString().toUpperCase().trim();
+    }
+    function checkIfIAmCoordinator() {
+        isCoordinator = !!(userIdentity && coordinatorName && normalizeNameForMatch(userIdentity) === normalizeNameForMatch(coordinatorName));
+    }
+    function renderCoordinatorTab() {
+        const sel = document.getElementById('coord-select-name');
+        if(!sel) return;
+        const prevValue = sel.value;
+        sel.innerHTML = '<option value="" disabled selected>Seleziona operatore...</option>';
+        (typeof drivers !== 'undefined' ? drivers : []).slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.name; opt.textContent = d.name;
+            sel.appendChild(opt);
+        });
+        if(coordinatorName && Array.from(sel.options).some(o => o.value === coordinatorName)) sel.value = coordinatorName;
+        else if(prevValue) sel.value = prevValue;
+        const currentLabel = document.getElementById('coord-current-label');
+        if(currentLabel) currentLabel.textContent = coordinatorName ? ('Coordinatore attuale: ' + coordinatorName) : 'Nessun coordinatore impostato';
+    }
+    function saveCoordinatorName() {
+        const sel = document.getElementById('coord-select-name');
+        if(!sel || !sel.value) { alert('Seleziona un operatore prima di salvare.'); return; }
+        if(!fbReady) return;
+        db.collection('infermieri26_config').doc('settings').set({ coordinatorName: sel.value }, { merge:true })
+            .then(() => { const lbl = document.getElementById('coord-current-label'); if(lbl) lbl.textContent = 'Coordinatore attuale: ' + sel.value; })
+            .catch(e => { console.error('Errore salvataggio coordinatore:', e); alert('Errore durante il salvataggio.'); });
+    }
+
+    // ── Notifiche richieste in arrivo dal portale Richieste Infermieri ──────
+    // Ascolta la collection "richieste_infermieri" (stesso progetto Firebase):
+    // per ogni NUOVA richiesta (non quelle già presenti al primo caricamento),
+    // se chi è loggato in questo momento è il coordinatore designato, genera
+    // una notifica nel centro notifiche esistente (🔔).
+    const RICHIESTE_TYPE_LABELS = {
+        "copertura_reperibilita": "Cessione Reperibilità",
+        "cambio_turno":           "Cambio Turno",
+        "ferie":                  "Congedo Ordinario",
+        "ferie_anno_prec":        "Congedo Anno Precedente",
+        "permesso_ore":           "Permesso straordinario ad Ore",
+        "permesso":               "Permesso straordinario",
+        "recupero_ore":           "Recupero Ore",
+        "permesso_matrimonio":    "Permesso Matrimonio",
+        "permesso_studio":        "Permesso Studio",
+        "permesso_sportivo":      "Permesso Sportivo",
+        "permesso_notte":         "Permesso straordinario Notte",
+        "permesso_lutto":         "Permesso Lutto",
+        "aspettativa":            "Aspettativa"
+    };
+    let richiesteListenerReady = false;
+    function listenIncomingRequests() {
+        if(!fbReady) return;
+        db.collection('richieste_infermieri').orderBy('timestamp', 'desc').limit(50)
+            .onSnapshot(snap => {
+                if(!richiesteListenerReady) { richiesteListenerReady = true; return; } // salta il carico iniziale
+                snap.docChanges().forEach(change => {
+                    if(change.type !== 'added') return;
+                    notifyCoordinatorOfNewRequest(change.doc.data());
+                });
+            }, err => console.error('Errore ascolto richieste infermieri:', err));
+    }
+    function notifyCoordinatorOfNewRequest(r) {
+        if(!isCoordinator) return;
+        const label = RICHIESTE_TYPE_LABELS[r.type] || r.type || 'Richiesta';
+        let periodo = '';
+        if(r.dateFrom) {
+            const parts = r.dateFrom.split('-');
+            if(parts.length === 3) periodo = parts[2] + '/' + parts[1];
+        }
+        const swap = r.swapWith ? (' con ' + r.swapWith) : '';
+        const msg = `<b>📋 Nuova richiesta - ${r.name || '—'}</b><br><span style="font-size:0.85rem;color:var(--text-sec)">${label}${swap}${periodo ? ' · ' + periodo : ''}</span>`;
+        notifHistory.unshift({ id: Date.now()+Math.random(), text: msg, read:false, archived:false, date:new Date().toLocaleString() });
+        saveNotifications(); updateBadge();
     }
 
     function applyColorOverrides() {
@@ -2004,7 +2468,46 @@
         globalMonthsList = [], dinnerSelectedMonth = "", eventType = "cena",
         currentNotifTab = "attive";
 
+    // ── Conteggio Orario / Area Coordinatore: stato globale ──────────────────
+    const COORD_PASSWORD = "cord.";
+    let rawFinalData = [];                 // dati "puri" letti dall'ultimo Excel caricato
+    let manualOverrides = {};              // chiave "NOME__MESE-giorno" -> {v,subV,customMinutes}
+    let excelSyncedMarks = {};             // key -> valore (JSON) già segnato come riportato su Excel
+    let coordEditModeActive = false;
+    let coordEditBaseline = {};            // stato manualOverrides all'apertura della modalità modifica
+    let coordUndoStack = [], coordRedoStack = [];
+    let coordDragSource = null;            // {driverIdx, rowIdx} cella presa col drag
+    let coordSelectedCell = null;          // {row,col} cella attualmente selezionata (per Canc)
+    let coordColumnCellsCache = {};        // row -> elemento td, per il trascinamento verticale
+    let coordLastFillRange = null;         // {lo,hi} ultimo intervallo evidenziato durante il fill
+    let coordEditPopupTarget = null;       // {driverIdx, rowIdx} cella target del popup di modifica
+    let hoursSelectedDriver = null, hoursPeriod = "settimana";
+    let aiAdviceEnabled = (localStorage.getItem('ai_advice_enabled') === '1');
+    let hoursWeekAnchor = new Date(2026, new Date().getMonth(), new Date().getDate());
+    let hoursSelectedMonthIdx = new Date().getMonth();
+    let hoursChartInstance = null;
+    const SHIFT_YEAR = 2026;
+    const SPECIAL_SUBCODES = {
+        v:  "FERIE RESIDUE", r: "RECUPERO", f: "CONGEDO ORDINARIO (C.O.)", m: "MALATTIA",
+        p:  "PERMESSO", c: "PERMESSO STUDIO", pn: "PERMESSO NOTTE", ng: "FESTIVO NON GODUTO",
+        nl: "FESTIVO NON LAVORATO", z: "SOSTITUZIONE COORD.", gr: "GRAVIDANZA"
+    };
+    const STANDARD_CODES = ["M","P","N","SM","R"];
+    const DIURNI_CODES = ["m","p","r"];
+    // Colori riusati dalle stesse variabili CSS del calendario, per coerenza visiva
+    const MAIN_CODE_COLORS = { M:{bg:'--c-M',fg:'--t-M'}, P:{bg:'--c-P',fg:'--t-P'}, N:{bg:'--c-N',fg:'--t-N'}, SM:{bg:'--c-SM',fg:'--t-SM'}, R:{bg:'--c-R',fg:'--t-R'} };
+    const SUB_CODE_COLORS = {
+        v:{bg:'--bg-ferie',fg:'--t-ferie'}, r:{bg:'--bg-rec',fg:'--t-rec'}, f:{bg:'--bg-cong',fg:'--t-cong'},
+        m:{bg:'--bg-mal',fg:'--t-mal'}, p:{bg:'--bg-perm',fg:'--t-perm'}, c:{bg:'--bg-stu',fg:'--t-stu'},
+        pn:{bg:'--bg-pn',fg:'--t-pn'}, ng:{bg:'--bg-ng',fg:'--t-ng'}, nl:{bg:'--bg-nl',fg:'--t-nl'}, z:{bg:'--bg-coord',fg:'--t-coord'}
+    };
+    let coordPaintTool = null;             // {v,subV} oppure {clear:true}: pennello attualmente selezionato
+    let coordPainting = false;             // true mentre l'utente sta trascinando per dipingere
+    let coordPaintBatchEntries = [];       // modifiche accumulate durante il gesto di pittura corrente
+    let coordPaintTouchedKeys = new Set(); // celle già toccate nel gesto corrente (evita doppie voci di undo)
+
     window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+    window.addEventListener('resize', () => { if(coordEditModeActive) syncCoordEditBarHeight(); });
 
     function installPWA() {
         if(deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; }); }
@@ -2118,6 +2621,8 @@
                 rawData[rowNumber] = rowData;
             });
             finalData = parseHorizontalLayout(rawData);
+            rawFinalData = JSON.parse(JSON.stringify(finalData));
+            applyManualOverrides();
             initApp();
             if(splashMinTime) await splashMinTime;
             document.getElementById('loader').style.opacity = '0';
@@ -2401,13 +2906,823 @@
         return s === "M+N" || s === "MN";
     }
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // CONTEGGIO ORARIO — calcolo ore lavorate a partire dal calendario
+    // ═══════════════════════════════════════════════════════════════════════
+    function minutesFromRange(rangeStr) {
+        if(!rangeStr) return 0;
+        let s = rangeStr.toString().trim().toUpperCase();
+        if(s === "RIPOSO" || s === "") return 0;
+        let parts = s.split('-').map(p=>p.trim());
+        if(parts.length !== 2) return 0;
+        let a = parts[0].split(':').map(Number), b = parts[1].split(':').map(Number);
+        if(a.length<2 || b.length<2 || a.some(isNaN) || b.some(isNaN)) return 0;
+        let start = a[0]*60+a[1], end = b[0]*60+b[1];
+        if(end <= start) end += 1440; // turno che attraversa la mezzanotte (es. Notte 19:45-00:00)
+        return end - start;
+    }
+    function overrideKey(originalName, monthName, day) { return `${originalName}__${monthName}-${day}`; }
+
+    // Metodo A (principale): rispecchia esattamente la logica usata per disegnare
+    // le celle del calendario, incluso lo SMONTO automatico dopo un turno M+N.
+    function computeDayInfo(rowIdx, colIdx) {
+        const row = finalData[rowIdx]; if(!row) return { minutes:0, code:"", label:"" };
+        const info = row[colIdx] || {};
+        if(info.customMinutes !== undefined && info.customMinutes !== null && info.customMinutes !== "") {
+            return { minutes: Math.round(Number(info.customMinutes)*60) || 0, code: "STR", label: "STRAORDINARIO" };
+        }
+        const prevRow = finalData[rowIdx-1];
+        const prevInfo = prevRow ? (prevRow[colIdx] || {}) : null;
+        let prevRaw = (prevInfo && prevInfo.v !== undefined && prevInfo.v !== null) ? prevInfo.v.toString().trim().toUpperCase().replace(/\s+/g,'') : "";
+        if(isMN(prevRaw)) return { minutes: minutesFromRange(SCHEDULE["SM"]), code:"SM", label:"SMONTO (dopo M+N)" };
+
+        let rawStr = (info.v !== undefined && info.v !== null) ? info.v.toString().trim() : "";
+        let rawUpper = rawStr.toUpperCase().replace(/\s+/g,'');
+        if(isMN(rawUpper)) return { minutes: minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]), code:"M+N", label:"MATTINA + NOTTE" };
+
+        let subVal = (info.subV||"").toString().trim().toLowerCase();
+        if(SPECIAL_SUBCODES[subVal] !== undefined) return { minutes:0, code:subVal, label: SPECIAL_SUBCODES[subVal] };
+
+        let val = rawStr; let si = val.indexOf('/'); if(si !== -1) val = val.substring(0,si).trim();
+        if(!val || val === "-") return { minutes:0, code:"", label:"" };
+
+        let firstChar = val.charAt(0);
+        let isDiurnista = firstChar >= 'a' && firstChar <= 'z';
+        if(isDiurnista) {
+            let t = SCHEDULE_DIURNI[val.toLowerCase()];
+            if(t === undefined) return { minutes:0, code:val, label:val, unrecognized:true };
+            return { minutes: minutesFromRange(t), code: val.toLowerCase(), label: val.toUpperCase()+" (diurno)" };
+        } else {
+            let u = val.toUpperCase();
+            let t = SCHEDULE[u];
+            if(t === undefined) return { minutes:0, code:u, label:u, unrecognized:true };
+            return { minutes: minutesFromRange(t), code:u, label:u };
+        }
+    }
+    // Metodo B (doppio controllo): ricalcolo indipendente scritto da zero, senza
+    // richiamare computeDayInfo, per intercettare eventuali errori di calcolo.
+    function independentDayMinutes(rowIdx, colIdx) {
+        const row = finalData[rowIdx]; if(!row) return 0;
+        const cell = row[colIdx] || {};
+        if(cell.customMinutes !== undefined && cell.customMinutes !== null && cell.customMinutes !== "") {
+            return Math.round(Number(cell.customMinutes)*60) || 0;
+        }
+        const prevRow = finalData[rowIdx-1]; const prevCell = prevRow ? (prevRow[colIdx]||{}) : {};
+        let prevRaw = (prevCell.v||"").toString().trim().toUpperCase().replace(/\s+/g,'');
+        if(prevRaw === "M+N" || prevRaw === "MN") return minutesFromRange(SCHEDULE["SM"]);
+        let raw = (cell.v||"").toString().trim();
+        let rawU = raw.toUpperCase().replace(/\s+/g,'');
+        if(rawU === "M+N" || rawU === "MN") return minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]);
+        let sub = (cell.subV||"").toString().trim().toLowerCase();
+        if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) return 0;
+        let v = raw; let si = v.indexOf('/'); if(si !== -1) v = v.substring(0,si).trim();
+        if(!v || v === "-") return 0;
+        let fc = v.charAt(0); let isD = fc>='a' && fc<='z';
+        let t = isD ? SCHEDULE_DIURNI[v.toLowerCase()] : SCHEDULE[v.toUpperCase()];
+        if(t === undefined) return 0;
+        return minutesFromRange(t);
+    }
+    function buildDaysIndex() {
+        let list = [];
+        for(let r=1; r<finalData.length; r++) {
+            let row = finalData[r]; let mName = row[0].v; let dNum = parseInt(row[1].v);
+            if(!mName || isNaN(dNum)) continue;
+            let mIdx = MONTH_MAP[mName]; if(mIdx === undefined) continue;
+            list.push({ rowIdx:r, month:mName, monthIdx:mIdx, day:dNum, date:new Date(SHIFT_YEAR, mIdx, dNum) });
+        }
+        return list;
+    }
+    function getISOWeek(date) {
+        let d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        let dayNum = d.getUTCDay() || 7;
+        d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+        let yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+        return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    }
+    function getWeekRange(anchorDate) {
+        let d = new Date(anchorDate); let day = d.getDay(); let diffToMon = (day===0?-6:1-day);
+        let mon = new Date(d); mon.setDate(d.getDate()+diffToMon); mon.setHours(0,0,0,0);
+        let sun = new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+        return { start:mon, end:sun };
+    }
+    function formatHM(totalMinutes) {
+        let neg = totalMinutes < 0; let m = Math.round(Math.abs(totalMinutes));
+        let h = Math.floor(m/60); let mm = m%60;
+        return (neg?"-":"") + h + "h " + (mm<10?"0"+mm:mm) + "m";
+    }
+    function getDriverByIdx(idx) { return drivers.find(d=>d.idx===idx); }
+    function refDateForBalance() {
+        let today = new Date(); today.setHours(0,0,0,0);
+        if(today.getFullYear() === SHIFT_YEAR) return today;
+        return today.getFullYear() > SHIFT_YEAR ? new Date(SHIFT_YEAR,11,31) : new Date(SHIFT_YEAR,0,1);
+    }
+    function computeDriverBalance(driverIdx) {
+        const days = buildDaysIndex();
+        let refDate = refDateForBalance();
+        let elapsed = days.filter(dd => dd.date <= refDate);
+        if(!elapsed.length) return 0;
+        let worked = elapsed.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
+        let dayCount = Math.floor((refDate - elapsed[0].date)/86400000)+1;
+        let target = (dayCount/7)*36*60;
+        return worked - target;
+    }
+
+    // ── Consigli IA (motore di regole locale, nessuna chiamata esterna) ─────
+    const AI_THRESHOLD_LOW = 2*60;   // sotto -2h di scostamento -> operatore in debito
+    const AI_THRESHOLD_HIGH = 4*60;  // sopra +4h di scostamento -> operatore in credito
+    function toggleAiAdvice(active) {
+        aiAdviceEnabled = active;
+        localStorage.setItem('ai_advice_enabled', active ? '1' : '0');
+        if(typeof finalData !== 'undefined' && finalData.length) renderTable();
+    }
+    function getAdviceForDriver(driverIdx) {
+        let balance = computeDriverBalance(driverIdx);
+        if(balance <= -AI_THRESHOLD_LOW) {
+            return { type:'debito', title:'Ore in debito',
+                text:`È sotto di ${formatHM(Math.abs(balance))} rispetto alle ore contrattuali maturate ad oggi. Valuta di assegnargli uno o più turni aggiuntivi nelle prossime settimane, oppure di fargli recuperare con dello straordinario, per riportarlo in pari. Apri il Conteggio Orario per vedere il dettaglio settimana per settimana.` };
+        }
+        if(balance >= AI_THRESHOLD_HIGH) {
+            return { type:'credito', title:'Ore in credito',
+                text:`È in credito di ${formatHM(balance)} rispetto alle ore contrattuali maturate ad oggi. Valuta di inserirgli uno o più riposi extra nelle prossime settimane per riportarlo in pari ed evitare che accumuli troppe ore. Apri il Conteggio Orario per vedere il dettaglio settimana per settimana.` };
+        }
+        return null;
+    }
+    function openAiAdvicePopup(driverIdx) {
+        let d = getDriverByIdx(driverIdx); if(!d) return;
+        let advice = getAdviceForDriver(driverIdx); if(!advice) return;
+        vibrate();
+        document.getElementById('ai-advice-title').innerText = `${d.name} — ${advice.title}`;
+        document.getElementById('ai-advice-text').innerText = advice.text;
+        document.getElementById('ai-advice-gotohours').onclick = () => { closeAiAdvicePopup(); setTimeout(()=>{ openHoursModal(); setTimeout(()=>openHoursDetail(driverIdx), 350); }, 260); };
+        let m = document.getElementById('ai-advice-popup'); m.style.display='flex';
+        setTimeout(()=>m.classList.add('open'),10);
+    }
+    function closeAiAdvicePopup(e) {
+        if(e && e.target !== e.currentTarget) return;
+        let m = document.getElementById('ai-advice-popup'); m.classList.remove('open');
+        setTimeout(()=>m.style.display='none',250);
+    }
+
+    function applyManualOverrides() {
+        if(!rawFinalData.length) return;
+        finalData = JSON.parse(JSON.stringify(rawFinalData));
+        let header = finalData[0]; if(!header) return;
+        for(let r=1; r<finalData.length; r++) {
+            let row = finalData[r]; let mName = row[0].v; let dNum = parseInt(row[1].v);
+            for(let i=3; i<header.length; i++) {
+                let origName = header[i];
+                let key = overrideKey(origName, mName, dNum);
+                let ov = manualOverrides[key];
+                if(ov) row[i] = Object.assign({}, row[i], { v: ov.v, subV: ov.subV || "", overridden:true, customMinutes: ov.customMinutes });
+            }
+        }
+    }
+
+    // ── Modale Conteggio Orario: elenco operatori ────────────────────────────
+    function openHoursModal() {
+        toggleMenu(); vibrate();
+        document.getElementById('hc-list-view').style.display = 'block';
+        document.getElementById('hc-detail-view').style.display = 'none';
+        document.getElementById('hc-search-input').value = "";
+        renderHoursOperatorList();
+        let m = document.getElementById('hours-modal'); m.style.display = 'flex';
+        setTimeout(()=>m.classList.add('open'),10);
+    }
+    function closeHoursModal(e) {
+        if(e && e.target !== e.currentTarget) return;
+        let m = document.getElementById('hours-modal'); m.classList.remove('open');
+        setTimeout(()=>m.style.display='none',300);
+        if(hoursChartInstance) { hoursChartInstance.destroy(); hoursChartInstance = null; }
+    }
+    function renderHoursOperatorList() {
+        const listEl = document.getElementById('hc-op-list'); if(!listEl) return;
+        const q = (document.getElementById('hc-search-input')?.value || "").trim().toLowerCase();
+        let cols = drivers.slice().sort((a,b)=>a.name.localeCompare(b.name));
+        listEl.innerHTML = "";
+        cols.forEach(d => {
+            if(q && !d.name.toLowerCase().includes(q)) return;
+            let initials = d.name.split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+            let item = document.createElement('div'); item.className = 'hc-op-item';
+            item.onclick = () => openHoursDetail(d.idx);
+            item.innerHTML = `<div class="hc-op-avatar">${initials}</div><div class="hc-op-name">${d.name}</div><span class="material-icons-round" style="color:var(--text-sec)">chevron_right</span>`;
+            listEl.appendChild(item);
+        });
+        if(!listEl.children.length) listEl.innerHTML = `<div class="coord-sync-empty">Nessun operatore trovato</div>`;
+    }
+    function hoursBackToList() {
+        vibrate();
+        document.getElementById('hc-list-view').style.display='block';
+        document.getElementById('hc-detail-view').style.display='none';
+        if(hoursChartInstance) { hoursChartInstance.destroy(); hoursChartInstance = null; }
+    }
+    function openHoursDetail(driverIdx) {
+        vibrate();
+        hoursSelectedDriver = driverIdx; hoursPeriod = "settimana";
+        hoursWeekAnchor = new Date(); hoursSelectedMonthIdx = new Date().getMonth();
+        document.getElementById('hc-list-view').style.display='none';
+        document.getElementById('hc-detail-view').style.display='block';
+        let d = getDriverByIdx(driverIdx);
+        document.getElementById('hc-detail-name').innerText = d ? d.name : "";
+        document.querySelectorAll('.hc-period-tab').forEach(t=>t.classList.toggle('active', t.dataset.period==='settimana'));
+        renderHoursDetail();
+    }
+    function setHoursPeriod(p) {
+        vibrate(); hoursPeriod = p;
+        document.querySelectorAll('.hc-period-tab').forEach(t=>t.classList.toggle('active', t.dataset.period===p));
+        renderHoursDetail();
+    }
+    function hoursShiftWeek(delta) {
+        vibrate();
+        let d = new Date(hoursWeekAnchor); d.setDate(d.getDate() + delta*7); hoursWeekAnchor = d;
+        renderHoursDetail();
+    }
+    function hoursSetMonth(idx) { vibrate(); hoursSelectedMonthIdx = parseInt(idx); renderHoursDetail(); }
+
+    function renderHoursTodayStatus(driverIdx) {
+        const days = buildDaysIndex();
+        let refDate = refDateForBalance();
+        let elapsed = days.filter(dd => dd.date <= refDate);
+        let statusEl = document.getElementById('hc-today-status');
+        if(!elapsed.length) { statusEl.innerHTML = ""; document.getElementById('hc-projection').innerHTML = ""; return; }
+        let workedSoFar = elapsed.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
+        let dayCount = Math.floor((refDate - elapsed[0].date)/86400000)+1;
+        let targetSoFar = (dayCount/7)*36*60;
+        let delta = workedSoFar - targetSoFar;
+        let cls = delta>=0 ? 'ok' : 'low';
+        let msg = delta>=0 ? `IN CREDITO ${formatHM(delta)}` : `IN DEBITO ${formatHM(Math.abs(delta))}`;
+        statusEl.innerHTML = `<div class="hc-today-card ${cls}">
+            <span class="material-icons-round">${delta>=0?'trending_up':'trending_down'}</span>
+            <div><div class="hc-today-main">AD OGGI: ${msg}</div><div class="hc-today-sub">${formatHM(workedSoFar)} lavorate su ${formatHM(targetSoFar)} contrattuali maturate da inizio anno${delta<0?' — valuta di inserire un riposo':''}</div></div>
+        </div>`;
+
+        // proiezione prossime settimane, in base ai turni già pianificati a calendario
+        let futureDays = days.filter(dd => dd.date > refDate);
+        let weeksMap = {};
+        futureDays.forEach(dd => { let wk = getISOWeek(dd.date); (weeksMap[wk]=weeksMap[wk]||[]).push(dd); });
+        let weekKeys = Object.keys(weeksMap).sort((a,b)=>a-b).slice(0,4);
+        let projEl = document.getElementById('hc-projection');
+        if(!weekKeys.length) { projEl.innerHTML = ''; return; }
+        let rows = weekKeys.map(wk => {
+            let group = weeksMap[wk];
+            let tot = group.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
+            let d2 = tot - 36*60;
+            let startLbl = group[0].date.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'});
+            let cls2 = d2>=0?'pos':'neg';
+            return `<div class="hc-bd-row"><div><div class="hc-bd-main">Settimana dal ${startLbl}</div><div class="hc-bd-sub">${group.length} giorni già pianificati</div></div><div style="text-align:right"><div class="hc-bd-hours">${formatHM(tot)}</div><div class="hc-bd-delta ${cls2}">${d2>=0?'+':''}${formatHM(d2)}</div></div></div>`;
+        }).join('');
+        projEl.innerHTML = `<div class="admin-section-label" style="margin:0 18px 8px;"><span class="material-icons-round" style="font-size:14px">insights</span> Prossime settimane pianificate</div><div style="margin:0 18px;">${rows}</div>`;
+    }
+    function renderMonthCalendarGrid(monthIdx, driverIdx) {
+        const el = document.getElementById('hc-calendar-grid');
+        if(hoursPeriod !== 'mese') { el.style.display='none'; el.innerHTML=''; return; }
+        const days = buildDaysIndex().filter(dd=>dd.monthIdx===monthIdx);
+        if(!days.length) { el.innerHTML = ''; el.style.display='none'; return; }
+        el.style.display = 'block';
+        let firstDow = (days[0].date.getDay()+6)%7;
+        let cells = []; for(let i=0;i<firstDow;i++) cells.push(null);
+        days.forEach(dd=>cells.push(dd));
+        let todayStr = new Date().toDateString();
+        let html = `<div class="hc-cal-weekdays">${['L','M','M','G','V','S','D'].map(w=>`<div>${w}</div>`).join('')}</div><div class="hc-cal-grid">`;
+        cells.forEach(dd => {
+            if(!dd) { html += `<div class="hc-cal-cell empty"></div>`; return; }
+            let info = computeDayInfo(dd.rowIdx, driverIdx);
+            let cls = 'worked';
+            if(info.minutes===0 && info.code && SPECIAL_SUBCODES[info.code] !== undefined) cls='absence';
+            else if(info.minutes===0 && info.unrecognized) cls='unrecognized';
+            else if(info.minutes===0) cls='riposo';
+            let isToday = dd.date.toDateString() === todayStr;
+            html += `<div class="hc-cal-cell ${cls} ${isToday?'is-today':''}"><div class="hc-cal-daynum">${dd.day}</div><div class="hc-cal-code">${info.code||'—'}</div></div>`;
+        });
+        html += `</div>`;
+        el.innerHTML = html;
+    }
+
+    function renderHoursDetail() {
+        if(hoursSelectedDriver === null || hoursSelectedDriver === undefined) return;
+        renderHoursTodayStatus(hoursSelectedDriver);
+        const days = buildDaysIndex();
+        const subnav = document.getElementById('hc-subnav');
+        let periodDays = [], targetHoursTotal = 0, chartLabels = [], chartData = [], chartTargetLine = null, breakdownRows = [];
+
+        if(hoursPeriod === "settimana") {
+            let {start,end} = getWeekRange(hoursWeekAnchor);
+            subnav.innerHTML = `
+                <button class="hc-subnav-btn" onclick="hoursShiftWeek(-1)"><span class="material-icons-round">chevron_left</span></button>
+                <div class="hc-subnav-label">${start.toLocaleDateString('it-IT',{day:'2-digit',month:'short'})} — ${end.toLocaleDateString('it-IT',{day:'2-digit',month:'short'})}</div>
+                <button class="hc-subnav-btn" onclick="hoursShiftWeek(1)"><span class="material-icons-round">chevron_right</span></button>`;
+            periodDays = days.filter(dd => dd.date >= start && dd.date <= end);
+            targetHoursTotal = 36;
+            let giorniLbl = ["LUN","MAR","MER","GIO","VEN","SAB","DOM"];
+            for(let i=0;i<7;i++) {
+                let dt = new Date(start); dt.setDate(start.getDate()+i);
+                let match = periodDays.find(dd=>dd.date.toDateString()===dt.toDateString());
+                let info = match ? computeDayInfo(match.rowIdx, hoursSelectedDriver) : {minutes:0,label:""};
+                chartLabels.push(giorniLbl[i]); chartData.push(+(info.minutes/60).toFixed(2));
+                breakdownRows.push({ main: dt.toLocaleDateString('it-IT',{weekday:'long',day:'2-digit',month:'2-digit'}), sub: info.label || "—", minutes: info.minutes });
+            }
+            chartTargetLine = 36/7;
+        } else if(hoursPeriod === "mese") {
+            let monthNamesArr = Object.keys(MONTH_MAP);
+            let optsHtml = monthNamesArr.map((mn,i)=>`<option value="${i}" ${i===hoursSelectedMonthIdx?"selected":""}>${mn.charAt(0)+mn.slice(1).toLowerCase()}</option>`).join('');
+            subnav.innerHTML = `<select onchange="hoursSetMonth(this.value)">${optsHtml}</select>`;
+            periodDays = days.filter(dd => dd.monthIdx === hoursSelectedMonthIdx);
+            let weeksMap = {};
+            periodDays.forEach(dd => { let wk = getISOWeek(dd.date); (weeksMap[wk] = weeksMap[wk]||[]).push(dd); });
+            let weekKeys = Object.keys(weeksMap).sort((a,b)=>a-b);
+            targetHoursTotal = weekKeys.length * 36;
+            weekKeys.forEach((wk,i) => {
+                let tot = weeksMap[wk].reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,hoursSelectedDriver).minutes,0);
+                chartLabels.push("Sett. "+(i+1)); chartData.push(+(tot/60).toFixed(2));
+                breakdownRows.push({ main:"Settimana "+(i+1), sub: weeksMap[wk].length+" giorni nel mese", minutes: tot, delta: tot-36*60 });
+            });
+            chartTargetLine = 36;
+        } else { // anno
+            subnav.innerHTML = `<div class="hc-subnav-label">Anno ${SHIFT_YEAR}</div>`;
+            periodDays = days;
+            let monthNamesArr = Object.keys(MONTH_MAP);
+            let monthsPresent = [...new Set(periodDays.map(dd=>dd.monthIdx))].sort((a,b)=>a-b);
+            monthsPresent.forEach(mi => {
+                let dGroup = periodDays.filter(dd=>dd.monthIdx===mi);
+                let tot = dGroup.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,hoursSelectedDriver).minutes,0);
+                let weeksInMonth = new Set(dGroup.map(dd=>getISOWeek(dd.date))).size;
+                let targetM = weeksInMonth*36;
+                chartLabels.push(monthNamesArr[mi].slice(0,3));
+                chartData.push(+(tot/60).toFixed(2));
+                breakdownRows.push({ main: monthNamesArr[mi].charAt(0)+monthNamesArr[mi].slice(1).toLowerCase(), sub: dGroup.length+" giorni", minutes: tot, delta: tot-targetM });
+                targetHoursTotal += targetM;
+            });
+        }
+
+        let totalMinutesA = periodDays.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,hoursSelectedDriver).minutes, 0);
+        let unrecognizedCodes = new Set();
+        periodDays.forEach(dd => { let info = computeDayInfo(dd.rowIdx,hoursSelectedDriver); if(info.unrecognized) unrecognizedCodes.add(info.code); });
+        let totalMinutesB = periodDays.reduce((s,dd)=>s+independentDayMinutes(dd.rowIdx,hoursSelectedDriver), 0);
+        let discrepancy = Math.abs(totalMinutesA - totalMinutesB);
+
+        let deltaTotal = totalMinutesA - targetHoursTotal*60;
+        document.getElementById('hc-summary-row').innerHTML = `
+            <div class="hc-summary-box"><div class="hc-summary-num">${formatHM(totalMinutesA)}</div><div class="hc-summary-lbl">Ore lavorate</div></div>
+            <div class="hc-summary-box"><div class="hc-summary-num">${targetHoursTotal}h</div><div class="hc-summary-lbl">Contrattuali</div></div>
+            <div class="hc-summary-box ${deltaTotal>=0?'ok':'low'}"><div class="hc-summary-num">${deltaTotal>=0?'+':''}${formatHM(deltaTotal)}</div><div class="hc-summary-lbl">Differenza</div></div>`;
+
+        let badgeEl = document.getElementById('hc-check-badge');
+        if(discrepancy > 1 || unrecognizedCodes.size) {
+            let msg = discrepancy>1 ? `Discrepanza tra i due metodi di calcolo: ${formatHM(discrepancy)}. ` : "";
+            if(unrecognizedCodes.size) msg += `Codici turno non riconosciuti esclusi dal conteggio: ${[...unrecognizedCodes].join(', ')}.`;
+            badgeEl.innerHTML = `<div class="hc-check-badge warn"><span class="material-icons-round">warning</span>${msg}</div>`;
+        } else {
+            badgeEl.innerHTML = `<div class="hc-check-badge ok"><span class="material-icons-round">verified</span>Calcolo verificato con doppio controllo</div>`;
+        }
+
+        let bdEl = document.getElementById('hc-breakdown');
+        bdEl.innerHTML = breakdownRows.map(r => {
+            let deltaHtml = "";
+            if(r.delta !== undefined) { let cls = r.delta>=0?'pos':'neg'; deltaHtml = `<div class="hc-bd-delta ${cls}">${r.delta>=0?'+':''}${formatHM(r.delta)}</div>`; }
+            return `<div class="hc-bd-row"><div><div class="hc-bd-main">${r.main}</div><div class="hc-bd-sub">${r.sub}</div></div><div style="text-align:right"><div class="hc-bd-hours">${formatHM(r.minutes)}</div>${deltaHtml}</div></div>`;
+        }).join('') || `<div class="coord-sync-empty">Nessun dato disponibile</div>`;
+
+        renderMonthCalendarGrid(hoursSelectedMonthIdx, hoursSelectedDriver);
+
+        let ctx = document.getElementById('hc-chart').getContext('2d');
+        if(hoursChartInstance) hoursChartInstance.destroy();
+        let datasets = [{ label:'Ore lavorate', data: chartData, backgroundColor:'rgba(37,99,235,0.75)', borderRadius:6 }];
+        if(chartTargetLine !== null) {
+            datasets.push({ label:'Target', data: chartLabels.map(()=>chartTargetLine), type:'line', borderColor:'#dc2626', borderDash:[6,4], pointRadius:0, borderWidth:2 });
+        }
+        hoursChartInstance = new Chart(ctx, {
+            type:'bar',
+            data:{ labels: chartLabels, datasets },
+            options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:true, labels:{ boxWidth:12, font:{size:10} } } }, scales:{ y:{ beginAtZero:true, title:{display:true,text:'ore'} } } }
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // AREA COORDINATORE — modifica turni manuale + promemoria sync Excel
+    // ═══════════════════════════════════════════════════════════════════════
+    function openCoordLoginModal() {
+        toggleMenu();
+        document.getElementById('coord-pw-input').value = "";
+        document.getElementById('coord-pw-error').innerText = "";
+        let m = document.getElementById('coord-login-modal'); m.style.display='flex';
+        setTimeout(()=>{ m.classList.add('open'); document.getElementById('coord-pw-input').focus(); },10);
+    }
+    function closeCoordLoginModal(e) { if(e && e.target !== e.currentTarget) return; let m=document.getElementById('coord-login-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',300); }
+    function checkCoordPassword() {
+        vibrate();
+        const val = document.getElementById('coord-pw-input').value;
+        if(val === COORD_PASSWORD) { closeCoordLoginModal(); setTimeout(openCoordPanel, 250); }
+        else document.getElementById('coord-pw-error').innerText = "Password errata. Riprova.";
+    }
+    function openCoordPanel() {
+        let m = document.getElementById('coord-panel-modal'); m.style.display='flex';
+        setTimeout(()=>m.classList.add('open'),10);
+        switchCoordTab('sync', document.querySelector('#coord-panel-modal .admin-tab-btn[data-ctab="sync"]'));
+        document.getElementById('coord-edit-toggle').checked = coordEditModeActive;
+        document.getElementById('ai-advice-toggle').checked = aiAdviceEnabled;
+        renderCoordSyncList();
+        renderCoordinatorTab();
+    }
+    function closeCoordPanel(e) {
+        if(e && e.target !== e.currentTarget) return;
+        let m = document.getElementById('coord-panel-modal'); m.classList.remove('open');
+        setTimeout(()=>m.style.display='none',250);
+    }
+    function switchCoordTab(tab, btnEl) {
+        vibrate();
+        document.querySelectorAll('#coord-panel-modal .admin-tab-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('#coord-panel-modal .admin-tab-panel').forEach(p=>p.classList.remove('active'));
+        if(btnEl) btnEl.classList.add('active');
+        document.getElementById('coord-tab-'+tab).classList.add('active');
+    }
+    function computePendingExcelSyncList() {
+        let list = [];
+        if(!rawFinalData.length) return list;
+        Object.keys(manualOverrides).forEach(key => {
+            let idx2 = key.indexOf('__'); if(idx2===-1) return;
+            let orig = key.substring(0,idx2); let dateStr = key.substring(idx2+2);
+            let overrideVal = manualOverrides[key];
+            let overrideStr = JSON.stringify(overrideVal);
+            let rawDisplay = describeRawExcelValue(orig, dateStr);
+            let newDisplay = describeOverrideValue(overrideVal);
+            if(rawDisplay === newDisplay) return; // nessuna differenza reale rispetto all'excel
+            if(excelSyncedMarks[key] === overrideStr) return; // già segnato come riportato per questo valore
+            let d = drivers.find(dr => (dr.originalName||dr.name) === orig);
+            list.push({ key, driverName: d?d.name:orig, dateLabel: dateStr, oldDisplay: rawDisplay, newDisplay });
+        });
+        return list;
+    }
+    function renderCoordSyncList() {
+        const el = document.getElementById('coord-sync-list'); if(!el) return;
+        let list = computePendingExcelSyncList();
+        if(!list.length) { el.innerHTML = `<div class="coord-sync-empty"><span class="material-icons-round" style="font-size:32px;opacity:0.4;">task_alt</span><br>Nessuna modifica in sospeso</div>`; return; }
+        el.innerHTML = list.map(item => `
+            <div class="coord-sync-item">
+                <div class="coord-sync-check" onclick="confirmSyncItemDone('${item.key.replace(/'/g,"\\'")}')"><span class="material-icons-round" style="font-size:16px;">check</span></div>
+                <div class="coord-sync-txt">
+                    <div class="coord-sync-main">${item.driverName} — ${(item.dateLabel||'').replace('-',' ')}</div>
+                    <div class="coord-sync-diff">Da: <b>${item.oldDisplay||'—'}</b> &rarr; A: <b>${item.newDisplay||'—'}</b></div>
+                </div>
+            </div>`).join('');
+    }
+    function confirmSyncItemDone(key) {
+        vibrate();
+        if(!confirm(`Confermi di aver riportato questa modifica su Excel?`)) return;
+        excelSyncedMarks[key] = JSON.stringify(manualOverrides[key] || null);
+        renderCoordSyncList(); persistCoordState();
+    }
+    function persistCoordState() {
+        if(!fbReady) return;
+        db.collection('infermieri26_config').doc('settings').set({ manualOverrides, excelSyncedMarks }, { merge:true }).catch(e=>console.error('Errore salvataggio coordinatore:',e));
+    }
+
+    function cellKey(row, col) {
+        let d = getDriverByIdx(col); let orig = d ? (d.originalName||d.name) : String(col);
+        let mName = finalData[row][0].v; let dNum = finalData[row][1].v;
+        return overrideKey(orig, mName, dNum);
+    }
+    function setOverride(key, value) {
+        let prev = manualOverrides[key] !== undefined ? Object.assign({}, manualOverrides[key]) : null;
+        if(value === null || value === undefined) delete manualOverrides[key]; else manualOverrides[key] = value;
+        return prev;
+    }
+    function pushUndo(action) { coordUndoStack.push(action); coordRedoStack = []; updateCoordToolbarState(); }
+    function updateCoordToolbarState() {
+        let u = document.getElementById('coord-btn-undo'), r = document.getElementById('coord-btn-redo');
+        if(u) u.disabled = coordUndoStack.length===0; if(r) r.disabled = coordRedoStack.length===0;
+    }
+    function applyUndoEntries(entries, useNext) {
+        entries.forEach(en => setOverride(en.key, useNext ? en.next : en.prev));
+        applyManualOverrides(); renderTable(); renderCoordSyncList();
+    }
+    function coordUndo() { if(!coordUndoStack.length) return; vibrate(); let a=coordUndoStack.pop(); applyUndoEntries(a.entries,false); coordRedoStack.push(a); updateCoordToolbarState(); }
+    function coordRedo() { if(!coordRedoStack.length) return; vibrate(); let a=coordRedoStack.pop(); applyUndoEntries(a.entries,true); coordUndoStack.push(a); updateCoordToolbarState(); }
+
+    function performCoordSwap(a, b) {
+        let keyA = cellKey(a.row, a.col), keyB = cellKey(b.row, b.col);
+        let cellA = finalData[a.row][a.col] || {}, cellB = finalData[b.row][b.col] || {};
+        let valA = { v: cellA.v||"", subV: cellA.subV||"", customMinutes: cellA.customMinutes };
+        let valB = { v: cellB.v||"", subV: cellB.subV||"", customMinutes: cellB.customMinutes };
+        let prevA = setOverride(keyA, valB);
+        let prevB = setOverride(keyB, valA);
+        pushUndo({ entries:[{key:keyA, prev:prevA, next:valB},{key:keyB, prev:prevB, next:valA}] });
+        applyManualOverrides(); renderTable(); renderCoordSyncList(); vibrate();
+    }
+
+    function toggleCoordEditMode(active) {
+        coordEditModeActive = active;
+        document.body.classList.toggle('coord-edit-mode', active);
+        document.getElementById('coord-edit-bar').classList.toggle('show', active);
+        if(active) { renderPaintPalette(); attachCellEditHandlers(); updateCoordToolbarState(); } else { deselectPaintTool(); detachCellEditHandlers(); }
+        if(typeof finalData !== 'undefined' && finalData.length) renderTable();
+        syncCoordEditBarHeight();
+    }
+    function syncCoordEditBarHeight() {
+        requestAnimationFrame(() => {
+            const bar = document.getElementById('coord-edit-bar');
+            const spacer = document.getElementById('coord-edit-spacer');
+            if(!bar || !spacer) return;
+            spacer.style.height = coordEditModeActive ? bar.offsetHeight + 'px' : '0';
+        });
+    }
+    function renderPaintPalette() {
+        const el = document.getElementById('coord-paint-palette'); if(!el) return;
+        const labelFor = c => ({M:"Mattina",P:"Pomeriggio",N:"Notte",SM:"Smonto",R:"Riposo"}[c] || c);
+        let html = `<button class="paint-tool-btn stop-tool active" data-tool="stop" onclick="deselectPaintTool()"><span class="material-icons-round" style="font-size:15px;">pan_tool</span>Sposta/Scambia</button>`;
+        html += `<div class="paint-group-sep"></div>`;
+        STANDARD_CODES.forEach(c => {
+            let col = MAIN_CODE_COLORS[c];
+            html += `<button class="paint-tool-btn" data-tool="${c}|" style="${swatchStyle(col)}" onclick="selectPaintTool('${c}','')"><span class="ptb-swatch"></span>${labelFor(c)}</button>`;
+        });
+        html += `<div class="paint-group-sep"></div>`;
+        DIURNI_CODES.forEach(c => {
+            let col = MAIN_CODE_COLORS[c.toUpperCase()];
+            html += `<button class="paint-tool-btn diurno" data-tool="${c}|" style="${swatchStyle(col)}" onclick="selectPaintTool('${c}','')">${c} (diurno)</button>`;
+        });
+        html += `<button class="paint-tool-btn" data-tool="M+N|" style="--btn-bg:var(--c-N);--btn-fg:var(--t-N);" onclick="selectPaintTool('M+N','')"><span class="ptb-swatch"></span>M+N</button>`;
+        html += `<div class="paint-group-sep"></div>`;
+        Object.entries(SPECIAL_SUBCODES).filter(([k])=>k!=='gr').forEach(([k,label]) => {
+            let col = SUB_CODE_COLORS[k];
+            html += `<button class="paint-tool-btn" data-tool="|${k}" style="${swatchStyle(col)}" onclick="selectPaintTool('','${k}')"><span class="ptb-swatch"></span>${label}</button>`;
+        });
+        html += `<div class="paint-group-sep"></div>`;
+        html += `<button class="paint-tool-btn clear-tool" data-tool="clear" onclick="selectPaintTool(null,null)"><span class="material-icons-round" style="font-size:15px;">backspace</span>Cancella</button>`;
+        el.innerHTML = html;
+        updatePaintToolActiveUI();
+    }
+    function paintToolKey() {
+        if(!coordPaintTool) return 'stop';
+        if(coordPaintTool.clear) return 'clear';
+        return `${coordPaintTool.v||''}|${coordPaintTool.subV||''}`;
+    }
+    function updatePaintToolActiveUI() {
+        document.querySelectorAll('#coord-paint-palette .paint-tool-btn').forEach(b => b.classList.toggle('active', b.dataset.tool === paintToolKey()));
+    }
+    function selectPaintTool(v, subV) {
+        vibrate();
+        coordPaintTool = (v===null && subV===null) ? {clear:true} : {v: v||"", subV: subV||""};
+        document.body.classList.add('paint-active');
+        updatePaintToolActiveUI();
+        applyEditModeDraggable();
+    }
+    function deselectPaintTool() {
+        vibrate();
+        coordPaintTool = null;
+        document.body.classList.remove('paint-active');
+        updatePaintToolActiveUI();
+        applyEditModeDraggable();
+    }
+    let coordDelegatedHandlersAttached = false;
+    function attachCellEditHandlers() {
+        applyEditModeDraggable();
+        document.addEventListener('keydown', coordOnKeyDown);
+        if(coordDelegatedHandlersAttached) return;
+        coordDelegatedHandlersAttached = true;
+        const table = document.getElementById('main-table');
+        table.addEventListener('dragstart', coordOnDragStart);
+        table.addEventListener('dragover', coordOnDragOver);
+        table.addEventListener('dragleave', coordOnDragLeave);
+        table.addEventListener('drop', coordOnDrop);
+        table.addEventListener('dragend', coordOnDragEnd);
+        table.addEventListener('pointerdown', coordOnPointerDown);
+        table.addEventListener('pointermove', coordOnPointerMove);
+        document.addEventListener('pointerup', coordOnPointerUp);
+    }
+    function detachCellEditHandlers() {
+        document.querySelectorAll('#main-table td[draggable]').forEach(td=>td.removeAttribute('draggable'));
+        document.removeEventListener('keydown', coordOnKeyDown);
+        clearSelectedCellVisual(); coordSelectedCell = null;
+    }
+    function clearSelectedCellVisual() { document.querySelectorAll('#main-table td.coord-selected').forEach(t=>t.classList.remove('coord-selected')); }
+    function markSelectedCell(row, col) {
+        clearSelectedCellVisual();
+        coordSelectedCell = { row, col };
+        let td = document.querySelector(`#main-table td[data-row="${row}"][data-col="${col}"]`);
+        if(td) td.classList.add('coord-selected');
+    }
+    function clearSelectedCell() {
+        if(!coordSelectedCell) return;
+        vibrate();
+        let { row, col } = coordSelectedCell;
+        let key = cellKey(row, col);
+        let next = { v:"", subV:"" };
+        let prev = setOverride(key, next);
+        pushUndo({ entries:[{key, prev, next}] });
+        applyManualOverrides(); renderTable(); renderCoordSyncList();
+        closeShiftEditPopup();
+        coordSelectedCell = null;
+    }
+    function coordOnKeyDown(e) {
+        if(!coordEditModeActive || !coordSelectedCell) return;
+        if(document.activeElement && ['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+        if(e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); clearSelectedCell(); }
+        else if(e.key === 'Escape') { clearSelectedCellVisual(); coordSelectedCell = null; closeShiftEditPopup(); }
+    }
+    function applyEditModeDraggable() {
+        if(coordPaintTool) { document.querySelectorAll('#main-table td[draggable]').forEach(td=>td.removeAttribute('draggable')); return; }
+        document.querySelectorAll('#main-table td[data-col]').forEach(td => td.setAttribute('draggable','true'));
+    }
+    function paintOneCell(row, col) {
+        if(!finalData[row]) return;
+        let key = cellKey(row, col);
+        let value = coordPaintTool.clear ? { v:"", subV:"" } : { v: coordPaintTool.v, subV: coordPaintTool.subV };
+        if(!coordPaintTouchedKeys.has(key)) {
+            let prev = setOverride(key, value);
+            coordPaintBatchEntries.push({ key, prev, next: value });
+            coordPaintTouchedKeys.add(key);
+        } else {
+            setOverride(key, value);
+        }
+        applyManualOverrides(); renderTable(); renderCoordSyncList();
+    }
+    function coordOnPointerDown(e) {
+        if(!coordEditModeActive || !coordPaintTool) return;
+        let td = e.target.closest('td[data-col]'); if(!td) return;
+        e.preventDefault();
+        coordPainting = true; coordPaintBatchEntries = []; coordPaintTouchedKeys = new Set();
+        paintOneCell(+td.dataset.row, +td.dataset.col);
+    }
+    function coordOnPointerMove(e) {
+        if(!coordPainting || !coordPaintTool) return;
+        let el = document.elementFromPoint(e.clientX, e.clientY);
+        let td = el ? el.closest('td[data-col]') : null; if(!td) return;
+        paintOneCell(+td.dataset.row, +td.dataset.col);
+    }
+    function coordOnPointerUp() {
+        if(!coordPainting) return;
+        coordPainting = false;
+        if(coordPaintBatchEntries.length) pushUndo({ entries: coordPaintBatchEntries });
+        coordPaintBatchEntries = []; coordPaintTouchedKeys = new Set();
+    }
+    function coordOnDragStart(e) {
+        if(!coordEditModeActive) return;
+        let td = e.target.closest('td[data-col]'); if(!td) return;
+        coordDragSource = { row:+td.dataset.row, col:+td.dataset.col };
+        td.classList.add('coord-dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain','shift'); } catch(err){}
+        coordColumnCellsCache = {};
+        document.querySelectorAll(`#main-table td[data-col="${coordDragSource.col}"]`).forEach(t => { coordColumnCellsCache[+t.dataset.row] = t; });
+        coordLastFillRange = null;
+    }
+    function coordClearFillHighlight() { Object.values(coordColumnCellsCache).forEach(t=>t.classList.remove('coord-fillover')); }
+    function coordOnDragOver(e) {
+        if(!coordEditModeActive || !coordDragSource) return;
+        let td = e.target.closest('td[data-col]'); if(!td) return;
+        e.preventDefault();
+        let dest = { row:+td.dataset.row, col:+td.dataset.col };
+        if(dest.col === coordDragSource.col) {
+            // stessa colonna: trascinamento verticale per estendere un turno su più giorni
+            let lo = Math.min(coordDragSource.row, dest.row), hi = Math.max(coordDragSource.row, dest.row);
+            if(!coordLastFillRange || coordLastFillRange.lo!==lo || coordLastFillRange.hi!==hi) {
+                coordClearFillHighlight();
+                for(let r=lo; r<=hi; r++) { let t = coordColumnCellsCache[r]; if(t) t.classList.add('coord-fillover'); }
+                coordLastFillRange = {lo,hi};
+            }
+            td.classList.remove('coord-dragover');
+        } else {
+            coordClearFillHighlight(); coordLastFillRange = null;
+            td.classList.add('coord-dragover');
+        }
+    }
+    function coordOnDragLeave(e) { let td = e.target.closest('td[data-col]'); if(td) td.classList.remove('coord-dragover'); }
+    function coordOnDrop(e) {
+        if(!coordEditModeActive) return; e.preventDefault();
+        let td = e.target.closest('td[data-col]'); if(!td || !coordDragSource) return;
+        td.classList.remove('coord-dragover'); coordClearFillHighlight();
+        let dest = { row:+td.dataset.row, col:+td.dataset.col };
+        if(dest.row===coordDragSource.row && dest.col===coordDragSource.col) { coordDragSource=null; coordLastFillRange=null; return; }
+        if(dest.col === coordDragSource.col) performCoordFill(coordDragSource, dest);
+        else performCoordSwap(coordDragSource, dest);
+        coordDragSource = null; coordLastFillRange = null;
+    }
+    function coordOnDragEnd() {
+        document.querySelectorAll('#main-table td.coord-dragging').forEach(td=>td.classList.remove('coord-dragging'));
+        document.querySelectorAll('#main-table td.coord-dragover').forEach(td=>td.classList.remove('coord-dragover'));
+        coordClearFillHighlight();
+        coordDragSource = null; coordLastFillRange = null; coordColumnCellsCache = {};
+    }
+    function performCoordFill(source, dest) {
+        let lo = Math.min(source.row, dest.row), hi = Math.max(source.row, dest.row);
+        let cellSrc = finalData[source.row][source.col] || {};
+        let valSrc = { v: cellSrc.v||"", subV: cellSrc.subV||"", customMinutes: cellSrc.customMinutes };
+        let entries = [];
+        for(let r=lo; r<=hi; r++) {
+            if(!finalData[r]) continue;
+            let key = cellKey(r, source.col);
+            let prev = setOverride(key, valSrc);
+            entries.push({key, prev, next: valSrc});
+        }
+        pushUndo({ entries });
+        applyManualOverrides(); renderTable(); renderCoordSyncList(); vibrate();
+    }
+
+    function handleCellClick(rowIndex, colIdx, month, day, weekDay, cellValue) {
+        if(coordEditModeActive) {
+            if(coordPaintTool) return; // il tocco è già gestito dal pennello (pointerdown/pointermove)
+            markSelectedCell(rowIndex, colIdx); openShiftEditPopup(colIdx, rowIndex); return;
+        }
+        let hasSub = (finalData[rowIndex] && finalData[rowIndex][colIdx] && finalData[rowIndex][colIdx].subV) ? finalData[rowIndex][colIdx].subV.toString().trim() : "";
+        if(!cellValue && !hasSub) return;
+        openShiftModal(rowIndex, cellValue, month, day, weekDay);
+    }
+
+    function swatchStyle(colors) { return colors ? `--btn-bg:var(${colors.bg});--btn-fg:var(${colors.fg});` : ''; }
+    function openShiftEditPopup(colIdx, rowIdx) {
+        coordEditPopupTarget = { row: rowIdx, col: colIdx };
+        let d = getDriverByIdx(colIdx);
+        let mName = finalData[rowIdx][0].v; let dNum = finalData[rowIdx][1].v;
+        document.getElementById('sep-title').innerText = `${d?d.name:''} — ${dNum} ${mName?(mName.charAt(0)+mName.slice(1).toLowerCase()):''}`;
+        const labelFor = c => ({M:"Mattina (M)",P:"Pomeriggio (P)",N:"Notte (N)",SM:"Smonto (SM)",R:"Riposo (R)"}[c] || c);
+        let html = '<div class="sep-group-label">Turni standard</div>';
+        STANDARD_CODES.forEach(c => { html += `<button class="sep-btn" style="${swatchStyle(MAIN_CODE_COLORS[c])}" onclick="applyShiftChoice('${c}','')"><span><span class="sep-swatch"></span>${labelFor(c)}</span><small>${SCHEDULE[c]||''}</small></button>`; });
+        html += '<div class="sep-group-label">Turni diurni</div>';
+        DIURNI_CODES.forEach(c => { html += `<button class="sep-btn" style="${swatchStyle(MAIN_CODE_COLORS[c.toUpperCase()])}" onclick="applyShiftChoice('${c}','')"><span><span class="sep-swatch dashed"></span>${c} (diurno)</span><small>${SCHEDULE_DIURNI[c]||''}</small></button>`; });
+        html += `<div class="sep-group-label">Combinato</div><button class="sep-btn" onclick="applyShiftChoice('M+N','')"><span><span class="sep-swatch" style="--btn-bg:var(--c-N);"></span>Mattina + Notte</span><small>${SCHEDULE['M']} / ${SCHEDULE['N']}</small></button>`;
+        html += '<div class="sep-group-label">Assenze / permessi</div>';
+        Object.entries(SPECIAL_SUBCODES).filter(([k])=>k!=='gr').forEach(([k,label]) => { html += `<button class="sep-btn" style="${swatchStyle(SUB_CODE_COLORS[k])}" onclick="applyShiftChoice('','${k}')"><span><span class="sep-swatch"></span>${label}</span></button>`; });
+        html += `<div class="sep-group-label">Altro</div><button class="sep-btn clear-btn" onclick="applyShiftChoice(null,null)"><span><span class="material-icons-round" style="font-size:16px;">backspace</span>Vuoto / Cancella turno</span></button>`;
+        document.getElementById('sep-grid').innerHTML = html;
+        let m = document.getElementById('shift-edit-popup'); m.style.display='flex';
+        setTimeout(()=>m.classList.add('open'),10);
+    }
+    function closeShiftEditPopup(e) {
+        if(e && e.target !== e.currentTarget) return;
+        let m = document.getElementById('shift-edit-popup'); m.classList.remove('open');
+        setTimeout(()=>m.style.display='none',250); coordEditPopupTarget=null;
+    }
+    function applyShiftChoice(v, subV) {
+        if(!coordEditPopupTarget) return; vibrate();
+        let { row, col } = coordEditPopupTarget;
+        let key = cellKey(row, col);
+        let next = (v===null && subV===null) ? { v:"", subV:"" } : { v: v||"", subV: subV||"" };
+        let prev = setOverride(key, next);
+        pushUndo({ entries:[{key, prev, next}] });
+        applyManualOverrides(); renderTable(); renderCoordSyncList(); closeShiftEditPopup();
+    }
+
+    function describeOverrideValue(ov) {
+        if(!ov) return "vuoto";
+        if(ov.customMinutes) return `STRAORDINARIO ${ov.customMinutes}h`;
+        if(ov.subV && SPECIAL_SUBCODES[ov.subV]) return SPECIAL_SUBCODES[ov.subV];
+        return ov.v || "vuoto";
+    }
+    function describeRawExcelValue(orig, dateStr) {
+        let idx1 = dateStr.lastIndexOf('-'); let mName = dateStr.substring(0,idx1); let dNum = dateStr.substring(idx1+1);
+        let headerRaw = rawFinalData[0]; let idx = headerRaw ? headerRaw.indexOf(orig) : -1;
+        if(idx===-1) return "vuoto (excel)";
+        for(let r=1; r<rawFinalData.length; r++) {
+            let row = rawFinalData[r];
+            if(row[0].v===mName && String(parseInt(row[1].v))===String(parseInt(dNum))) {
+                let c = row[idx]||{};
+                let sub = (c.subV||"").toString().trim().toLowerCase();
+                if(sub && SPECIAL_SUBCODES[sub]) return SPECIAL_SUBCODES[sub];
+                return (c.v||"").toString().trim() || "vuoto (excel)";
+            }
+        }
+        return "vuoto (excel)";
+    }
+    function coordConfirmChanges() {
+        vibrate();
+        coordEditBaseline = JSON.parse(JSON.stringify(manualOverrides));
+        coordUndoStack = []; coordRedoStack = []; updateCoordToolbarState();
+        persistCoordState(); renderCoordSyncList();
+        alert('Modifiche salvate e visibili a tutti. Ricordati di riportarle anche sul file Excel dalla sezione "Da Riportare" in Area Coordinatore.');
+    }
+    function coordResetChanges() {
+        if(!confirm('Annullare tutte le modifiche non ancora confermate?')) return; vibrate();
+        manualOverrides = JSON.parse(JSON.stringify(coordEditBaseline));
+        coordUndoStack = []; coordRedoStack = []; updateCoordToolbarState();
+        applyManualOverrides(); renderTable(); renderCoordSyncList();
+    }
+
     // ── renderTable ───────────────────────────────────────────────────────────
     function renderTable() {
         const thead = document.getElementById('table-head'); const tbody = document.getElementById('table-body');
         thead.innerHTML = ""; tbody.innerHTML = "";
         let cols = (selectedDrivers.size === 0) ? drivers : drivers.filter(d => selectedDrivers.has(d.idx));
         let thD = document.createElement('th'); thD.innerText = "DATA"; thead.appendChild(thD);
-        cols.forEach(d => { let th = document.createElement('th'); th.innerText = d.name; thead.appendChild(th); });
+        cols.forEach(d => {
+            let th = document.createElement('th'); th.innerText = d.name;
+            if(coordEditModeActive) {
+                let delta = computeDriverBalance(d.idx);
+                let bEl = document.createElement('div');
+                bEl.className = 'th-balance ' + (delta>=0?'pos':'neg');
+                bEl.innerText = (delta>=0?'+':'') + formatHM(delta);
+                th.appendChild(bEl);
+            }
+            if(aiAdviceEnabled) {
+                let advice = getAdviceForDriver(d.idx);
+                if(advice) {
+                    let icon = document.createElement('div');
+                    icon.className = 'th-ai-badge ' + advice.type;
+                    icon.innerHTML = '<span class="material-icons-round">smart_toy</span>';
+                    icon.title = advice.title;
+                    icon.onclick = (ev) => { ev.stopPropagation(); openAiAdvicePopup(d.idx); };
+                    th.appendChild(icon);
+                }
+            }
+            thead.appendChild(th);
+        });
 
         let currentMonth = ""; globalMonthsList = []; let year = 2026; const today = new Date();
         for(let i = 1; i < finalData.length; i++) {
@@ -2421,17 +3736,20 @@
             let holKey = `${mIdx}-${dNum}`; let holidayName = HOLIDAYS[holKey]; let isRed = (dayIdx===0||dayIdx===6||holidayName);
             let dateClass = isRed ? "td-date date-red" : "td-date";
             if(mIdx === today.getMonth() && dNum === today.getDate() && today.getFullYear() === year) { tr.className = "today"; tr.id = "today-row"; }
-            tr.innerHTML = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}</td>`;
 
-            // conta M e P per Graziella
-            let countM = 0, countP = 0;
+            // conta M, P, N per il riepilogo giornaliero (sempre visibile) e per "Graziella"
+            let countM = 0, countP = 0, countN = 0;
             drivers.forEach(d => {
                 let v = (row[d.idx]?.v || "").toString().trim();
                 if(isRepStr(v)) { let si = v.indexOf('/'); if(si !== -1) v = v.substring(0, si).trim(); }
-                let u = v.toUpperCase();
-                if(u === "M") countM++; if(u === "P") countP++;
+                let u = v.toUpperCase().replace(/\s+/g,'');
+                if(u === "M" || u === "M+N" || u === "MN") countM++;
+                if(u === "P") countP++;
+                if(u === "N" || u === "M+N" || u === "MN") countN++;
             });
             let hasGraziellaM = countM === 3, hasGraziellaP = countP === 3;
+
+            tr.innerHTML = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="dsc-m" title="Operatori mattina">M<b>${countM}</b></span><span class="dsc-p" title="Operatori pomeriggio">P<b>${countP}</b></span><span class="dsc-n" title="Operatori notte">N<b>${countN}</b></span></div></td>`;
 
             cols.forEach(d => {
                 let cellInfo = row[d.idx];
@@ -2444,12 +3762,18 @@
                 let td = document.createElement('td');
                 td.innerHTML = formatCell(cellInfo, prevCellInfo, showGraziella);
                 let rawVal = (cellInfo.v || "").toString().trim();
-                if(rawVal || (cellInfo.subV && cellInfo.subV.toString().trim())) {
-                    td.setAttribute("onclick", `openShiftModal(${i},'${rawVal.replace(/'/g,"\\'")}','${mName}',${dNum},'${dayWeek}')`);
-                }
+                td.dataset.row = i; td.dataset.col = d.idx; td.dataset.month = mName; td.dataset.day = dNum; td.dataset.orig = d.originalName || d.name;
+                td.setAttribute("onclick", `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/'/g,"\\'")}')`);
                 tr.appendChild(td);
             });
             tbody.appendChild(tr);
+        }
+        if(coordEditModeActive) {
+            applyEditModeDraggable();
+            if(coordSelectedCell) {
+                let t = document.querySelector(`#main-table td[data-row="${coordSelectedCell.row}"][data-col="${coordSelectedCell.col}"]`);
+                if(t) t.classList.add('coord-selected');
+            }
         }
     }
 
@@ -2974,6 +4298,153 @@
         document.getElementById('wheel-char-quote').innerText = IRONIC_QUOTES[Math.floor(Math.random()*IRONIC_QUOTES.length)];
         rev.classList.add('show');
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // GESTIONE TASTO "INDIETRO" (Android/browser) — con un popup aperto, il
+    // tasto indietro deve chiudere SOLO il popup (con la sua animazione),
+    // non l'intera app. Funziona osservando quando un popup riceve/perde la
+    // classe "open" e sincronizzando con la cronologia del browser.
+    // ═══════════════════════════════════════════════════════════════════════
+    const BACK_BUTTON_CLOSERS = {
+        'graziella-modal': closeGraziellaModal,
+        'custom-announce-modal': closeAnnounceModal,
+        'alert-modal': closeAlertAndSave,
+        'notif-center-modal': closeNotifCenter,
+        'month-select-dropdown': closeMonthDropdown,
+        'shift-modal': closeShiftModal,
+        'options-modal': closeOptionsModal,
+        'admin-login-modal': closeAdminLoginModal,
+        'admin-panel-modal': closeAdminPanel,
+        'hours-modal': closeHoursModal,
+        'coord-login-modal': closeCoordLoginModal,
+        'coord-panel-modal': closeCoordPanel,
+        'shift-edit-popup': closeShiftEditPopup,
+        'ai-advice-popup': closeAiAdvicePopup,
+        'access-detail-modal': closeAccessDetail,
+        'dinner-modal': closeDinnerModal,
+        'wheel-modal': closeWheelModal,
+        'driver-filter-dropdown': closeDriverFilterDropdown,
+        'menu-dropdown': toggleMenu
+    };
+    let modalHistoryPushed = false;
+    let currentBackButtonModalId = null;
+
+    function findOpenTrackedModal() {
+        for(const id in BACK_BUTTON_CLOSERS) {
+            const el = document.getElementById(id);
+            if(el && el.classList.contains('open')) return id;
+        }
+        return null;
+    }
+    function syncModalHistoryState() {
+        const openId = findOpenTrackedModal();
+        if(openId && !modalHistoryPushed) {
+            history.pushState({ modalId: openId }, '');
+            modalHistoryPushed = true;
+            currentBackButtonModalId = openId;
+        } else if(!openId && modalHistoryPushed) {
+            // Il popup è stato chiuso dal codice (es. tap sulla X), non dal tasto
+            // indietro: consumiamo la voce di cronologia aggiunta senza riaprire nulla.
+            modalHistoryPushed = false;
+            currentBackButtonModalId = null;
+            history.back();
+        }
+    }
+    window.addEventListener('popstate', () => {
+        if(currentBackButtonModalId && BACK_BUTTON_CLOSERS[currentBackButtonModalId]) {
+            modalHistoryPushed = false;
+            const fn = BACK_BUTTON_CLOSERS[currentBackButtonModalId];
+            currentBackButtonModalId = null;
+            fn();
+        }
+    });
+    Object.keys(BACK_BUTTON_CLOSERS).forEach(id => {
+        const el = document.getElementById(id);
+        if(!el) return;
+        new MutationObserver(syncModalHistoryState).observe(el, { attributes:true, attributeFilter:['class'] });
+    });
+
+    // ══════════════════════════════════════════════════════════════════
+    // MANIGLIA LATERALE — apre/chiude il pannello Richieste trascinando in orizzontale.
+    // Il pannello contiene un iframe caricato una sola volta e mai più ricaricato: è
+    // uno switch fra due pagine attive, non una navigazione. Identico agli Autisti.
+    // ══════════════════════════════════════════════════════════════════
+    (function setupRichiestePanel() {
+        const handle = document.getElementById('side-drag-handle');
+        const icon = document.getElementById('side-drag-icon');
+        const panel = document.getElementById('richieste-panel');
+        const iframe = document.getElementById('richieste-iframe');
+        if (!handle || !panel || !iframe) return;
+
+        const RICHIESTE_URL = "https://centrale118rsm-code.github.io/Richieste-INF.-118/";
+        let iframeLoaded = false;
+        let dragging = false;
+        let panelOpen = false;
+        let startX = 0;
+        let startTranslate = 0;
+
+        function W() { return window.innerWidth; }
+
+        function ensureLoaded() {
+            if (!iframeLoaded) {
+                iframe.src = RICHIESTE_URL;
+                iframeLoaded = true;
+            }
+        }
+
+        function setTranslate(px) {
+            panel.style.transition = 'none';
+            panel.style.transform = `translateX(${px}px)`;
+        }
+        function snapTo(px, isOpen) {
+            panel.style.transition = 'transform 0.28s cubic-bezier(0.4,0,0.2,1)';
+            panel.style.transform = `translateX(${px}px)`;
+            icon.parentElement.classList.toggle('is-open', isOpen);
+            panelOpen = isOpen;
+        }
+        function currentTranslate() {
+            const m = new DOMMatrixReadOnly(getComputedStyle(panel).transform);
+            return m.m41;
+        }
+
+        function onDown(e) {
+            dragging = true;
+            ensureLoaded();
+            startX = (e.touches ? e.touches[0].clientX : e.clientX);
+            startTranslate = panelOpen ? 0 : W();
+            panel.style.transition = 'none';
+            e.preventDefault();
+        }
+        function onMove(e) {
+            if (!dragging) return;
+            const x = (e.touches ? e.touches[0].clientX : e.clientX);
+            let t = startTranslate + (x - startX);
+            t = Math.max(0, Math.min(W(), t));
+            setTranslate(t);
+            e.preventDefault();
+        }
+        function onUp() {
+            if (!dragging) return;
+            dragging = false;
+            const t = currentTranslate();
+            if (t < W() * 0.6) snapTo(0, true);
+            else snapTo(W(), false);
+        }
+
+        handle.addEventListener('pointerdown', onDown);
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+
+        // Tocco secco: apre se chiuso, chiude se aperto — non serve sempre trascinare.
+        handle.addEventListener('click', () => {
+            if (dragging) return;
+            ensureLoaded();
+            if (panelOpen) snapTo(W(), false);
+            else snapTo(0, true);
+        });
+
+        window.closeRichiestePanel = function() { snapTo(W(), false); };
+    })();
 </script>
 </body>
 </html>
