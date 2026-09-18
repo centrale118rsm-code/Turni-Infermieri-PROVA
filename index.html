@@ -233,7 +233,8 @@
         .day-staff-counts span b { font-size:0.6rem; }
         .dsc-m { background:#dbeafe; color:#1e40af; }
         .dsc-p { background:#e0e7ff; color:#3730a3; }
-        .dsc-n { background:#1e293b; color:#fff; }
+        .dsc-n-alert { background:#450a0a; color:#fff; animation:dscNBlink 1s infinite; }
+        @keyframes dscNBlink { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
         .th-balance { font-size:0.6rem; font-weight:800; margin-top:3px; padding:1px 6px; border-radius:6px; display:inline-block; }
         .th-balance.pos { background:#dcfce7; color:#166534; }
         .th-balance.neg { background:#fee2e2; color:#991b1b; }
@@ -1349,7 +1350,7 @@
                 <select id="coord-select-name" class="admin-login-input" style="margin-bottom:12px;">
                     <option value="" disabled selected>Seleziona operatore...</option>
                 </select>
-                <button class="btn-alert-ok" style="background:linear-gradient(135deg,#4338ca,#7c3aed);box-shadow:0 4px 12px rgba(124,58,237,0.35);width:100%;" onclick="saveCoordinatorName()">
+                <button class="btn-alert-ok" id="btn-save-coordinatore" style="background:linear-gradient(135deg,#4338ca,#7c3aed);box-shadow:0 4px 12px rgba(124,58,237,0.35);width:100%;" onclick="saveCoordinatorName()">
                     <span class="material-icons-round">save</span> SALVA COORDINATORE
                 </button>
                 <div id="coord-current-label" style="margin-top:12px;font-size:0.8rem;font-weight:700;color:var(--text-sec);">Nessun coordinatore impostato</div>
@@ -2000,9 +2001,22 @@
         const sel = document.getElementById('coord-select-name');
         if(!sel || !sel.value) { alert('Seleziona un operatore prima di salvare.'); return; }
         if(!fbReady) return;
+        const btn = document.getElementById('btn-save-coordinatore');
+        const origHtml = btn ? btn.innerHTML : '';
+        if(btn) { btn.disabled = true; btn.innerHTML = '<span class="material-icons-round">hourglass_top</span> SALVATAGGIO...'; }
         db.collection('infermieri26_config').doc('settings').set({ coordinatorName: sel.value }, { merge:true })
-            .then(() => { const lbl = document.getElementById('coord-current-label'); if(lbl) lbl.textContent = 'Coordinatore attuale: ' + sel.value; })
-            .catch(e => { console.error('Errore salvataggio coordinatore:', e); alert('Errore durante il salvataggio.'); });
+            .then(() => {
+                const lbl = document.getElementById('coord-current-label'); if(lbl) lbl.textContent = 'Coordinatore attuale: ' + sel.value;
+                if(btn) {
+                    btn.innerHTML = '<span class="material-icons-round">check_circle</span> SALVATO!';
+                    setTimeout(() => { btn.innerHTML = origHtml; btn.disabled = false; }, 1600);
+                }
+                vibrate();
+            })
+            .catch(e => {
+                console.error('Errore salvataggio coordinatore:', e); alert('Errore durante il salvataggio.');
+                if(btn) { btn.innerHTML = origHtml; btn.disabled = false; }
+            });
     }
 
     // ── Notifiche richieste in arrivo dal portale Richieste Infermieri ──────
@@ -3749,7 +3763,10 @@
             });
             let hasGraziellaM = countM === 3, hasGraziellaP = countP === 3;
 
-            tr.innerHTML = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="dsc-m" title="Operatori mattina">M<b>${countM}</b></span><span class="dsc-p" title="Operatori pomeriggio">P<b>${countP}</b></span><span class="dsc-n" title="Operatori notte">N<b>${countN}</b></span></div></td>`;
+            // Il contatore notte non si vede più fisso come M/P: compare solo come avviso
+            // (rosso lampeggiante) quando risultano esattamente 3 infermieri di notte.
+            const nightAlertHtml = countN === 3 ? `<span class="dsc-n-alert" title="Attenzione: 3 infermieri di notte">N<b>${countN}</b></span>` : '';
+            tr.innerHTML = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="dsc-m" title="Operatori mattina">M<b>${countM}</b></span><span class="dsc-p" title="Operatori pomeriggio">P<b>${countP}</b></span>${nightAlertHtml}</div></td>`;
 
             cols.forEach(d => {
                 let cellInfo = row[d.idx];
