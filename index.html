@@ -233,8 +233,8 @@
         .day-staff-counts span b { font-size:0.6rem; }
         .dsc-m { background:#dbeafe; color:#1e40af; }
         .dsc-p { background:#e0e7ff; color:#3730a3; }
-        .dsc-n-alert { background:#450a0a; color:#fff; animation:dscNBlink 1s infinite; }
-        @keyframes dscNBlink { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
+        .dsc-alert-3 { background:#450a0a !important; color:#fff !important; animation:dscBlink 1s infinite; }
+        @keyframes dscBlink { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
         .th-balance { font-size:0.6rem; font-weight:800; margin-top:3px; padding:1px 6px; border-radius:6px; display:inline-block; }
         .th-balance.pos { background:#dcfce7; color:#166534; }
         .th-balance.neg { background:#fee2e2; color:#991b1b; }
@@ -700,6 +700,12 @@
         .notif-text { font-size:0.9rem; color:var(--text-main); line-height:1.4; }
         .btn-del-notif { position:absolute; top:10px; right:10px; color:#ef4444; background:none; border:none; cursor:pointer; padding:5px; border-radius:50%; }
         .no-notif { text-align:center; padding:40px 20px; color:var(--text-sec); font-size:0.9rem; }
+        .notif-group-year { font-size:0.72rem; font-weight:900; color:var(--text-sec); text-transform:uppercase; letter-spacing:1.2px; margin:18px 4px 6px; padding-bottom:6px; border-bottom:2px solid var(--border); }
+        .notif-group-year:first-child { margin-top:2px; }
+        .notif-group-day { display:flex; align-items:center; gap:8px; margin:12px 2px 4px; }
+        .notif-group-day-label { font-size:0.8rem; font-weight:800; color:var(--primary); text-transform:capitalize; }
+        .notif-group-day-count { font-size:0.65rem; font-weight:700; color:var(--text-sec); background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:1px 8px; }
+        .notif-archived-tag { font-size:0.6rem; font-weight:800; color:var(--text-sec); background:var(--bg-card); border:1px solid var(--border); border-radius:6px; padding:1px 5px; margin-left:6px; }
         .btn-install { background:var(--text-main); color:var(--bg); border:none; padding:10px 18px; border-radius:12px; font-weight:700; display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
         .dinner-checkbox-list { padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
         .dinner-check-item { background:var(--bg-card); padding:12px; border-radius:12px; border:1px solid var(--border); display:flex; align-items:center; gap:10px; cursor:pointer; font-size:0.85rem; font-weight:600; color:var(--text-sec); transition:all 0.2s; }
@@ -966,6 +972,7 @@
         <div class="admin-tabs" style="padding:12px 16px;">
             <button class="admin-tab-btn active" data-notiftab="attive" onclick="switchNotifTab('attive',this)"><span class="material-icons-round">notifications_active</span> Attive</button>
             <button class="admin-tab-btn" data-notiftab="archivio" onclick="switchNotifTab('archivio',this)"><span class="material-icons-round">archive</span> Archivio</button>
+            <button class="admin-tab-btn" data-notiftab="storico" onclick="switchNotifTab('storico',this)"><span class="material-icons-round">history</span> Storico</button>
         </div>
         <div class="modal-body notif-list" id="notif-list-container"></div>
     </div>
@@ -2061,7 +2068,7 @@
         }
         const swap = r.swapWith ? (' con ' + r.swapWith) : '';
         const msg = `<b>📋 Nuova richiesta - ${r.name || '—'}</b><br><span style="font-size:0.85rem;color:var(--text-sec)">${label}${swap}${periodo ? ' · ' + periodo : ''}</span>`;
-        notifHistory.unshift({ id: Date.now()+Math.random(), text: msg, read:false, archived:false, date:new Date().toLocaleString() });
+        notifHistory.unshift({ id: Date.now()+Math.random(), ts: Date.now(), text: msg, read:false, archived:false, date:new Date().toLocaleString() });
         saveNotifications(); updateBadge();
     }
 
@@ -2769,7 +2776,7 @@
                         ? `<b>Turno rimosso</b> - ${dateKey}<br><span style="font-size:0.85rem;color:var(--text-sec)">Era: <b>${oldVal}</b></span>`
                         : `<b>Turno modificato</b> - ${dateKey}<br><span style="font-size:0.85rem;color:var(--text-sec)">Da: <b>${oldVal}</b> &rarr; A: <b>${newVal}</b></span>`;
                     changesFound.push(detailMsg);
-                    notifHistory.unshift({ id:Date.now()+Math.random(), text:detailMsg, read:false, archived:false, date:new Date().toLocaleString() });
+                    notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:detailMsg, read:false, archived:false, date:new Date().toLocaleString() });
                 }
             }
             if(changesFound.length > 0) { saveNotifications(); updateBadge(); showChangeAlert(changesFound); }
@@ -2795,7 +2802,7 @@
                     if(!localStorage.getItem(reminderKey)) {
                         const dateLabel = tomorrow.toLocaleDateString('it-IT', { day:'2-digit', month:'long' });
                         const msg = `<b>📟 Promemoria Reperibilità</b><br><span style="font-size:0.85rem;color:var(--text-sec)">Domani, <b>${dateLabel}</b>, sei <b>reperibile</b>.</span>`;
-                        notifHistory.unshift({ id:Date.now()+Math.random(), text:msg, read:false, archived:false, date:new Date().toLocaleString() });
+                        notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:msg, read:false, archived:false, date:new Date().toLocaleString() });
                         saveNotifications(); updateBadge();
                         localStorage.setItem(reminderKey, '1');
                     }
@@ -2827,24 +2834,64 @@
         if(btnEl) btnEl.classList.add('active');
         renderNotifList();
     }
+    // Timestamp numerico affidabile per ordinare/raggruppare: le notifiche più vecchie,
+    // salvate prima di questa revisione, non hanno "ts" — si ricava dalla data testuale.
+    function getNotifTs(item) {
+        if(item.ts) return item.ts;
+        const t = Date.parse(item.date);
+        return isNaN(t) ? 0 : t;
+    }
+    function formatNotifDayLabel(d) {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const yest = new Date(today); yest.setDate(yest.getDate()-1);
+        const dd = new Date(d); dd.setHours(0,0,0,0);
+        if(dd.getTime() === today.getTime()) return 'Oggi';
+        if(dd.getTime() === yest.getTime()) return 'Ieri';
+        return dd.toLocaleDateString('it-IT', { weekday:'long', day:'2-digit', month:'long' });
+    }
+    // Raggruppa le notifiche per anno e per giorno (più recenti in cima), così anche uno
+    // storico lungo resta leggibile: ogni notifica mostra solo l'orario, la data si legge
+    // dall'intestazione del gruppo giorno in cui si trova.
     function renderNotifList() {
         const c = document.getElementById('notif-list-container');
-        const items = notifHistory.filter(n => currentNotifTab === 'archivio' ? n.archived : !n.archived);
+        const items = currentNotifTab === 'storico'
+            ? notifHistory.slice()
+            : notifHistory.filter(n => currentNotifTab === 'archivio' ? n.archived : !n.archived);
         if(items.length === 0) {
-            c.innerHTML = `<div class="no-notif">${currentNotifTab === 'archivio' ? 'Archivio vuoto.' : 'Nessuna notifica attiva.'}</div>`;
+            const emptyMsg = currentNotifTab === 'archivio' ? 'Archivio vuoto.' : currentNotifTab === 'storico' ? 'Nessuna notifica nello storico.' : 'Nessuna notifica attiva.';
+            c.innerHTML = `<div class="no-notif">${emptyMsg}</div>`;
             return;
         }
-        c.innerHTML = items.map(item => {
+        const sorted = items.sort((a,b) => getNotifTs(b) - getNotifTs(a));
+        let html = ''; let lastYear = null, lastDayKey = null;
+        sorted.forEach(item => {
+            const d = new Date(getNotifTs(item));
+            const year = d.getFullYear();
+            const dayKey = d.toDateString();
+            if(year !== lastYear) {
+                html += `<div class="notif-group-year">${year}</div>`;
+                lastYear = year; lastDayKey = null;
+            }
+            if(dayKey !== lastDayKey) {
+                const dayCount = sorted.filter(x => new Date(getNotifTs(x)).toDateString() === dayKey).length;
+                html += `<div class="notif-group-day"><span class="notif-group-day-label">${formatNotifDayLabel(d)}</span><span class="notif-group-day-count">${dayCount}</span></div>`;
+                lastDayKey = dayKey;
+            }
+            const timeStr = getNotifTs(item) ? d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }) : item.date;
+            const archivedTag = (currentNotifTab === 'storico' && item.archived) ? `<span class="notif-archived-tag">Archiviata</span>` : '';
             const actionBtn = currentNotifTab === 'archivio'
                 ? `<button class="btn-del-notif" title="Ripristina" onclick="restoreNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">unarchive</span></button>
                    <button class="btn-del-notif" title="Elimina definitivamente" onclick="permanentDeleteNotif(${item.id})" style="color:#dc2626"><span class="material-icons-round" style="font-size:18px">delete_forever</span></button>`
-                : `<button class="btn-del-notif" title="Archivia" onclick="deleteNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">archive</span></button>`;
-            return `<div class="notif-item ${item.read?'':'unread'}">
-                <div class="notif-date">${item.date}</div>
+                : currentNotifTab === 'attive'
+                ? `<button class="btn-del-notif" title="Archivia" onclick="deleteNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">archive</span></button>`
+                : ''; // nello storico niente azioni: è una consultazione, non una gestione
+            html += `<div class="notif-item ${item.read?'':'unread'}">
+                <div class="notif-date">${timeStr}${archivedTag}</div>
                 <div class="notif-text">${item.text}</div>
-                <div style="display:flex;gap:4px;">${actionBtn}</div>
+                ${actionBtn ? `<div style="display:flex;gap:4px;">${actionBtn}</div>` : ''}
             </div>`;
-        }).join('');
+        });
+        c.innerHTML = html;
     }
     function deleteNotif(id) { vibrate(); const n = notifHistory.find(x => x.id === id); if(n) n.archived = true; saveNotifications(); renderNotifList(); updateBadge(); }
     function restoreNotif(id) { vibrate(); const n = notifHistory.find(x => x.id === id); if(n) n.archived = false; saveNotifications(); renderNotifList(); updateBadge(); }
@@ -3751,22 +3798,22 @@
             let dateClass = isRed ? "td-date date-red" : "td-date";
             if(mIdx === today.getMonth() && dNum === today.getDate() && today.getFullYear() === year) { tr.className = "today"; tr.id = "today-row"; }
 
-            // conta M, P, N per il riepilogo giornaliero (sempre visibile) e per "Graziella"
-            let countM = 0, countP = 0, countN = 0;
+            // conta M e P per il riepilogo giornaliero (sempre visibile) e per "Graziella"
+            let countM = 0, countP = 0;
             drivers.forEach(d => {
                 let v = (row[d.idx]?.v || "").toString().trim();
                 if(isRepStr(v)) { let si = v.indexOf('/'); if(si !== -1) v = v.substring(0, si).trim(); }
                 let u = v.toUpperCase().replace(/\s+/g,'');
                 if(u === "M" || u === "M+N" || u === "MN") countM++;
                 if(u === "P") countP++;
-                if(u === "N" || u === "M+N" || u === "MN") countN++;
             });
             let hasGraziellaM = countM === 3, hasGraziellaP = countP === 3;
 
-            // Il contatore notte non si vede più fisso come M/P: compare solo come avviso
-            // (rosso lampeggiante) quando risultano esattamente 3 infermieri di notte.
-            const nightAlertHtml = countN === 3 ? `<span class="dsc-n-alert" title="Attenzione: 3 infermieri di notte">N<b>${countN}</b></span>` : '';
-            tr.innerHTML = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="dsc-m" title="Operatori mattina">M<b>${countM}</b></span><span class="dsc-p" title="Operatori pomeriggio">P<b>${countP}</b></span>${nightAlertHtml}</div></td>`;
+            // Solo mattina/pomeriggio nella colonna data: se uno dei due arriva a 3
+            // lampeggia in rosso come avviso. La notte non viene più mostrata qui.
+            const mClass = countM === 3 ? 'dsc-m dsc-alert-3' : 'dsc-m';
+            const pClass = countP === 3 ? 'dsc-p dsc-alert-3' : 'dsc-p';
+            tr.innerHTML = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="${mClass}" title="Operatori mattina">M<b>${countM}</b></span><span class="${pClass}" title="Operatori pomeriggio">P<b>${countP}</b></span></div></td>`;
 
             cols.forEach(d => {
                 let cellInfo = row[d.idx];
