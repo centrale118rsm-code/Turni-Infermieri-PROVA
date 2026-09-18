@@ -1017,6 +1017,9 @@
                 <span>Avvisi turni e reperibilità</span>
             </div>
             <div style="display:flex;gap:10px">
+                <button class="btn-close-modal" id="btn-archive-all-notif" title="Archivia tutte le notifiche attive" onclick="clearAllNotif()">
+                    <span class="material-icons-round">done_all</span>
+                </button>
                 <button class="btn-close-modal" onclick="closeNotifCenter()">
                     <span class="material-icons-round">close</span>
                 </button>
@@ -2879,6 +2882,7 @@
         currentNotifTab = 'attive';
         document.querySelectorAll('#notif-center-modal .admin-tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelector('#notif-center-modal .admin-tab-btn[data-notiftab="attive"]').classList.add('active');
+        updateArchiveAllBtnVisibility();
         renderNotifList(); setCurrentView("Notifiche");
         setTimeout(() => { notifHistory.forEach(n => n.read = true); saveNotifications(); updateBadge(); }, 1000);
     }
@@ -2887,7 +2891,13 @@
         vibrate(); currentNotifTab = tab;
         document.querySelectorAll('#notif-center-modal .admin-tab-btn').forEach(b => b.classList.remove('active'));
         if(btnEl) btnEl.classList.add('active');
+        updateArchiveAllBtnVisibility();
         renderNotifList();
+    }
+    // Il pulsante "Archivia tutte" ha senso solo tra le notifiche Attive.
+    function updateArchiveAllBtnVisibility() {
+        const btn = document.getElementById('btn-archive-all-notif');
+        if(btn) btn.style.display = currentNotifTab === 'attive' ? 'flex' : 'none';
     }
     // Timestamp numerico affidabile per ordinare/raggruppare: le notifiche più vecchie,
     // salvate prima di questa revisione, non hanno "ts" — si ricava dalla data testuale.
@@ -2915,6 +2925,15 @@
     // Raggruppa le notifiche per anno e per giorno (più recenti in cima), così anche uno
     // storico lungo resta leggibile: ogni notifica mostra solo l'orario, la data si legge
     // dall'intestazione del gruppo giorno in cui si trova.
+    // Riconosce una notifica di richiesta anche in quelle salvate PRIMA di avere il campo
+    // "type" (o "reqId"): ripiega sul testo, che per queste notifiche era sempre nella
+    // forma "Nuova richiesta - ...". Così le notifiche vecchie non finiscono nel gruppo
+    // sbagliato "Turni e Reperibilità".
+    function isRichiestaNotif(item) {
+        if(item.type === 'richiesta') return true;
+        if(item.reqId) return true;
+        return /nuova richiesta/i.test(item.text || '');
+    }
     function renderNotifList() {
         const c = document.getElementById('notif-list-container');
         const items = currentNotifTab === 'storico'
@@ -2928,8 +2947,8 @@
         // Le richieste dal portale Richieste hanno un elenco a parte, sempre in cima,
         // rispetto agli avvisi di cambio turno/reperibilità: sono cose diverse (una
         // richiede un'azione di approvazione, l'altra è solo un'informazione).
-        const richiesteItems = items.filter(n => n.type === 'richiesta');
-        const turnoItems     = items.filter(n => n.type !== 'richiesta');
+        const richiesteItems = items.filter(isRichiestaNotif);
+        const turnoItems     = items.filter(n => !isRichiestaNotif(n));
         let html = '';
         if(richiesteItems.length > 0) {
             html += `<div class="notif-section-title richiesta"><span class="material-icons-round">assignment</span> Richieste <span class="notif-section-count">${richiesteItems.length}</span></div>`;
@@ -2961,7 +2980,7 @@
             }
             const timeStr = getNotifTs(item) ? d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }) : item.date;
             const archivedTag = (currentNotifTab === 'storico' && item.archived) ? `<span class="notif-archived-tag">Archiviata</span>` : '';
-            const isRichiesta = item.type === 'richiesta';
+            const isRichiesta = isRichiestaNotif(item);
             const icon = isRichiesta ? '📋 ' : '';
 
             let actionsHtml = '';
