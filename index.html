@@ -4366,8 +4366,8 @@
 
     // ══════════════════════════════════════════════════════════════════
     // MANIGLIA LATERALE — apre/chiude il pannello Richieste trascinando in orizzontale.
-    // Il pannello contiene un iframe caricato una sola volta e mai più ricaricato: è
-    // uno switch fra due pagine attive, non una navigazione. Identico agli Autisti.
+    // L'iframe viene ricaricato solo quando cambia davvero l'identità loggata (es. dopo
+    // "Cambia Utente"), non ad ogni apertura: altrimenti si perderebbe un form a metà.
     // ══════════════════════════════════════════════════════════════════
     (function setupRichiestePanel() {
         const handle = document.getElementById('side-drag-handle');
@@ -4378,6 +4378,7 @@
 
         const RICHIESTE_URL = "https://centrale118rsm-code.github.io/Richieste-INF.-118/";
         let iframeLoaded = false;
+        let iframeLoadedIdentity = undefined; // identità con cui l'iframe è stato caricato l'ultima volta
         let dragging = false;
         let panelOpen = false;
         let startX = 0;
@@ -4386,15 +4387,17 @@
         function W() { return window.innerWidth; }
 
         function ensureLoaded() {
-            if (!iframeLoaded) {
-                // Passa l'identità già selezionata qui in Turni Infermieri, così nel
-                // portale Richieste non serve un secondo login: si accede in automatico
-                // con lo stesso operatore (evita anche di ereditare per errore l'identità
-                // di un'altra app sullo stesso dominio, es. quella degli Autisti).
+            const identity = (typeof userIdentity !== 'undefined' && userIdentity) ? userIdentity : null;
+            // Passa l'identità già selezionata qui in Turni Infermieri, così nel portale
+            // Richieste non serve un secondo login: si accede in automatico con lo stesso
+            // operatore. Se l'identità cambia (es. dopo "Cambia Utente"), l'iframe viene
+            // ricaricato con la nuova identità la prossima volta che si apre il pannello.
+            if (!iframeLoaded || iframeLoadedIdentity !== identity) {
                 const url = new URL(RICHIESTE_URL);
-                if (typeof userIdentity !== 'undefined' && userIdentity) url.searchParams.set('nome', userIdentity);
+                if (identity) url.searchParams.set('nome', identity);
                 iframe.src = url.toString();
                 iframeLoaded = true;
+                iframeLoadedIdentity = identity;
             }
         }
 
