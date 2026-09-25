@@ -191,6 +191,25 @@
             width: 60px !important; min-width: 60px !important; max-width: 60px !important;
             left: 0; z-index: 95;
         }
+        :root { --cell-w: 115px; --date-col-bg: #dde4ee; --date-col-line: #b9c6d8; }
+        body.dark-mode { --date-col-bg: #0f1a2c; --date-col-line: #2a3b57; }
+        #main-table { width: auto; }
+        #main-table tr.month-header td { height: auto; }   /* la barra del mese non segue l'altezza delle caselle */
+        #main-table thead th:not(:first-child), #main-table tbody td[data-col] { width: var(--cell-w); min-width: var(--cell-w); max-width: var(--cell-w); }
+        /* colonna data staccata dai turni: fondo proprio, bordo e ombra verso destra */
+        #main-table thead th:first-child, #main-table .td-date {
+            background: var(--date-col-bg); border-right: 2px solid var(--date-col-line);
+            box-shadow: 4px 0 0 var(--bg), 7px 0 12px -3px rgba(15,23,42,0.22);
+        }
+        #main-table tbody tr[data-row] > td:nth-child(2), #main-table thead th:nth-child(2) { padding-left: 8px; }
+        #main-table tbody tr[data-row] > td:nth-child(2) { width: calc(var(--cell-w) + 6px); min-width: calc(var(--cell-w) + 6px); max-width: calc(var(--cell-w) + 6px); }
+        /* modalità misura (solo per un istante): ogni casella prende la dimensione del suo contenuto */
+        #main-table.cell-measure tbody td[data-col] { width: auto !important; min-width: 0 !important; max-width: none !important; height: auto !important; }
+        #main-table.cell-measure .cell { width: max-content !important; height: auto !important; }
+        #main-table.cell-measure .rep-bar { width: max-content; }
+        #cell-probe { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; z-index: -1; display: flex; align-items: flex-start; }
+        #cell-probe .cell { width: max-content !important; height: auto !important; flex: none; }
+        #cell-probe .rep-bar { width: max-content; }
         tr.month-header td {
             background: var(--month-bar-bg); color: white;
             position: -webkit-sticky; position: sticky;
@@ -294,7 +313,7 @@
             height: 100%; width: 100%; border-radius: 10px; font-weight: 800; font-size: 0.75rem;
             letter-spacing: -0.2px; text-transform: uppercase; position: relative;
             line-height: 1.1; text-align: center; cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: transform 0.1s; padding: 3px 0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: transform 0.1s; padding: 4px 5px;
         }
         .cell:active { transform: scale(0.96); }
         body.dark-mode .cell.empty { color: #475569; }
@@ -358,10 +377,13 @@
         }
 
         .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400; }
-        tr.today td { background: #fff7ed !important; border-bottom: 2px solid #f97316 !important; }
-        tr.today .td-date { color: #ea580c; border-left: 6px solid #ea580c; background: #fff7ed; border-right: 2px solid #f97316; }
-        body.dark-mode tr.today td { background: #431407 !important; border-bottom: 2px solid #ea580c !important; }
-        body.dark-mode tr.today .td-date { background: #431407; color: #fdba74; }
+        /* OGGI: riga evidenziata, colonna data piena arancione con etichetta, celle con anello */
+        tr.today td { background: #ffedd5 !important; border-top: 2px solid #f97316; border-bottom: 2px solid #f97316 !important; }
+        tr.today .td-date { background: linear-gradient(180deg, #fb923c, #ea580c) !important; color: #fff !important; border-right-color: #c2410c !important; }
+        tr.today .td-date small, tr.today .td-date .holiday-name { color: #fff !important; }
+        tr.today .td-date::before { content: 'OGGI'; display: block; width: max-content; margin: 0 auto 2px; padding: 1px 5px; border-radius: 4px; background: #fff; color: #c2410c; font-size: 0.5rem; font-weight: 900; letter-spacing: 0.08em; }
+        tr.today td[data-col] .cell { box-shadow: 0 0 0 2px #f97316, 0 4px 12px rgba(234,88,12,0.28); }
+        body.dark-mode tr.today td { background: #3b1406 !important; border-color: #ea580c !important; }
 
         /* LOADER */
         #loader {
@@ -693,6 +715,41 @@
             .cc-main { padding:16px 14px 40px; }
         }
 
+        /* ── Menu laterale moderno: chiaro, voci raggruppate, icone in riquadri ── */
+        .cc-app { grid-template-columns:252px 1fr; }
+        .cc-side { background:var(--cc-surface); color:var(--cc-text); border-right:1px solid var(--cc-line); }
+        .cc-brand { padding:18px 18px 14px; border-bottom:1px solid var(--cc-line-2); }
+        .cc-brand-mark { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, var(--cc-accent), #12a0b5); box-shadow:0 4px 12px rgba(11,110,127,.28); }
+        .cc-brand b { color:var(--cc-text); font-size:14.5px; }
+        .cc-brand small { color:var(--cc-muted); }
+        .cc-nav { padding:6px 12px 14px; gap:2px; }
+        .cc-nav-group { font:600 10.5px/1 var(--cc-font); letter-spacing:.08em; text-transform:uppercase; color:var(--cc-muted); padding:16px 10px 7px; }
+        .cc-nav button { height:42px; padding:0 10px; border-radius:10px; color:var(--cc-text); font:500 14px/1 var(--cc-font); gap:11px; transition:background-color .12s, color .12s; }
+        .cc-nav button .msym { width:30px; height:30px; flex-shrink:0; border-radius:8px; display:flex; align-items:center; justify-content:center; background:var(--cc-surface-2); border:1px solid var(--cc-line-2); color:var(--cc-muted); font-size:18px; }
+        .cc-nav button:hover { background:var(--cc-surface-2); }
+        .cc-nav button.active { background:var(--cc-accent-soft); color:var(--cc-accent); font-weight:600; }
+        .cc-nav button.active::before { display:none; }
+        .cc-nav button.active .msym { background:var(--cc-accent); border-color:var(--cc-accent); color:#fff; }
+        .cc-nav .cc-count { border-radius:999px; }
+        .cc-side-foot { border-top:1px solid var(--cc-line-2); padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px)); }
+        .cc-side-foot button { height:38px; border-radius:10px; color:var(--cc-muted); }
+        .cc-side-foot button:hover { background:var(--cc-surface-2); color:var(--cc-text); }
+        @media (max-width:760px) {
+            .cc-app { grid-template-columns:1fr; }
+            .cc-side { border-right:none; border-bottom:1px solid var(--cc-line); }
+            .cc-brand { border-right:1px solid var(--cc-line-2); border-bottom:none; padding:10px 12px; }
+            .cc-nav { padding:8px; gap:6px; }
+            .cc-nav-group { display:none; }
+            .cc-nav button { height:38px; padding:0 12px 0 5px; border-radius:999px; border:1px solid var(--cc-line); background:var(--cc-surface); gap:8px; }
+            .cc-nav button .msym { width:28px; height:28px; border-radius:999px; border:none; }
+            .cc-nav button.active { border-color:var(--cc-accent); }
+            /* intestazione della sezione: titolo e chiudi sopra, pulsanti su una riga propria */
+            .cc-top { flex-wrap:wrap; row-gap:10px; }
+            .cc-top-text { flex:1 1 calc(100% - 56px); }
+            .cc-top-actions { order:3; width:100%; flex-wrap:wrap; }
+            .cc-top-actions:empty { display:none; }
+        }
+
         /* pannelli e sezioni */
         .cc-panel { background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:var(--cc-r); margin-bottom:18px; }
         .cc-panel-head { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid var(--cc-line-2); }
@@ -961,6 +1018,10 @@
         .rep-ed-row label small { display:block; color:var(--cc-muted); font-size:11.5px; font-weight:400; }
         .rep-ed-row select { width:100%; }
         .rep-ed-row.tit { background:var(--cc-surface-2); margin:0 -16px 6px; padding:10px 16px; }
+        .rep-ed-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0 0 10px; }
+        .rep-ed-nav .cc-btn { gap:2px; }
+        .rep-ed-live { display:inline-flex; align-items:center; gap:6px; font:600 12px/1 var(--cc-font); color:#b91c1c; background:#fee2e2; padding:5px 10px; border-radius:999px; }
+        .rep-ed-live i { width:7px; height:7px; border-radius:50%; background:#dc2626; animation:rep-now-pulse 1.8s ease-in-out infinite; }
         .rep-ed-note { font-size:12px; color:var(--cc-muted); margin-top:10px; line-height:1.4; }
         .rep-ed-slot-ceduta select { border-color:#dc2626; box-shadow:inset 3px 0 0 #dc2626; }
 
@@ -1757,11 +1818,14 @@
         <aside class="cc-side">
             <div class="cc-brand"><span class="cc-brand-mark">INF</span><div><b>Coordinamento</b><small>Infermieri 2026</small></div></div>
             <nav class="cc-nav" id="cc-nav" aria-label="Sezioni">
+                <div class="cc-nav-group">Calendario</div>
                 <button data-sec="panoramica" onclick="ccGo('panoramica')"><span class="msym">space_dashboard</span><span>Panoramica</span></button>
                 <button data-sec="modifica" onclick="ccGo('modifica')"><span class="msym">edit_calendar</span><span>Modifica turni</span><span class="cc-count" id="cc-count-pending"></span></button>
+                <div class="cc-nav-group">Personale</div>
                 <button data-sec="operatori" onclick="ccGo('operatori')"><span class="msym">group</span><span>Operatori</span></button>
                 <button data-sec="ore" onclick="ccGo('ore')"><span class="msym">schedule</span><span>Conteggio ore</span></button>
                 <button data-sec="reperibilita" onclick="ccGo('reperibilita')"><span class="msym">phone_in_talk</span><span>Report reperibilità</span></button>
+                <div class="cc-nav-group">Sistema</div>
                 <button data-sec="riportare" onclick="ccGo('riportare')"><span class="msym">task_alt</span><span>Da riportare</span><span class="cc-count" id="cc-count-sync"></span></button>
                 <button data-sec="impostazioni" onclick="ccGo('impostazioni')"><span class="msym">settings</span><span>Impostazioni</span></button>
             </nav>
@@ -4874,6 +4938,7 @@
             if(!miss) { if(rows.size) renderTableRows(rows); scheduleTableHeadRefresh(); done = true; }
         }
         if(!done) { applyManualOverrides(); renderTable(); }
+        if(repDates && repDates.length) updateRepNowPill();
         updateCoordToolbarState(); scheduleNavCounts();
     }
     function pushUndo(action) { coordUndoStack.push(action); coordRedoStack = []; updateCoordToolbarState(); }
@@ -5743,6 +5808,25 @@
         const d = getDriverByIdx(col);
         return { date: repRowDate(row), orig: d ? d.originalName : String((finalData[0] || [])[col] || ''), name: d ? d.name : '' };
     }
+    // Una cella (giorno X, operatore) può appartenere alla reperibilità iniziata il giorno X
+    // oppure a quella iniziata il giorno prima, che dura fino alle 13:00 di X.
+    function repOwnTurn(date, orig) {
+        const R = repData();
+        if(R.tit[date] === orig) return date;
+        const prev = repDateAdd(date, -1);
+        return R.tit[prev] === orig ? prev : null;
+    }
+    // Reperibilità da aprire nell'editor delle fasce toccando una cella.
+    function repTurnForCell(date, orig) {
+        const R = repData(), prev = repDateAdd(date, -1), f = R.days[date] || [];
+        const own = repOwnTurn(date, orig); if(own) return own;
+        if(f[0] === orig || f[1] === orig) return prev;       // copre una fascia della notte/mattina
+        if(f[2] === orig || f[3] === orig) return date;
+        const now = new Date();                                 // oggi prima delle 13: è in corso quella di ieri
+        if(date === ymd(now) && now.getHours() < 13 && R.tit[prev]) return prev;
+        return date;
+    }
+    function repIsLive(x) { const now = new Date(), a = repDateObj(x); a.setHours(13, 0, 0, 0); const b = new Date(a); b.setDate(b.getDate() + 1); return now >= a && now < b; }
     // Tocco su una cella con uno strumento della ruota "Reperibilità".
     function repToolTap(row, col) {
         const c = repCellCtx(row, col); if(!c.date) return;
@@ -5754,13 +5838,15 @@
             entries.push(repChange('rep', c.date, c.orig));
             repCommitEntries(entries, tit ? `Reperibilità di ${lbl}: ${repDisplayName(tit)} → ${c.name}` : `${c.name} reperibile ${lbl} dalle 13:00 per 24 ore`);
         } else if(coordRepTool === 'del') {
-            if(tit === c.orig) { repClearTurnCessioni(c.date, entries); entries.push(repChange('rep', c.date, '')); }
+            const own = repOwnTurn(c.date, c.orig);
+            if(own) { repClearTurnCessioni(own, entries); entries.push(repChange('rep', own, '')); }
             else [0, 1, 2, 3].forEach(s => { const k = c.date + '_' + s; if(R.ces[k] && repToOrig(R.ces[k].newDriver) === c.orig) entries.push(repChange('repc', k, '')); });
             if(!repCommitEntries(entries, `Reperibilità eliminata (${c.name}, ${repDateLabel(c.date)})`)) ccToast(`Qui ${c.name} non ha reperibilità da eliminare.`, true);
         } else if(coordRepTool === 'move') {
             if(!coordRepMoveFirst) {
-                if(tit !== c.orig) { ccToast('Tocca prima una cella con la scritta REPERIBILE (il giorno in cui parte la reperibilità).', true); return; }
-                coordRepMoveFirst = { row, col, date: c.date, orig: c.orig };
+                const own = repOwnTurn(c.date, c.orig);
+                if(!own) { ccToast('Tocca prima una cella di chi è reperibile (verde).', true); return; }
+                coordRepMoveFirst = { row, col, date: own, orig: c.orig };
                 markSelectedCell(row, col); vibrate(); updateCoordToolbarState();
                 return;
             }
@@ -5778,7 +5864,8 @@
             repCommitEntries(entries, `Reperibilità spostata: ${repDisplayName(a.orig)} ${repDateLabel(a.date)} → ${c.name} ${repDateLabel(c.date)}${swapTxt}`);
             updateCoordToolbarState();
         } else if(coordRepTool === 'fasce') {
-            openRepEditPopup(c.date, c.orig);
+            const x = repTurnForCell(c.date, c.orig);
+            openRepEditPopup(x, x === c.date ? c.orig : null);
         }
     }
 
@@ -5792,7 +5879,9 @@
         const opts = (sel, emptyLabel) => `<option value="">${emptyLabel}</option>` + drivers.map(d => `<option value="${esc(d.originalName)}" ${d.originalName === sel ? 'selected' : ''}>${esc(d.name)}</option>`).join('');
         const slots = [[date, 2], [date, 3], [n, 0], [n, 1]];
         const titSel = tit || origHint || '';
-        let html = `<div class="rep-ed-row tit"><label>Titolare<small>reperibile 24 h</small></label><select class="cc-input" id="rep-ed-tit" onchange="repEditTitChanged(this)">${opts(titSel, '— nessuno —')}</select></div>`;
+        const live = repIsLive(date);
+        let html = `<div class="rep-ed-nav"><button class="cc-btn sm" onclick="repEditShift(-1)"><span class="msym">chevron_left</span>Giorno prima</button>${live ? '<span class="rep-ed-live"><i></i>In corso ora</span>' : '<span></span>'}<button class="cc-btn sm" onclick="repEditShift(1)">Giorno dopo<span class="msym">chevron_right</span></button></div>`;
+        html += `<div class="rep-ed-row tit"><label>Titolare<small>reperibile 24 h</small></label><select class="cc-input" id="rep-ed-tit" onchange="repEditTitChanged(this)">${opts(titSel, '— nessuno —')}</select></div>`;
         slots.forEach(([d, s], i) => {
             const who = (R.days[d] || [])[s] || '';
             const cur = who && who !== tit ? who : '';
@@ -5805,6 +5894,7 @@
         const m = document.getElementById('rep-edit-popup'); m.style.display = 'flex';
         requestAnimationFrame(() => m.classList.add('open'));
     }
+    function repEditShift(d) { if(repEditCtx) openRepEditPopup(repDateAdd(repEditCtx.date, d)); }
     function repEditTitChanged(sel) {
         // una fascia ceduta proprio al nuovo titolare torna "coperta dal titolare"
         for(let i = 0; i < 4; i++) { const s = document.getElementById('rep-ed-s' + i); if(s && s.value === sel.value) { s.value = ''; s.parentNode.classList.remove('rep-ed-slot-ceduta'); } }
@@ -5842,7 +5932,8 @@
         if(!coordEditPopupTarget) return;
         const { row, col } = coordEditPopupTarget; const c = repCellCtx(row, col);
         closeShiftEditPopup();
-        setTimeout(() => openRepEditPopup(c.date, c.orig), 160);
+        const x = repTurnForCell(c.date, c.orig);
+        setTimeout(() => openRepEditPopup(x, x === c.date ? c.orig : null), 160);
     }
 
     // ── Sequenze della ruota (+5, +10, +15, 5 cicli, +7 diurni) ────────────
@@ -6199,20 +6290,54 @@
         }
         tbody.innerHTML = ""; tbody.appendChild(frag);
         updateRepNowPill();
+        fitCalendarCells();
     }
     // Ridisegna soltanto i giorni indicati (e il giorno dopo ciascuno, perché
     // smonto/diurni dipendono dal giorno precedente). Le intestazioni col saldo ore
     // si aggiornano a parte, raggruppate, per non rallentare il trascinamento.
+    // Tutte le caselle uguali: larghezza e altezza = quelle del contenuto più ingombrante
+    // (più un piccolo margine). Si misura il calendario intero dopo ogni ridisegno; dopo una
+    // modifica di poche righe si misurano solo quelle e le caselle possono solo crescere.
+    let cellFit = { w: 0, h: 0 };
+    function fitCalendarCells(onlyRows) {
+        const table = document.getElementById('main-table'); if(!table) return;
+        const scope = onlyRows ? onlyRows.filter(Boolean) : [table];
+        const cells = []; scope.forEach(el => el.querySelectorAll('td[data-col] > .cell').forEach(c => cells.push(c)));
+        if(!cells.length) return;
+        let w = 0, h = 0;
+        const measure = list => list.forEach(c => { const r = c.getBoundingClientRect(); if(r.width > w) w = r.width; if(r.height > h) h = r.height; });
+        if(onlyRows) {
+            // poche righe: si misurano delle copie fuori dalla tabella, senza ricalcolare tutto il calendario
+            let probe = document.getElementById('cell-probe');
+            if(!probe) { probe = document.createElement('div'); probe.id = 'cell-probe'; probe.setAttribute('aria-hidden', 'true'); document.body.appendChild(probe); }
+            probe.innerHTML = ''; cells.forEach(c => probe.appendChild(c.cloneNode(true)));
+            measure([...probe.children]); probe.innerHTML = '';
+        } else {
+            table.classList.add('cell-measure');
+            measure(cells);
+            table.classList.remove('cell-measure');
+        }
+        if(onlyRows) { w = Math.max(w, cellFit.w); h = Math.max(h, cellFit.h); }
+        if(!w || !h) return;
+        cellFit = { w, h };
+        const W = Math.ceil(w) + 8, H = Math.ceil(h) + 8;   // casella poco più grande del testo
+        const root = document.documentElement.style;
+        if(root.getPropertyValue('--cell-w') !== W + 'px') root.setProperty('--cell-w', W + 'px');
+        if(root.getPropertyValue('--cell-h') !== H + 'px') root.setProperty('--cell-h', H + 'px');
+    }
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if(document.querySelector('#table-body tr[data-row]')) fitCalendarCells(); });
     function renderTableRows(rowSet) {
         const tbody = document.getElementById('table-body'); if(!tbody || !rtCols.length) { renderTable(); return; }
         const rows = new Set();
         rowSet.forEach(r => { r = +r; if(r >= 1 && r < finalData.length) rows.add(r); if(r + 1 < finalData.length) rows.add(r + 1); });
-        const today = new Date();
+        const today = new Date(); const touched = [];
         for(const r of rows) {
             const old = tbody.querySelector(`tr[data-row="${r}"]`);
             if(!old) { renderTable(); return; }
-            old.replaceWith(buildDayRow(r, today));
+            const fresh = buildDayRow(r, today);
+            old.replaceWith(fresh); touched.push(fresh);
         }
+        fitCalendarCells(touched);
     }
     let rtHeadTimer = null;
     function scheduleTableHeadRefresh(delay) {
