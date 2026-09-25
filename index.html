@@ -976,7 +976,11 @@
         .rr-table th.rr-red, .rr-table td.rr-red { background:rgba(220,38,38,.06); }
         .rr-table th.rr-red { color:var(--cc-neg); }
         .rr-table td.rr-day b { font-weight:600; }
-        .rr-table td.rr-day.rr-empty { color:var(--cc-line); }
+        .cc-table tbody td { height:auto; }
+        .cc-table thead th::before { display:none; }   /* la regola del calendario (70 px) non vale per le tabelle della console */
+        .rr-table td.rr-day.rr-on { background:#dcfce7; color:#14532d; font-weight:600; }
+        .rr-table td.rr-total { font-weight:600; font-size:14px; }
+        .rr-table td.rr-zero { color:var(--cc-muted); font-weight:400; }
         .rr-detail { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
         .rr-card { border:1px solid var(--cc-line); border-radius:var(--cc-r); background:var(--cc-surface); }
         .rr-card h4 { margin:0; padding:10px 12px; font:600 14px/1.2 var(--cc-font); border-bottom:1px solid var(--cc-line-2); display:flex; justify-content:space-between; gap:8px; }
@@ -3532,6 +3536,16 @@
     }
     function overrideKey(originalName, monthName, day) { return `${originalName}__${monthName}-${day}`; }
 
+    // Assenze giustificate (ferie, recupero, congedo, malattia, permessi, festivi, gravidanza,
+    // sostituzione coordinatore…): coprono l'intera giornata di contratto, cioè ore settimanali
+    // ÷ 6 nei giorni lun–sab (6 h con 36 h); la domenica non matura ore e vale 0.
+    function justifiedDayMinutes(rowIdx, colIdx) {
+        const row = finalData[rowIdx]; if(!row) return 0;
+        const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
+        if(mi === undefined || isNaN(dn)) return 0;
+        if(!isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
+        return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
+    }
     // Metodo A (principale): rispecchia esattamente la logica usata per disegnare
     // le celle del calendario, incluso lo SMONTO automatico dopo un turno M+N.
     function computeDayInfo(rowIdx, colIdx) {
@@ -3550,7 +3564,7 @@
         if(isMN(rawUpper)) return { minutes: minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]), code:"M+N", label:"MATTINA + NOTTE" };
 
         let subVal = (info.subV||"").toString().trim().toLowerCase();
-        if(SPECIAL_SUBCODES[subVal] !== undefined) return { minutes:0, code:subVal, label: SPECIAL_SUBCODES[subVal] };
+        if(SPECIAL_SUBCODES[subVal] !== undefined) return { minutes: justifiedDayMinutes(rowIdx, colIdx), code:subVal, label: SPECIAL_SUBCODES[subVal], justified:true };
 
         let val = rawStr; let si = val.indexOf('/'); if(si !== -1) val = val.substring(0,si).trim();
         if(!val || val === "-") return { minutes:0, code:"", label:"" };
@@ -3583,7 +3597,12 @@
         let rawU = raw.toUpperCase().replace(/\s+/g,'');
         if(rawU === "M+N" || rawU === "MN") return minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]);
         let sub = (cell.subV||"").toString().trim().toLowerCase();
-        if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) return 0;
+        if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) {
+            // assenza giustificata: copre la giornata (6 h con 36 h/sett.), la domenica 0
+            const r = finalData[rowIdx], mi = MONTH_MAP[r[0].v], dn = parseInt(r[1].v);
+            if(mi === undefined || isNaN(dn) || new Date(shiftRowYear(rowIdx), mi, dn).getDay() === 0) return 0;
+            return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
+        }
         let v = raw; let si = v.indexOf('/'); if(si !== -1) v = v.substring(0,si).trim();
         if(!v || v === "-") return 0;
         let fc = v.charAt(0); let isD = fc>='a' && fc<='z';
@@ -3818,7 +3837,7 @@
             if(!dd) { html += `<div class="hc-cal-cell empty"></div>`; return; }
             let info = computeDayInfo(dd.rowIdx, driverIdx);
             let cls = 'worked';
-            if(info.minutes===0 && info.code && SPECIAL_SUBCODES[info.code] !== undefined) cls='absence';
+            if(info.justified) cls='absence';
             else if(info.minutes===0 && info.unrecognized) cls='unrecognized';
             else if(info.minutes===0) cls='riposo';
             let isToday = dd.date.toDateString() === todayStr;
@@ -4642,7 +4661,7 @@
                     <thead><tr>
                         <th class="cc-sticky sortable" onclick="ccHoursSortBy(ccHoursSort.key==='order'?'name':'order')">Operatore ${sortIco('name')}${sortIco('order')}<small>${ccHoursSort.key==='order'?'ordine del calendario':'alfabetico'}</small></th>
                         ${unitHead}
-                        <th class="r cc-sep-l sortable" onclick="ccHoursSortBy('total')">Lavorate ${sortIco('total')}<small>ore:minuti</small></th>
+                        <th class="r cc-sep-l sortable" onclick="ccHoursSortBy('total')">Lavorate ${sortIco('total')}<small>con assenze giustificate</small></th>
                         <th class="r">Contratto<small>nel periodo</small></th>
                         <th class="r sortable" onclick="ccHoursSortBy('diff')">Differenza ${sortIco('diff')}<small>nel periodo</small></th>
                         <th class="r cc-sep-l sortable" onclick="ccHoursSortBy('balance')">Saldo ${sortIco('balance')}<small>da gennaio a oggi</small></th>
@@ -4654,7 +4673,7 @@
             ${check}
             <div class="cc-legend">
                 <span>Contratto su 6 giorni: ore settimanali \u00f7 6 per ogni giorno dal luned\u00ec al sabato (36 h = 6 h al giorno); la domenica non matura ore.</span>
-                <span>Le assenze (ferie, malattia, permessi\u2026) contano 0 ore, come nel calendario.</span>
+                <span>Le assenze giustificate (ferie, recupero, congedo, malattia, permessi, festivi, gravidanza\u2026) coprono la giornata: contano le ore di contratto del giorno (6 h), la domenica 0.</span>
                 <span>Le ore settimanali di ciascuno si cambiano in Operatori.</span>
             </div>`;
         if(ccHoursQuery) ccHoursSearch(ccHoursQuery);
@@ -5829,44 +5848,41 @@
     // personale: 00-07 = 7 h, 07-13 = 6 h, 13-20 = 7 h, 20-00 = 4 h (24 h per turno).
     let ccRepMonth = new Date().getFullYear() === SHIFT_YEAR ? new Date().getMonth() : 0;
     function ccRepNav(delta) { ccRepMonth = delta === 0 ? (new Date().getFullYear() === SHIFT_YEAR ? new Date().getMonth() : 0) : Math.min(11, Math.max(0, ccRepMonth + delta)); renderCcReperibilita(); }
+    // Griglia del mese: una riga per OGNI infermiere (ordine del calendario), una colonna per
+    // giorno con le ore di reperibilità fatte in quel giorno, e il totale del mese in fondo.
     function repMonthReport(monthIdx) {
         const R = repData();
         const nDays = new Date(SHIFT_YEAR, monthIdx + 1, 0).getDate();
         const dates = []; for(let d = 1; d <= nDays; d++) dates.push(ymd(new Date(SHIFT_YEAR, monthIdx, d)));
-        const per = {}; const dayTot = new Array(nDays + 1).fill(0);
+        const per = {};
+        const row = o => per[o] = per[o] || { days:{}, total:0, list:{} };
+        drivers.forEach(d => row(d.originalName));
         dates.forEach((dt, i) => {
             const f = R.days[dt]; if(!f) return;
             f.forEach((who, s) => {
                 if(!who) return;
-                const p = per[who] = per[who] || { days:{}, total:0, festive:0, list:{} };
-                const m = REP_SLOTS[s].minutes;
-                p.days[i + 1] = (p.days[i + 1] || 0) + m; p.total += m; dayTot[i + 1] += m;
-                if(repIsFestive(dt)) p.festive += m;
+                const p = row(who), m = REP_SLOTS[s].minutes;
+                p.days[i + 1] = (p.days[i + 1] || 0) + m; p.total += m;
                 (p.list[dt] = p.list[dt] || []).push(s);
             });
         });
         const order = o => { const k = drivers.findIndex(d => d.originalName === o); return k === -1 ? 9999 : k; };
         const rows = Object.keys(per).sort((a, b) => order(a) - order(b) || a.localeCompare(b)).map(o => Object.assign({ orig:o, name:repDisplayName(o) }, per[o]));
         const title = MONTH_NAMES_IT[monthIdx].charAt(0).toUpperCase() + MONTH_NAMES_IT[monthIdx].slice(1) + ' ' + SHIFT_YEAR;
-        return { monthIdx, nDays, dates, rows, dayTot, title, total: rows.reduce((a, r) => a + r.total, 0), festive: rows.reduce((a, r) => a + r.festive, 0) };
+        return { monthIdx, nDays, dates, rows, title, total: rows.reduce((a, r) => a + r.total, 0) };
     }
     function repHours(min) { const h = min / 60; return Number.isInteger(h) ? String(h) : h.toFixed(1).replace('.', ','); }
-    function repListText(p, dt) { return p.list[dt].slice().sort((a, b) => a - b).map(s => REP_SLOTS[s].label).join(', '); }
+    function repListText(p, dt) { return (p.list[dt] || []).slice().sort((a, b) => a - b).map(s => REP_SLOTS[s].label).join(', '); }
+    const REP_WD = ['D','L','M','M','G','V','S'];
     function renderCcReperibilita() {
         const main = document.getElementById('cc-main');
         const M = repMonthReport(ccRepMonth);
-        const wd = ['D','L','M','M','G','V','S'];
-        const head = M.dates.map((dt, i) => `<th class="rr-day ${repIsFestive(dt) ? 'rr-red' : ''}">${i + 1}<small>${wd[repDateObj(dt).getDay()]}</small></th>`).join('');
+        const red = dt => repIsFestive(dt) ? 'rr-red' : '';
+        const head = M.dates.map((dt, i) => `<th class="rr-day ${red(dt)}">${i + 1}<small>${REP_WD[repDateObj(dt).getDay()]}</small></th>`).join('');
         const body = M.rows.map(r => `<tr><td class="cc-sticky"><div class="cc-opname">${esc(r.name)}</div></td>${M.dates.map((dt, i) => {
             const m = r.days[i + 1] || 0;
-            return `<td class="rr-day ${repIsFestive(dt) ? 'rr-red' : ''} ${m ? '' : 'rr-empty'}" ${m ? `title="${esc(repListText(r, dt))}"` : ''}>${m ? `<b>${repHours(m)}</b>` : '·'}</td>`;
-        }).join('')}<td class="r cc-sep-l cc-num"><b style="font-weight:600">${repHours(r.total)} h</b></td><td class="r cc-num">${repHours(r.festive)} h</td></tr>`).join('');
-        const foot = M.dates.map((dt, i) => { const m = M.dayTot[i + 1]; const warn = m && m !== 1440; return `<td class="rr-day cc-num ${repIsFestive(dt) ? 'rr-red' : ''}" ${warn ? 'style="color:var(--cc-neg)" title="Copertura diversa da 24 h"' : ''}>${m ? repHours(m) : '·'}</td>`; }).join('');
-        const missing = M.dates.filter((dt, i) => M.dayTot[i + 1] !== 1440).length;
-        const detail = M.rows.map(r => `<div class="rr-card"><h4><span>${esc(r.name)}</span><span class="cc-num">${repHours(r.total)} h</span></h4><ul>${Object.keys(r.list).sort().map(dt => {
-            const m = r.list[dt].reduce((a, s) => a + REP_SLOTS[s].minutes, 0);
-            return `<li><span>${esc(repDateObj(dt).toLocaleDateString('it-IT', { weekday:'short', day:'2-digit', month:'2-digit' }))} · ${esc(repListText(r, dt))}</span><span>${repHours(m)} h</span></li>`;
-        }).join('')}</ul></div>`).join('');
+            return `<td class="rr-day ${red(dt)} ${m ? 'rr-on' : ''}" ${m ? `title="${esc(repListText(r, dt))}"` : ''}>${m ? repHours(m) : ''}</td>`;
+        }).join('')}<td class="r cc-sep-l cc-num rr-total ${r.total ? '' : 'rr-zero'}">${repHours(r.total)}</td></tr>`).join('');
         main.innerHTML = `
             <div class="cc-toolbar">
                 <div class="cc-period-nav">
@@ -5876,59 +5892,44 @@
                 </div>
                 <button class="cc-btn sm" onclick="ccRepNav(0)">Questo mese</button>
                 <div class="cc-spacer"></div>
-                <span class="cc-hint">Totale mese: <b class="cc-num">${repHours(M.total)} h</b> · festive ${repHours(M.festive)} h</span>
+                <span class="cc-hint">Totale reparto: <b class="cc-num">${repHours(M.total)} h</b></span>
             </div>
-            ${M.rows.length ? `
             <div class="cc-table-wrap">
                 <table class="cc-table rr-table">
-                    <thead><tr><th class="cc-sticky">Operatore<small>ore per giorno</small></th>${head}<th class="r cc-sep-l">Totale<small>ore</small></th><th class="r">Festive<small>dom. e festivi</small></th></tr></thead>
+                    <thead><tr><th class="cc-sticky">Infermiere</th>${head}<th class="r cc-sep-l">Totale<small>ore nel mese</small></th></tr></thead>
                     <tbody>${body}</tbody>
-                    <tfoot><tr><td class="cc-sticky">Totale giorno</td>${foot}<td class="r cc-sep-l cc-num">${repHours(M.total)} h</td><td class="r cc-num">${repHours(M.festive)} h</td></tr></tfoot>
                 </table>
             </div>
-            ${missing ? `<div class="cc-check warn"><span class="msym">warning</span>${missing} ${missing === 1 ? 'giorno non ha' : 'giorni non hanno'} 24 h di reperibilità coperte (in rosso nella riga Totale giorno).</div>` : `<div class="cc-check ok"><span class="msym">verified</span>Tutti i giorni del mese hanno 24 h di reperibilità coperte.</div>`}
-            <div class="cc-panel" style="margin-top:14px"><div class="cc-panel-head"><h3>Dettaglio per operatore</h3></div><div class="cc-panel-body"><div class="rr-detail">${detail}</div></div></div>`
-            : `<div class="cc-empty"><span class="msym">event_busy</span>Nessuna reperibilità in ${esc(M.title.toLowerCase())}.</div>`}
             <div class="cc-legend">
-                <span>Fasce: 00-07 = 7 h, 07-13 = 6 h, 13-20 = 7 h, 20-00 = 4 h. Ogni ora è attribuita al giorno in cui cade (la reperibilità parte alle 13:00 e finisce alle 13:00 del giorno dopo).</span>
-                <span>Le cessioni (portale Richieste o ruota) contano per chi copre davvero la fascia.</span>
+                <span>In ogni casella: ore di reperibilità fatte quel giorno (00-07 = 7 h, 07-13 = 6 h, 13-20 = 7 h, 20-00 = 4 h). Le fasce cedute contano per chi le copre. Colonne rosate = domeniche e festivi.</span>
             </div>`;
-        document.getElementById('cc-top-actions').innerHTML = M.rows.length
-            ? `<button class="cc-btn" onclick="repReportPrint()"><span class="msym">print</span>Stampa</button><button class="cc-btn primary" onclick="repReportPdf()"><span class="msym">picture_as_pdf</span>Scarica PDF</button>`
-            : '';
+        document.getElementById('cc-top-actions').innerHTML = `<button class="cc-btn" onclick="repReportPrint()"><span class="msym">print</span>Stampa</button><button class="cc-btn primary" onclick="repReportPdf()"><span class="msym">picture_as_pdf</span>Scarica PDF</button>`;
     }
     // Documento stampabile, isolato dalla pagina (A4 orizzontale).
     function repReportHtml(M) {
-        const wd = ['D','L','M','M','G','V','S'];
-        const th = M.dates.map((dt, i) => `<th class="${repIsFestive(dt) ? 'f' : ''}">${i + 1}<br><small>${wd[repDateObj(dt).getDay()]}</small></th>`).join('');
-        const rows = M.rows.map(r => `<tr><td class="n">${esc(r.name)}</td>${M.dates.map((dt, i) => { const m = r.days[i + 1] || 0; return `<td class="${repIsFestive(dt) ? 'f' : ''}">${m ? repHours(m) : ''}</td>`; }).join('')}<td class="t">${repHours(r.total)}</td><td class="t">${repHours(r.festive)}</td></tr>`).join('');
-        const foot = M.dates.map((dt, i) => `<td class="${repIsFestive(dt) ? 'f' : ''}">${M.dayTot[i + 1] ? repHours(M.dayTot[i + 1]) : ''}</td>`).join('');
-        const det = M.rows.map(r => `<div class="card"><h3>${esc(r.name)} <span>${repHours(r.total)} h</span></h3><table class="d">${Object.keys(r.list).sort().map(dt => `<tr><td>${esc(repDateObj(dt).toLocaleDateString('it-IT', { weekday:'short', day:'2-digit', month:'2-digit' }))}</td><td>${esc(repListText(r, dt))}</td><td class="t">${repHours(r.list[dt].reduce((a, s) => a + REP_SLOTS[s].minutes, 0))} h</td></tr>`).join('')}</table></div>`).join('');
+        const f = dt => repIsFestive(dt) ? 'f' : '';
+        const th = M.dates.map((dt, i) => `<th class="${f(dt)}">${i + 1}<br><small>${REP_WD[repDateObj(dt).getDay()]}</small></th>`).join('');
+        const rows = M.rows.map(r => `<tr><td class="n">${esc(r.name)}</td>${M.dates.map((dt, i) => { const m = r.days[i + 1] || 0; return `<td class="${f(dt)} ${m ? 'on' : ''}">${m ? repHours(m) : ''}</td>`; }).join('')}<td class="t">${repHours(r.total)}</td></tr>`).join('');
         return `<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><title>Reperibilità infermieri — ${esc(M.title)}</title><style>
             @page { size:A4 landscape; margin:10mm; }
             * { box-sizing:border-box; } body { font:10px/1.3 Arial, Helvetica, sans-serif; color:#111; margin:0; }
             h1 { font-size:16px; margin:0 0 2px; } .sub { color:#555; margin:0 0 10px; }
-            table.m { border-collapse:collapse; width:100%; } .m th, .m td { border:1px solid #bbb; padding:3px 2px; text-align:center; }
-            .m th { background:#eef1f5; font-size:9px; } .m th small { font-weight:normal; color:#666; }
-            .m td.n { text-align:left; font-weight:bold; white-space:nowrap; padding:3px 5px; } .m td.t { font-weight:bold; background:#f6f7f9; }
-            .m .f { background:#fdecec; } .m tfoot td { font-weight:bold; background:#eef1f5; }
-            .legend { margin:8px 0 14px; color:#555; } h2 { font-size:13px; margin:14px 0 6px; page-break-after:avoid; }
-            .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; } .card { border:1px solid #ccc; border-radius:4px; padding:5px 7px; break-inside:avoid; }
-            .card h3 { font-size:11px; margin:0 0 4px; display:flex; justify-content:space-between; } table.d { width:100%; border-collapse:collapse; }
-            .d td { padding:1px 0; border-bottom:1px dotted #ddd; } .d td.t { text-align:right; white-space:nowrap; }
-            .firma { margin-top:24px; display:flex; justify-content:space-between; } .firma div { width:40%; border-top:1px solid #333; padding-top:4px; text-align:center; }
+            table { border-collapse:collapse; width:100%; } th, td { border:1px solid #bbb; padding:4px 2px; text-align:center; }
+            th { background:#eef1f5; font-size:9px; } th small { font-weight:normal; color:#666; }
+            td.n { text-align:left; font-weight:bold; white-space:nowrap; padding:4px 6px; } td.t { font-weight:bold; background:#eef1f5; font-size:11px; }
+            .f { background:#fdecec; } td.on { font-weight:bold; background:#dcfce7; }
+            .legend { margin:8px 0 0; color:#555; }
+            .firma { margin-top:28px; display:flex; justify-content:space-between; } .firma div { width:40%; border-top:1px solid #333; padding-top:4px; text-align:center; }
         </style></head><body>
             <h1>Reperibilità infermieri — ${esc(M.title)}</h1>
-            <p class="sub">Ore di reperibilità per operatore e giorno · totale mese ${repHours(M.total)} h (festive ${repHours(M.festive)} h) · generato il ${new Date().toLocaleString('it-IT')}</p>
-            <table class="m"><thead><tr><th>Operatore</th>${th}<th>Tot. ore</th><th>Festive</th></tr></thead><tbody>${rows}</tbody>
-            <tfoot><tr><td class="n">Totale giorno</td>${foot}<td class="t">${repHours(M.total)}</td><td class="t">${repHours(M.festive)}</td></tr></tfoot></table>
-            <p class="legend">Fasce: 00-07 = 7 h · 07-13 = 6 h · 13-20 = 7 h · 20-00 = 4 h. Ore attribuite al giorno in cui cadono. Colonne rosate = domeniche e festivi.</p>
-            <h2>Dettaglio per operatore</h2><div class="grid">${det}</div>
+            <p class="sub">Ore di reperibilità per giorno · totale reparto ${repHours(M.total)} h · generato il ${new Date().toLocaleString('it-IT')}</p>
+            <table><thead><tr><th>Infermiere</th>${th}<th>Totale ore</th></tr></thead><tbody>${rows}</tbody></table>
+            <p class="legend">00-07 = 7 h · 07-13 = 6 h · 13-20 = 7 h · 20-00 = 4 h. Ore attribuite al giorno in cui cadono. Colonne rosate = domeniche e festivi.</p>
             <div class="firma"><div>Il coordinatore</div><div>Ufficio personale</div></div>
         </body></html>`;
     }
     function repReportPrint() {
-        const M = repMonthReport(ccRepMonth); if(!M.rows.length) return;
+        const M = repMonthReport(ccRepMonth);
         const old = document.getElementById('rep-print-frame'); if(old) old.remove();
         const fr = document.createElement('iframe');
         fr.id = 'rep-print-frame'; fr.setAttribute('aria-hidden', 'true');
@@ -5954,45 +5955,33 @@
         doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
         doc.text(`Reperibilità infermieri - ${M.title}`, 10, 13);
         doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(90);
-        doc.text(`Totale mese ${repHours(M.total)} h (festive ${repHours(M.festive)} h) - generato il ${new Date().toLocaleString('it-IT')}`, 10, 18.5);
+        doc.text(`Ore di reperibilità per giorno - totale reparto ${repHours(M.total)} h - generato il ${new Date().toLocaleString('it-IT')}`, 10, 18.5);
         doc.setTextColor(0);
-        const wd = ['D','L','M','M','G','V','S'];
         const fest = M.dates.map(repIsFestive);
-        const head = [['Operatore', ...M.dates.map((dt, i) => `${i + 1}\n${wd[repDateObj(dt).getDay()]}`), 'Tot.', 'Fest.']];
-        const body = M.rows.map(r => [r.name, ...M.dates.map((dt, i) => r.days[i + 1] ? repHours(r.days[i + 1]) : ''), repHours(r.total), repHours(r.festive)]);
-        const foot = [['Totale giorno', ...M.dates.map((dt, i) => M.dayTot[i + 1] ? repHours(M.dayTot[i + 1]) : ''), repHours(M.total), repHours(M.festive)]];
+        const head = [['Infermiere', ...M.dates.map((dt, i) => `${i + 1}\n${REP_WD[repDateObj(dt).getDay()]}`), 'Totale']];
+        const body = M.rows.map(r => [r.name, ...M.dates.map((dt, i) => r.days[i + 1] ? repHours(r.days[i + 1]) : ''), repHours(r.total)]);
         doc.autoTable({
-            head, body, foot, startY:22, margin:{ left:10, right:10 }, theme:'grid',
-            styles:{ fontSize:7, cellPadding:1, halign:'center', valign:'middle', lineColor:[190, 190, 190], lineWidth:0.1 },
+            head, body, startY:22, margin:{ left:10, right:10 }, theme:'grid',
+            styles:{ fontSize:7.5, cellPadding:1.2, halign:'center', valign:'middle', lineColor:[190, 190, 190], lineWidth:0.1 },
             headStyles:{ fillColor:[232, 236, 242], textColor:20, fontStyle:'bold', fontSize:6.5 },
-            footStyles:{ fillColor:[232, 236, 242], textColor:20, fontStyle:'bold' },
-            columnStyles:{ 0:{ halign:'left', fontStyle:'bold', cellWidth:30 } },
+            columnStyles:{ 0:{ halign:'left', fontStyle:'bold', cellWidth:30 }, [M.nDays + 1]:{ fontStyle:'bold', fillColor:[232, 236, 242], cellWidth:14 } },
             didParseCell: data => {
                 const c = data.column.index;
-                if(c >= 1 && c <= M.nDays && fest[c - 1] && data.section !== 'head') data.cell.styles.fillColor = [253, 234, 234];
-                if(c >= 1 && c <= M.nDays && fest[c - 1] && data.section === 'head') data.cell.styles.textColor = [200, 30, 30];
-                if(c > M.nDays && data.section === 'body') data.cell.styles.fontStyle = 'bold';
+                if(c < 1 || c > M.nDays) return;
+                if(data.section === 'head') { if(fest[c - 1]) data.cell.styles.textColor = [200, 30, 30]; return; }
+                if(data.cell.raw) { data.cell.styles.fillColor = [220, 252, 231]; data.cell.styles.fontStyle = 'bold'; }
+                else if(fest[c - 1]) data.cell.styles.fillColor = [253, 234, 234];
             }
         });
         let y = doc.lastAutoTable.finalY + 5;
         doc.setFontSize(8); doc.setTextColor(90);
-        doc.text('Fasce: 00-07 = 7 h, 07-13 = 6 h, 13-20 = 7 h, 20-00 = 4 h. Ore attribuite al giorno in cui cadono. Colonne rosate = domeniche e festivi.', 10, y);
+        doc.text('00-07 = 7 h, 07-13 = 6 h, 13-20 = 7 h, 20-00 = 4 h. Ore attribuite al giorno in cui cadono. Colonne rosate = domeniche e festivi.', 10, y);
         doc.setTextColor(0);
-        // firme sotto la tabella (su una pagina nuova solo se non c'è spazio)
-        y += 22;
+        y += 20;
         if(y > doc.internal.pageSize.getHeight() - 12) { doc.addPage(); y = 30; }
         doc.setFontSize(9);
         doc.line(20, y, 110, y); doc.line(W - 110, y, W - 20, y);
         doc.text('Il coordinatore', 65, y + 5, { align:'center' }); doc.text('Ufficio personale', W - 65, y + 5, { align:'center' });
-        const det = [];
-        M.rows.forEach(r => Object.keys(r.list).sort().forEach((dt, k) => det.push([k === 0 ? r.name : '', repDateObj(dt).toLocaleDateString('it-IT', { weekday:'short', day:'2-digit', month:'2-digit' }), repListText(r, dt), repHours(r.list[dt].reduce((a, s) => a + REP_SLOTS[s].minutes, 0)) + ' h', k === 0 ? repHours(r.total) + ' h' : ''])));
-        doc.addPage();
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text(`Dettaglio per operatore - ${M.title}`, 10, 13);
-        doc.autoTable({
-            head:[['Operatore', 'Giorno', 'Fasce', 'Ore', 'Totale mese']], body:det, startY:18, margin:{ left:10, right:10 }, theme:'striped',
-            styles:{ fontSize:8, cellPadding:1.2 }, headStyles:{ fillColor:[30, 41, 59] },
-            columnStyles:{ 0:{ fontStyle:'bold', cellWidth:45 }, 3:{ halign:'right', cellWidth:18 }, 4:{ halign:'right', fontStyle:'bold', cellWidth:25 } }
-        });
         return { doc, M };
     }
     async function repReportPdf() {
