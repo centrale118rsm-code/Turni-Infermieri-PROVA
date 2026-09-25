@@ -1,0 +1,15 @@
+{
+  "name": "Infermieri 2026",
+  "short_name": "Infermieri 26",
+  "description": "Gestione Turni Infermieri 2026",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#e9edf3",
+  "theme_color": "#e9edf3",
+  "icons": [
+    { "src": "logo.png", "sizes": "any", "type": "image/png", "purpose": "any" }
+  ]
+}
