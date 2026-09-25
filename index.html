@@ -23,6 +23,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_downward,arrow_selector_tool,arrow_upward,balance,calendar_month,check,check_circle,chevron_left,chevron_right,close,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,group,hourglass_top,ink_eraser,login,logout,person_add,person_remove,redo,restart_alt,save,schedule,search,settings,space_dashboard,swap_horiz,task_alt,undo,verified,visibility_off,warning&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -549,68 +551,372 @@
         .hc-cal-daynum { font-size:0.66rem; }
         .hc-cal-code { font-size:0.5rem; opacity:0.85; }
 
-        /* ── AREA COORDINATORE ──────────────────────────────────────────────── */
-        #coord-login-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9500; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s; padding:20px; }
-        #coord-login-modal.open { opacity:1; }
-        #coord-login-modal .alert-card { transform:scale(0.9); }
-        #coord-login-modal.open .alert-card { transform:scale(1); }
-        #coord-panel-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6100; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
-        #coord-panel-modal.open { opacity:1; }
-        #coord-panel-modal .modal-content { max-width:680px; max-height:92vh; }
-        #coord-panel-modal.open .modal-content { transform:translateY(0); }
-        .coord-header-badge { background:linear-gradient(135deg,#4338ca,#7c3aed); color:#fff; }
-        .coord-header-badge .header-text span { color:#ddd6fe; }
-        .coord-header-badge .btn-close-modal { background:rgba(255,255,255,0.18); color:#fff; }
-        .coord-sync-item { background:var(--bg); border:1px solid var(--border); border-left:4px solid #7c3aed; border-radius:14px; padding:12px 14px; margin-bottom:10px; display:flex; gap:12px; align-items:flex-start; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
-        .coord-sync-check { width:26px; height:26px; border-radius:8px; border:2px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer; margin-top:2px; color:transparent; transition:0.15s; }
-        .coord-sync-check:active { transform:scale(0.9); }
-        .coord-sync-check.checked { background:#16a34a; border-color:#16a34a; color:#fff; }
-        .coord-sync-txt { flex:1; }
-        .coord-sync-main { font-size:0.85rem; font-weight:800; color:var(--text-main); }
-        .coord-sync-diff { font-size:0.78rem; color:var(--text-sec); margin-top:3px; }
-        .coord-sync-diff b { color:var(--text-main); }
-        .coord-sync-empty { text-align:center; padding:34px 20px; color:var(--text-sec); font-size:0.85rem; }
-        .coord-sync-empty .material-icons-round { color:#7c3aed; }
-        .coord-edit-toggle-row { display:flex; align-items:center; justify-content:space-between; gap:14px; background:linear-gradient(135deg,rgba(124,58,237,0.08),rgba(67,56,202,0.04)); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:16px; }
-        #coord-edit-bar { position:fixed; top:var(--header-h); left:0; right:0; z-index:2500; display:none; flex-direction:column; }
-        #coord-edit-bar.show { display:flex; }
-        .coord-edit-toolbar { display:flex; gap:6px; padding:8px 18px; background:var(--bg-card); border-bottom:1px solid var(--border); box-shadow:0 6px 16px rgba(0,0,0,0.08); align-items:center; }
-        #coord-paint-palette { display:flex; gap:6px; padding:8px 18px; overflow-x:auto; scrollbar-width:none; background:var(--bg-card); border-bottom:1px solid var(--border); box-shadow:0 6px 16px rgba(0,0,0,0.06); }
-        #coord-paint-palette::-webkit-scrollbar { display:none; }
-        .paint-tool-btn { flex-shrink:0; display:flex; align-items:center; gap:6px; padding:8px 12px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:800; font-size:0.7rem; cursor:pointer; white-space:nowrap; transition:0.15s; }
-        .paint-tool-btn .ptb-swatch { width:14px; height:14px; border-radius:4px; background:var(--btn-bg,var(--border)); border:1px solid rgba(0,0,0,0.15); flex-shrink:0; }
-        .paint-tool-btn.diurno .ptb-swatch { border-style:dashed; border-width:2px; }
-        .paint-tool-btn.active { border-color:var(--primary); box-shadow:0 0 0 2px rgba(37,99,235,0.3); background:var(--btn-bg,var(--bg)); color:var(--btn-fg,var(--text-main)); }
-        .paint-tool-btn.stop-tool.active { background:#e2e8f0; color:#334155; border-color:#94a3b8; }
-        .paint-tool-btn.clear-tool .ptb-swatch { background:#fff; border:2px dashed #dc2626; }
-        .paint-tool-btn.clear-tool.active { background:#fee2e2; color:#991b1b; border-color:#dc2626; }
-        .paint-group-sep { flex-shrink:0; width:1px; align-self:stretch; background:var(--border); margin:2px 2px; }
+        /* ══ AREA COORDINATORE — console professionale ═══════════════════════ */
+        .cc-scope {
+            --cc-ink:#16212e; --cc-ink-2:#1f2d3d; --cc-ink-line:#2c3b4e; --cc-ink-text:#d3dbe4; --cc-ink-muted:#8a9aad;
+            --cc-bg:#eef0f3; --cc-surface:#ffffff; --cc-surface-2:#f6f7f9; --cc-line:#d6dbe2; --cc-line-2:#e7eaee;
+            --cc-text:#18202b; --cc-muted:#5c6776; --cc-accent:#0b6e7f; --cc-accent-hover:#095c6a; --cc-accent-soft:#e2f0f2;
+            --cc-pos:#1d7a4d; --cc-pos-soft:#e4f2ea; --cc-neg:#b3261e; --cc-neg-soft:#fae9e7; --cc-warn:#94560a; --cc-warn-soft:#faf0df;
+            --cc-r:6px;
+            --cc-font:'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --cc-font-c:'IBM Plex Sans Condensed', 'IBM Plex Sans', 'Arial Narrow', sans-serif;
+            font-family:var(--cc-font); color:var(--cc-text); font-size:14px; line-height:1.45;
+            -webkit-font-smoothing:antialiased;
+        }
+        body.dark-mode .cc-scope {
+            --cc-ink:#0b1118; --cc-ink-2:#131c26; --cc-ink-line:#223040; --cc-ink-text:#d3dbe4; --cc-ink-muted:#7d8ca0;
+            --cc-bg:#0f151d; --cc-surface:#161e28; --cc-surface-2:#1b2430; --cc-line:#2a3544; --cc-line-2:#222c38;
+            --cc-text:#e3e8ee; --cc-muted:#93a0b0; --cc-accent:#3aa1b3; --cc-accent-hover:#52b3c4; --cc-accent-soft:#16323a;
+            --cc-pos:#5cc08e; --cc-pos-soft:#15301f; --cc-neg:#f0857c; --cc-neg-soft:#3a1a18; --cc-warn:#e0a54e; --cc-warn-soft:#352812;
+        }
+        .cc-scope *, .cc-scope *::before, .cc-scope *::after { box-sizing:border-box; }
+        .cc-scope input, .cc-scope select, .cc-scope textarea { -webkit-user-select:text; user-select:text; font-family:inherit; }
+        .cc-scope :focus-visible { outline:2px solid var(--cc-accent); outline-offset:2px; }
+        .msym { font-family:'Material Symbols Outlined'; font-weight:normal; font-style:normal; font-size:20px; line-height:1; letter-spacing:normal; text-transform:none; display:inline-block; white-space:nowrap; direction:ltr; -webkit-font-feature-settings:'liga'; font-feature-settings:'liga'; font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20; -webkit-font-smoothing:antialiased; }
+
+        body.cc-lock { overflow:hidden; }
+        #coord-console { display:none; position:fixed; inset:0; z-index:6100; background:var(--cc-bg); opacity:0; transition:opacity .16s ease; }
+        #coord-console.open { opacity:1; }
+        @media (prefers-reduced-motion: reduce) { #coord-console, .tw-ring, #cc-dialog, #cc-toast { transition:none !important; } }
+
+        /* login */
+        .cc-login { display:none; position:absolute; inset:0; align-items:center; justify-content:center; padding:24px; padding-top:calc(24px + env(safe-area-inset-top,0px));
+            background:linear-gradient(90deg, var(--cc-ink) 0 38%, var(--cc-bg) 38% 100%); }
+        .cc-login.show { display:flex; }
+        .cc-login-panel { width:100%; max-width:380px; background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:var(--cc-r); padding:28px 28px 24px; }
+        .cc-login-mark { display:flex; align-items:center; gap:10px; margin-bottom:22px; color:var(--cc-muted); font-size:13px; }
+        .cc-login-mark .cc-brand-mark { background:var(--cc-ink); color:#fff; }
+        .cc-login-panel h1 { font-size:22px; font-weight:600; margin:0 0 6px; letter-spacing:-0.01em; color:var(--cc-text); }
+        .cc-login-panel p { margin:0 0 20px; color:var(--cc-muted); font-size:13.5px; }
+        .cc-field { display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:500; color:var(--cc-text); }
+        .cc-input { height:38px; padding:0 11px; border:1px solid var(--cc-line); border-radius:4px; background:var(--cc-surface); color:var(--cc-text); font-size:14px; outline:none; width:100%; }
+        .cc-input:focus { border-color:var(--cc-accent); box-shadow:0 0 0 3px var(--cc-accent-soft); }
+        .cc-error { min-height:20px; margin-top:6px; color:var(--cc-neg); font-size:12.5px; }
+        .cc-login-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
+        @media (max-width:640px) { .cc-login { background:var(--cc-bg); } }
+
+        /* bottoni */
+        .cc-btn { height:36px; padding:0 14px; border-radius:4px; border:1px solid var(--cc-line); background:var(--cc-surface); color:var(--cc-text); font:500 13.5px/1 var(--cc-font); cursor:pointer; display:inline-flex; align-items:center; gap:7px; white-space:nowrap; transition:background .12s, border-color .12s; }
+        .cc-btn .msym { font-size:18px; }
+        .cc-btn:hover { background:var(--cc-surface-2); border-color:#c3cad4; }
+        .cc-btn:disabled { opacity:.45; cursor:default; }
+        .cc-btn.primary { background:var(--cc-accent); border-color:var(--cc-accent); color:#fff; }
+        .cc-btn.primary:hover { background:var(--cc-accent-hover); border-color:var(--cc-accent-hover); }
+        .cc-btn.danger { color:var(--cc-neg); border-color:var(--cc-line); }
+        .cc-btn.danger:hover { background:var(--cc-neg-soft); border-color:var(--cc-neg); }
+        .cc-btn.solid-danger { background:var(--cc-neg); border-color:var(--cc-neg); color:#fff; }
+        .cc-btn.ghost { border-color:transparent; background:transparent; }
+        .cc-btn.ghost:hover { background:var(--cc-surface-2); }
+        .cc-btn.sm { height:30px; padding:0 10px; font-size:12.5px; }
+        .cc-icon-btn { width:32px; height:32px; border-radius:4px; border:1px solid transparent; background:transparent; color:var(--cc-muted); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+        .cc-icon-btn:hover { background:var(--cc-surface-2); color:var(--cc-text); border-color:var(--cc-line); }
+        .cc-icon-btn:disabled { opacity:.3; cursor:default; background:transparent; border-color:transparent; }
+        .cc-icon-btn.danger:hover { color:var(--cc-neg); border-color:var(--cc-neg); background:var(--cc-neg-soft); }
+
+        /* layout app */
+        .cc-app { display:none; position:absolute; inset:0; grid-template-columns:236px 1fr; }
+        .cc-app.show { display:grid; }
+        .cc-side { background:var(--cc-ink); color:var(--cc-ink-text); display:flex; flex-direction:column; padding-top:env(safe-area-inset-top,0px); min-height:0; }
+        .cc-brand { display:flex; align-items:center; gap:11px; padding:18px 18px 16px; border-bottom:1px solid var(--cc-ink-line); }
+        .cc-brand-mark { width:34px; height:34px; border-radius:4px; background:var(--cc-accent); color:#fff; display:flex; align-items:center; justify-content:center; font:600 12px/1 var(--cc-font-c); letter-spacing:.02em; flex-shrink:0; }
+        .cc-brand b { display:block; font-weight:600; font-size:14px; color:#fff; }
+        .cc-brand small { display:block; font-size:12px; color:var(--cc-ink-muted); }
+        .cc-nav { display:flex; flex-direction:column; padding:10px 8px; gap:2px; flex:1; overflow-y:auto; }
+        .cc-nav button { display:flex; align-items:center; gap:11px; height:38px; padding:0 12px; border:none; border-radius:4px; background:transparent; color:var(--cc-ink-text); font:450 14px/1 var(--cc-font); cursor:pointer; text-align:left; position:relative; }
+        .cc-nav button .msym { font-size:19px; color:var(--cc-ink-muted); }
+        .cc-nav button:hover { background:var(--cc-ink-2); }
+        .cc-nav button.active { background:var(--cc-ink-2); color:#fff; font-weight:500; }
+        .cc-nav button.active::before { content:""; position:absolute; left:-8px; top:8px; bottom:8px; width:3px; border-radius:0 2px 2px 0; background:var(--cc-accent); }
+        .cc-nav button.active .msym { color:#fff; }
+        .cc-nav .cc-count { margin-left:auto; min-width:20px; height:20px; padding:0 6px; border-radius:10px; background:var(--cc-accent); color:#fff; font:600 11.5px/20px var(--cc-font); text-align:center; }
+        .cc-nav .cc-count:empty { display:none; }
+        .cc-side-foot { border-top:1px solid var(--cc-ink-line); padding:10px 8px calc(10px + env(safe-area-inset-bottom,0px)); display:flex; flex-direction:column; gap:2px; }
+        .cc-side-foot button { display:flex; align-items:center; gap:11px; height:36px; padding:0 12px; border:none; border-radius:4px; background:transparent; color:var(--cc-ink-muted); font:450 13.5px/1 var(--cc-font); cursor:pointer; }
+        .cc-side-foot button:hover { background:var(--cc-ink-2); color:#fff; }
+        .cc-side-foot .msym { font-size:18px; }
+        .cc-body { display:flex; flex-direction:column; min-width:0; min-height:0; }
+        .cc-top { display:flex; align-items:center; gap:16px; padding:18px 28px; padding-top:calc(18px + env(safe-area-inset-top,0px)); background:var(--cc-surface); border-bottom:1px solid var(--cc-line); }
+        .cc-top-text { flex:1; min-width:0; }
+        .cc-top h2 { margin:0; font-size:19px; font-weight:600; letter-spacing:-0.01em; color:var(--cc-text); }
+        .cc-top p { margin:2px 0 0; font-size:13px; color:var(--cc-muted); }
+        .cc-top-actions { display:flex; gap:8px; align-items:center; }
+        .cc-main { flex:1; overflow:auto; padding:24px 28px 48px; -webkit-overflow-scrolling:touch; }
+        .cc-main > * { max-width:1180px; }
+
+        @media (max-width:760px) {
+            .cc-app { grid-template-columns:1fr; grid-template-rows:auto 1fr; }
+            .cc-side { flex-direction:row; align-items:stretch; overflow:hidden; }
+            .cc-brand { padding:10px 12px; border-bottom:none; border-right:1px solid var(--cc-ink-line); }
+            .cc-brand > div { display:none; }
+            .cc-nav { flex-direction:row; padding:6px; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; }
+            .cc-nav::-webkit-scrollbar { display:none; }
+            .cc-nav button { flex-shrink:0; height:40px; padding:0 12px; font-size:13.5px; }
+            .cc-nav button.active::before { left:10px; right:10px; top:auto; bottom:-6px; width:auto; height:3px; border-radius:2px 2px 0 0; }
+            .cc-side-foot { display:none; }
+            .cc-top { padding:12px 16px; }
+            .cc-top h2 { font-size:17px; }
+            .cc-top p { display:none; }
+            .cc-main { padding:16px 14px 40px; }
+        }
+
+        /* pannelli e sezioni */
+        .cc-panel { background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:var(--cc-r); margin-bottom:18px; }
+        .cc-panel-head { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid var(--cc-line-2); }
+        .cc-panel-head h3 { margin:0; font-size:14.5px; font-weight:600; flex:1; color:var(--cc-text); }
+        .cc-panel-head .cc-hint { font-size:12.5px; color:var(--cc-muted); }
+        .cc-panel-body { padding:16px; }
+        .cc-note { font-size:13px; color:var(--cc-muted); margin:0; }
+        .cc-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+        .cc-grid-2 > .cc-panel { margin-bottom:0; }
+        @media (max-width:900px) { .cc-grid-2 { grid-template-columns:1fr; } }
+        .cc-empty { padding:28px 16px; text-align:center; color:var(--cc-muted); font-size:13.5px; }
+        .cc-empty .msym { display:block; margin:0 auto 6px; font-size:26px; color:var(--cc-line); }
+        .cc-tag { display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:3px; font:500 11.5px/1 var(--cc-font); background:var(--cc-surface-2); color:var(--cc-muted); border:1px solid var(--cc-line-2); white-space:nowrap; }
+        .cc-tag.accent { background:var(--cc-accent-soft); color:var(--cc-accent); border-color:transparent; }
+        .cc-tag.warn { background:var(--cc-warn-soft); color:var(--cc-warn); border-color:transparent; }
+        .cc-tag.neg { background:var(--cc-neg-soft); color:var(--cc-neg); border-color:transparent; }
+        .cc-num { font-variant-numeric:tabular-nums; font-feature-settings:'tnum'; }
+        .cc-pos { color:var(--cc-pos); }
+        .cc-neg { color:var(--cc-neg); }
+
+        /* panoramica: tabellone di oggi */
+        .cc-board-head { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+        .cc-board-date { font-size:20px; font-weight:600; letter-spacing:-0.01em; flex:1; color:var(--cc-text); }
+        .cc-board-date small { display:block; font-size:12.5px; font-weight:400; color:var(--cc-muted); letter-spacing:0; }
+        .cc-board { display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--cc-line); border-radius:var(--cc-r); background:var(--cc-surface); overflow:hidden; margin-bottom:18px; }
+        .cc-board-col { border-right:1px solid var(--cc-line-2); min-width:0; }
+        .cc-board-col:last-child { border-right:none; }
+        .cc-board-col-head { display:flex; align-items:baseline; gap:8px; padding:12px 16px 10px; border-top:4px solid var(--sw, var(--cc-line)); border-bottom:1px solid var(--cc-line-2); }
+        .cc-board-col-head b { font-size:14px; font-weight:600; }
+        .cc-board-col-head span { font-size:12px; color:var(--cc-muted); }
+        .cc-board-col-head em { margin-left:auto; font-style:normal; font:600 22px/1 var(--cc-font-c); font-variant-numeric:tabular-nums; }
+        .cc-board-list { list-style:none; margin:0; padding:6px 0; }
+        .cc-board-list li { padding:6px 16px; font-size:13.5px; display:flex; gap:8px; align-items:center; }
+        .cc-board-list li small { color:var(--cc-muted); font-size:12px; margin-left:auto; }
+        .cc-board-list .cc-empty-li { color:var(--cc-muted); font-style:italic; }
+        .cc-board-foot { grid-column:1 / -1; border-top:1px solid var(--cc-line-2); padding:10px 16px; display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; color:var(--cc-muted); align-items:center; }
+        .cc-board-foot b { color:var(--cc-text); font-weight:500; }
+        @media (max-width:640px) { .cc-board { grid-template-columns:1fr; } .cc-board-col { border-right:none; border-bottom:1px solid var(--cc-line-2); } }
+        .cc-list { list-style:none; margin:0; padding:0; }
+        .cc-list li { display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--cc-line-2); font-size:13.5px; }
+        .cc-list li:last-child { border-bottom:none; }
+        .cc-list li .cc-grow { flex:1; min-width:0; }
+        .cc-list li small { color:var(--cc-muted); font-size:12px; display:block; }
+        .cc-link { background:none; border:none; padding:0; color:var(--cc-accent); font:500 13px/1.4 var(--cc-font); cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
+
+        /* tabelle */
+        .cc-table-wrap { overflow:auto; border:1px solid var(--cc-line); border-radius:var(--cc-r); background:var(--cc-surface); -webkit-overflow-scrolling:touch; }
+        .cc-table { width:100%; border-collapse:separate; border-spacing:0; font-size:13px; }
+        .cc-table th { position:sticky; top:0; z-index:2; background:var(--cc-surface-2); color:var(--cc-muted); font:500 12px/1.2 var(--cc-font-c); text-align:left; padding:9px 10px; border-bottom:1px solid var(--cc-line); white-space:nowrap; }
+        .cc-table th small { display:block; font-weight:400; font-size:11px; color:var(--cc-muted); opacity:.85; margin-top:1px; }
+        .cc-table th.sortable { cursor:pointer; }
+        .cc-table th.sortable:hover { color:var(--cc-text); }
+        .cc-table th .cc-sort { font-size:14px; vertical-align:-3px; }
+        .cc-table td { padding:8px 10px; border-bottom:1px solid var(--cc-line-2); vertical-align:middle; white-space:nowrap; color:var(--cc-text); }
+        .cc-table tbody tr:hover td { background:var(--cc-surface-2); }
+        .cc-table tr:last-child td { border-bottom:none; }
+        .cc-table .r { text-align:right; }
+        .cc-table .c { text-align:center; }
+        .cc-table .cc-sticky { position:sticky; left:0; z-index:1; background:var(--cc-surface); border-right:1px solid var(--cc-line); }
+        .cc-table th.cc-sticky { z-index:3; background:var(--cc-surface-2); }
+        .cc-table tbody tr:hover td.cc-sticky { background:var(--cc-surface-2); }
+        .cc-table .cc-sep-l { border-left:1px solid var(--cc-line); }
+        .cc-table tfoot td { background:var(--cc-surface-2); font-weight:500; border-top:1px solid var(--cc-line); border-bottom:none; }
+        .cc-table tfoot td.cc-sticky { background:var(--cc-surface-2); }
+        .cc-opname { font-weight:500; }
+        .cc-opname small { display:block; font-weight:400; font-size:11.5px; color:var(--cc-muted); }
+
+        /* conteggio ore */
+        .cc-toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
+        .cc-seg { display:inline-flex; border:1px solid var(--cc-line); border-radius:4px; overflow:hidden; background:var(--cc-surface); }
+        .cc-seg button { height:34px; padding:0 14px; border:none; border-right:1px solid var(--cc-line); background:transparent; color:var(--cc-muted); font:500 13px/1 var(--cc-font); cursor:pointer; }
+        .cc-seg button:last-child { border-right:none; }
+        .cc-seg button.active { background:var(--cc-ink); color:#fff; }
+        .cc-period-nav { display:inline-flex; align-items:center; gap:2px; border:1px solid var(--cc-line); border-radius:4px; background:var(--cc-surface); height:36px; padding:0 2px; }
+        .cc-period-nav .cc-period-label { min-width:150px; text-align:center; font-weight:500; font-size:13.5px; padding:0 6px; font-variant-numeric:tabular-nums; }
+        .cc-search { position:relative; flex:1; min-width:160px; max-width:280px; }
+        .cc-search .msym { position:absolute; left:9px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--cc-muted); pointer-events:none; }
+        .cc-search input { padding-left:34px; height:36px; }
+        .cc-toolbar .cc-spacer { flex:1; }
+        .cc-hcell { min-width:56px; }
+        .cc-hcell-in { display:flex; flex-direction:column; align-items:center; gap:3px; }
+        .cc-hcell-in .cc-hv { font-size:12px; min-height:14px; }
+        .cc-table td.cc-hcell, .cc-table th.cc-hcell { padding-left:6px; padding-right:6px; }
+        .cc-code { display:inline-flex; align-items:center; justify-content:center; min-width:30px; height:20px; padding:0 4px; border-radius:3px; background:var(--sw, var(--cc-surface-2)); color:var(--sf, var(--cc-text)); font:600 11px/1 var(--cc-font-c); letter-spacing:.01em; border:1px solid rgba(0,0,0,.08); }
+        .cc-code.muted { background:transparent; color:var(--cc-muted); border:1px dashed var(--cc-line); }
+        .cc-code.warn { background:var(--cc-warn-soft); color:var(--cc-warn); border-color:transparent; }
+        .cc-hv { font-variant-numeric:tabular-nums; }
+        .cc-hv.zero { color:var(--cc-muted); }
+        .cc-seg-delta { display:block; font-size:11px; font-variant-numeric:tabular-nums; }
+        .cc-bar { width:44px; height:6px; background:var(--cc-line-2); border-radius:3px; overflow:hidden; display:inline-block; vertical-align:middle; margin-right:8px; position:relative; }
+        .cc-bar i { position:absolute; left:0; top:0; bottom:0; background:var(--cc-accent); border-radius:3px; }
+        .cc-bar i.over { background:var(--cc-warn); }
+        .cc-check { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:12.5px; color:var(--cc-muted); }
+        .cc-check .msym { font-size:17px; }
+        .cc-check.ok .msym { color:var(--cc-pos); }
+        .cc-check.warn { color:var(--cc-warn); }
+        .cc-legend { display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:12px; font-size:12px; color:var(--cc-muted); }
+        .cc-legend span { display:inline-flex; align-items:center; gap:6px; }
+
+        /* operatori */
+        .cc-add-form { display:grid; grid-template-columns:1fr 130px auto; gap:10px; align-items:end; }
+        @media (max-width:640px) { .cc-add-form { grid-template-columns:1fr 110px; } .cc-add-form .cc-btn { grid-column:1 / -1; justify-content:center; } }
+        .cc-op-list { border:1px solid var(--cc-line); border-radius:var(--cc-r); background:var(--cc-surface); overflow:hidden; }
+        .cc-op-head, .cc-op-row { display:grid; grid-template-columns:32px 30px minmax(160px,1fr) 120px 240px 150px; align-items:center; gap:10px; padding:0 12px; }
+        .cc-op-head { height:36px; background:var(--cc-surface-2); border-bottom:1px solid var(--cc-line); font:500 12px/1 var(--cc-font-c); color:var(--cc-muted); }
+        .cc-op-row { min-height:58px; border-bottom:1px solid var(--cc-line-2); background:var(--cc-surface); position:relative; }
+        .cc-op-row:last-child { border-bottom:none; }
+        .cc-op-row.is-hidden .cc-op-name b { color:var(--cc-muted); text-decoration:line-through; text-decoration-color:var(--cc-line); }
+        .cc-op-row.dragging { z-index:5; box-shadow:0 6px 18px rgba(16,24,40,.18); border-bottom-color:transparent; }
+        .cc-op-grip { width:30px; height:36px; border:none; background:transparent; color:var(--cc-muted); cursor:grab; touch-action:none; display:flex; align-items:center; justify-content:center; border-radius:4px; }
+        .cc-op-grip:hover { background:var(--cc-surface-2); color:var(--cc-text); }
+        .cc-op-row.dragging .cc-op-grip { cursor:grabbing; }
+        .cc-op-pos { font:500 12.5px/1 var(--cc-font-c); color:var(--cc-muted); font-variant-numeric:tabular-nums; text-align:right; }
+        .cc-op-name { min-width:0; }
+        .cc-op-name b { display:block; font-weight:500; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .cc-op-name small { display:flex; gap:6px; flex-wrap:wrap; align-items:center; color:var(--cc-muted); font-size:12px; margin-top:2px; }
+        .cc-op-name .cc-input { height:32px; }
+        .cc-op-hours { display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--cc-muted); }
+        .cc-op-hours input { width:64px; height:32px; text-align:right; font-variant-numeric:tabular-nums; }
+        .cc-op-vis { display:flex; align-items:center; gap:10px; font-size:13px; flex-wrap:wrap; }
+        .cc-op-vis .cc-until { display:flex; align-items:center; gap:6px; color:var(--cc-muted); font-size:12.5px; }
+        .cc-op-vis .cc-until input { height:30px; width:140px; font-size:12.5px; padding:0 8px; }
+        .cc-op-actions { display:flex; gap:2px; justify-content:flex-end; }
+        @media (max-width:980px) {
+            .cc-op-head { display:none; }
+            .cc-op-row { grid-template-columns:32px 1fr auto; grid-template-areas:"grip name actions" "grip hours hours" "grip vis vis"; padding:10px 12px; row-gap:8px; }
+            .cc-op-grip { grid-area:grip; align-self:start; }
+            .cc-op-pos { display:none; }
+            .cc-op-name { grid-area:name; }
+            .cc-op-hours { grid-area:hours; }
+            .cc-op-vis { grid-area:vis; }
+            .cc-op-actions { grid-area:actions; align-self:start; }
+        }
+        .cc-switch { position:relative; display:inline-block; width:34px; height:20px; flex-shrink:0; }
+        .cc-switch input { opacity:0; width:0; height:0; position:absolute; }
+        .cc-switch span { position:absolute; inset:0; background:var(--cc-line); border-radius:10px; cursor:pointer; transition:background .12s; }
+        .cc-switch span::before { content:""; position:absolute; width:14px; height:14px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .12s; box-shadow:0 1px 2px rgba(0,0,0,.2); }
+        .cc-switch input:checked + span { background:var(--cc-accent); }
+        .cc-switch input:checked + span::before { transform:translateX(14px); }
+        .cc-switch input:focus-visible + span { outline:2px solid var(--cc-accent); outline-offset:2px; }
+        .cc-setting { display:flex; align-items:center; gap:16px; padding:14px 16px; border-bottom:1px solid var(--cc-line-2); }
+        .cc-setting:last-child { border-bottom:none; }
+        .cc-setting > div { flex:1; min-width:0; }
+        .cc-setting b { display:block; font-weight:500; font-size:14px; }
+        .cc-setting small { display:block; color:var(--cc-muted); font-size:12.5px; margin-top:2px; }
+        .cc-inline-form { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+        .cc-inline-form select { height:36px; min-width:220px; }
+
+        /* modifica turni: anteprima ruota */
+        .cc-edit-intro { display:grid; grid-template-columns:260px 1fr; gap:28px; align-items:center; }
+        .cc-edit-intro .cc-wheel-preview { width:260px; height:260px; position:relative; }
+        .cc-edit-intro ol { margin:0 0 16px; padding-left:20px; font-size:13.5px; }
+        .cc-edit-intro ol li { margin-bottom:8px; }
+        .cc-edit-intro ol li b { font-weight:600; }
+        @media (max-width:760px) { .cc-edit-intro { grid-template-columns:1fr; justify-items:center; } .cc-edit-intro > div:last-child { justify-self:stretch; } }
+
+        /* dialog */
+        #cc-dialog { display:none; position:fixed; inset:0; z-index:9900; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:20px; opacity:0; transition:opacity .14s; }
+        #cc-dialog.open { opacity:1; }
+        .cc-dialog-box { width:100%; max-width:420px; background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:var(--cc-r); box-shadow:0 18px 50px rgba(12,18,26,.25); }
+        .cc-dialog-box h4 { margin:0; padding:18px 20px 6px; font-size:16px; font-weight:600; color:var(--cc-text); }
+        .cc-dialog-box p { margin:0; padding:0 20px 18px; color:var(--cc-muted); font-size:13.5px; }
+        .cc-dialog-actions { display:flex; justify-content:flex-end; gap:8px; padding:12px 20px; border-top:1px solid var(--cc-line-2); background:var(--cc-surface-2); border-radius:0 0 var(--cc-r) var(--cc-r); flex-wrap:wrap; }
+
+        /* toast */
+        #cc-toast { position:fixed; left:50%; bottom:calc(64px + env(safe-area-inset-bottom,0px)); transform:translate(-50%,8px); z-index:9950; background:var(--cc-ink); color:#fff; padding:10px 16px; border-radius:4px; font-size:13.5px; opacity:0; pointer-events:none; transition:opacity .15s, transform .15s; max-width:calc(100vw - 32px); display:flex; gap:8px; align-items:center; }
+        #cc-toast.show { opacity:1; transform:translate(-50%,0); }
+        #cc-toast.err { background:var(--cc-neg); }
+        #cc-toast .msym { font-size:18px; }
+
+        /* ══ Modalità modifica sul calendario ═══════════════════════════════ */
+        body.coord-edit-mode .container { padding-bottom:140px; }
+        body.coord-edit-mode td[data-col] { cursor:pointer; }
+        body.coord-edit-mode.select-active td[data-col] { cursor:grab; }
         body.coord-edit-mode.paint-active td[data-col] { cursor:crosshair; }
         body.paint-active #main-table td[data-col] { touch-action:none; }
-        .coord-tool-btn { flex:0 0 auto; width:38px; height:38px; padding:0; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); cursor:pointer; display:flex; align-items:center; justify-content:center; }
-        .coord-tool-btn .material-icons-round { font-size:19px; }
-        .coord-tool-btn:disabled { opacity:0.35; cursor:default; }
-        .coord-tool-btn.primary { background:var(--primary); color:#fff; border-color:var(--primary); }
-        .coord-tool-btn.danger { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
-        .coord-tool-sep { width:1px; align-self:stretch; background:var(--border); margin:0 4px; }
-        body.coord-edit-mode td[data-col] { cursor:grab; }
-        body.coord-edit-mode td[data-col] .cell { outline:1.5px dashed rgba(37,99,235,0.35); outline-offset:-2px; }
-        body.coord-edit-mode td.coord-dragging { opacity:0.4; }
-        body.coord-edit-mode td.coord-dragover { outline:2.5px solid var(--primary); background:rgba(37,99,235,0.12); }
-        body.coord-edit-mode td.coord-fillover { outline:2.5px solid #16a34a; background:rgba(22,163,74,0.14); }
-        body.coord-edit-mode td.coord-selected { outline:3px solid #f59e0b; outline-offset:-3px; z-index:50; }
-        #shift-edit-popup { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9700; align-items:center; justify-content:center; opacity:0; transition:opacity 0.25s; padding:16px; }
+        body.coord-edit-mode.swap-active td[data-col] { cursor:alias; }
+        body.coord-edit-mode td.coord-dragging { opacity:.4; }
+        body.coord-edit-mode td.coord-dragover { outline:2px solid #0b6e7f; background:rgba(11,110,127,.12); }
+        body.coord-edit-mode td.coord-fillover { outline:2px solid #1d7a4d; background:rgba(29,122,77,.14); }
+        body.coord-edit-mode td.coord-selected { outline:3px solid #0b6e7f; outline-offset:-3px; position:relative; z-index:50; }
+        body.coord-edit-mode.swap-active td.coord-selected { outline-color:#94560a; }
+
+        #coord-edit-strip { display:none; position:fixed; left:0; right:0; bottom:0; z-index:2900; background:var(--cc-ink); color:var(--cc-ink-text); padding:0 16px env(safe-area-inset-bottom,0px); }
+        #coord-edit-strip.show { display:block; }
+        .ces-in { display:flex; align-items:center; gap:14px; height:50px; font-size:13.5px; }
+        .ces-mode { display:flex; align-items:center; gap:8px; color:#fff; font-weight:500; white-space:nowrap; }
+        .ces-mode .msym { font-size:18px; color:var(--cc-ink-muted); }
+        .ces-tool { color:var(--cc-ink-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:1; }
+        .ces-tool b { color:#fff; font-weight:500; }
+        .ces-pending { white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--cc-ink-muted); }
+        .ces-pending.has { color:#f3c77c; }
+        #coord-edit-strip .cc-btn { height:32px; background:transparent; color:#fff; border-color:var(--cc-ink-line); }
+        #coord-edit-strip .cc-btn:hover { background:var(--cc-ink-2); }
+        #coord-edit-strip .cc-btn.primary { background:var(--cc-accent); border-color:var(--cc-accent); }
+        #coord-edit-strip .cc-btn:disabled { opacity:.4; }
+        @media (max-width:640px) { .ces-mode span:last-child { display:none; } .ces-in { gap:10px; } .ces-tool { font-size:12.5px; } }
+
+        /* ══ Ruota strumenti ════════════════════════════════════════════════ */
+        #tool-wheel { position:fixed; left:0; top:0; width:300px; height:300px; z-index:3000; pointer-events:none; display:none; touch-action:none; }
+        #tool-wheel.show { display:block; }
+        body.cc-lock #tool-wheel { display:none; }
+        .tw-ring { position:absolute; inset:0; transform-origin:50% 50%; transition:transform .17s cubic-bezier(.2,.7,.3,1), opacity .12s; }
+        #tool-wheel.collapsed .tw-ring { transform:scale(.3); opacity:0; pointer-events:none; }
+        #tool-wheel:not(.collapsed) .tw-ring { pointer-events:none; }
+        .tw-ring svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; filter:drop-shadow(0 8px 22px rgba(12,18,26,.28)); }
+        #tool-wheel:not(.collapsed) .tw-ring svg path.tw-seg { pointer-events:auto; }
+        .tw-seg { cursor:pointer; stroke:var(--cc-ink); stroke-width:1; transition:filter .1s; }
+        .tw-seg:hover { filter:brightness(1.12); }
+        .tw-seg.act { fill:var(--cc-ink-2); }
+        .tw-seg.act:hover { fill:#2a3b50; filter:none; }
+        .tw-seg.act.on { fill:var(--cc-accent); }
+        .tw-seg.act.off { fill:var(--cc-ink); cursor:default; }
+        .tw-seg.sel { stroke:#ffffff; stroke-width:3; }
+        .tw-back { fill:var(--cc-ink); }
+        .tw-labels { position:absolute; inset:0; pointer-events:none; }
+        .tw-lbl { position:absolute; transform:translate(-50%,-50%); font:600 11px/1 var(--cc-font-c); letter-spacing:.01em; text-align:center; white-space:nowrap; }
+        .tw-lbl.ico { color:var(--cc-ink-text); }
+        .tw-lbl.ico .msym { font-size:20px; }
+        .tw-lbl.ico.off { opacity:.3; }
+        .tw-lbl.ico.on { color:#fff; }
+        .tw-lbl.dashed::after { content:""; display:block; width:12px; margin:2px auto 0; border-top:1.5px dashed currentColor; opacity:.8; }
+        .tw-hub { position:absolute; left:50%; top:50%; width:72px; height:72px; margin:-36px 0 0 -36px; border-radius:50%; border:3px solid var(--cc-ink); background:var(--cc-surface); color:var(--cc-text); pointer-events:auto; cursor:grab; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; box-shadow:0 0 0 1px var(--cc-line), 0 6px 16px rgba(12,18,26,.25); padding:0; transition:width .15s, height .15s, margin .15s; font-family:var(--cc-font); }
+        .tw-hub:active { cursor:grabbing; }
+        #tool-wheel.collapsed .tw-hub { width:60px; height:60px; margin:-30px 0 0 -30px; border-color:var(--cc-ink); }
+        .tw-hub-sw { width:30px; height:18px; border-radius:3px; background:var(--sw, transparent); color:var(--sf, var(--cc-text)); font:600 11px/18px var(--cc-font-c); text-align:center; border:1px solid rgba(0,0,0,.1); display:flex; align-items:center; justify-content:center; }
+        .tw-hub-sw .msym { font-size:18px; }
+        .tw-hub-sw.plain { border:none; background:transparent; }
+        .tw-hub-grip { font-size:10px; color:var(--cc-muted); letter-spacing:.02em; line-height:1; }
+        #tool-wheel.collapsed .tw-hub-grip { display:none; }
+        .tw-badge { position:absolute; left:50%; top:50%; margin:-38px 0 0 14px; min-width:20px; height:20px; padding:0 6px; border-radius:10px; background:#c2410c; color:#fff; font:600 11px/20px var(--cc-font); text-align:center; pointer-events:none; display:none; box-shadow:0 0 0 2px var(--cc-surface); }
+        #tool-wheel.collapsed .tw-badge.has { display:block; }
+        .tw-sat { position:absolute; left:50%; top:50%; width:34px; height:34px; margin:4px 0 0 -62px; border-radius:50%; border:1px solid var(--cc-ink-line); background:var(--cc-ink); color:#fff; display:none; align-items:center; justify-content:center; pointer-events:auto; cursor:pointer; box-shadow:0 4px 10px rgba(12,18,26,.25); padding:0; }
+        .tw-sat .msym { font-size:18px; }
+        .tw-sat:disabled { opacity:.35; cursor:default; }
+        #tool-wheel.collapsed .tw-sat { display:flex; }
+        .tw-caption { position:absolute; left:50%; top:calc(100% + 6px); transform:translateX(-50%); background:var(--cc-ink); color:#fff; font:500 12.5px/1.2 var(--cc-font); padding:7px 11px; border-radius:4px; white-space:nowrap; pointer-events:none; box-shadow:0 4px 12px rgba(12,18,26,.25); }
+        #tool-wheel.caption-top .tw-caption { top:auto; bottom:calc(100% + 6px); }
+        #tool-wheel.collapsed .tw-caption { display:none; }
+        .tw-caption small { color:var(--cc-ink-muted); margin-left:6px; font-weight:400; }
+
+        /* ══ Editor della singola cella (strumento Seleziona) ═══════════════ */
+        #shift-edit-popup { display:none; position:fixed; inset:0; z-index:9700; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .14s; }
         #shift-edit-popup.open { opacity:1; }
-        #shift-edit-popup .alert-card { max-width:420px; max-height:80vh; display:flex; flex-direction:column; transform:scale(0.9); }
-        #shift-edit-popup.open .alert-card { transform:scale(1); }
-        .sep-grid { padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
-        .sep-group-label { font-size:0.66rem; font-weight:800; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-sec); margin:8px 0 2px; }
-        .sep-group-label:first-child { margin-top:0; }
-        .sep-btn { text-align:left; padding:12px 14px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
-        .sep-btn small { color:var(--text-sec); font-weight:600; }
-        .sep-btn.clear-btn { border-color:#fecaca; background:#fee2e2; color:#991b1b; }
-        .sep-swatch { width:14px; height:14px; border-radius:4px; background:var(--btn-bg, var(--border)); display:inline-block; margin-right:8px; vertical-align:middle; border:1px solid rgba(0,0,0,0.15); }
-        .sep-swatch.dashed { border-style:dashed; border-width:2px; }
+        .sep-box { width:100%; max-width:520px; max-height:86vh; display:flex; flex-direction:column; background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:var(--cc-r); box-shadow:0 18px 50px rgba(12,18,26,.25); }
+        .sep-head { display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--cc-line-2); }
+        .sep-head > div { flex:1; min-width:0; }
+        .sep-head b { display:block; font-size:15px; font-weight:600; }
+        .sep-head small { display:block; font-size:12.5px; color:var(--cc-muted); }
+        .sep-grid { padding:12px 16px 16px; overflow-y:auto; }
+        .sep-group-label { font:500 12px/1 var(--cc-font-c); color:var(--cc-muted); margin:14px 0 8px; }
+        .sep-group-label:first-child { margin-top:2px; }
+        .sep-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:6px; }
+        .sep-btn { display:flex; align-items:center; gap:9px; min-height:40px; padding:6px 10px; border:1px solid var(--cc-line); border-radius:4px; background:var(--cc-surface); color:var(--cc-text); font:500 13px/1.2 var(--cc-font); text-align:left; cursor:pointer; }
+        .sep-btn:hover { border-color:var(--cc-accent); background:var(--cc-accent-soft); }
+        .sep-btn.current { border-color:var(--cc-accent); box-shadow:inset 0 0 0 1px var(--cc-accent); }
+        .sep-btn small { display:block; color:var(--cc-muted); font-size:11.5px; font-weight:400; font-variant-numeric:tabular-nums; }
+        .sep-foot { display:flex; justify-content:space-between; gap:8px; padding:12px 16px; border-top:1px solid var(--cc-line-2); background:var(--cc-surface-2); border-radius:0 0 var(--cc-r) var(--cc-r); }
         .admin-header-badge { background:#0f172a; color:#fff; }
         .admin-header-badge .header-text span { color:#94a3b8; }
         .admin-header-badge .btn-close-modal { background:#1e293b; color:#fff; }
@@ -1338,110 +1644,92 @@
     </div>
 </div>
 
-<!-- ══════════════ AREA COORDINATORE ══════════════ -->
-<div id="coord-login-modal" onclick="closeCoordLoginModal(event)">
-    <div class="alert-card" onclick="event.stopPropagation()">
-        <div class="alert-header" style="background:linear-gradient(135deg,#4338ca,#7c3aed);border-bottom:1px solid #5b21b6;">
-            <div class="alert-icon-box" style="color:#ddd6fe;border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.15);">
-                <span class="material-icons-round" style="font-size:28px;">supervisor_account</span>
+<!-- ══════════════ AREA COORDINATORE — console ══════════════ -->
+<div id="coord-console" class="cc-scope" role="dialog" aria-modal="true" aria-label="Area coordinatore">
+    <div class="cc-login" id="cc-login">
+        <form class="cc-login-panel" onsubmit="coordLogin(event)" autocomplete="off">
+            <div class="cc-login-mark"><span class="cc-brand-mark">INF</span><span>Turni infermieri 2026</span></div>
+            <h1>Area coordinatore</h1>
+            <p>Accedi una volta sola: questo dispositivo resta autorizzato finché non scegli Esci.</p>
+            <label class="cc-field">Password
+                <input type="password" id="cc-pw" class="cc-input" autocomplete="current-password">
+            </label>
+            <div class="cc-error" id="cc-pw-error" role="alert"></div>
+            <div class="cc-login-actions">
+                <button type="button" class="cc-btn ghost" onclick="closeCoordConsole()">Annulla</button>
+                <button type="submit" class="cc-btn primary"><span class="msym">login</span>Accedi</button>
             </div>
-            <div class="alert-title" style="color:#fff;">AREA COORDINATORE</div>
-        </div>
-        <div class="alert-body">
-            <div style="margin-bottom:14px;color:var(--text-sec);font-size:0.9rem;">Inserisci la password per accedere alla gestione turni.</div>
-            <input type="password" id="coord-pw-input" class="admin-login-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkCoordPassword()">
-            <div class="admin-login-error" id="coord-pw-error"></div>
-        </div>
-        <div class="alert-footer">
-            <button class="btn-alert-ok" style="background:linear-gradient(135deg,#4338ca,#7c3aed);box-shadow:0 4px 12px rgba(124,58,237,0.35);" onclick="checkCoordPassword()">
-                <span class="material-icons-round">login</span> ACCEDI
-            </button>
-        </div>
+        </form>
+    </div>
+
+    <div class="cc-app" id="cc-app">
+        <aside class="cc-side">
+            <div class="cc-brand"><span class="cc-brand-mark">INF</span><div><b>Coordinamento</b><small>Infermieri 2026</small></div></div>
+            <nav class="cc-nav" id="cc-nav" aria-label="Sezioni">
+                <button data-sec="panoramica" onclick="ccGo('panoramica')"><span class="msym">space_dashboard</span><span>Panoramica</span></button>
+                <button data-sec="modifica" onclick="ccGo('modifica')"><span class="msym">edit_calendar</span><span>Modifica turni</span><span class="cc-count" id="cc-count-pending"></span></button>
+                <button data-sec="operatori" onclick="ccGo('operatori')"><span class="msym">group</span><span>Operatori</span></button>
+                <button data-sec="ore" onclick="ccGo('ore')"><span class="msym">schedule</span><span>Conteggio ore</span></button>
+                <button data-sec="riportare" onclick="ccGo('riportare')"><span class="msym">task_alt</span><span>Da riportare</span><span class="cc-count" id="cc-count-sync"></span></button>
+                <button data-sec="impostazioni" onclick="ccGo('impostazioni')"><span class="msym">settings</span><span>Impostazioni</span></button>
+            </nav>
+            <div class="cc-side-foot">
+                <button onclick="closeCoordConsole()"><span class="msym">calendar_month</span>Torna al calendario</button>
+                <button onclick="coordLogout()"><span class="msym">logout</span>Esci da questo dispositivo</button>
+            </div>
+        </aside>
+        <section class="cc-body">
+            <div class="cc-top">
+                <div class="cc-top-text"><h2 id="cc-title">Panoramica</h2><p id="cc-sub"></p></div>
+                <div class="cc-top-actions" id="cc-top-actions"></div>
+                <button class="cc-icon-btn" onclick="closeCoordConsole()" title="Chiudi e torna al calendario" aria-label="Chiudi"><span class="msym">close</span></button>
+            </div>
+            <main class="cc-main" id="cc-main"></main>
+        </section>
     </div>
 </div>
 
-<div id="coord-panel-modal" onclick="closeCoordPanel(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <div class="modal-header coord-header-badge">
-            <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">supervisor_account</span> AREA COORDINATORE</h3>
-                <span>Gestione turni e promemoria Excel</span>
-            </div>
-            <button class="btn-close-modal" onclick="closeCoordPanel()"><span class="material-icons-round">close</span></button>
-        </div>
-        <div class="admin-tabs">
-            <button class="admin-tab-btn active" data-ctab="sync" onclick="switchCoordTab('sync',this)"><span class="material-icons-round">fact_check</span> Da Riportare</button>
-            <button class="admin-tab-btn" data-ctab="modifica" onclick="switchCoordTab('modifica',this)"><span class="material-icons-round">edit_calendar</span> Modifica Turni</button>
-            <button class="admin-tab-btn" data-ctab="ia" onclick="switchCoordTab('ia',this)"><span class="material-icons-round">smart_toy</span> Consigli IA</button>
-            <button class="admin-tab-btn" data-ctab="coordinatore" onclick="switchCoordTab('coordinatore',this)"><span class="material-icons-round">badge</span> Coordinatore</button>
-        </div>
-        <div class="modal-body" style="padding:0;">
-            <div class="admin-tab-panel active" id="coord-tab-sync" style="padding:18px;">
-                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">fact_check</span> Modifiche da riportare su Excel</div>
-                <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:14px;">Ogni turno creato o modificato dall'app va poi inserito anche nel file Excel. Spunta la voce quando l'hai riportata.</div>
-                <div id="coord-sync-list"></div>
-            </div>
-            <div class="admin-tab-panel" id="coord-tab-modifica" style="padding:18px;">
-                <div class="coord-edit-toggle-row">
-                    <div>
-                        <div style="font-weight:800;font-size:0.9rem;color:var(--text-main);">Modalità modifica turni</div>
-                        <div style="font-size:0.75rem;color:var(--text-sec);margin-top:2px;">Attiva la tavolozza colorata in alto: scegli un turno e "dipingi" le caselle del calendario toccandole</div>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="coord-edit-toggle" onchange="toggleCoordEditMode(this.checked)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div style="font-size:0.78rem;color:var(--text-sec);line-height:1.5;">Attiva la modalità, poi chiudi questo pannello per vedere il calendario: in alto trovi la tavolozza con tutti i turni e le assenze colorate, come in un programma di disegno. Seleziona un colore e tocca (o trascina) le caselle da modificare. Con "Sposta/Scambia" selezionato puoi invece trascinare un turno su un altro operatore per scambiarli, oppure trascinarlo in verticale per estenderlo su più giorni. Tocca una casella singola per le opzioni complete, oppure selezionala e premi Canc per svuotarla. Usa i tasti in alto per annullare, ripetere, confermare o azzerare tutto.</div>
-            </div>
-            <div class="admin-tab-panel" id="coord-tab-ia" style="padding:18px;">
-                <div class="coord-edit-toggle-row">
-                    <div>
-                        <div style="font-weight:800;font-size:0.9rem;color:var(--text-main);">Consigli intelligenti sulle ore</div>
-                        <div style="font-size:0.75rem;color:var(--text-sec);margin-top:2px;">Segnala sul calendario gli operatori troppo sopra o sotto ore, con un consiglio su come sistemare la situazione</div>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="ai-advice-toggle" onchange="toggleAiAdvice(this.checked)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div style="font-size:0.78rem;color:var(--text-sec);">Quando attivo, sopra il nome degli operatori in difficoltà compare un'icona <span class="material-icons-round" style="font-size:12px;vertical-align:middle;">smart_toy</span>: toccala per vedere il problema e il consiglio su come risolverlo.</div>
-            </div>
-            <div class="admin-tab-panel" id="coord-tab-coordinatore" style="padding:18px;">
-                <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">badge</span> Chi è il Coordinatore</div>
-                <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:14px;">Tutte le richieste inviate dal portale Richieste verranno notificate (🔔) all'operatore qui selezionato, quando risulta loggato con il proprio nome.</div>
-                <select id="coord-select-name" class="admin-login-input" style="margin-bottom:12px;">
-                    <option value="" disabled selected>Seleziona operatore...</option>
-                </select>
-                <button class="btn-alert-ok" id="btn-save-coordinatore" style="background:linear-gradient(135deg,#4338ca,#7c3aed);box-shadow:0 4px 12px rgba(124,58,237,0.35);width:100%;" onclick="saveCoordinatorName()">
-                    <span class="material-icons-round">save</span> SALVA COORDINATORE
-                </button>
-                <div id="coord-current-label" style="margin-top:12px;font-size:0.8rem;font-weight:700;color:var(--text-sec);">Nessun coordinatore impostato</div>
-            </div>
-        </div>
+<div id="cc-dialog" class="cc-scope" role="alertdialog" aria-modal="true" onclick="if(event.target===this)ccDialogResolve(null)">
+    <div class="cc-dialog-box">
+        <h4 id="cc-dialog-title"></h4>
+        <p id="cc-dialog-text"></p>
+        <div class="cc-dialog-actions" id="cc-dialog-actions"></div>
+    </div>
+</div>
+<div id="cc-toast" class="cc-scope" role="status" aria-live="polite"></div>
+
+<div id="tool-wheel" class="cc-scope collapsed" aria-label="Ruota strumenti">
+    <div class="tw-ring" id="tw-ring"></div>
+    <button class="tw-hub" id="tw-hub" aria-label="Apri o chiudi la ruota strumenti. Trascina per spostarla.">
+        <span class="tw-hub-sw" id="tw-hub-sw"></span>
+        <span class="tw-hub-grip">trascina</span>
+    </button>
+    <button class="tw-sat" id="tw-sat-undo" onclick="coordUndo()" title="Annulla" aria-label="Annulla"><span class="msym">undo</span></button>
+    <span class="tw-badge" id="tw-badge"></span>
+    <div class="tw-caption" id="tw-caption"></div>
+</div>
+
+<div id="coord-edit-strip" class="cc-scope">
+    <div class="ces-in">
+        <div class="ces-mode"><span class="msym">edit_calendar</span><span>Modifica turni</span></div>
+        <div class="ces-tool" id="ces-tool"></div>
+        <div class="ces-pending" id="ces-pending"></div>
+        <button class="cc-btn primary" id="ces-save" onclick="coordConfirmChanges()"><span class="msym">save</span>Salva</button>
+        <button class="cc-btn" onclick="exitCoordEdit()">Esci</button>
     </div>
 </div>
 
-<div id="coord-edit-bar">
-    <div class="coord-edit-toolbar" id="coord-edit-toolbar">
-        <button class="coord-tool-btn" id="coord-btn-undo" onclick="coordUndo()" disabled title="Indietro"><span class="material-icons-round">undo</span></button>
-        <button class="coord-tool-btn" id="coord-btn-redo" onclick="coordRedo()" disabled title="Avanti"><span class="material-icons-round">redo</span></button>
-        <div class="coord-tool-sep"></div>
-        <button class="coord-tool-btn primary" onclick="coordConfirmChanges()" title="Conferma"><span class="material-icons-round">check_circle</span></button>
-        <button class="coord-tool-btn danger" onclick="coordResetChanges()" title="Reset"><span class="material-icons-round">restart_alt</span></button>
-    </div>
-    <div id="coord-paint-palette"></div>
-</div>
-
-<div id="shift-edit-popup" onclick="closeShiftEditPopup(event)">
-    <div class="alert-card" onclick="event.stopPropagation()">
-        <div class="alert-header" style="background:#0f172a;border-bottom:1px solid #1e293b;">
-            <div class="alert-icon-box" style="color:#60a5fa;border-color:#334155;background:#1e293b;">
-                <span class="material-icons-round" style="font-size:24px;">edit_calendar</span>
-            </div>
-            <div class="alert-title" style="color:#fff;font-size:0.95rem;" id="sep-title">Modifica turno</div>
+<div id="shift-edit-popup" class="cc-scope" onclick="closeShiftEditPopup(event)">
+    <div class="sep-box" onclick="event.stopPropagation()">
+        <div class="sep-head">
+            <div><b id="sep-title">Modifica turno</b><small id="sep-sub"></small></div>
+            <button class="cc-icon-btn" onclick="closeShiftEditPopup()" aria-label="Chiudi"><span class="msym">close</span></button>
         </div>
         <div class="sep-grid" id="sep-grid"></div>
+        <div class="sep-foot">
+            <button class="cc-btn danger" onclick="applyShiftChoice(null,null)"><span class="msym">ink_eraser</span>Svuota cella</button>
+            <button class="cc-btn" onclick="closeShiftEditPopup()">Chiudi</button>
+        </div>
     </div>
 </div>
 
@@ -1717,7 +2005,6 @@
     <iframe id="richieste-iframe" title="Richieste"></iframe>
 </div>
 
-<div id="coord-edit-spacer" style="height:0;"></div>
 <div class="container">
     <table id="main-table">
         <thead><tr id="table-head"></tr></thead>
@@ -1781,6 +2068,9 @@
     let welcomeConfig = Object.assign({}, DEFAULT_WELCOME_BAKED);
     let customAnnouncements = JSON.parse(JSON.stringify(DEFAULT_ANNOUNCEMENTS_BAKED));
     let announcementQueue = [];
+    // Operatori gestiti dall'Area Coordinatore (ordine colonne, nascosti, rimossi, aggiunti, ore contratto)
+    let operatorConfig = { order:[], hidden:{}, removed:{}, added:[], contract:{} };
+    let excelParsedData = [];              // dati letti dal file Excel, senza colonne aggiunte né modifiche
     applyColorOverrides();
     Object.assign(SCHEDULE, scheduleOverride.SCHEDULE || {});
     Object.assign(SCHEDULE_DIURNI, scheduleOverride.SCHEDULE_DIURNI || {});
@@ -2012,6 +2302,14 @@
             const data = doc.data();
             if(data.colors) { colorOverrides = data.colors; applyColorOverrides(); }
             if(data.nameOverrides) { nameOverrides = data.nameOverrides; applyNameOverrides(); }
+            if(data.operatorConfig !== undefined) {
+                const prevAdded = JSON.stringify(operatorConfig.added || []);
+                operatorConfig = normalizeOperatorConfig(data.operatorConfig);
+                if(excelParsedData.length) {
+                    if(JSON.stringify(operatorConfig.added) !== prevAdded) rebuildDataFromExcel();
+                    refreshAfterOperatorChange();
+                }
+            }
             if(data.scheduleOverride) { scheduleOverride = data.scheduleOverride; applyScheduleOverride(); }
             if(data.welcome) { welcomeConfig = Object.assign({}, DEFAULT_WELCOME_BAKED, data.welcome); }
             if(data.announcements) { customAnnouncements = data.announcements; }
@@ -2021,6 +2319,8 @@
                 applyManualOverrides();
                 if(typeof finalData !== 'undefined' && finalData.length) renderTable();
                 if(document.getElementById('hours-modal')?.classList.contains('open')) renderHoursDetail();
+                if(coordEditModeActive) updateCoordToolbarState();
+                ccRefreshIfOpen();
             }
             if(data.excelSyncedMarks !== undefined) {
                 excelSyncedMarks = data.excelSyncedMarks || {};
@@ -2044,42 +2344,6 @@
     }
     function checkIfIAmCoordinator() {
         isCoordinator = !!(userIdentity && coordinatorName && normalizeNameForMatch(userIdentity) === normalizeNameForMatch(coordinatorName));
-    }
-    function renderCoordinatorTab() {
-        const sel = document.getElementById('coord-select-name');
-        if(!sel) return;
-        const prevValue = sel.value;
-        sel.innerHTML = '<option value="" disabled selected>Seleziona operatore...</option>';
-        (typeof drivers !== 'undefined' ? drivers : []).slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(d => {
-            const opt = document.createElement('option');
-            opt.value = d.name; opt.textContent = d.name;
-            sel.appendChild(opt);
-        });
-        if(coordinatorName && Array.from(sel.options).some(o => o.value === coordinatorName)) sel.value = coordinatorName;
-        else if(prevValue) sel.value = prevValue;
-        const currentLabel = document.getElementById('coord-current-label');
-        if(currentLabel) currentLabel.textContent = coordinatorName ? ('Coordinatore attuale: ' + coordinatorName) : 'Nessun coordinatore impostato';
-    }
-    function saveCoordinatorName() {
-        const sel = document.getElementById('coord-select-name');
-        if(!sel || !sel.value) { alert('Seleziona un operatore prima di salvare.'); return; }
-        if(!fbReady) return;
-        const btn = document.getElementById('btn-save-coordinatore');
-        const origHtml = btn ? btn.innerHTML : '';
-        if(btn) { btn.disabled = true; btn.innerHTML = '<span class="material-icons-round">hourglass_top</span> SALVATAGGIO...'; }
-        db.collection('infermieri26_config').doc('settings').set({ coordinatorName: sel.value }, { merge:true })
-            .then(() => {
-                const lbl = document.getElementById('coord-current-label'); if(lbl) lbl.textContent = 'Coordinatore attuale: ' + sel.value;
-                if(btn) {
-                    btn.innerHTML = '<span class="material-icons-round">check_circle</span> SALVATO!';
-                    setTimeout(() => { btn.innerHTML = origHtml; btn.disabled = false; }, 1600);
-                }
-                vibrate();
-            })
-            .catch(e => {
-                console.error('Errore salvataggio coordinatore:', e); alert('Errore durante il salvataggio.');
-                if(btn) { btn.innerHTML = origHtml; btn.disabled = false; }
-            });
     }
 
     // ── Notifiche richieste in arrivo dal portale Richieste Infermieri ──────
@@ -2585,7 +2849,6 @@
     let coordPaintTouchedKeys = new Set(); // celle già toccate nel gesto corrente (evita doppie voci di undo)
 
     window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
-    window.addEventListener('resize', () => { if(coordEditModeActive) syncCoordEditBarHeight(); });
 
     function installPWA() {
         if(deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; }); }
@@ -2698,9 +2961,8 @@
                 });
                 rawData[rowNumber] = rowData;
             });
-            finalData = parseHorizontalLayout(rawData);
-            rawFinalData = JSON.parse(JSON.stringify(finalData));
-            applyManualOverrides();
+            excelParsedData = parseHorizontalLayout(rawData);
+            rebuildDataFromExcel();            // aggiunge le colonne create dal coordinatore + modifiche manuali
             initApp();
             if(splashMinTime) await splashMinTime;
             document.getElementById('loader').style.opacity = '0';
@@ -2772,11 +3034,7 @@
     }
 
     function initApp() {
-        let header = finalData[0]; drivers = [];
-        for(let i=3; i<header.length; i++) {
-            const orig = header[i];
-            drivers.push({ name: nameOverrides[orig] || orig, idx:i, originalName: orig });
-        }
+        rebuildDrivers();                    // ordine, nascosti e rimossi decisi in Area Coordinatore
         let savedDr = localStorage.getItem("selected_nurses");
         if(savedDr) { try { const arr = JSON.parse(savedDr); if(Array.isArray(arr)) selectedDrivers = new Set(arr); } catch(e) {} }
         renderDriverFilterDropdown(); updateDriverFilterBadge();
@@ -3121,7 +3379,7 @@
     function renderDriverFilterDropdown() {
         const grid = document.getElementById('driver-filter-grid'); if(!grid) return;
         grid.innerHTML = "";
-        drivers.forEach(d => {
+        drivers.filter(d => !d.hidden).forEach(d => {
             const chip = document.createElement('div');
             chip.className = "driver-filter-chip" + (selectedDrivers.has(d.idx) ? " active" : "");
             chip.innerText = d.name;
@@ -3276,10 +3534,15 @@
         const days = buildDaysIndex();
         let refDate = refDateForBalance();
         let elapsed = days.filter(dd => dd.date <= refDate);
+        const drv = getDriverByIdx(driverIdx);
+        if(drv && drv.virtual) { // operatore aggiunto a mano: il saldo parte dal primo giorno con un turno
+            const first = elapsed.findIndex(dd => { const c = finalData[dd.rowIdx][driverIdx] || {}; return (c.v||'').toString().trim() || (c.subV||'').toString().trim(); });
+            elapsed = first === -1 ? [] : elapsed.slice(first);
+        }
         if(!elapsed.length) return 0;
         let worked = elapsed.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
         let dayCount = Math.floor((refDate - elapsed[0].date)/86400000)+1;
-        let target = (dayCount/7)*36*60;
+        let target = (dayCount/7)*getContractHours(driverIdx)*60;
         return worked - target;
     }
 
@@ -3402,7 +3665,7 @@
         if(!elapsed.length) { statusEl.innerHTML = ""; document.getElementById('hc-projection').innerHTML = ""; return; }
         let workedSoFar = elapsed.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
         let dayCount = Math.floor((refDate - elapsed[0].date)/86400000)+1;
-        let targetSoFar = (dayCount/7)*36*60;
+        let targetSoFar = (dayCount/7)*getContractHours(driverIdx)*60;
         let delta = workedSoFar - targetSoFar;
         let cls = delta>=0 ? 'ok' : 'low';
         let msg = delta>=0 ? `IN CREDITO ${formatHM(delta)}` : `IN DEBITO ${formatHM(Math.abs(delta))}`;
@@ -3421,7 +3684,7 @@
         let rows = weekKeys.map(wk => {
             let group = weeksMap[wk];
             let tot = group.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
-            let d2 = tot - 36*60;
+            let d2 = tot - getContractHours(driverIdx)*60;
             let startLbl = group[0].date.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'});
             let cls2 = d2>=0?'pos':'neg';
             return `<div class="hc-bd-row"><div><div class="hc-bd-main">Settimana dal ${startLbl}</div><div class="hc-bd-sub">${group.length} giorni già pianificati</div></div><div style="text-align:right"><div class="hc-bd-hours">${formatHM(tot)}</div><div class="hc-bd-delta ${cls2}">${d2>=0?'+':''}${formatHM(d2)}</div></div></div>`;
@@ -3458,6 +3721,7 @@
         renderHoursTodayStatus(hoursSelectedDriver);
         const days = buildDaysIndex();
         const subnav = document.getElementById('hc-subnav');
+        const CH = getContractHours(hoursSelectedDriver);
         let periodDays = [], targetHoursTotal = 0, chartLabels = [], chartData = [], chartTargetLine = null, breakdownRows = [];
 
         if(hoursPeriod === "settimana") {
@@ -3467,7 +3731,7 @@
                 <div class="hc-subnav-label">${start.toLocaleDateString('it-IT',{day:'2-digit',month:'short'})} — ${end.toLocaleDateString('it-IT',{day:'2-digit',month:'short'})}</div>
                 <button class="hc-subnav-btn" onclick="hoursShiftWeek(1)"><span class="material-icons-round">chevron_right</span></button>`;
             periodDays = days.filter(dd => dd.date >= start && dd.date <= end);
-            targetHoursTotal = 36;
+            targetHoursTotal = CH;
             let giorniLbl = ["LUN","MAR","MER","GIO","VEN","SAB","DOM"];
             for(let i=0;i<7;i++) {
                 let dt = new Date(start); dt.setDate(start.getDate()+i);
@@ -3476,7 +3740,7 @@
                 chartLabels.push(giorniLbl[i]); chartData.push(+(info.minutes/60).toFixed(2));
                 breakdownRows.push({ main: dt.toLocaleDateString('it-IT',{weekday:'long',day:'2-digit',month:'2-digit'}), sub: info.label || "—", minutes: info.minutes });
             }
-            chartTargetLine = 36/7;
+            chartTargetLine = CH/7;
         } else if(hoursPeriod === "mese") {
             let monthNamesArr = Object.keys(MONTH_MAP);
             let optsHtml = monthNamesArr.map((mn,i)=>`<option value="${i}" ${i===hoursSelectedMonthIdx?"selected":""}>${mn.charAt(0)+mn.slice(1).toLowerCase()}</option>`).join('');
@@ -3485,13 +3749,13 @@
             let weeksMap = {};
             periodDays.forEach(dd => { let wk = getISOWeek(dd.date); (weeksMap[wk] = weeksMap[wk]||[]).push(dd); });
             let weekKeys = Object.keys(weeksMap).sort((a,b)=>a-b);
-            targetHoursTotal = weekKeys.length * 36;
+            targetHoursTotal = weekKeys.length * CH;
             weekKeys.forEach((wk,i) => {
                 let tot = weeksMap[wk].reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,hoursSelectedDriver).minutes,0);
                 chartLabels.push("Sett. "+(i+1)); chartData.push(+(tot/60).toFixed(2));
-                breakdownRows.push({ main:"Settimana "+(i+1), sub: weeksMap[wk].length+" giorni nel mese", minutes: tot, delta: tot-36*60 });
+                breakdownRows.push({ main:"Settimana "+(i+1), sub: weeksMap[wk].length+" giorni nel mese", minutes: tot, delta: tot-CH*60 });
             });
-            chartTargetLine = 36;
+            chartTargetLine = CH;
         } else { // anno
             subnav.innerHTML = `<div class="hc-subnav-label">Anno ${SHIFT_YEAR}</div>`;
             periodDays = days;
@@ -3501,7 +3765,7 @@
                 let dGroup = periodDays.filter(dd=>dd.monthIdx===mi);
                 let tot = dGroup.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,hoursSelectedDriver).minutes,0);
                 let weeksInMonth = new Set(dGroup.map(dd=>getISOWeek(dd.date))).size;
-                let targetM = weeksInMonth*36;
+                let targetM = weeksInMonth*CH;
                 chartLabels.push(monthNamesArr[mi].slice(0,3));
                 chartData.push(+(tot/60).toFixed(2));
                 breakdownRows.push({ main: monthNamesArr[mi].charAt(0)+monthNamesArr[mi].slice(1).toLowerCase(), sub: dGroup.length+" giorni", minutes: tot, delta: tot-targetM });
@@ -3553,86 +3817,864 @@
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // AREA COORDINATORE — modifica turni manuale + promemoria sync Excel
+    // AREA COORDINATORE — console, operatori, conteggio ore, ruota strumenti
     // ═══════════════════════════════════════════════════════════════════════
+    const COORD_SESSION_KEY = 'coord_session_v2';
+    const WHEEL_POS_KEY = 'coord_wheel_pos_v1';
+    const WHEEL_AUTOCLOSE_KEY = 'coord_wheel_autoclose';
+    let ccSection = 'panoramica';
+    let ccBoardOffset = 0;                       // giorni rispetto a oggi nel tabellone della panoramica
+    let ccHoursPeriod = 'settimana', ccHoursAnchor = new Date(), ccHoursMonth = new Date().getMonth();
+    let ccHoursSort = { key:'order', dir:1 }, ccHoursQuery = '';
+    let ccOpRows = [];                           // originalName nell'ordine mostrato in "Operatori"
+    let coordSwapMode = false, coordSwapFirst = null;
+    let twExpanded = false, twPos = null, twHover = null;
+    let ccDialogResolver = null, ccToastTimer = null;
+    let ccSyncCache = [];                        // ultima lista mostrata in "Da riportare"
+
+    const ABS_SHORT = { v:'FER', r:'REC', f:'CO', m:'MAL', p:'PER', c:'STU', pn:'PN', ng:'NG', nl:'NL', z:'SC', gr:'GR' };
+    const SHIFT_NAMES = { M:'Mattina', P:'Pomeriggio', N:'Notte', SM:'Smonto', R:'Riposo', m:'Mattina diurno', p:'Pomeriggio diurno', r:'Riposo diurno', 'M+N':'Mattina + notte' };
+    const MONTH_NAMES_IT = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+
+    function esc(s) { return (s===undefined||s===null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function ymd(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+    function fmtHM(min, signed) {
+        const neg = min < 0; const m = Math.round(Math.abs(min));
+        const s = Math.floor(m/60) + ':' + String(m%60).padStart(2,'0');
+        if(neg && m > 0) return '\u2212' + s;
+        return (signed && m > 0 ? '+' : '') + s;
+    }
+    function coordToken(s) { let h = 5381; for(let i=0;i<s.length;i++) h = ((h<<5) + h + s.charCodeAt(i)) >>> 0; return 'c' + h.toString(36); }
+    function isCoordLoggedIn() { return localStorage.getItem(COORD_SESSION_KEY) === coordToken(COORD_PASSWORD); }
+
+    // ── Salvataggio su Firestore: update sostituisce la mappa intera (così le chiavi
+    // cancellate spariscono davvero); se il documento non esiste ripiega su set/merge.
+    function saveSettingsFields(obj) {
+        if(!fbReady) return Promise.resolve();
+        const ref = db.collection('infermieri26_config').doc('settings');
+        return ref.update(obj).catch(() => ref.set(obj, { merge:true }));
+    }
+
+    // ── Operatori: configurazione condivisa (ordine, nascosti, rimossi, aggiunti, ore) ──
+    function normalizeOperatorConfig(c) {
+        c = c || {};
+        return {
+            order: Array.isArray(c.order) ? c.order.slice() : [],
+            hidden: (c.hidden && typeof c.hidden === 'object') ? Object.assign({}, c.hidden) : {},
+            removed: (c.removed && typeof c.removed === 'object') ? Object.assign({}, c.removed) : {},
+            added: Array.isArray(c.added) ? c.added.filter(o => o && o.name).map(o => Object.assign({}, o)) : [],
+            contract: (c.contract && typeof c.contract === 'object') ? Object.assign({}, c.contract) : {}
+        };
+    }
+    function injectVirtualOperators(data) {
+        const header = data[0]; if(!header) return data;
+        (operatorConfig.added || []).forEach(op => {
+            const nm = (op.name || '').toString().trim().toUpperCase();
+            if(!nm || header.includes(nm)) return;
+            header.push(nm);
+            for(let r=1; r<data.length; r++) data[r].push({ v:"", subV:"", supV:"" });
+        });
+        return data;
+    }
+    function rebuildDataFromExcel() {
+        if(!excelParsedData.length) return;
+        rawFinalData = injectVirtualOperators(JSON.parse(JSON.stringify(excelParsedData)));
+        applyManualOverrides();
+    }
+    function isVirtualOperator(orig) {
+        const excelHeader = excelParsedData[0] || [];
+        return !excelHeader.includes(orig) && (operatorConfig.added || []).some(o => (o.name||'').toUpperCase() === orig);
+    }
+    function isHiddenNow(orig) {
+        const h = operatorConfig.hidden[orig]; if(!h) return false;
+        if(h.until && ymd(new Date()) > h.until) return false;
+        return true;
+    }
+    function rebuildDrivers() {
+        const header = finalData[0]; if(!header) return;
+        const order = operatorConfig.order || [];
+        const list = [];
+        for(let i=3; i<header.length; i++) {
+            const orig = header[i];
+            if(operatorConfig.removed[orig]) continue;
+            list.push({ name: nameOverrides[orig] || orig, idx:i, originalName:orig, virtual:isVirtualOperator(orig), hidden:isHiddenNow(orig) });
+        }
+        const pos = d => { const k = order.indexOf(d.originalName); return k === -1 ? 10000 + d.idx : k; };
+        list.sort((a,b) => pos(a) - pos(b));
+        drivers = list;
+        selectedDrivers = new Set([...selectedDrivers].filter(i => drivers.some(d => d.idx === i && !d.hidden)));
+    }
+    function getContractHours(idx) {
+        const d = getDriverByIdx(idx);
+        const orig = d ? (d.originalName || d.name) : null;
+        const v = orig ? Number(operatorConfig.contract[orig]) : NaN;
+        return (v > 0 && v <= 60) ? v : 36;
+    }
+    function refreshAfterOperatorChange() {
+        rebuildDrivers();
+        if(finalData.length) renderTable();
+        renderDriverFilterDropdown(); updateDriverFilterBadge(); initNotificationOptions();
+        ccRefreshIfOpen();
+    }
+    function saveOperatorConfig(msg) {
+        return saveSettingsFields({ operatorConfig })
+            .then(() => { if(msg) ccToast(msg); })
+            .catch(e => { console.error('Errore salvataggio operatori:', e); ccToast('Salvataggio non riuscito: controlla la connessione.', true); });
+    }
+
+    // ── Console: apertura, accesso unico, navigazione ───────────────────────
     function openCoordLoginModal() {
-        toggleMenu();
-        document.getElementById('coord-pw-input').value = "";
-        document.getElementById('coord-pw-error').innerText = "";
-        let m = document.getElementById('coord-login-modal'); m.style.display='flex';
-        setTimeout(()=>{ m.classList.add('open'); document.getElementById('coord-pw-input').focus(); },10);
+        const menu = document.getElementById('menu-dropdown');
+        if(menu && menu.style.display === 'flex') {
+            toggleMenu();
+            // chiudendo il menu l'app consuma la sua voce di cronologia (history.back, asincrono):
+            // apriamo la console solo dopo, altrimenti quel "indietro" la richiuderebbe subito.
+            if(modalHistoryPushed) {
+                let done = false;
+                const go = () => { if(done) return; done = true; window.removeEventListener('popstate', go); setTimeout(() => openCoordConsole(), 0); };
+                window.addEventListener('popstate', go); setTimeout(go, 400);
+                return;
+            }
+        }
+        openCoordConsole();
     }
-    function closeCoordLoginModal(e) { if(e && e.target !== e.currentTarget) return; let m=document.getElementById('coord-login-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',300); }
-    function checkCoordPassword() {
-        vibrate();
-        const val = document.getElementById('coord-pw-input').value;
-        if(val === COORD_PASSWORD) { closeCoordLoginModal(); setTimeout(openCoordPanel, 250); }
-        else document.getElementById('coord-pw-error').innerText = "Password errata. Riprova.";
+    function openCoordConsole(section) {
+        const el = document.getElementById('coord-console');
+        el.style.display = 'block';
+        cancelAnimationFrame(el._openRaf || 0);
+        el._openRaf = requestAnimationFrame(() => { el._openRaf = 0; el.classList.add('open'); });
+        document.body.classList.add('cc-lock');
+        if(isCoordLoggedIn()) showConsoleApp(section || ccSection);
+        else showConsoleLogin();
+        setCurrentView('Area Coordinatore');
     }
-    function openCoordPanel() {
-        let m = document.getElementById('coord-panel-modal'); m.style.display='flex';
-        setTimeout(()=>m.classList.add('open'),10);
-        switchCoordTab('sync', document.querySelector('#coord-panel-modal .admin-tab-btn[data-ctab="sync"]'));
-        document.getElementById('coord-edit-toggle').checked = coordEditModeActive;
-        document.getElementById('ai-advice-toggle').checked = aiAdviceEnabled;
-        renderCoordSyncList();
-        renderCoordinatorTab();
+    function closeCoordConsole() {
+        const el = document.getElementById('coord-console');
+        cancelAnimationFrame(el._openRaf || 0); el._openRaf = 0;
+        el.classList.remove('open');
+        document.body.classList.remove('cc-lock');
+        setTimeout(() => { if(!el.classList.contains('open')) el.style.display = 'none'; }, 170);
+        if(coordEditModeActive) twPlace();
     }
-    function closeCoordPanel(e) {
-        if(e && e.target !== e.currentTarget) return;
-        let m = document.getElementById('coord-panel-modal'); m.classList.remove('open');
-        setTimeout(()=>m.style.display='none',250);
+    function showConsoleLogin() {
+        document.getElementById('cc-app').classList.remove('show');
+        document.getElementById('cc-login').classList.add('show');
+        document.getElementById('cc-pw').value = '';
+        document.getElementById('cc-pw-error').textContent = '';
+        setTimeout(() => document.getElementById('cc-pw').focus(), 60);
     }
-    function switchCoordTab(tab, btnEl) {
-        vibrate();
-        document.querySelectorAll('#coord-panel-modal .admin-tab-btn').forEach(b=>b.classList.remove('active'));
-        document.querySelectorAll('#coord-panel-modal .admin-tab-panel').forEach(p=>p.classList.remove('active'));
-        if(btnEl) btnEl.classList.add('active');
-        document.getElementById('coord-tab-'+tab).classList.add('active');
+    function showConsoleApp(section) {
+        document.getElementById('cc-login').classList.remove('show');
+        document.getElementById('cc-app').classList.add('show');
+        ccGo(section || 'panoramica');
     }
+    function coordLogin(e) {
+        if(e) e.preventDefault();
+        const val = document.getElementById('cc-pw').value;
+        if(val === COORD_PASSWORD) {
+            localStorage.setItem(COORD_SESSION_KEY, coordToken(COORD_PASSWORD));
+            vibrate(); showConsoleApp('panoramica');
+        } else {
+            document.getElementById('cc-pw-error').textContent = 'Password non corretta.';
+            document.getElementById('cc-pw').select();
+        }
+    }
+    // compatibilità con eventuali richiami del vecchio popup
+    function checkCoordPassword() { coordLogin(); }
+    async function coordLogout() {
+        const ok = await ccConfirm('Uscire da questo dispositivo?', 'Per rientrare nell\u2019area coordinatore servirà di nuovo la password.', 'Esci', 'solid-danger');
+        if(!ok) return;
+        if(coordEditModeActive) { if(!(await exitCoordEdit(true))) return; }
+        localStorage.removeItem(COORD_SESSION_KEY);
+        showConsoleLogin();
+    }
+    const CC_SECTIONS = {
+        panoramica:   { title:'Panoramica', sub:'Chi è in turno, ore da tenere d\u2019occhio e cose da fare.' },
+        modifica:     { title:'Modifica turni', sub:'Modifica il calendario con la ruota strumenti.' },
+        operatori:    { title:'Operatori', sub:'Aggiungi, rimuovi, riordina le colonne o nascondi temporaneamente un operatore.' },
+        ore:          { title:'Conteggio ore', sub:'Ore lavorate rispetto al contratto, per settimana, mese e anno.' },
+        riportare:    { title:'Da riportare su Excel', sub:'Modifiche fatte nell\u2019app che vanno inserite anche nel file infermieri.xlsx.' },
+        impostazioni: { title:'Impostazioni', sub:'Coordinatore designato, consigli sulle ore, ruota e sessione.' }
+    };
+    function ccGo(section) {
+        if(!CC_SECTIONS[section]) section = 'panoramica';
+        ccSection = section;
+        document.querySelectorAll('#cc-nav button').forEach(b => b.classList.toggle('active', b.dataset.sec === section));
+        document.getElementById('cc-title').textContent = CC_SECTIONS[section].title;
+        document.getElementById('cc-sub').textContent = CC_SECTIONS[section].sub;
+        document.getElementById('cc-top-actions').innerHTML = '';
+        const main = document.getElementById('cc-main');
+        main.scrollTop = 0;
+        ccRenderSection();
+    }
+    function ccRenderSection() {
+        const main = document.getElementById('cc-main'); if(!main) return;
+        if(!finalData.length) { main.innerHTML = `<div class="cc-empty"><span class="msym">hourglass_top</span>Sto caricando il file dei turni…</div>`; return; }
+        ({ panoramica:renderCcOverview, modifica:renderCcEdit, operatori:renderCcOperators, ore:renderCcHours, riportare:renderCcSync, impostazioni:renderCcSettings })[ccSection]();
+        ccUpdateNavCounts();
+    }
+    function ccRefreshIfOpen() {
+        ccUpdateNavCounts();
+        const el = document.getElementById('coord-console');
+        if(!el || !el.classList.contains('open') || !document.getElementById('cc-app').classList.contains('show')) return;
+        const a = document.activeElement;
+        if(a && a.closest && a.closest('#cc-main') && ['INPUT','SELECT','TEXTAREA'].includes(a.tagName)) return; // non disturbare chi sta scrivendo
+        ccRenderSection();
+    }
+    function ccUpdateNavCounts() {
+        const s = document.getElementById('cc-count-sync'); if(s) { const n = computePendingExcelSyncList().length; s.textContent = n ? n : ''; }
+        const p = document.getElementById('cc-count-pending'); if(p) { const n = pendingChangesCount(); p.textContent = n ? n : ''; }
+    }
+
+    // ── Dialoghi e avvisi ────────────────────────────────────────────────────
+    function ccDialog(title, text, actions) {
+        return new Promise(resolve => {
+            if(ccDialogResolver) ccDialogResolver(null);
+            ccDialogResolver = resolve;
+            document.getElementById('cc-dialog-title').textContent = title;
+            document.getElementById('cc-dialog-text').textContent = text || '';
+            const box = document.getElementById('cc-dialog-actions'); box.innerHTML = '';
+            actions.forEach(a => {
+                const b = document.createElement('button');
+                b.className = 'cc-btn ' + (a.kind || '');
+                b.textContent = a.label;
+                b.onclick = () => ccDialogResolve(a.value);
+                box.appendChild(b);
+            });
+            const m = document.getElementById('cc-dialog'); m.style.display = 'flex';
+            requestAnimationFrame(() => m.classList.add('open'));
+            setTimeout(() => { const last = box.lastElementChild; if(last) last.focus(); }, 30);
+        });
+    }
+    function ccDialogResolve(v) {
+        const m = document.getElementById('cc-dialog'); m.classList.remove('open');
+        setTimeout(() => { if(!m.classList.contains('open')) m.style.display = 'none'; }, 150);
+        const r = ccDialogResolver; ccDialogResolver = null; if(r) r(v);
+    }
+    function closeCcDialog() { ccDialogResolve(null); }
+    function ccConfirm(title, text, okLabel, kind) {
+        return ccDialog(title, text, [{ label:'Annulla', kind:'ghost', value:false }, { label: okLabel || 'Conferma', kind: kind || 'primary', value:true }]);
+    }
+    function ccToast(msg, isErr) {
+        const t = document.getElementById('cc-toast'); if(!t) return;
+        t.innerHTML = `<span class="msym">${isErr ? 'error' : 'check_circle'}</span><span>${esc(msg)}</span>`;
+        t.classList.toggle('err', !!isErr); t.classList.add('show');
+        clearTimeout(ccToastTimer); ccToastTimer = setTimeout(() => t.classList.remove('show'), isErr ? 4200 : 2600);
+    }
+
+    // ── Colori e sigle dei codici turno (riusano le variabili CSS del calendario) ──
+    function codeColors(kind, code) {
+        if(kind === 'abs') return SUB_CODE_COLORS[code] || null;
+        if(code === 'M+N') return MAIN_CODE_COLORS.N;
+        if(code === 'S') return MAIN_CODE_COLORS.SM;
+        return MAIN_CODE_COLORS[code] || MAIN_CODE_COLORS[(code||'').toUpperCase()] || null;
+    }
+    function ccCodeMeta(info) {
+        const c = info.code || '';
+        if(!c) return { short:'', kind:'empty' };
+        if(SPECIAL_SUBCODES[c] !== undefined && info.label === SPECIAL_SUBCODES[c]) return { short: ABS_SHORT[c] || c.toUpperCase(), kind:'abs', colors: codeColors('abs', c), label: SPECIAL_SUBCODES[c] };
+        if(info.unrecognized) return { short: c, kind:'unk', label:'Codice non riconosciuto' };
+        if(c === 'STR') return { short:'STR', kind:'str', label:'Ore personalizzate' };
+        const isRest = (c === 'R' || c === 'r');
+        return { short: c, kind: isRest ? 'rest' : 'shift', colors: codeColors('shift', c), label: info.label };
+    }
+    function codeChip(meta) {
+        if(!meta.short) return `<span class="cc-code muted">\u2014</span>`;
+        if(meta.kind === 'unk') return `<span class="cc-code warn" title="${esc(meta.label)}">${esc(meta.short)}</span>`;
+        const st = meta.colors ? `--sw:var(${meta.colors.bg});--sf:var(${meta.colors.fg});` : '';
+        return `<span class="cc-code" style="${st}" title="${esc(meta.label||'')}">${esc(meta.short)}</span>`;
+    }
+
+    // ═══ PANORAMICA ═══════════════════════════════════════════════════════
+    function ccBoardShift(delta) { ccBoardOffset = delta === 0 ? 0 : ccBoardOffset + delta; renderCcOverview(); }
+    function renderCcOverview() {
+        const main = document.getElementById('cc-main');
+        const target = new Date(); target.setHours(0,0,0,0); target.setDate(target.getDate() + ccBoardOffset);
+        const days = buildDaysIndex();
+        const dd = days.find(x => x.date.getTime() === target.getTime());
+        const dateTxt = target.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' });
+        const rel = ccBoardOffset === 0 ? 'Oggi' : ccBoardOffset === 1 ? 'Domani' : ccBoardOffset === -1 ? 'Ieri' : (ccBoardOffset > 0 ? `Tra ${ccBoardOffset} giorni` : `${-ccBoardOffset} giorni fa`);
+        let boardHtml;
+        if(!dd) {
+            boardHtml = `<div class="cc-panel"><div class="cc-empty"><span class="msym">event_busy</span>Nessun turno nel file per questa data.</div></div>`;
+        } else {
+            const groups = { M:[], P:[], N:[] }; const absent = [], smonto = [], rest = [];
+            drivers.forEach(d => {
+                if(d.hidden) return;
+                const info = computeDayInfo(dd.rowIdx, d.idx); const meta = ccCodeMeta(info); const c = info.code;
+                if(meta.kind === 'abs') { absent.push(`${esc(d.name)} <span class="cc-tag">${esc(meta.label)}</span>`); return; }
+                if(c === 'M+N') { groups.M.push({ n:d.name, t:'+ notte' }); groups.N.push({ n:d.name, t:'dopo la mattina' }); return; }
+                if(c === 'M') groups.M.push({ n:d.name, t:'' });
+                else if(c === 'm') groups.M.push({ n:d.name, t:'diurno' });
+                else if(c === 'P') groups.P.push({ n:d.name, t:'' });
+                else if(c === 'p') groups.P.push({ n:d.name, t:'diurno' });
+                else if(c === 'N') groups.N.push({ n:d.name, t:'' });
+                else if(c === 'SM' || c === 'S') smonto.push(esc(d.name));
+                else if(c === 'R' || c === 'r') rest.push(esc(d.name));
+            });
+            const col = (key, title, time) => {
+                const list = groups[key];
+                const colors = MAIN_CODE_COLORS[key];
+                const items = list.length ? list.map(x => `<li>${esc(x.n)}${x.t ? `<small>${esc(x.t)}</small>` : ''}</li>`).join('') : `<li class="cc-empty-li">Nessuno</li>`;
+                return `<div class="cc-board-col"><div class="cc-board-col-head" style="--sw:var(${colors.bg})"><b>${title}</b><span class="cc-num">${esc(time||'')}</span><em>${list.length}</em></div><ul class="cc-board-list">${items}</ul></div>`;
+            };
+            const foot = [];
+            if(absent.length) foot.push(`<span>Assenti: ${absent.join(', ')}</span>`);
+            if(smonto.length) foot.push(`<span>Smonto: <b>${smonto.join(', ')}</b></span>`);
+            if(rest.length) foot.push(`<span>Riposo: ${rest.join(', ')}</span>`);
+            boardHtml = `<div class="cc-board">${col('M','Mattina',SCHEDULE.M)}${col('P','Pomeriggio',SCHEDULE.P)}${col('N','Notte',SCHEDULE.N)}${foot.length ? `<div class="cc-board-foot">${foot.join('')}</div>` : ''}</div>`;
+        }
+
+        // ore da tenere d'occhio
+        const bal = drivers.filter(d => !d.hidden).map(d => ({ d, b: computeDriverBalance(d.idx) }));
+        const debt = bal.filter(x => x.b <= -AI_THRESHOLD_LOW).sort((a,b) => a.b - b.b).slice(0,5);
+        const cred = bal.filter(x => x.b >= AI_THRESHOLD_HIGH).sort((a,b) => b.b - a.b).slice(0,5);
+        const balRow = x => `<li><span class="cc-grow">${esc(x.d.name)}<small>${getContractHours(x.d.idx)} h a settimana</small></span><span class="cc-num ${x.b<0?'cc-neg':'cc-pos'}">${fmtHM(x.b,true)}</span></li>`;
+        let hoursList = '';
+        if(!debt.length && !cred.length) hoursList = `<div class="cc-empty"><span class="msym">balance</span>Nessuno oltre le soglie: tutti entro \u22122 h e +4 h.</div>`;
+        else hoursList = `<ul class="cc-list">${debt.map(balRow).join('')}${cred.map(balRow).join('')}</ul>`;
+
+        // cose da fare
+        const pending = pendingChangesCount(), toSync = computePendingExcelSyncList().length;
+        const hiddenOps = drivers.filter(d => d.hidden);
+        const todo = [];
+        if(pending) todo.push(`<li><span class="msym" style="color:var(--cc-warn)">edit_note</span><span class="cc-grow">${pending} ${pending===1?'modifica non salvata':'modifiche non salvate'}<small>Visibili solo su questo dispositivo finché non salvi.</small></span><button class="cc-btn sm primary" onclick="coordConfirmChanges()">Salva</button></li>`);
+        if(toSync) todo.push(`<li><span class="msym" style="color:var(--cc-accent)">task_alt</span><span class="cc-grow">${toSync} ${toSync===1?'modifica da riportare':'modifiche da riportare'} su Excel</span><button class="cc-link" onclick="ccGo('riportare')">Apri elenco</button></li>`);
+        hiddenOps.forEach(d => {
+            const h = operatorConfig.hidden[d.originalName] || {};
+            const until = h.until ? `fino al ${new Date(h.until+'T00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long'})}` : 'senza scadenza';
+            todo.push(`<li><span class="msym" style="color:var(--cc-muted)">visibility_off</span><span class="cc-grow">${esc(d.name)} è nascosto<small>${until}</small></span><button class="cc-link" onclick="ccGo('operatori')">Gestisci</button></li>`);
+        });
+        const todoHtml = todo.length ? `<ul class="cc-list">${todo.join('')}</ul>` : `<div class="cc-empty"><span class="msym">done_all</span>Niente in sospeso.</div>`;
+
+        main.innerHTML = `
+            <div class="cc-board-head">
+                <div class="cc-board-date">${rel}<small>${esc(dateTxt)}</small></div>
+                <button class="cc-icon-btn" onclick="ccBoardShift(-1)" title="Giorno precedente" aria-label="Giorno precedente"><span class="msym">chevron_left</span></button>
+                <button class="cc-btn sm" onclick="ccBoardShift(0)" ${ccBoardOffset===0?'disabled':''}>Oggi</button>
+                <button class="cc-icon-btn" onclick="ccBoardShift(1)" title="Giorno successivo" aria-label="Giorno successivo"><span class="msym">chevron_right</span></button>
+            </div>
+            ${boardHtml}
+            <div class="cc-grid-2">
+                <div class="cc-panel"><div class="cc-panel-head"><h3>Saldo ore da tenere d\u2019occhio</h3><button class="cc-link" onclick="ccGo('ore')">Conteggio completo</button></div>${hoursList}</div>
+                <div class="cc-panel"><div class="cc-panel-head"><h3>In sospeso</h3></div>${todoHtml}</div>
+            </div>`;
+        document.getElementById('cc-top-actions').innerHTML = `<button class="cc-btn primary" onclick="enterCoordEdit()"><span class="msym">edit_calendar</span>Modifica turni</button>`;
+    }
+
+    // ═══ MODIFICA TURNI (sezione della console) ═══════════════════════════
+    function renderCcEdit() {
+        const main = document.getElementById('cc-main');
+        const pending = pendingChangesCount();
+        const autoClose = localStorage.getItem(WHEEL_AUTOCLOSE_KEY) !== '0';
+        main.innerHTML = `
+            <div class="cc-panel"><div class="cc-panel-body">
+                <div class="cc-edit-intro">
+                    <div class="cc-wheel-preview" id="cc-wheel-preview"></div>
+                    <div>
+                        <ol>
+                            <li><b>Anello esterno</b>: scegli un turno o un\u2019assenza, poi tocca o trascina sulle celle del calendario per applicarlo.</li>
+                            <li><b>Anello interno</b>: Seleziona (apre l\u2019editor della cella; su computer puoi anche trascinare per scambiare o estendere), Scambia (tocca due celle), Gomma, Annulla, Ripeti, Salva, Scarta, Esci.</li>
+                            <li><b>Centro</b>: toccalo per chiudere o riaprire la ruota, trascinalo per spostarla dove non ti copre il calendario.</li>
+                        </ol>
+                        <p class="cc-note" style="margin-bottom:16px">Le modifiche restano su questo dispositivo finché non premi Salva: da quel momento le vedono tutti e compaiono in \u201cDa riportare\u201d.</p>
+                        <div class="cc-inline-form">
+                            <button class="cc-btn primary" onclick="enterCoordEdit()"><span class="msym">edit_calendar</span>${coordEditModeActive ? 'Torna al calendario in modifica' : 'Apri il calendario in modifica'}</button>
+                        </div>
+                    </div>
+                </div>
+            </div></div>
+            <div class="cc-panel">
+                <div class="cc-panel-head"><h3>Modifiche non salvate</h3><span class="cc-hint cc-num">${pending}</span></div>
+                <div class="cc-panel-body cc-inline-form">
+                    ${pending ? `<button class="cc-btn primary" onclick="coordConfirmChanges()"><span class="msym">save</span>Salva ${pending} ${pending===1?'modifica':'modifiche'}</button><button class="cc-btn danger" onclick="coordResetChanges()"><span class="msym">restart_alt</span>Scarta</button>` : `<p class="cc-note">Nessuna modifica in attesa di salvataggio.</p>`}
+                </div>
+            </div>
+            <div class="cc-panel">
+                <div class="cc-setting"><div><b>Chiudi la ruota dopo aver scelto un turno</b><small>La ruota si riduce a un pulsante e il calendario resta libero. Toccalo per riaprirla.</small></div>
+                    <label class="cc-switch"><input type="checkbox" ${autoClose?'checked':''} onchange="localStorage.setItem('${WHEEL_AUTOCLOSE_KEY}', this.checked?'1':'0')"><span></span></label></div>
+                <div class="cc-setting"><div><b>Posizione della ruota</b><small>Se l\u2019hai spostata in un punto scomodo, riportala in basso a destra.</small></div>
+                    <button class="cc-btn sm" onclick="twResetPosition()">Ripristina</button></div>
+            </div>`;
+        const prev = document.getElementById('cc-wheel-preview');
+        if(prev) prev.innerHTML = buildWheelMarkup(260, true);
+    }
+
+    // ═══ OPERATORI ════════════════════════════════════════════════════════
+    function renderCcOperators() {
+        const main = document.getElementById('cc-main');
+        const header = (finalData[0] || []).slice(3);
+        ccOpRows = drivers.map(d => d.originalName);
+        const rows = drivers.map((d, i) => {
+            const orig = d.originalName;
+            const hEntry = operatorConfig.hidden[orig];
+            const meta = [];
+            meta.push(d.virtual ? `<span class="cc-tag accent">aggiunto</span>` : `<span>da Excel</span>`);
+            if(d.name !== orig) meta.push(`<span>nome originale: ${esc(orig)}</span>`);
+            if(operatorConfig.contract[orig]) meta.push(`<span class="cc-tag">contratto ${getContractHours(d.idx)} h</span>`);
+            const visHtml = d.hidden
+                ? `<label class="cc-switch" title="Mostra di nuovo"><input type="checkbox" onchange="ccOpSetVisible(${i},this.checked)"><span></span></label><span>Nascosto</span>
+                   <label class="cc-until">fino al <input type="date" class="cc-input" value="${esc(hEntry && hEntry.until || '')}" min="${ymd(new Date())}" onchange="ccOpSetUntil(${i},this.value)"></label>`
+                : `<label class="cc-switch" title="Nascondi temporaneamente"><input type="checkbox" checked onchange="ccOpSetVisible(${i},this.checked)"><span></span></label><span>Visibile</span>`;
+            return `<div class="cc-op-row ${d.hidden?'is-hidden':''}" data-orig="${esc(orig)}">
+                <button class="cc-op-grip" title="Trascina per spostare la colonna" aria-label="Sposta ${esc(d.name)}" onpointerdown="ccOpDragStart(event)"><span class="msym">drag_indicator</span></button>
+                <span class="cc-op-pos">${i+1}</span>
+                <div class="cc-op-name" id="cc-op-name-${i}"><b>${esc(d.name)}</b><small>${meta.join('')}</small></div>
+                <label class="cc-op-hours"><input type="number" class="cc-input" min="1" max="60" step="0.5" value="${getContractHours(d.idx)}" onchange="ccOpSetContract(${i},this.value)" aria-label="Ore settimanali di ${esc(d.name)}"><span>h/sett.</span></label>
+                <div class="cc-op-vis">${visHtml}</div>
+                <div class="cc-op-actions">
+                    <button class="cc-icon-btn" title="Sposta prima" aria-label="Sposta prima" onclick="ccOpMove(${i},-1)" ${i===0?'disabled':''}><span class="msym">arrow_upward</span></button>
+                    <button class="cc-icon-btn" title="Sposta dopo" aria-label="Sposta dopo" onclick="ccOpMove(${i},1)" ${i===drivers.length-1?'disabled':''}><span class="msym">arrow_downward</span></button>
+                    <button class="cc-icon-btn" title="Rinomina" aria-label="Rinomina" onclick="ccOpRename(${i})"><span class="msym">edit</span></button>
+                    <button class="cc-icon-btn danger" title="${d.virtual?'Elimina':'Rimuovi dal calendario'}" aria-label="Rimuovi" onclick="ccOpRemove(${i})"><span class="msym">person_remove</span></button>
+                </div>
+            </div>`;
+        }).join('');
+        const removed = header.filter(o => operatorConfig.removed[o]);
+        const removedHtml = removed.length ? `
+            <div class="cc-panel" style="margin-top:18px"><div class="cc-panel-head"><h3>Rimossi dal calendario</h3><span class="cc-hint">Restano nel file Excel: puoi ripristinarli quando vuoi.</span></div>
+                <ul class="cc-list">${removed.map(o => `<li><span class="cc-grow">${esc(nameOverrides[o] || o)}</span><button class="cc-btn sm" onclick="ccOpRestore('${encodeURIComponent(o)}')"><span class="msym">undo</span>Ripristina</button></li>`).join('')}</ul></div>` : '';
+        main.innerHTML = `
+            <div class="cc-panel">
+                <div class="cc-panel-head"><h3>Aggiungi operatore</h3><span class="cc-hint">Crea una colonna vuota: i turni li inserisci da Modifica turni.</span></div>
+                <form class="cc-panel-body cc-add-form" onsubmit="ccOpAdd(event)" autocomplete="off">
+                    <label class="cc-field">Cognome e nome<input class="cc-input" id="cc-op-new-name" maxlength="40" placeholder="Es. ROSSI MARIA"></label>
+                    <label class="cc-field">Ore a settimana<input class="cc-input cc-num" id="cc-op-new-hours" type="number" min="1" max="60" step="0.5" value="36"></label>
+                    <button class="cc-btn primary" type="submit"><span class="msym">person_add</span>Aggiungi</button>
+                </form>
+            </div>
+            <div class="cc-op-list" id="cc-op-list">
+                <div class="cc-op-head"><span></span><span>#</span><span>Operatore</span><span>Contratto</span><span>Nel calendario</span><span style="text-align:right">Azioni</span></div>
+                ${rows || `<div class="cc-empty">Nessun operatore.</div>`}
+            </div>
+            <p class="cc-note" style="margin-top:10px">L\u2019ordine qui è l\u2019ordine delle colonne nel calendario, per tutti. Ogni modifica viene salvata subito.</p>
+            ${removedHtml}`;
+        document.getElementById('cc-top-actions').innerHTML = `<span class="cc-tag cc-num">${drivers.filter(d=>!d.hidden).length} visibili \u00b7 ${drivers.filter(d=>d.hidden).length} nascosti</span>`;
+    }
+    function ccOpCommitOrder(arr, msg) {
+        const rest = (operatorConfig.order || []).filter(o => !arr.includes(o));
+        operatorConfig.order = arr.concat(rest);
+        saveOperatorConfig(msg);
+        refreshAfterOperatorChange();
+        if(ccSection === 'operatori') renderCcOperators();
+    }
+    function ccOpMove(i, delta) {
+        const j = i + delta; if(j < 0 || j >= ccOpRows.length) return;
+        const arr = ccOpRows.slice(); [arr[i], arr[j]] = [arr[j], arr[i]];
+        vibrate(); ccOpCommitOrder(arr, 'Ordine delle colonne aggiornato');
+    }
+    function ccOpDragStart(e) {
+        const row = e.target.closest('.cc-op-row'); const list = document.getElementById('cc-op-list');
+        if(!row || !list) return;
+        e.preventDefault();
+        row.classList.add('dragging');
+        let lastY = e.clientY; const startY = e.clientY; let moved = false;
+        const onMove = ev => {
+            const y = ev.clientY; lastY = y;
+            if(Math.abs(y - startY) > 3) moved = true;
+            const prev = row.previousElementSibling, next = row.nextElementSibling;
+            if(next && next.classList.contains('cc-op-row')) {
+                const r = next.getBoundingClientRect();
+                if(y > r.top + r.height/2) { list.insertBefore(next, row); return; }
+            }
+            if(prev && prev.classList.contains('cc-op-row')) {
+                const r = prev.getBoundingClientRect();
+                if(y < r.top + r.height/2) { list.insertBefore(row, prev); }
+            }
+            // scorrimento automatico vicino ai bordi del contenitore
+            const main = document.getElementById('cc-main'); const mr = main.getBoundingClientRect();
+            if(y < mr.top + 40) main.scrollTop -= 12; else if(y > mr.bottom - 40) main.scrollTop += 12;
+        };
+        const onUp = () => {
+            window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onUp);
+            row.classList.remove('dragging');
+            const arr = Array.from(list.querySelectorAll('.cc-op-row')).map(r => r.dataset.orig);
+            if(moved && arr.join('\u0001') !== ccOpRows.join('\u0001')) { vibrate(); ccOpCommitOrder(arr, 'Ordine delle colonne aggiornato'); }
+        };
+        window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp); window.addEventListener('pointercancel', onUp);
+    }
+    function ccOpSetVisible(i, visible) {
+        const orig = ccOpRows[i]; if(!orig) return;
+        if(visible) delete operatorConfig.hidden[orig];
+        else operatorConfig.hidden[orig] = { until:null, since: ymd(new Date()) };
+        const d = drivers.find(x => x.originalName === orig);
+        saveOperatorConfig(visible ? `${d ? d.name : orig} di nuovo visibile` : `${d ? d.name : orig} nascosto dal calendario`);
+        refreshAfterOperatorChange(); if(ccSection === 'operatori') renderCcOperators();
+    }
+    function ccOpSetUntil(i, value) {
+        const orig = ccOpRows[i]; if(!orig || !operatorConfig.hidden[orig]) return;
+        operatorConfig.hidden[orig].until = value || null;
+        saveOperatorConfig(value ? 'Tornerà visibile dal giorno dopo la data scelta' : 'Nascosto senza scadenza');
+        refreshAfterOperatorChange();
+    }
+    function ccOpSetContract(i, value) {
+        const orig = ccOpRows[i]; if(!orig) return;
+        const v = parseFloat(String(value).replace(',','.'));
+        if(!(v > 0 && v <= 60)) { ccToast('Inserisci un numero di ore tra 1 e 60.', true); renderCcOperators(); return; }
+        if(v === 36) delete operatorConfig.contract[orig]; else operatorConfig.contract[orig] = v;
+        saveOperatorConfig('Ore di contratto aggiornate');
+        refreshAfterOperatorChange();
+    }
+    function ccOpRename(i) {
+        const orig = ccOpRows[i]; const box = document.getElementById('cc-op-name-' + i); if(!orig || !box) return;
+        const cur = nameOverrides[orig] || orig;
+        box.innerHTML = `<input class="cc-input" maxlength="40" value="${esc(cur)}" aria-label="Nuovo nome"><small>Invio per salvare, Esc per annullare. Vuoto = nome del file Excel.</small>`;
+        const inp = box.querySelector('input'); inp.focus(); inp.select();
+        let done = false;
+        const finish = save => {
+            if(done) return; done = true;
+            if(save) {
+                const nm = inp.value.trim().toUpperCase().replace(/\s+/g,' ');
+                if(!nm || nm === orig) delete nameOverrides[orig]; else nameOverrides[orig] = nm;
+                saveSettingsFields({ nameOverrides }).then(() => ccToast('Nome aggiornato')).catch(() => ccToast('Salvataggio non riuscito.', true));
+                applyNameOverrides(); refreshAfterOperatorChange();
+            }
+            renderCcOperators();
+        };
+        inp.addEventListener('keydown', ev => { if(ev.key === 'Enter') { ev.preventDefault(); finish(true); } else if(ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); finish(false); } });
+        inp.addEventListener('blur', () => finish(true));
+    }
+    async function ccOpRemove(i) {
+        const orig = ccOpRows[i]; if(!orig) return;
+        const d = drivers.find(x => x.originalName === orig); const name = d ? d.name : orig;
+        if(d && d.virtual) {
+            const ok = await ccConfirm(`Eliminare ${name}?`, 'La colonna sparisce dal calendario per tutti. I turni già salvati per questo operatore restano archiviati ma non saranno più visibili.', 'Elimina', 'solid-danger');
+            if(!ok) return;
+            operatorConfig.added = operatorConfig.added.filter(o => (o.name||'').toUpperCase() !== orig);
+            delete operatorConfig.contract[orig]; delete operatorConfig.hidden[orig];
+            operatorConfig.order = operatorConfig.order.filter(o => o !== orig);
+            rebuildDataFromExcel();
+        } else {
+            const ok = await ccConfirm(`Rimuovere ${name} dal calendario?`, 'La colonna non sarà più mostrata a nessuno. Il file Excel non viene toccato e potrai ripristinarlo dalla lista in fondo a questa pagina.', 'Rimuovi', 'solid-danger');
+            if(!ok) return;
+            operatorConfig.removed[orig] = true;
+        }
+        saveOperatorConfig(`${name} rimosso`);
+        refreshAfterOperatorChange(); renderCcOperators();
+    }
+    function ccOpRestore(encOrig) {
+        const orig = decodeURIComponent(encOrig);
+        delete operatorConfig.removed[orig];
+        saveOperatorConfig(`${nameOverrides[orig] || orig} ripristinato`);
+        refreshAfterOperatorChange(); renderCcOperators();
+    }
+    function ccOpAdd(e) {
+        e.preventDefault();
+        const nm = document.getElementById('cc-op-new-name').value.trim().toUpperCase().replace(/\s+/g,' ');
+        const hrs = parseFloat(String(document.getElementById('cc-op-new-hours').value).replace(',','.'));
+        if(nm.length < 3) { ccToast('Scrivi cognome e nome (almeno 3 lettere).', true); return; }
+        if(!(hrs > 0 && hrs <= 60)) { ccToast('Le ore a settimana devono essere tra 1 e 60.', true); return; }
+        const header = (finalData[0] || []).slice(3);
+        if(header.includes(nm)) {
+            ccToast(operatorConfig.removed[nm] ? `${nm} è tra i rimossi: ripristinalo dalla lista in fondo.` : 'Esiste già un operatore con questo nome.', true);
+            return;
+        }
+        operatorConfig.added.push({ name:nm, created: ymd(new Date()) });
+        if(hrs !== 36) operatorConfig.contract[nm] = hrs;
+        rebuildDataFromExcel();
+        saveOperatorConfig(`${nm} aggiunto in fondo al calendario`);
+        refreshAfterOperatorChange(); renderCcOperators();
+    }
+
+    // ═══ CONTEGGIO ORE ════════════════════════════════════════════════════
+    function ccHoursSetPeriod(p) { ccHoursPeriod = p; renderCcHours(); }
+    function ccHoursNav(delta) {
+        if(ccHoursPeriod === 'settimana') {
+            if(delta === 0) ccHoursAnchor = new Date();
+            else { const d = new Date(ccHoursAnchor); d.setDate(d.getDate() + delta*7); ccHoursAnchor = d; }
+        } else if(ccHoursPeriod === 'mese') {
+            ccHoursMonth = delta === 0 ? new Date().getMonth() : Math.min(11, Math.max(0, ccHoursMonth + delta));
+        }
+        renderCcHours();
+    }
+    function ccHoursSortBy(key) {
+        if(ccHoursSort.key === key) ccHoursSort.dir *= -1; else ccHoursSort = { key, dir: key === 'name' || key === 'order' ? 1 : -1 };
+        renderCcHours();
+    }
+    function ccHoursSearch(v) {
+        ccHoursQuery = v;
+        const q = v.trim().toLowerCase();
+        document.querySelectorAll('#cc-hours-table tbody tr').forEach(tr => { tr.style.display = (!q || (tr.dataset.name||'').toLowerCase().includes(q)) ? '' : 'none'; });
+    }
+    // Costruisce colonne e valori del periodo scelto per tutti gli operatori.
+    function computeHoursMatrix() {
+        const days = buildDaysIndex();
+        let units = [], label = '', periodDays = [];
+        if(ccHoursPeriod === 'settimana') {
+            const { start, end } = getWeekRange(ccHoursAnchor);
+            periodDays = days.filter(dd => dd.date >= start && dd.date <= end);
+            const wd = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+            for(let i=0;i<7;i++) {
+                const dt = new Date(start); dt.setDate(start.getDate()+i);
+                const match = periodDays.find(dd => dd.date.toDateString() === dt.toDateString());
+                units.push({ label: wd[i], sub: dt.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'}), days: match ? [match] : [], isDay:true, red: (i>=5) || !!HOLIDAYS[`${dt.getMonth()}-${dt.getDate()}`] });
+            }
+            label = `${start.toLocaleDateString('it-IT',{day:'numeric',month:'short'})} \u2013 ${end.toLocaleDateString('it-IT',{day:'numeric',month:'short'})} \u00b7 sett. ${getISOWeek(start)}`;
+        } else if(ccHoursPeriod === 'mese') {
+            periodDays = days.filter(dd => dd.monthIdx === ccHoursMonth);
+            const map = {}; const keys = [];
+            periodDays.forEach(dd => { const wk = getISOWeek(dd.date); if(!map[wk]) { map[wk] = []; keys.push(wk); } map[wk].push(dd); });
+            keys.forEach((wk, i) => {
+                const g = map[wk]; const a = g[0].date, b = g[g.length-1].date;
+                units.push({ label:`Sett. ${i+1}`, sub:`${a.getDate()}\u2013${b.getDate()} ${MONTH_NAMES_IT[ccHoursMonth].slice(0,3)}`, days:g });
+            });
+            label = MONTH_NAMES_IT[ccHoursMonth].charAt(0).toUpperCase() + MONTH_NAMES_IT[ccHoursMonth].slice(1) + ' ' + SHIFT_YEAR;
+        } else {
+            periodDays = days;
+            for(let m=0;m<12;m++) {
+                const g = days.filter(dd => dd.monthIdx === m);
+                if(g.length) units.push({ label: MONTH_NAMES_IT[m].charAt(0).toUpperCase() + MONTH_NAMES_IT[m].slice(1,3), sub: `${g.length} gg`, days:g });
+            }
+            label = 'Anno ' + SHIFT_YEAR;
+        }
+        let discrepancy = 0; const unknown = new Set();
+        const rows = drivers.map((d, order) => {
+            const ch = getContractHours(d.idx);
+            // operatore aggiunto a mano: il contratto conta dal primo giorno con un turno (come il saldo)
+            let startDate = null;
+            if(d.virtual) {
+                const f = days.find(dd => { const c = finalData[dd.rowIdx][d.idx] || {}; return (c.v||'').toString().trim() || (c.subV||'').toString().trim(); });
+                startDate = f ? f.date : new Date(8640000000000000);
+            }
+            const counts = dd => !startDate || dd.date >= startDate;
+            let total = 0, absDays = 0;
+            const cells = units.map(u => {
+                let min = 0, first = null;
+                u.days.forEach(dd => {
+                    const info = computeDayInfo(dd.rowIdx, d.idx);
+                    min += info.minutes;
+                    discrepancy += Math.abs(info.minutes - independentDayMinutes(dd.rowIdx, d.idx));
+                    const meta = ccCodeMeta(info);
+                    if(meta.kind === 'abs') absDays++;
+                    if(meta.kind === 'unk') unknown.add(info.code);
+                    if(!first) first = meta;
+                });
+                total += min;
+                const target = ch / 7 * u.days.filter(counts).length * 60;
+                return { min, meta:first, target, empty: !u.days.length };
+            });
+            const target = ch / 7 * periodDays.filter(counts).length * 60;
+            return { d, order, ch, cells, total, target, diff: total - target, balance: computeDriverBalance(d.idx), absDays };
+        });
+        return { units, rows, label, discrepancy, unknown, dayCount: periodDays.length };
+    }
+    function renderCcHours() {
+        const main = document.getElementById('cc-main');
+        const M = computeHoursMatrix();
+        const s = ccHoursSort;
+        const rows = M.rows.slice().sort((a,b) => {
+            let va, vb;
+            if(s.key === 'name') { va = a.d.name; vb = b.d.name; return va.localeCompare(vb) * s.dir; }
+            if(s.key === 'order') { va = a.order; vb = b.order; }
+            else if(s.key === 'total') { va = a.total; vb = b.total; }
+            else if(s.key === 'diff') { va = a.diff; vb = b.diff; }
+            else { va = a.balance; vb = b.balance; }
+            return (va - vb) * s.dir;
+        });
+        const sortIco = key => ccHoursSort.key === key ? `<span class="msym cc-sort">${ccHoursSort.dir>0?'arrow_upward':'arrow_downward'}</span>` : '';
+        const unitHead = M.units.map(u => `<th class="c cc-hcell" ${u.red?'style="color:var(--cc-neg)"':''}>${esc(u.label)}<small>${esc(u.sub)}</small></th>`).join('');
+        const body = rows.map(r => {
+            const cells = r.cells.map(c => {
+                if(c.empty) return `<td class="c cc-hcell"><span class="cc-hv zero">\u00b7</span></td>`;
+                if(ccHoursPeriod === 'settimana') {
+                    const meta = c.meta || { short:'' };
+                    return `<td class="cc-hcell"><div class="cc-hcell-in">${codeChip(meta)}<span class="cc-hv ${c.min? '' : 'zero'}">${c.min ? fmtHM(c.min) : ''}</span></div></td>`;
+                }
+                const dlt = c.min - c.target;
+                return `<td class="r cc-hcell"><span class="cc-hv ${c.min?'':'zero'}">${fmtHM(c.min)}</span><span class="cc-seg-delta ${Math.abs(dlt)<1?'':(dlt<0?'cc-neg':'cc-pos')}">${fmtHM(dlt,true)}</span></td>`;
+            }).join('');
+            const pct = r.target > 0 ? Math.min(100, r.total / r.target * 100) : 0;
+            const over = r.target > 0 && r.total > r.target;
+            const hiddenTag = r.d.hidden ? ` <span class="cc-tag">nascosto</span>` : '';
+            return `<tr data-name="${esc(r.d.name)}">
+                <td class="cc-sticky"><div class="cc-opname">${esc(r.d.name)}${hiddenTag}<small>${r.ch} h/sett.${r.absDays?` \u00b7 ${r.absDays} gg assenza`:''}</small></div></td>
+                ${cells}
+                <td class="r cc-sep-l cc-num"><span class="cc-bar"><i class="${over?'over':''}" style="width:${pct.toFixed(1)}%"></i></span>${fmtHM(r.total)}</td>
+                <td class="r cc-num" style="color:var(--cc-muted)">${fmtHM(r.target)}</td>
+                <td class="r cc-num ${Math.abs(r.diff)<1?'':(r.diff<0?'cc-neg':'cc-pos')}"><b style="font-weight:500">${fmtHM(r.diff,true)}</b></td>
+                <td class="r cc-num cc-sep-l ${Math.abs(r.balance)<1?'':(r.balance<0?'cc-neg':'cc-pos')}">${fmtHM(r.balance,true)}</td>
+            </tr>`;
+        }).join('');
+        const vis = M.rows;
+        const sum = k => vis.reduce((a,r) => a + r[k], 0);
+        const footCells = M.units.map((u, i) => {
+            const m = vis.reduce((a,r) => a + r.cells[i].min, 0);
+            return `<td class="${ccHoursPeriod==='settimana'?'':'r'} cc-hcell cc-num">${u.days.length ? fmtHM(m) : ''}</td>`;
+        }).join('');
+        const nav = ccHoursPeriod === 'anno' ? `<div class="cc-period-nav"><span class="cc-period-label">${esc(M.label)}</span></div>` : `
+            <div class="cc-period-nav">
+                <button class="cc-icon-btn" onclick="ccHoursNav(-1)" aria-label="Periodo precedente"><span class="msym">chevron_left</span></button>
+                <span class="cc-period-label">${esc(M.label)}</span>
+                <button class="cc-icon-btn" onclick="ccHoursNav(1)" aria-label="Periodo successivo"><span class="msym">chevron_right</span></button>
+            </div>
+            <button class="cc-btn sm" onclick="ccHoursNav(0)">${ccHoursPeriod==='settimana'?'Questa settimana':'Questo mese'}</button>`;
+        const check = (M.discrepancy > 1 || M.unknown.size)
+            ? `<div class="cc-check warn"><span class="msym">warning</span>${M.discrepancy>1?`I due metodi di calcolo differiscono di ${fmtHM(M.discrepancy)}. `:''}${M.unknown.size?`Codici non riconosciuti, esclusi dal conteggio: ${esc([...M.unknown].join(', '))}.`:''}</div>`
+            : `<div class="cc-check ok"><span class="msym">verified</span>Calcolo verificato con doppio controllo su ${M.dayCount} giorni.</div>`;
+        main.innerHTML = `
+            <div class="cc-toolbar">
+                <div class="cc-seg" role="tablist">
+                    <button class="${ccHoursPeriod==='settimana'?'active':''}" onclick="ccHoursSetPeriod('settimana')">Settimana</button>
+                    <button class="${ccHoursPeriod==='mese'?'active':''}" onclick="ccHoursSetPeriod('mese')">Mese</button>
+                    <button class="${ccHoursPeriod==='anno'?'active':''}" onclick="ccHoursSetPeriod('anno')">Anno</button>
+                </div>
+                ${nav}
+                <div class="cc-spacer"></div>
+                <div class="cc-search"><span class="msym">search</span><input class="cc-input" placeholder="Cerca operatore" value="${esc(ccHoursQuery)}" oninput="ccHoursSearch(this.value)"></div>
+            </div>
+            <div class="cc-table-wrap">
+                <table class="cc-table" id="cc-hours-table">
+                    <thead><tr>
+                        <th class="cc-sticky sortable" onclick="ccHoursSortBy(ccHoursSort.key==='order'?'name':'order')">Operatore ${sortIco('name')}${sortIco('order')}<small>${ccHoursSort.key==='order'?'ordine del calendario':'alfabetico'}</small></th>
+                        ${unitHead}
+                        <th class="r cc-sep-l sortable" onclick="ccHoursSortBy('total')">Lavorate ${sortIco('total')}<small>ore:minuti</small></th>
+                        <th class="r">Contratto<small>nel periodo</small></th>
+                        <th class="r sortable" onclick="ccHoursSortBy('diff')">Differenza ${sortIco('diff')}<small>nel periodo</small></th>
+                        <th class="r cc-sep-l sortable" onclick="ccHoursSortBy('balance')">Saldo ${sortIco('balance')}<small>da gennaio a oggi</small></th>
+                    </tr></thead>
+                    <tbody>${body}</tbody>
+                    <tfoot><tr><td class="cc-sticky">Totale reparto</td>${footCells}<td class="r cc-sep-l cc-num">${fmtHM(sum('total'))}</td><td class="r cc-num">${fmtHM(sum('target'))}</td><td class="r cc-num">${fmtHM(sum('diff'),true)}</td><td class="cc-sep-l"></td></tr></tfoot>
+                </table>
+            </div>
+            ${check}
+            <div class="cc-legend">
+                <span>Contratto = ore settimanali \u00f7 7 \u00d7 giorni del periodo presenti nel file.</span>
+                <span>Le assenze (ferie, malattia, permessi\u2026) contano 0 ore, come nel calendario.</span>
+                <span>Le ore settimanali di ciascuno si cambiano in Operatori.</span>
+            </div>`;
+        if(ccHoursQuery) ccHoursSearch(ccHoursQuery);
+        document.getElementById('cc-top-actions').innerHTML = `<button class="cc-btn" onclick="ccExportHours()"><span class="msym">download</span>Esporta Excel</button>`;
+    }
+    async function ccExportHours() {
+        if(typeof ExcelJS === 'undefined') { ccToast('Esportazione non disponibile: libreria Excel non caricata.', true); return; }
+        const M = computeHoursMatrix();
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet(ccHoursPeriod === 'settimana' ? 'Settimana' : ccHoursPeriod === 'mese' ? 'Mese' : 'Anno');
+        ws.addRow([`Conteggio ore \u2014 ${M.label}`]); ws.getRow(1).font = { bold:true, size:13 };
+        ws.addRow(['Ore in formato decimale (es. 7,5 = 7 ore e 30 minuti)']); ws.getRow(2).font = { italic:true, color:{ argb:'FF5C6776' } };
+        ws.addRow([]);
+        const head = ['Operatore', 'Ore/sett.'].concat(M.units.map(u => `${u.label} ${u.sub}`)).concat(['Lavorate', 'Contratto', 'Differenza', 'Saldo ad oggi', 'Giorni di assenza']);
+        const hr = ws.addRow(head); hr.font = { bold:true }; hr.fill = { type:'pattern', pattern:'solid', fgColor:{ argb:'FFE7EAEE' } };
+        const h2 = m => Math.round(m / 60 * 100) / 100;
+        M.rows.forEach(r => {
+            const vals = [r.d.name, r.ch];
+            r.cells.forEach(c => { if(ccHoursPeriod === 'settimana') vals.push(c.empty ? '' : (c.min ? h2(c.min) : (c.meta && c.meta.short) || '')); else vals.push(c.empty ? '' : h2(c.min)); });
+            vals.push(h2(r.total), h2(r.target), h2(r.diff), h2(r.balance), r.absDays);
+            ws.addRow(vals);
+        });
+        ws.columns.forEach((col, i) => { col.width = i === 0 ? 24 : 12; if(i > 0) col.numFmt = '0.00'; });
+        ws.views = [{ state:'frozen', xSplit:1, ySplit:4 }];
+        const buf = await wb.xlsx.writeBuffer();
+        const blob = new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const a = document.createElement('a');
+        const tag = ccHoursPeriod === 'settimana' ? ymd(getWeekRange(ccHoursAnchor).start) : ccHoursPeriod === 'mese' ? MONTH_NAMES_IT[ccHoursMonth] : SHIFT_YEAR;
+        a.href = URL.createObjectURL(blob); a.download = `conteggio-ore-${ccHoursPeriod}-${tag}.xlsx`;
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+        ccToast('File Excel scaricato');
+    }
+
+    // ═══ DA RIPORTARE SU EXCEL ════════════════════════════════════════════
     function computePendingExcelSyncList() {
         let list = [];
         if(!rawFinalData.length) return list;
         Object.keys(manualOverrides).forEach(key => {
-            let idx2 = key.indexOf('__'); if(idx2===-1) return;
-            let orig = key.substring(0,idx2); let dateStr = key.substring(idx2+2);
-            let overrideVal = manualOverrides[key];
-            let overrideStr = JSON.stringify(overrideVal);
-            let rawDisplay = describeRawExcelValue(orig, dateStr);
-            let newDisplay = describeOverrideValue(overrideVal);
-            if(rawDisplay === newDisplay) return; // nessuna differenza reale rispetto all'excel
-            if(excelSyncedMarks[key] === overrideStr) return; // già segnato come riportato per questo valore
-            let d = drivers.find(dr => (dr.originalName||dr.name) === orig);
-            list.push({ key, driverName: d?d.name:orig, dateLabel: dateStr, oldDisplay: rawDisplay, newDisplay });
+            const idx2 = key.indexOf('__'); if(idx2 === -1) return;
+            const orig = key.substring(0, idx2); const dateStr = key.substring(idx2 + 2);
+            const d = drivers.find(dr => (dr.originalName || dr.name) === orig);
+            if(!d) return; // operatore rimosso o eliminato
+            const overrideVal = manualOverrides[key];
+            const rawDisplay = describeRawExcelValue(orig, dateStr);
+            const newDisplay = describeOverrideValue(overrideVal);
+            if(rawDisplay === newDisplay) return;
+            if(excelSyncedMarks[key] === JSON.stringify(overrideVal)) return;
+            const k = dateStr.lastIndexOf('-'); const mName = dateStr.substring(0, k); const dNum = parseInt(dateStr.substring(k + 1));
+            list.push({ key, driverName: d.name, virtual: d.virtual, dateLabel: dateStr, monthIdx: MONTH_MAP[mName] ?? 99, day: dNum, oldDisplay: rawDisplay, newDisplay });
         });
+        list.sort((a,b) => (a.monthIdx - b.monthIdx) || (a.day - b.day) || a.driverName.localeCompare(b.driverName));
         return list;
     }
-    function renderCoordSyncList() {
-        const el = document.getElementById('coord-sync-list'); if(!el) return;
-        let list = computePendingExcelSyncList();
-        if(!list.length) { el.innerHTML = `<div class="coord-sync-empty"><span class="material-icons-round" style="font-size:32px;opacity:0.4;">task_alt</span><br>Nessuna modifica in sospeso</div>`; return; }
-        el.innerHTML = list.map(item => `
-            <div class="coord-sync-item">
-                <div class="coord-sync-check" onclick="confirmSyncItemDone('${item.key.replace(/'/g,"\\'")}')"><span class="material-icons-round" style="font-size:16px;">check</span></div>
-                <div class="coord-sync-txt">
-                    <div class="coord-sync-main">${item.driverName} — ${(item.dateLabel||'').replace('-',' ')}</div>
-                    <div class="coord-sync-diff">Da: <b>${item.oldDisplay||'—'}</b> &rarr; A: <b>${item.newDisplay||'—'}</b></div>
-                </div>
-            </div>`).join('');
+    function renderCoordSyncList() { ccUpdateNavCounts(); if(ccSection === 'riportare') ccRefreshIfOpen(); }
+    function renderCcSync() {
+        const main = document.getElementById('cc-main');
+        const list = computePendingExcelSyncList();
+        if(!list.length) {
+            main.innerHTML = `<div class="cc-panel"><div class="cc-empty"><span class="msym">task_alt</span>Il file Excel è allineato: nessuna modifica da riportare.</div></div>`;
+            return;
+        }
+        const pretty = it => { if(it.monthIdx > 11) return it.dateLabel; const dt = new Date(SHIFT_YEAR, it.monthIdx, it.day); return dt.toLocaleDateString('it-IT', { weekday:'short', day:'numeric', month:'long' }); };
+        main.innerHTML = `
+            <div class="cc-table-wrap"><table class="cc-table">
+                <thead><tr><th>Giorno</th><th>Operatore</th><th>Nel file Excel</th><th>Nell\u2019app</th><th class="r">Riportato</th></tr></thead>
+                <tbody>${list.map((it, i) => `<tr>
+                    <td>${esc(pretty(it))}</td>
+                    <td class="cc-opname">${esc(it.driverName)}</td>
+                    <td style="color:var(--cc-muted)">${it.virtual ? 'operatore non presente nel file' : esc(it.oldDisplay || '\u2014')}</td>
+                    <td><b style="font-weight:500">${esc(it.newDisplay || '\u2014')}</b></td>
+                    <td class="r"><button class="cc-btn sm" onclick="confirmSyncItemDone(${i})"><span class="msym">check</span>Fatto</button></td>
+                </tr>`).join('')}</tbody>
+            </table></div>
+            <p class="cc-note" style="margin-top:10px">Premi Fatto dopo aver inserito la modifica nel file infermieri.xlsx. Se il turno cambia di nuovo, la voce ricompare.</p>`;
+        ccSyncCache = list;
+        document.getElementById('cc-top-actions').innerHTML = `<button class="cc-btn" onclick="confirmAllSyncDone()"><span class="msym">done_all</span>Segna tutto come riportato</button>`;
     }
-    function confirmSyncItemDone(key) {
+    function confirmSyncItemDone(i) {
+        const it = ccSyncCache[i]; if(!it) return;
         vibrate();
-        if(!confirm(`Confermi di aver riportato questa modifica su Excel?`)) return;
-        excelSyncedMarks[key] = JSON.stringify(manualOverrides[key] || null);
-        renderCoordSyncList(); persistCoordState();
+        excelSyncedMarks[it.key] = JSON.stringify(manualOverrides[it.key] || null);
+        persistCoordState(); renderCcSync(); ccUpdateNavCounts();
+    }
+    async function confirmAllSyncDone() {
+        const list = computePendingExcelSyncList(); if(!list.length) return;
+        const ok = await ccConfirm(`Segnare ${list.length} modifiche come riportate?`, 'Fallo solo se le hai già inserite tutte nel file Excel.', 'Segna tutte');
+        if(!ok) return;
+        list.forEach(it => { excelSyncedMarks[it.key] = JSON.stringify(manualOverrides[it.key] || null); });
+        persistCoordState(); renderCcSync(); ccUpdateNavCounts(); ccToast('Elenco svuotato');
     }
     function persistCoordState() {
-        if(!fbReady) return;
-        db.collection('infermieri26_config').doc('settings').set({ manualOverrides, excelSyncedMarks }, { merge:true }).catch(e=>console.error('Errore salvataggio coordinatore:',e));
+        return saveSettingsFields({ manualOverrides, excelSyncedMarks }).catch(e => { console.error('Errore salvataggio coordinatore:', e); ccToast('Salvataggio non riuscito: controlla la connessione.', true); });
     }
 
+    // ═══ IMPOSTAZIONI ═════════════════════════════════════════════════════
+    function renderCcSettings() {
+        const main = document.getElementById('cc-main');
+        const opts = drivers.slice().sort((a,b) => a.name.localeCompare(b.name)).map(d => `<option value="${esc(d.name)}" ${coordinatorName===d.name?'selected':''}>${esc(d.name)}</option>`).join('');
+        main.innerHTML = `
+            <div class="cc-panel">
+                <div class="cc-panel-head"><h3>Coordinatore designato</h3></div>
+                <div class="cc-panel-body">
+                    <p class="cc-note" style="margin-bottom:12px">Riceve una notifica per ogni richiesta inviata dal portale Richieste, quando usa l\u2019app con il proprio nome.</p>
+                    <div class="cc-inline-form">
+                        <select id="coord-select-name" class="cc-input"><option value="" ${coordinatorName?'':'selected'} disabled>Scegli operatore</option>${opts}</select>
+                        <button class="cc-btn primary" id="btn-save-coordinatore" onclick="saveCoordinatorName()">Salva</button>
+                    </div>
+                    <p class="cc-note" id="coord-current-label" style="margin-top:10px">${coordinatorName ? 'Attuale: ' + esc(coordinatorName) : 'Nessun coordinatore impostato.'}</p>
+                </div>
+            </div>
+            <div class="cc-panel">
+                <div class="cc-setting"><div><b>Consigli sulle ore nel calendario</b><small>Mostra un\u2019icona sopra gli operatori sotto di 2 h o sopra di 4 h rispetto al contratto, con un suggerimento.</small></div>
+                    <label class="cc-switch"><input type="checkbox" ${aiAdviceEnabled?'checked':''} onchange="toggleAiAdvice(this.checked)"><span></span></label></div>
+            </div>
+            <div class="cc-panel">
+                <div class="cc-setting"><div><b>Sessione su questo dispositivo</b><small>Hai fatto l\u2019accesso una volta e resta valido. Esci se il dispositivo è condiviso.</small></div>
+                    <button class="cc-btn danger" onclick="coordLogout()"><span class="msym">logout</span>Esci</button></div>
+            </div>`;
+    }
+    function renderCoordinatorTab() {
+        const lbl = document.getElementById('coord-current-label');
+        if(lbl) lbl.textContent = coordinatorName ? ('Attuale: ' + coordinatorName) : 'Nessun coordinatore impostato.';
+    }
+    function saveCoordinatorName() {
+        const sel = document.getElementById('coord-select-name');
+        if(!sel || !sel.value) { ccToast('Scegli un operatore prima di salvare.', true); return; }
+        if(!fbReady) return;
+        db.collection('infermieri26_config').doc('settings').set({ coordinatorName: sel.value }, { merge:true })
+            .then(() => { coordinatorName = sel.value; checkIfIAmCoordinator(); renderCoordinatorTab(); ccToast('Coordinatore aggiornato'); vibrate(); })
+            .catch(e => { console.error('Errore salvataggio coordinatore:', e); ccToast('Salvataggio non riuscito.', true); });
+    }
+
+    // ═══ MODIFICA SUL CALENDARIO ══════════════════════════════════════════
     function cellKey(row, col) {
-        let d = getDriverByIdx(col); let orig = d ? (d.originalName||d.name) : String(col);
+        let d = getDriverByIdx(col); let orig = d ? (d.originalName||d.name) : String(finalData[0][col]);
         let mName = finalData[row][0].v; let dNum = finalData[row][1].v;
         return overrideKey(orig, mName, dNum);
     }
@@ -3641,92 +4683,166 @@
         if(value === null || value === undefined) delete manualOverrides[key]; else manualOverrides[key] = value;
         return prev;
     }
+    function pendingChangesCount() {
+        const keys = new Set([...Object.keys(manualOverrides), ...Object.keys(coordEditBaseline || {})]);
+        let n = 0; keys.forEach(k => { if(JSON.stringify(manualOverrides[k] || null) !== JSON.stringify((coordEditBaseline || {})[k] || null)) n++; });
+        return n;
+    }
+    // Aggiorna solo le celle toccate: ricalcola il valore dal dato Excel + modifica
+    // e ridisegna le righe interessate, invece di ricostruire tutto il calendario.
+    function applyOverrideAt(row, col, key) {
+        if(!finalData[row] || !rawFinalData[row]) return false;
+        const raw = rawFinalData[row][col];
+        const base = raw ? JSON.parse(JSON.stringify(raw)) : { v:"", subV:"" };
+        const ov = manualOverrides[key || cellKey(row, col)];
+        finalData[row][col] = ov ? Object.assign({}, base, { v: ov.v, subV: ov.subV || "", overridden:true, customMinutes: ov.customMinutes }) : base;
+        return true;
+    }
+    function coordKeyIndex() {
+        const m = new Map();
+        for(let r = 1; r < finalData.length; r++) drivers.forEach(d => m.set(cellKey(r, d.idx), { row:r, col:d.idx }));
+        return m;
+    }
+    let ccNavCountTimer = null;
+    function scheduleNavCounts() { clearTimeout(ccNavCountTimer); ccNavCountTimer = setTimeout(ccUpdateNavCounts, 400); }
+    function afterCoordChange(keys) {
+        let done = false;
+        if(keys && keys.length && finalData.length === rawFinalData.length) {
+            const idx = coordKeyIndex(); const rows = new Set(); let miss = false;
+            keys.forEach(k => { const p = idx.get(k); if(!p || !applyOverrideAt(p.row, p.col, k)) miss = true; else rows.add(p.row); });
+            if(!miss) { renderTableRows(rows); scheduleTableHeadRefresh(); done = true; }
+        }
+        if(!done) { applyManualOverrides(); renderTable(); }
+        updateCoordToolbarState(); scheduleNavCounts();
+    }
     function pushUndo(action) { coordUndoStack.push(action); coordRedoStack = []; updateCoordToolbarState(); }
-    function updateCoordToolbarState() {
-        let u = document.getElementById('coord-btn-undo'), r = document.getElementById('coord-btn-redo');
-        if(u) u.disabled = coordUndoStack.length===0; if(r) r.disabled = coordRedoStack.length===0;
-    }
-    function applyUndoEntries(entries, useNext) {
-        entries.forEach(en => setOverride(en.key, useNext ? en.next : en.prev));
-        applyManualOverrides(); renderTable(); renderCoordSyncList();
-    }
-    function coordUndo() { if(!coordUndoStack.length) return; vibrate(); let a=coordUndoStack.pop(); applyUndoEntries(a.entries,false); coordRedoStack.push(a); updateCoordToolbarState(); }
-    function coordRedo() { if(!coordRedoStack.length) return; vibrate(); let a=coordRedoStack.pop(); applyUndoEntries(a.entries,true); coordUndoStack.push(a); updateCoordToolbarState(); }
+    function applyUndoEntries(entries, useNext) { entries.forEach(en => setOverride(en.key, useNext ? en.next : en.prev)); afterCoordChange(entries.map(en => en.key)); }
+    function coordUndo() { if(!coordUndoStack.length) return; vibrate(); let a = coordUndoStack.pop(); coordRedoStack.push(a); applyUndoEntries(a.entries, false); }
+    function coordRedo() { if(!coordRedoStack.length) return; vibrate(); let a = coordRedoStack.pop(); coordUndoStack.push(a); applyUndoEntries(a.entries, true); }
 
     function performCoordSwap(a, b) {
         let keyA = cellKey(a.row, a.col), keyB = cellKey(b.row, b.col);
         let cellA = finalData[a.row][a.col] || {}, cellB = finalData[b.row][b.col] || {};
         let valA = { v: cellA.v||"", subV: cellA.subV||"", customMinutes: cellA.customMinutes };
         let valB = { v: cellB.v||"", subV: cellB.subV||"", customMinutes: cellB.customMinutes };
+        if(valA.customMinutes === undefined) delete valA.customMinutes;
+        if(valB.customMinutes === undefined) delete valB.customMinutes;
         let prevA = setOverride(keyA, valB);
         let prevB = setOverride(keyB, valA);
         pushUndo({ entries:[{key:keyA, prev:prevA, next:valB},{key:keyB, prev:prevB, next:valA}] });
-        applyManualOverrides(); renderTable(); renderCoordSyncList(); vibrate();
+        afterCoordChange([keyA, keyB]); vibrate();
+    }
+    function performCoordFill(source, dest) {
+        let lo = Math.min(source.row, dest.row), hi = Math.max(source.row, dest.row);
+        let cellSrc = finalData[source.row][source.col] || {};
+        let valSrc = { v: cellSrc.v||"", subV: cellSrc.subV||"" };
+        if(cellSrc.customMinutes !== undefined) valSrc.customMinutes = cellSrc.customMinutes;
+        let entries = [];
+        for(let r=lo; r<=hi; r++) {
+            if(!finalData[r]) continue;
+            let key = cellKey(r, source.col);
+            let prev = setOverride(key, valSrc);
+            entries.push({ key, prev, next: valSrc });
+        }
+        pushUndo({ entries });
+        afterCoordChange(entries.map(en => en.key)); vibrate();
     }
 
+    function enterCoordEdit() {
+        closeCoordConsole();
+        if(!coordEditModeActive) toggleCoordEditMode(true);
+        setTimeout(() => { scrollToToday(); }, 200);
+    }
+    async function exitCoordEdit(silent) {
+        const n = pendingChangesCount();
+        if(n) {
+            const choice = await ccDialog(`Hai ${n} ${n===1?'modifica non salvata':'modifiche non salvate'}`, 'Salvale per renderle visibili a tutti, oppure scartale per tornare alla versione salvata.', [
+                { label:'Continua a modificare', kind:'ghost', value:null },
+                { label:'Scarta', kind:'danger', value:'discard' },
+                { label:'Salva ed esci', kind:'primary', value:'save' }
+            ]);
+            if(!choice) return false;
+            if(choice === 'save') { coordConfirmChanges(true); silent = true; }
+            else { manualOverrides = JSON.parse(JSON.stringify(coordEditBaseline)); coordUndoStack = []; coordRedoStack = []; applyManualOverrides(); renderTable(); }
+        }
+        toggleCoordEditMode(false);
+        if(!silent) ccToast('Modalità modifica chiusa');
+        return true;
+    }
     function toggleCoordEditMode(active) {
         coordEditModeActive = active;
         document.body.classList.toggle('coord-edit-mode', active);
-        document.getElementById('coord-edit-bar').classList.toggle('show', active);
-        if(active) { renderPaintPalette(); attachCellEditHandlers(); updateCoordToolbarState(); } else { deselectPaintTool(); detachCellEditHandlers(); }
-        if(typeof finalData !== 'undefined' && finalData.length) renderTable();
-        syncCoordEditBarHeight();
+        document.getElementById('coord-edit-strip').classList.toggle('show', active);
+        document.getElementById('tool-wheel').classList.toggle('show', active);
+        if(active) {
+            if(!coordUndoStack.length && !pendingChangesCount()) coordEditBaseline = JSON.parse(JSON.stringify(manualOverrides));
+            attachCellEditHandlers();
+            setCoordTool('select', null, null, true);
+            twExpanded = true; twRender(); twPlace();
+        } else {
+            coordPaintTool = null; coordSwapMode = false; coordSwapFirst = null;
+            document.body.classList.remove('paint-active', 'swap-active', 'select-active');
+            detachCellEditHandlers();
+        }
+        if(finalData.length) { if(rtCols.length && document.querySelector('#table-body tr[data-row]')) renderTableHead(); else renderTable(); }
+        if(!active) clearTimeout(rtHeadTimer);
+        updateCoordToolbarState(); ccUpdateNavCounts();
     }
-    function syncCoordEditBarHeight() {
-        requestAnimationFrame(() => {
-            const bar = document.getElementById('coord-edit-bar');
-            const spacer = document.getElementById('coord-edit-spacer');
-            if(!bar || !spacer) return;
-            spacer.style.height = coordEditModeActive ? bar.offsetHeight + 'px' : '0';
-        });
+    function currentToolInfo() {
+        if(coordPaintTool && coordPaintTool.clear) return { key:'erase', name:'Gomma', hint:'tocca o trascina sulle celle per svuotarle' };
+        if(coordPaintTool) {
+            const it = wheelPaletteItems().find(p => p.v === (coordPaintTool.v||'') && p.subV === (coordPaintTool.subV||''));
+            return { key:'paint', item: it, name: it ? it.label : 'Turno', hint:'tocca o trascina sulle celle per applicarlo' };
+        }
+        if(coordSwapMode) return { key:'swap', name:'Scambia', hint: coordSwapFirst ? 'ora tocca la seconda cella' : 'tocca la prima cella' };
+        return { key:'select', name:'Seleziona', hint:'tocca una cella per modificarla' };
     }
-    function renderPaintPalette() {
-        const el = document.getElementById('coord-paint-palette'); if(!el) return;
-        const labelFor = c => ({M:"Mattina",P:"Pomeriggio",N:"Notte",SM:"Smonto",R:"Riposo"}[c] || c);
-        let html = `<button class="paint-tool-btn stop-tool active" data-tool="stop" onclick="deselectPaintTool()"><span class="material-icons-round" style="font-size:15px;">pan_tool</span>Sposta/Scambia</button>`;
-        html += `<div class="paint-group-sep"></div>`;
-        STANDARD_CODES.forEach(c => {
-            let col = MAIN_CODE_COLORS[c];
-            html += `<button class="paint-tool-btn" data-tool="${c}|" style="${swatchStyle(col)}" onclick="selectPaintTool('${c}','')"><span class="ptb-swatch"></span>${labelFor(c)}</button>`;
-        });
-        html += `<div class="paint-group-sep"></div>`;
-        DIURNI_CODES.forEach(c => {
-            let col = MAIN_CODE_COLORS[c.toUpperCase()];
-            html += `<button class="paint-tool-btn diurno" data-tool="${c}|" style="${swatchStyle(col)}" onclick="selectPaintTool('${c}','')">${c} (diurno)</button>`;
-        });
-        html += `<button class="paint-tool-btn" data-tool="M+N|" style="--btn-bg:var(--c-N);--btn-fg:var(--t-N);" onclick="selectPaintTool('M+N','')"><span class="ptb-swatch"></span>M+N</button>`;
-        html += `<div class="paint-group-sep"></div>`;
-        Object.entries(SPECIAL_SUBCODES).filter(([k])=>k!=='gr').forEach(([k,label]) => {
-            let col = SUB_CODE_COLORS[k];
-            html += `<button class="paint-tool-btn" data-tool="|${k}" style="${swatchStyle(col)}" onclick="selectPaintTool('','${k}')"><span class="ptb-swatch"></span>${label}</button>`;
-        });
-        html += `<div class="paint-group-sep"></div>`;
-        html += `<button class="paint-tool-btn clear-tool" data-tool="clear" onclick="selectPaintTool(null,null)"><span class="material-icons-round" style="font-size:15px;">backspace</span>Cancella</button>`;
-        el.innerHTML = html;
-        updatePaintToolActiveUI();
-    }
-    function paintToolKey() {
-        if(!coordPaintTool) return 'stop';
-        if(coordPaintTool.clear) return 'clear';
-        return `${coordPaintTool.v||''}|${coordPaintTool.subV||''}`;
-    }
-    function updatePaintToolActiveUI() {
-        document.querySelectorAll('#coord-paint-palette .paint-tool-btn').forEach(b => b.classList.toggle('active', b.dataset.tool === paintToolKey()));
-    }
-    function selectPaintTool(v, subV) {
-        vibrate();
-        coordPaintTool = (v===null && subV===null) ? {clear:true} : {v: v||"", subV: subV||""};
-        document.body.classList.add('paint-active');
-        updatePaintToolActiveUI();
+    function setCoordTool(kind, v, subV, silent) {
+        coordSwapMode = kind === 'swap'; coordSwapFirst = null;
+        if(kind === 'paint') coordPaintTool = { v: v || '', subV: subV || '' };
+        else if(kind === 'erase') coordPaintTool = { clear:true };
+        else coordPaintTool = null;
+        clearSelectedCellVisual(); coordSelectedCell = null;
+        document.body.classList.toggle('paint-active', !!coordPaintTool);
+        document.body.classList.toggle('swap-active', coordSwapMode);
+        document.body.classList.toggle('select-active', kind === 'select');
         applyEditModeDraggable();
+        if(!silent) vibrate();
+        if((kind === 'paint' || kind === 'erase') && !silent && localStorage.getItem(WHEEL_AUTOCLOSE_KEY) !== '0') twExpanded = false;
+        twRender(); twPlace(); updateCoordToolbarState();
     }
-    function deselectPaintTool() {
+    function updateCoordToolbarState() {
+        const n = pendingChangesCount();
+        const t = currentToolInfo();
+        const toolEl = document.getElementById('ces-tool');
+        if(toolEl) toolEl.innerHTML = `Strumento: <b>${esc(t.name)}</b> \u2014 ${esc(t.hint)}`;
+        const pEl = document.getElementById('ces-pending');
+        if(pEl) { pEl.textContent = n ? `${n} da salvare` : 'Tutto salvato'; pEl.classList.toggle('has', !!n); }
+        const sv = document.getElementById('ces-save'); if(sv) sv.disabled = !n;
+        const b = document.getElementById('tw-badge'); if(b) { b.textContent = n || ''; b.classList.toggle('has', !!n); }
+        const u = document.getElementById('tw-sat-undo'); if(u) u.disabled = !coordUndoStack.length;
+        if(coordEditModeActive && twExpanded) twRender();
+    }
+    function coordConfirmChanges(quiet) {
         vibrate();
-        coordPaintTool = null;
-        document.body.classList.remove('paint-active');
-        updatePaintToolActiveUI();
-        applyEditModeDraggable();
+        coordEditBaseline = JSON.parse(JSON.stringify(manualOverrides));
+        coordUndoStack = []; coordRedoStack = [];
+        persistCoordState();
+        updateCoordToolbarState(); ccUpdateNavCounts(); ccRefreshIfOpen();
+        const n = computePendingExcelSyncList().length;
+        ccToast(n ? `Salvato. Ricorda di riportare ${n} ${n===1?'modifica':'modifiche'} su Excel.` : 'Salvato: le modifiche sono visibili a tutti.');
     }
+    async function coordResetChanges() {
+        const n = pendingChangesCount(); if(!n) { ccToast('Non ci sono modifiche da scartare.'); return; }
+        const ok = await ccConfirm(`Scartare ${n} ${n===1?'modifica':'modifiche'}?`, 'Il calendario torna all\u2019ultima versione salvata.', 'Scarta', 'solid-danger');
+        if(!ok) return;
+        vibrate();
+        manualOverrides = JSON.parse(JSON.stringify(coordEditBaseline));
+        coordUndoStack = []; coordRedoStack = [];
+        afterCoordChange(); ccRefreshIfOpen();
+    }
+
+    // ── Gestori degli eventi sulla tabella ──────────────────────────────────
     let coordDelegatedHandlersAttached = false;
     function attachCellEditHandlers() {
         applyEditModeDraggable();
@@ -3742,13 +4858,14 @@
         table.addEventListener('pointerdown', coordOnPointerDown);
         table.addEventListener('pointermove', coordOnPointerMove);
         document.addEventListener('pointerup', coordOnPointerUp);
+        document.addEventListener('pointercancel', coordOnPointerUp);
     }
     function detachCellEditHandlers() {
-        document.querySelectorAll('#main-table td[draggable]').forEach(td=>td.removeAttribute('draggable'));
+        document.querySelectorAll('#main-table td[draggable]').forEach(td => td.removeAttribute('draggable'));
         document.removeEventListener('keydown', coordOnKeyDown);
         clearSelectedCellVisual(); coordSelectedCell = null;
     }
-    function clearSelectedCellVisual() { document.querySelectorAll('#main-table td.coord-selected').forEach(t=>t.classList.remove('coord-selected')); }
+    function clearSelectedCellVisual() { document.querySelectorAll('#main-table td.coord-selected').forEach(t => t.classList.remove('coord-selected')); }
     function markSelectedCell(row, col) {
         clearSelectedCellVisual();
         coordSelectedCell = { row, col };
@@ -3762,36 +4879,53 @@
         let key = cellKey(row, col);
         let next = { v:"", subV:"" };
         let prev = setOverride(key, next);
-        pushUndo({ entries:[{key, prev, next}] });
-        applyManualOverrides(); renderTable(); renderCoordSyncList();
-        closeShiftEditPopup();
+        pushUndo({ entries:[{ key, prev, next }] });
         coordSelectedCell = null;
+        afterCoordChange([key]); closeShiftEditPopup();
     }
     function coordOnKeyDown(e) {
-        if(!coordEditModeActive || !coordSelectedCell) return;
-        if(document.activeElement && ['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+        if(!coordEditModeActive) return;
+        if(document.getElementById('coord-console').classList.contains('open')) return;
+        const a = document.activeElement;
+        if(a && ['INPUT','TEXTAREA','SELECT'].includes(a.tagName)) return;
+        const k = e.key.toLowerCase();
+        if((e.ctrlKey || e.metaKey) && k === 'z' && !e.shiftKey) { e.preventDefault(); coordUndo(); return; }
+        if((e.ctrlKey || e.metaKey) && (k === 'y' || (k === 'z' && e.shiftKey))) { e.preventDefault(); coordRedo(); return; }
+        if((e.ctrlKey || e.metaKey) && k === 's') { e.preventDefault(); if(pendingChangesCount()) coordConfirmChanges(); return; }
+        if(!coordSelectedCell) { if(e.key === 'Escape' && coordPaintTool) setCoordTool('select'); return; }
         if(e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); clearSelectedCell(); }
-        else if(e.key === 'Escape') { clearSelectedCellVisual(); coordSelectedCell = null; closeShiftEditPopup(); }
+        else if(e.key === 'Escape') { clearSelectedCellVisual(); coordSelectedCell = null; coordSwapFirst = null; closeShiftEditPopup(); updateCoordToolbarState(); }
     }
+    // Il trascinamento (sposta/copia) si attiva solo sulla cella premuta col mouse:
+    // niente attributo draggable su migliaia di celle, che su telefono rallentava.
     function applyEditModeDraggable() {
-        if(coordPaintTool) { document.querySelectorAll('#main-table td[draggable]').forEach(td=>td.removeAttribute('draggable')); return; }
-        document.querySelectorAll('#main-table td[data-col]').forEach(td => td.setAttribute('draggable','true'));
+        document.querySelectorAll('#main-table td[draggable]').forEach(td => td.removeAttribute('draggable'));
     }
     function paintOneCell(row, col) {
         if(!finalData[row]) return;
         let key = cellKey(row, col);
         let value = coordPaintTool.clear ? { v:"", subV:"" } : { v: coordPaintTool.v, subV: coordPaintTool.subV };
+        const cur = finalData[row][col] || {};
+        const same = String(cur.v||'').trim() === String(value.v||'').trim() && String(cur.subV||'').trim() === String(value.subV||'').trim();
+        if(same && !coordPaintTouchedKeys.has(key)) { coordPaintTouchedKeys.add(key); return; } // gia' uguale: nessuna modifica inutile
         if(!coordPaintTouchedKeys.has(key)) {
             let prev = setOverride(key, value);
             coordPaintBatchEntries.push({ key, prev, next: value });
             coordPaintTouchedKeys.add(key);
-        } else {
-            setOverride(key, value);
-        }
-        applyManualOverrides(); renderTable(); renderCoordSyncList();
+        } else setOverride(key, value);
+        if(applyOverrideAt(row, col, key)) { renderTableRows([row]); scheduleTableHeadRefresh(600); }
+        else { applyManualOverrides(); renderTable(); }
+        updateCoordToolbarState();
     }
     function coordOnPointerDown(e) {
-        if(!coordEditModeActive || !coordPaintTool) return;
+        if(!coordEditModeActive) return;
+        if(!coordPaintTool) {
+            if(!coordSwapMode && e.pointerType === 'mouse' && e.button === 0) {
+                const t = e.target.closest('td[data-col]');
+                if(t) { applyEditModeDraggable(); t.setAttribute('draggable', 'true'); }
+            }
+            return;
+        }
         let td = e.target.closest('td[data-col]'); if(!td) return;
         e.preventDefault();
         coordPainting = true; coordPaintBatchEntries = []; coordPaintTouchedKeys = new Set();
@@ -3801,38 +4935,40 @@
         if(!coordPainting || !coordPaintTool) return;
         let el = document.elementFromPoint(e.clientX, e.clientY);
         let td = el ? el.closest('td[data-col]') : null; if(!td) return;
+        const key = cellKey(+td.dataset.row, +td.dataset.col);
+        if(coordPaintTouchedKeys.has(key)) return;
         paintOneCell(+td.dataset.row, +td.dataset.col);
     }
     function coordOnPointerUp() {
         if(!coordPainting) return;
         coordPainting = false;
-        if(coordPaintBatchEntries.length) pushUndo({ entries: coordPaintBatchEntries });
+        if(coordPaintBatchEntries.length) { pushUndo({ entries: coordPaintBatchEntries }); vibrate(); }
         coordPaintBatchEntries = []; coordPaintTouchedKeys = new Set();
+        scheduleNavCounts();
     }
     function coordOnDragStart(e) {
-        if(!coordEditModeActive) return;
+        if(!coordEditModeActive || coordPaintTool || coordSwapMode) return;
         let td = e.target.closest('td[data-col]'); if(!td) return;
         coordDragSource = { row:+td.dataset.row, col:+td.dataset.col };
         td.classList.add('coord-dragging');
         e.dataTransfer.effectAllowed = 'move';
-        try { e.dataTransfer.setData('text/plain','shift'); } catch(err){}
+        try { e.dataTransfer.setData('text/plain','shift'); } catch(err) {}
         coordColumnCellsCache = {};
         document.querySelectorAll(`#main-table td[data-col="${coordDragSource.col}"]`).forEach(t => { coordColumnCellsCache[+t.dataset.row] = t; });
         coordLastFillRange = null;
     }
-    function coordClearFillHighlight() { Object.values(coordColumnCellsCache).forEach(t=>t.classList.remove('coord-fillover')); }
+    function coordClearFillHighlight() { Object.values(coordColumnCellsCache).forEach(t => t.classList.remove('coord-fillover')); }
     function coordOnDragOver(e) {
         if(!coordEditModeActive || !coordDragSource) return;
         let td = e.target.closest('td[data-col]'); if(!td) return;
         e.preventDefault();
         let dest = { row:+td.dataset.row, col:+td.dataset.col };
         if(dest.col === coordDragSource.col) {
-            // stessa colonna: trascinamento verticale per estendere un turno su più giorni
             let lo = Math.min(coordDragSource.row, dest.row), hi = Math.max(coordDragSource.row, dest.row);
-            if(!coordLastFillRange || coordLastFillRange.lo!==lo || coordLastFillRange.hi!==hi) {
+            if(!coordLastFillRange || coordLastFillRange.lo !== lo || coordLastFillRange.hi !== hi) {
                 coordClearFillHighlight();
                 for(let r=lo; r<=hi; r++) { let t = coordColumnCellsCache[r]; if(t) t.classList.add('coord-fillover'); }
-                coordLastFillRange = {lo,hi};
+                coordLastFillRange = { lo, hi };
             }
             td.classList.remove('coord-dragover');
         } else {
@@ -3846,35 +4982,29 @@
         let td = e.target.closest('td[data-col]'); if(!td || !coordDragSource) return;
         td.classList.remove('coord-dragover'); coordClearFillHighlight();
         let dest = { row:+td.dataset.row, col:+td.dataset.col };
-        if(dest.row===coordDragSource.row && dest.col===coordDragSource.col) { coordDragSource=null; coordLastFillRange=null; return; }
+        if(dest.row === coordDragSource.row && dest.col === coordDragSource.col) { coordDragSource = null; coordLastFillRange = null; return; }
         if(dest.col === coordDragSource.col) performCoordFill(coordDragSource, dest);
         else performCoordSwap(coordDragSource, dest);
         coordDragSource = null; coordLastFillRange = null;
     }
     function coordOnDragEnd() {
-        document.querySelectorAll('#main-table td.coord-dragging').forEach(td=>td.classList.remove('coord-dragging'));
-        document.querySelectorAll('#main-table td.coord-dragover').forEach(td=>td.classList.remove('coord-dragover'));
+        document.querySelectorAll('#main-table td.coord-dragging').forEach(td => td.classList.remove('coord-dragging'));
+        document.querySelectorAll('#main-table td.coord-dragover').forEach(td => td.classList.remove('coord-dragover'));
         coordClearFillHighlight();
         coordDragSource = null; coordLastFillRange = null; coordColumnCellsCache = {};
-    }
-    function performCoordFill(source, dest) {
-        let lo = Math.min(source.row, dest.row), hi = Math.max(source.row, dest.row);
-        let cellSrc = finalData[source.row][source.col] || {};
-        let valSrc = { v: cellSrc.v||"", subV: cellSrc.subV||"", customMinutes: cellSrc.customMinutes };
-        let entries = [];
-        for(let r=lo; r<=hi; r++) {
-            if(!finalData[r]) continue;
-            let key = cellKey(r, source.col);
-            let prev = setOverride(key, valSrc);
-            entries.push({key, prev, next: valSrc});
-        }
-        pushUndo({ entries });
-        applyManualOverrides(); renderTable(); renderCoordSyncList(); vibrate();
+        applyEditModeDraggable();
     }
 
     function handleCellClick(rowIndex, colIdx, month, day, weekDay, cellValue) {
         if(coordEditModeActive) {
-            if(coordPaintTool) return; // il tocco è già gestito dal pennello (pointerdown/pointermove)
+            if(coordPaintTool) return; // gestito dal pennello (pointerdown/pointermove)
+            if(coordSwapMode) {
+                if(!coordSwapFirst) { coordSwapFirst = { row: rowIndex, col: colIdx }; markSelectedCell(rowIndex, colIdx); vibrate(); }
+                else if(coordSwapFirst.row === rowIndex && coordSwapFirst.col === colIdx) { coordSwapFirst = null; coordSelectedCell = null; clearSelectedCellVisual(); }
+                else { const a = coordSwapFirst; coordSwapFirst = null; coordSelectedCell = null; performCoordSwap(a, { row: rowIndex, col: colIdx }); }
+                updateCoordToolbarState();
+                return;
+            }
             markSelectedCell(rowIndex, colIdx); openShiftEditPopup(colIdx, rowIndex); return;
         }
         let hasSub = (finalData[rowIndex] && finalData[rowIndex][colIdx] && finalData[rowIndex][colIdx].subV) ? finalData[rowIndex][colIdx].subV.toString().trim() : "";
@@ -3882,40 +5012,45 @@
         openShiftModal(rowIndex, cellValue, month, day, weekDay);
     }
 
-    function swatchStyle(colors) { return colors ? `--btn-bg:var(${colors.bg});--btn-fg:var(${colors.fg});` : ''; }
+    // ── Editor della singola cella ──────────────────────────────────────────
+    function swatchStyle(colors) { return colors ? `--sw:var(${colors.bg});--sf:var(${colors.fg});` : ''; }
     function openShiftEditPopup(colIdx, rowIdx) {
         coordEditPopupTarget = { row: rowIdx, col: colIdx };
-        let d = getDriverByIdx(colIdx);
-        let mName = finalData[rowIdx][0].v; let dNum = finalData[rowIdx][1].v;
-        document.getElementById('sep-title').innerText = `${d?d.name:''} — ${dNum} ${mName?(mName.charAt(0)+mName.slice(1).toLowerCase()):''}`;
-        const labelFor = c => ({M:"Mattina (M)",P:"Pomeriggio (P)",N:"Notte (N)",SM:"Smonto (SM)",R:"Riposo (R)"}[c] || c);
-        let html = '<div class="sep-group-label">Turni standard</div>';
-        STANDARD_CODES.forEach(c => { html += `<button class="sep-btn" style="${swatchStyle(MAIN_CODE_COLORS[c])}" onclick="applyShiftChoice('${c}','')"><span><span class="sep-swatch"></span>${labelFor(c)}</span><small>${SCHEDULE[c]||''}</small></button>`; });
-        html += '<div class="sep-group-label">Turni diurni</div>';
-        DIURNI_CODES.forEach(c => { html += `<button class="sep-btn" style="${swatchStyle(MAIN_CODE_COLORS[c.toUpperCase()])}" onclick="applyShiftChoice('${c}','')"><span><span class="sep-swatch dashed"></span>${c} (diurno)</span><small>${SCHEDULE_DIURNI[c]||''}</small></button>`; });
-        html += `<div class="sep-group-label">Combinato</div><button class="sep-btn" onclick="applyShiftChoice('M+N','')"><span><span class="sep-swatch" style="--btn-bg:var(--c-N);"></span>Mattina + Notte</span><small>${SCHEDULE['M']} / ${SCHEDULE['N']}</small></button>`;
-        html += '<div class="sep-group-label">Assenze / permessi</div>';
-        Object.entries(SPECIAL_SUBCODES).filter(([k])=>k!=='gr').forEach(([k,label]) => { html += `<button class="sep-btn" style="${swatchStyle(SUB_CODE_COLORS[k])}" onclick="applyShiftChoice('','${k}')"><span><span class="sep-swatch"></span>${label}</span></button>`; });
-        html += `<div class="sep-group-label">Altro</div><button class="sep-btn clear-btn" onclick="applyShiftChoice(null,null)"><span><span class="material-icons-round" style="font-size:16px;">backspace</span>Vuoto / Cancella turno</span></button>`;
-        document.getElementById('sep-grid').innerHTML = html;
-        let m = document.getElementById('shift-edit-popup'); m.style.display='flex';
-        setTimeout(()=>m.classList.add('open'),10);
+        const d = getDriverByIdx(colIdx);
+        const mName = finalData[rowIdx][0].v; const dNum = finalData[rowIdx][1].v;
+        const dt = new Date(SHIFT_YEAR, MONTH_MAP[mName], parseInt(dNum));
+        document.getElementById('sep-title').textContent = d ? d.name : '';
+        const info = computeDayInfo(rowIdx, colIdx);
+        const cell = finalData[rowIdx][colIdx] || {};
+        const curV = (cell.v || '').toString().trim(), curSub = (cell.subV || '').toString().trim().toLowerCase();
+        document.getElementById('sep-sub').textContent = dt.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }) + ' \u00b7 attuale: ' + (info.label || 'vuoto') + (cell.overridden ? ' (modificato)' : '');
+        const items = wheelPaletteItems();
+        const group = (title, arr) => `<div class="sep-group-label">${title}</div><div class="sep-row">${arr.map(it => {
+            const isCur = it.subV ? (curSub === it.subV) : (!SPECIAL_SUBCODES[curSub] && curV === it.v);
+            return `<button class="sep-btn ${isCur?'current':''}" onclick="applyShiftChoice('${it.v}','${it.subV}')"><span class="cc-code" style="${swatchStyle(it.colors)}">${esc(it.short)}</span><span>${esc(it.label)}${it.time?`<small>${esc(it.time)}</small>`:''}</span></button>`;
+        }).join('')}</div>`;
+        document.getElementById('sep-grid').innerHTML =
+            group('Turni', items.filter(i => i.group === 0)) +
+            group('Diurni e combinati', items.filter(i => i.group === 1)) +
+            group('Assenze e permessi', items.filter(i => i.group === 2));
+        const m = document.getElementById('shift-edit-popup'); m.style.display = 'flex';
+        requestAnimationFrame(() => m.classList.add('open'));
     }
     function closeShiftEditPopup(e) {
         if(e && e.target !== e.currentTarget) return;
-        let m = document.getElementById('shift-edit-popup'); m.classList.remove('open');
-        setTimeout(()=>m.style.display='none',250); coordEditPopupTarget=null;
+        const m = document.getElementById('shift-edit-popup'); m.classList.remove('open');
+        setTimeout(() => { if(!m.classList.contains('open')) m.style.display = 'none'; }, 150);
+        coordEditPopupTarget = null;
     }
     function applyShiftChoice(v, subV) {
         if(!coordEditPopupTarget) return; vibrate();
-        let { row, col } = coordEditPopupTarget;
-        let key = cellKey(row, col);
-        let next = (v===null && subV===null) ? { v:"", subV:"" } : { v: v||"", subV: subV||"" };
-        let prev = setOverride(key, next);
-        pushUndo({ entries:[{key, prev, next}] });
-        applyManualOverrides(); renderTable(); renderCoordSyncList(); closeShiftEditPopup();
+        const { row, col } = coordEditPopupTarget;
+        const key = cellKey(row, col);
+        const next = (v === null && subV === null) ? { v:"", subV:"" } : { v: v || "", subV: subV || "" };
+        const prev = setOverride(key, next);
+        pushUndo({ entries:[{ key, prev, next }] });
+        afterCoordChange([key]); closeShiftEditPopup();
     }
-
     function describeOverrideValue(ov) {
         if(!ov) return "vuoto";
         if(ov.customMinutes) return `STRAORDINARIO ${ov.customMinutes}h`;
@@ -3923,41 +5058,207 @@
         return ov.v || "vuoto";
     }
     function describeRawExcelValue(orig, dateStr) {
-        let idx1 = dateStr.lastIndexOf('-'); let mName = dateStr.substring(0,idx1); let dNum = dateStr.substring(idx1+1);
+        let idx1 = dateStr.lastIndexOf('-'); let mName = dateStr.substring(0, idx1); let dNum = dateStr.substring(idx1 + 1);
         let headerRaw = rawFinalData[0]; let idx = headerRaw ? headerRaw.indexOf(orig) : -1;
-        if(idx===-1) return "vuoto (excel)";
+        if(idx === -1) return "vuoto (excel)";
         for(let r=1; r<rawFinalData.length; r++) {
             let row = rawFinalData[r];
-            if(row[0].v===mName && String(parseInt(row[1].v))===String(parseInt(dNum))) {
-                let c = row[idx]||{};
-                let sub = (c.subV||"").toString().trim().toLowerCase();
+            if(row[0].v === mName && String(parseInt(row[1].v)) === String(parseInt(dNum))) {
+                let c = row[idx] || {};
+                let sub = (c.subV || "").toString().trim().toLowerCase();
                 if(sub && SPECIAL_SUBCODES[sub]) return SPECIAL_SUBCODES[sub];
-                return (c.v||"").toString().trim() || "vuoto (excel)";
+                return (c.v || "").toString().trim() || "vuoto (excel)";
             }
         }
         return "vuoto (excel)";
     }
-    function coordConfirmChanges() {
-        vibrate();
-        coordEditBaseline = JSON.parse(JSON.stringify(manualOverrides));
-        coordUndoStack = []; coordRedoStack = []; updateCoordToolbarState();
-        persistCoordState(); renderCoordSyncList();
-        alert('Modifiche salvate e visibili a tutti. Ricordati di riportarle anche sul file Excel dalla sezione "Da Riportare" in Area Coordinatore.');
+
+    // ═══ RUOTA STRUMENTI ══════════════════════════════════════════════════
+    const WHEEL_ACTIONS = [
+        { id:'select',  icon:'arrow_selector_tool', label:'Seleziona',  hint:'apre l\u2019editor della cella' },
+        { id:'swap',    icon:'swap_horiz',          label:'Scambia',    hint:'tocca due celle' },
+        { id:'erase',   icon:'ink_eraser',          label:'Gomma',      hint:'svuota le celle' },
+        { id:'undo',    icon:'undo',                label:'Annulla',    hint:'Ctrl+Z' },
+        { id:'redo',    icon:'redo',                label:'Ripeti',     hint:'Ctrl+Y' },
+        { id:'save',    icon:'save',                label:'Salva',      hint:'rende visibili a tutti' },
+        { id:'discard', icon:'restart_alt',         label:'Scarta',     hint:'torna all\u2019ultimo salvataggio' },
+        { id:'exit',    icon:'logout',              label:'Esci',       hint:'chiude la modalità modifica' }
+    ];
+    function wheelPaletteItems() {
+        const items = [];
+        STANDARD_CODES.forEach(c => items.push({ v:c, subV:'', short:c, label:SHIFT_NAMES[c] || c, time:SCHEDULE[c] && SCHEDULE[c] !== 'RIPOSO' ? SCHEDULE[c] : '', colors:MAIN_CODE_COLORS[c], group:0 }));
+        DIURNI_CODES.forEach(c => items.push({ v:c, subV:'', short:c, label:SHIFT_NAMES[c] || c, time:SCHEDULE_DIURNI[c] && SCHEDULE_DIURNI[c] !== 'RIPOSO' ? SCHEDULE_DIURNI[c] : '', colors:MAIN_CODE_COLORS[c.toUpperCase()], group:1, dashed:true }));
+        items.push({ v:'M+N', subV:'', short:'M+N', label:SHIFT_NAMES['M+N'], time:`${SCHEDULE.M} e ${SCHEDULE.N}`, colors:MAIN_CODE_COLORS.N, group:1 });
+        Object.keys(SPECIAL_SUBCODES).filter(k => k !== 'gr').forEach(k => {
+            const lbl = SPECIAL_SUBCODES[k]; const nice = lbl.charAt(0) + lbl.slice(1).toLowerCase().replace('(c.o.)','(C.O.)').replace('coord.','coordinatore');
+            items.push({ v:'', subV:k, short:ABS_SHORT[k], label:nice, colors:SUB_CODE_COLORS[k], group:2 });
+        });
+        return items;
     }
-    function coordResetChanges() {
-        if(!confirm('Annullare tutte le modifiche non ancora confermate?')) return; vibrate();
-        manualOverrides = JSON.parse(JSON.stringify(coordEditBaseline));
-        coordUndoStack = []; coordRedoStack = []; updateCoordToolbarState();
-        applyManualOverrides(); renderTable(); renderCoordSyncList();
+    function annularSector(cx, cy, r0, r1, a0, a1) {
+        const p = (r, a) => { const t = (a - 90) * Math.PI / 180; return [(cx + r*Math.cos(t)).toFixed(2), (cy + r*Math.sin(t)).toFixed(2)]; };
+        const large = (a1 - a0) > 180 ? 1 : 0;
+        const [x1,y1] = p(r1,a0), [x2,y2] = p(r1,a1), [x3,y3] = p(r0,a1), [x4,y4] = p(r0,a0);
+        return `M${x1} ${y1}A${r1} ${r1} 0 ${large} 1 ${x2} ${y2}L${x3} ${y3}A${r0} ${r0} 0 ${large} 0 ${x4} ${y4}Z`;
     }
+    function polar(cx, cy, r, a) { const t = (a - 90) * Math.PI / 180; return [cx + r*Math.cos(t), cy + r*Math.sin(t)]; }
+    // Costruisce la ruota: anello interno = strumenti, anello esterno = turni e assenze.
+    function buildWheelMarkup(size, preview) {
+        const S = size, c = S/2, k = S/300;
+        const rIn0 = 42*k, rIn1 = 88*k, rOut0 = 93*k, rOut1 = 147*k;
+        const items = wheelPaletteItems();
+        const t = currentToolInfo();
+        let paths = `<circle class="tw-back" cx="${c}" cy="${c}" r="${rOut1+1.5*k}"/>`, labels = '';
+        // anello interno
+        const nA = WHEEL_ACTIONS.length, stepA = 360 / nA;
+        WHEEL_ACTIONS.forEach((a, i) => {
+            const a0 = i*stepA - stepA/2 + 0.8, a1 = (i+1)*stepA - stepA/2 - 0.8;
+            let st = '';
+            if(!preview) {
+                if((a.id === 'select' && t.key === 'select') || (a.id === 'swap' && t.key === 'swap') || (a.id === 'erase' && t.key === 'erase')) st = 'on';
+                if((a.id === 'undo' && !coordUndoStack.length) || (a.id === 'redo' && !coordRedoStack.length) || ((a.id === 'save' || a.id === 'discard') && !pendingChangesCount())) st = 'off';
+            }
+            paths += `<path class="tw-seg act ${st}" data-kind="act" data-id="${a.id}" d="${annularSector(c,c,rIn0,rIn1,a0,a1)}"><title>${esc(a.label)}</title></path>`;
+            const [x,y] = polar(c, c, (rIn0+rIn1)/2, i*stepA);
+            labels += `<span class="tw-lbl ico ${st}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px"><span class="msym" style="font-size:${Math.round(20*k)}px">${a.icon}</span></span>`;
+        });
+        // anello esterno, con uno stacco tra i gruppi
+        const groups = [0,1,2].map(g => items.filter(it => it.group === g));
+        const gap = 5, pad = 0.9;
+        const step = (360 - gap*groups.length) / items.length;
+        let ang = -step/2 - gap/2;
+        groups.forEach(g => {
+            ang += gap/2;
+            g.forEach(it => {
+                const a0 = ang + pad/2, a1 = ang + step - pad/2;
+                const sel = !preview && coordPaintTool && !coordPaintTool.clear && coordPaintTool.v === it.v && coordPaintTool.subV === it.subV;
+                const fill = it.colors ? `var(${it.colors.bg})` : '#999';
+                const idx = items.indexOf(it);
+                paths += `<path class="tw-seg ${sel?'sel':''}" data-kind="pal" data-i="${idx}" d="${annularSector(c,c,rOut0,rOut1,a0,a1)}" style="fill:${fill}"><title>${esc(it.label)}</title></path>`;
+                const [x,y] = polar(c, c, (rOut0+rOut1)/2, (a0+a1)/2);
+                const fg = it.colors ? `var(${it.colors.fg})` : '#fff';
+                labels += `<span class="tw-lbl ${it.dashed?'dashed':''}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;color:${fg};font-size:${Math.max(9, Math.round((it.short.length>2?10:11.5)*k))}px">${esc(it.short)}</span>`;
+                ang += step;
+            });
+            ang += gap/2;
+        });
+        const svg = `<svg viewBox="0 0 ${S} ${S}" width="${S}" height="${S}" aria-hidden="${preview?'true':'false'}">${paths}</svg><div class="tw-labels">${labels}</div>`;
+        if(!preview) return svg;
+        // anteprima statica per la console
+        const hubR = 34*k;
+        return `<div class="cc-scope" style="position:relative;width:${S}px;height:${S}px;pointer-events:none">${svg.replace('<svg ', '<svg style="filter:none" ')}<div style="position:absolute;left:50%;top:50%;width:${hubR*2}px;height:${hubR*2}px;margin:-${hubR}px 0 0 -${hubR}px;border-radius:50%;background:var(--cc-surface);border:3px solid var(--cc-ink);display:flex;align-items:center;justify-content:center;font:500 11px/1.1 var(--cc-font);color:var(--cc-muted);text-align:center">centro</div></div>`;
+    }
+    function twRender() {
+        const ring = document.getElementById('tw-ring'); if(!ring) return;
+        const wheel = document.getElementById('tool-wheel');
+        wheel.classList.toggle('collapsed', !twExpanded);
+        if(twExpanded) {
+            ring.innerHTML = buildWheelMarkup(300, false);
+            ring.querySelectorAll('path.tw-seg').forEach(p => {
+                p.addEventListener('click', twOnSegmentClick);
+                p.addEventListener('pointerenter', () => { twHover = p; twCaption(); });
+                p.addEventListener('pointerleave', () => { if(twHover === p) twHover = null; twCaption(); });
+            });
+        }
+        // centro
+        const t = currentToolInfo(); const sw = document.getElementById('tw-hub-sw');
+        if(t.key === 'paint' && t.item) { sw.className = 'tw-hub-sw'; sw.setAttribute('style', swatchStyle(t.item.colors)); sw.textContent = t.item.short; }
+        else { sw.className = 'tw-hub-sw plain'; sw.removeAttribute('style'); const ic = { select:'arrow_selector_tool', swap:'swap_horiz', erase:'ink_eraser' }[t.key]; sw.innerHTML = `<span class="msym">${ic}</span>`; }
+        twCaption();
+    }
+    function twCaption() {
+        const cap = document.getElementById('tw-caption'); if(!cap) return;
+        if(twHover) {
+            if(twHover.dataset.kind === 'act') { const a = WHEEL_ACTIONS.find(x => x.id === twHover.dataset.id); cap.innerHTML = `${esc(a.label)}<small>${esc(a.hint)}</small>`; return; }
+            const it = wheelPaletteItems()[+twHover.dataset.i]; cap.innerHTML = `${esc(it.label)}${it.time?`<small>${esc(it.time)}</small>`:''}`; return;
+        }
+        const t = currentToolInfo();
+        cap.innerHTML = `${esc(t.name)}<small>${esc(t.hint)}</small>`;
+    }
+    function twOnSegmentClick(e) {
+        const p = e.currentTarget;
+        if(p.dataset.kind === 'pal') { const it = wheelPaletteItems()[+p.dataset.i]; twHover = null; setCoordTool('paint', it.v, it.subV); return; }
+        const id = p.dataset.id;
+        if(id === 'select' || id === 'swap' || id === 'erase') { twHover = null; setCoordTool(id); }
+        else if(id === 'undo') coordUndo();
+        else if(id === 'redo') coordRedo();
+        else if(id === 'save') { if(pendingChangesCount()) coordConfirmChanges(); }
+        else if(id === 'discard') coordResetChanges();
+        else if(id === 'exit') exitCoordEdit();
+    }
+    function twDefaultPos() { return { x: window.innerWidth - 60, y: window.innerHeight - 120 }; }
+    function twLoadPos() {
+        if(twPos) return twPos;
+        try { const p = JSON.parse(localStorage.getItem(WHEEL_POS_KEY)); if(p && isFinite(p.x) && isFinite(p.y)) twPos = p; } catch(e) {}
+        if(!twPos) twPos = twDefaultPos();
+        return twPos;
+    }
+    function twClamp(p, expanded) {
+        const W = window.innerWidth, H = window.innerHeight;
+        const r = expanded ? 150 : 34, top = expanded ? 158 : 40, bottom = expanded ? 216 : 100;
+        const x = W < r*2 + 16 ? W/2 : Math.min(Math.max(p.x, r + 8), W - r - 8);
+        const y = H < top + bottom ? H/2 : Math.min(Math.max(p.y, top + (expanded ? 0 : 20)), H - bottom);
+        return { x, y };
+    }
+    function twPlace() {
+        const wheel = document.getElementById('tool-wheel'); if(!wheel) return;
+        const p = twClamp(twLoadPos(), twExpanded);
+        wheel.style.transform = `translate(${Math.round(p.x - 150)}px, ${Math.round(p.y - 150)}px)`;
+        wheel.classList.toggle('caption-top', p.y > window.innerHeight - 230);
+    }
+    function twResetPosition() { twPos = twDefaultPos(); localStorage.removeItem(WHEEL_POS_KEY); twPlace(); ccToast('Ruota riportata in basso a destra'); }
+    (function setupToolWheelDrag() {
+        const hub = document.getElementById('tw-hub'); if(!hub) return;
+        let start = null;
+        hub.addEventListener('pointerdown', e => {
+            e.preventDefault();
+            const p = twClamp(twLoadPos(), twExpanded);
+            start = { x:e.clientX, y:e.clientY, px:p.x, py:p.y, moved:false, id:e.pointerId };
+            try { hub.setPointerCapture(e.pointerId); } catch(err) {}
+        });
+        hub.addEventListener('pointermove', e => {
+            if(!start || e.pointerId !== start.id) return;
+            const dx = e.clientX - start.x, dy = e.clientY - start.y;
+            if(!start.moved && Math.hypot(dx, dy) < 6) return;
+            start.moved = true;
+            twPos = { x: start.px + dx, y: start.py + dy };
+            twPlace();
+        });
+        const end = e => {
+            if(!start || (e && e.pointerId !== start.id)) return;
+            const s = start; start = null;
+            if(s.moved) { twPos = twClamp(twPos, twExpanded); localStorage.setItem(WHEEL_POS_KEY, JSON.stringify(twPos)); twPlace(); }
+            else { twExpanded = !twExpanded; twHover = null; twRender(); twPlace(); vibrate(); }
+        };
+        hub.addEventListener('pointerup', end);
+        hub.addEventListener('pointercancel', () => { start = null; });
+        hub.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); twExpanded = !twExpanded; twRender(); twPlace(); } });
+    })();
+    window.addEventListener('resize', () => { if(coordEditModeActive) twPlace(); });
+    document.addEventListener('keydown', e => {
+        if(e.key !== 'Escape') return;
+        if(document.getElementById('cc-dialog').classList.contains('open')) { e.preventDefault(); ccDialogResolve(null); return; }
+        if(document.getElementById('shift-edit-popup').classList.contains('open')) { e.preventDefault(); closeShiftEditPopup(); return; }
+        const cc = document.getElementById('coord-console');
+        if(cc.classList.contains('open') && !(document.activeElement && document.activeElement.closest && document.activeElement.closest('.cc-op-name'))) { e.preventDefault(); closeCoordConsole(); }
+    });
+
 
     // ── renderTable ───────────────────────────────────────────────────────────
-    function renderTable() {
-        const thead = document.getElementById('table-head'); const tbody = document.getElementById('table-body');
-        thead.innerHTML = ""; tbody.innerHTML = "";
-        let cols = (selectedDrivers.size === 0) ? drivers : drivers.filter(d => selectedDrivers.has(d.idx));
-        let thD = document.createElement('th'); thD.innerText = "DATA"; thead.appendChild(thD);
-        cols.forEach(d => {
+    // Costruita fuori dal DOM (DocumentFragment) e in un solo inserimento: prima i
+    // mesi venivano aggiunti con tbody.innerHTML += che ricreava l'intera tabella
+    // dodici volte. Le modifiche del coordinatore ridisegnano solo le righe toccate.
+    const RT_WEEKDAY_FMT = new Intl.DateTimeFormat('it-IT', { weekday:'short' });
+    let rtCols = [];
+    function rtVisibleCols() {
+        const visibleDrivers = drivers.filter(d => !d.hidden);
+        return (selectedDrivers.size === 0) ? visibleDrivers : visibleDrivers.filter(d => selectedDrivers.has(d.idx));
+    }
+    function renderTableHead() {
+        const thead = document.getElementById('table-head'); if(!thead) return;
+        const frag = document.createDocumentFragment();
+        let thD = document.createElement('th'); thD.innerText = "DATA"; frag.appendChild(thD);
+        rtCols.forEach(d => {
             let th = document.createElement('th'); th.innerText = d.name;
             if(coordEditModeActive) {
                 let delta = computeDriverBalance(d.idx);
@@ -3977,63 +5278,90 @@
                     th.appendChild(icon);
                 }
             }
-            thead.appendChild(th);
+            frag.appendChild(th);
         });
+        thead.innerHTML = ""; thead.appendChild(frag);
+    }
+    function buildDayRow(i, today) {
+        const year = 2026;
+        let row = finalData[i]; let mName = row[0].v; let dNum = parseInt(row[1].v);
+        let tr = document.createElement('tr'); tr.dataset.row = i;
+        let mIdx = MONTH_MAP[mName]; let dateObj = new Date(year, mIdx, dNum);
+        let dayWeek = RT_WEEKDAY_FMT.format(dateObj).toUpperCase(); let dayIdx = dateObj.getDay();
+        let holKey = `${mIdx}-${dNum}`; let holidayName = HOLIDAYS[holKey]; let isRed = (dayIdx===0||dayIdx===6||holidayName);
+        let dateClass = isRed ? "td-date date-red" : "td-date";
+        if(mIdx === today.getMonth() && dNum === today.getDate() && today.getFullYear() === year) { tr.className = "today"; tr.id = "today-row"; }
 
-        let currentMonth = ""; globalMonthsList = []; let year = 2026; const today = new Date();
+        // conta M e P per il riepilogo giornaliero (sempre visibile) e per "Graziella"
+        let countM = 0, countP = 0;
+        drivers.forEach(d => {
+            let v = (row[d.idx]?.v || "").toString().trim();
+            if(isRepStr(v)) { let si = v.indexOf('/'); if(si !== -1) v = v.substring(0, si).trim(); }
+            let u = v.toUpperCase().replace(/\s+/g,'');
+            if(u === "M" || u === "M+N" || u === "MN") countM++;
+            if(u === "P") countP++;
+        });
+        let hasGraziellaM = countM === 3, hasGraziellaP = countP === 3;
+
+        // Solo mattina/pomeriggio nella colonna data: se uno dei due arriva a 3
+        // lampeggia in rosso come avviso. La notte non viene più mostrata qui.
+        const mClass = countM === 3 ? 'dsc-m dsc-alert-3' : 'dsc-m';
+        const pClass = countP === 3 ? 'dsc-p dsc-alert-3' : 'dsc-p';
+        let html = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="${mClass}" title="Operatori mattina">M<b>${countM}</b></span><span class="${pClass}" title="Operatori pomeriggio">P<b>${countP}</b></span></div></td>`;
+
+        let prevRow = finalData[i-1];
+        rtCols.forEach(d => {
+            let cellInfo = row[d.idx] || { v:"", subV:"" };
+            let prevCellInfo = prevRow ? prevRow[d.idx] : null;
+            let v = (cellInfo.v || "").toString().trim();
+            if(isRepStr(v)) { let si = v.indexOf('/'); if(si !== -1) v = v.substring(0, si).trim(); }
+            let uVal = v.toUpperCase();
+            let showGraziella = (uVal==="M" && hasGraziellaM) || (uVal==="P" && hasGraziellaP);
+            let rawVal = (cellInfo.v || "").toString().trim();
+            const orig = String(d.originalName || d.name).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+            const click = `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+            const sel = coordEditModeActive && coordSelectedCell && coordSelectedCell.row === i && coordSelectedCell.col === d.idx;
+            html += `<td${sel?' class="coord-selected"':''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${formatCell(cellInfo, prevCellInfo, showGraziella)}</td>`;
+        });
+        tr.innerHTML = html;
+        return tr;
+    }
+    function renderTable() {
+        const tbody = document.getElementById('table-body');
+        rtCols = rtVisibleCols();
+        renderTableHead();
+        const frag = document.createDocumentFragment();
+        let currentMonth = ""; globalMonthsList = []; const today = new Date();
         for(let i = 1; i < finalData.length; i++) {
-            let row = finalData[i]; let mName = row[0].v; let dNum = parseInt(row[1].v);
+            let mName = finalData[i][0].v;
             if(mName && mName !== currentMonth) {
                 currentMonth = mName; let mId = "m-" + i; globalMonthsList.push({name:mName,id:mId});
-                tbody.innerHTML += `<tr class="month-header" id="${mId}"><td colspan="${cols.length+1}"><div class="sticky-month-text"><span class="month-label">${mName}</span><span class="live-clock"></span></div></td></tr>`;
+                let mh = document.createElement('tr'); mh.className = 'month-header'; mh.id = mId;
+                mh.innerHTML = `<td colspan="${rtCols.length+1}"><div class="sticky-month-text"><span class="month-label">${mName}</span><span class="live-clock"></span></div></td>`;
+                frag.appendChild(mh);
             }
-            let tr = document.createElement('tr'); let mIdx = MONTH_MAP[currentMonth]; let dateObj = new Date(year, mIdx, dNum);
-            let dayWeek = dateObj.toLocaleDateString('it-IT',{weekday:'short'}).toUpperCase(); let dayIdx = dateObj.getDay();
-            let holKey = `${mIdx}-${dNum}`; let holidayName = HOLIDAYS[holKey]; let isRed = (dayIdx===0||dayIdx===6||holidayName);
-            let dateClass = isRed ? "td-date date-red" : "td-date";
-            if(mIdx === today.getMonth() && dNum === today.getDate() && today.getFullYear() === year) { tr.className = "today"; tr.id = "today-row"; }
-
-            // conta M e P per il riepilogo giornaliero (sempre visibile) e per "Graziella"
-            let countM = 0, countP = 0;
-            drivers.forEach(d => {
-                let v = (row[d.idx]?.v || "").toString().trim();
-                if(isRepStr(v)) { let si = v.indexOf('/'); if(si !== -1) v = v.substring(0, si).trim(); }
-                let u = v.toUpperCase().replace(/\s+/g,'');
-                if(u === "M" || u === "M+N" || u === "MN") countM++;
-                if(u === "P") countP++;
-            });
-            let hasGraziellaM = countM === 3, hasGraziellaP = countP === 3;
-
-            // Solo mattina/pomeriggio nella colonna data: se uno dei due arriva a 3
-            // lampeggia in rosso come avviso. La notte non viene più mostrata qui.
-            const mClass = countM === 3 ? 'dsc-m dsc-alert-3' : 'dsc-m';
-            const pClass = countP === 3 ? 'dsc-p dsc-alert-3' : 'dsc-p';
-            tr.innerHTML = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="${mClass}" title="Operatori mattina">M<b>${countM}</b></span><span class="${pClass}" title="Operatori pomeriggio">P<b>${countP}</b></span></div></td>`;
-
-            cols.forEach(d => {
-                let cellInfo = row[d.idx];
-                let prevRow = finalData[i-1];
-                let prevCellInfo = prevRow ? prevRow[d.idx] : null;
-                let v = (cellInfo.v || "").toString().trim();
-                if(isRepStr(v)) { let si = v.indexOf('/'); if(si !== -1) v = v.substring(0, si).trim(); }
-                let uVal = v.toUpperCase();
-                let showGraziella = (uVal==="M" && hasGraziellaM) || (uVal==="P" && hasGraziellaP);
-                let td = document.createElement('td');
-                td.innerHTML = formatCell(cellInfo, prevCellInfo, showGraziella);
-                let rawVal = (cellInfo.v || "").toString().trim();
-                td.dataset.row = i; td.dataset.col = d.idx; td.dataset.month = mName; td.dataset.day = dNum; td.dataset.orig = d.originalName || d.name;
-                td.setAttribute("onclick", `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/'/g,"\\'")}')`);
-                tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
+            frag.appendChild(buildDayRow(i, today));
         }
-        if(coordEditModeActive) {
-            applyEditModeDraggable();
-            if(coordSelectedCell) {
-                let t = document.querySelector(`#main-table td[data-row="${coordSelectedCell.row}"][data-col="${coordSelectedCell.col}"]`);
-                if(t) t.classList.add('coord-selected');
-            }
+        tbody.innerHTML = ""; tbody.appendChild(frag);
+    }
+    // Ridisegna soltanto i giorni indicati (e il giorno dopo ciascuno, perché
+    // smonto/diurni dipendono dal giorno precedente). Le intestazioni col saldo ore
+    // si aggiornano a parte, raggruppate, per non rallentare il trascinamento.
+    function renderTableRows(rowSet) {
+        const tbody = document.getElementById('table-body'); if(!tbody || !rtCols.length) { renderTable(); return; }
+        const rows = new Set();
+        rowSet.forEach(r => { r = +r; if(r >= 1 && r < finalData.length) rows.add(r); if(r + 1 < finalData.length) rows.add(r + 1); });
+        const today = new Date();
+        for(const r of rows) {
+            const old = tbody.querySelector(`tr[data-row="${r}"]`);
+            if(!old) { renderTable(); return; }
+            old.replaceWith(buildDayRow(r, today));
         }
+    }
+    let rtHeadTimer = null;
+    function scheduleTableHeadRefresh(delay) {
+        clearTimeout(rtHeadTimer);
+        rtHeadTimer = setTimeout(() => { rtHeadTimer = null; renderTableHead(); }, delay == null ? 250 : delay);
     }
 
     // ── formatCell ────────────────────────────────────────────────────────────
@@ -4576,8 +5904,8 @@
         'admin-login-modal': closeAdminLoginModal,
         'admin-panel-modal': closeAdminPanel,
         'hours-modal': closeHoursModal,
-        'coord-login-modal': closeCoordLoginModal,
-        'coord-panel-modal': closeCoordPanel,
+        'cc-dialog': closeCcDialog,
+        'coord-console': closeCoordConsole,
         'shift-edit-popup': closeShiftEditPopup,
         'ai-advice-popup': closeAiAdvicePopup,
         'access-detail-modal': closeAccessDetail,
