@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_downward,arrow_selector_tool,arrow_upward,balance,calendar_month,check,check_circle,chevron_left,chevron_right,close,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,group,hourglass_top,ink_eraser,login,logout,person_add,person_remove,redo,restart_alt,save,schedule,search,settings,space_dashboard,swap_horiz,task_alt,undo,verified,visibility_off,warning&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,balance,calendar_month,check,check_circle,chevron_left,chevron_right,close,delete,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,group,hourglass_top,ink_eraser,login,logout,open_with,person_add,person_remove,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,save,schedule,search,settings,space_dashboard,swap_horiz,task_alt,today,tune,undo,verified,visibility_off,warning&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -881,7 +881,7 @@
         .tw-lbl.ico.off { opacity:.3; }
         .tw-lbl.ico.on { color:#fff; }
         .tw-lbl.dashed::after { content:""; display:block; width:12px; margin:2px auto 0; border-top:1.5px dashed currentColor; opacity:.8; }
-        .tw-hub { position:absolute; left:50%; top:50%; width:72px; height:72px; margin:-36px 0 0 -36px; border-radius:50%; border:3px solid var(--cc-ink); background:var(--cc-surface); color:var(--cc-text); pointer-events:auto; cursor:grab; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; box-shadow:0 0 0 1px var(--cc-line), 0 6px 16px rgba(12,18,26,.25); padding:0; transition:width .15s, height .15s, margin .15s; font-family:var(--cc-font); }
+        .tw-hub { position:absolute; left:50%; top:50%; width:var(--tw-hub,72px); height:var(--tw-hub,72px); margin:calc(var(--tw-hub,72px) / -2) 0 0 calc(var(--tw-hub,72px) / -2); border-radius:50%; border:3px solid var(--cc-ink); background:var(--cc-surface); color:var(--cc-text); pointer-events:auto; cursor:grab; touch-action:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; box-shadow:0 0 0 1px var(--cc-line), 0 6px 16px rgba(12,18,26,.25); padding:0; transition:width .15s, height .15s, margin .15s; font-family:var(--cc-font); }
         .tw-hub:active { cursor:grabbing; }
         #tool-wheel.collapsed .tw-hub { width:60px; height:60px; margin:-30px 0 0 -30px; border-color:var(--cc-ink); }
         .tw-hub-sw { width:30px; height:18px; border-radius:3px; background:var(--sw, transparent); color:var(--sf, var(--cc-text)); font:600 11px/18px var(--cc-font-c); text-align:center; border:1px solid rgba(0,0,0,.1); display:flex; align-items:center; justify-content:center; }
@@ -916,7 +916,60 @@
         .sep-btn:hover { border-color:var(--cc-accent); background:var(--cc-accent-soft); }
         .sep-btn.current { border-color:var(--cc-accent); box-shadow:inset 0 0 0 1px var(--cc-accent); }
         .sep-btn small { display:block; color:var(--cc-muted); font-size:11.5px; font-weight:400; font-variant-numeric:tabular-nums; }
-        .sep-foot { display:flex; justify-content:space-between; gap:8px; padding:12px 16px; border-top:1px solid var(--cc-line-2); background:var(--cc-surface-2); border-radius:0 0 var(--cc-r) var(--cc-r); }
+        .sep-foot { display:flex; justify-content:space-between; gap:8px; padding:12px 16px; border-top:1px solid var(--cc-line-2); background:var(--cc-surface-2); border-radius:0 0 var(--cc-r) var(--cc-r); flex-wrap:wrap; }
+
+        /* ══ Editor reperibilità (fasce) ═══════════════════════════════════ */
+        #rep-edit-popup { display:none; position:fixed; inset:0; z-index:9750; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .14s; }
+        #rep-edit-popup.open { opacity:1; }
+        .rep-ed-row { display:grid; grid-template-columns:118px 1fr; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--cc-line-2); }
+        .rep-ed-row:last-child { border-bottom:none; }
+        .rep-ed-row label { font:500 13px/1.25 var(--cc-font); color:var(--cc-text); }
+        .rep-ed-row label small { display:block; color:var(--cc-muted); font-size:11.5px; font-weight:400; }
+        .rep-ed-row select { width:100%; }
+        .rep-ed-row.tit { background:var(--cc-surface-2); margin:0 -16px 6px; padding:10px 16px; }
+        .rep-ed-note { font-size:12px; color:var(--cc-muted); margin-top:10px; line-height:1.4; }
+        .rep-ed-slot-ceduta select { border-color:#dc2626; box-shadow:inset 3px 0 0 #dc2626; }
+
+        /* ══ Striscia reperibilità nelle celle (identica agli autisti) ══════ */
+        .rep-bar { display:flex; width:100%; min-height:30px; border-radius:5px; overflow:hidden; margin-top:4px; gap:2px; padding:0 2px; box-sizing:border-box; }
+        .rep-bar-seg { flex:1; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:0.58rem; font-weight:800; color:rgba(255,255,255,0.96); letter-spacing:-0.1px; line-height:1.08; text-align:center; white-space:normal; word-break:break-word; overflow:hidden; padding:1px 2px; text-transform:uppercase; }
+        .rep-bar-seg.green { background:#16a34a; white-space:nowrap; font-size:0.62rem; }
+        .rep-bar-seg.red { background:#dc2626; }
+        .rep-bar-seg.rep-sub { animation:rep-blink 1s steps(1, end) infinite; }
+        @keyframes rep-blink { 0%, 49% { background:#dc2626; color:#fff; } 50%, 100% { background:#facc15; color:#78350f; } }
+        .cell .rep-text + .rep-bar { margin-top:2px; }
+
+        /* ══ Barra della ruota: cambio ruota (frecce) e dimensione ══════════ */
+        .tw-bar { position:absolute; left:50%; bottom:calc(100% + 6px); transform:translateX(-50%); display:flex; align-items:center; gap:2px; background:var(--cc-ink); color:#fff; border-radius:6px; padding:3px; pointer-events:auto; box-shadow:0 4px 12px rgba(12,18,26,.25); white-space:nowrap; font-family:var(--cc-font); }
+        #tool-wheel.collapsed .tw-bar { display:none; }
+        /* vicino al bordo basso la didascalia sparirebbe sotto la striscia: la stessa
+           informazione è già nella striscia "Strumento: …" in fondo allo schermo */
+        #tool-wheel.caption-top .tw-caption { display:none; }
+        .tw-bar-btn { width:32px; height:30px; border:none; border-radius:4px; background:var(--cc-ink-2); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; }
+        .tw-bar-btn:hover { background:var(--cc-accent); }
+        .tw-bar-btn .msym { font-size:20px; }
+        .tw-bar-mode { font:600 12.5px/1 var(--cc-font); padding:0 8px; min-width:92px; text-align:center; }
+        .tw-bar-mode small { display:block; font-size:10px; font-weight:400; color:var(--cc-ink-muted); margin-top:2px; }
+        .tw-bar-sep { width:1px; align-self:stretch; background:var(--cc-ink-line); margin:2px 4px; }
+        .tw-bar-sizes { display:flex; gap:2px; }
+        .tw-bar-sizes button { width:26px; height:30px; border:none; border-radius:4px; background:transparent; color:var(--cc-ink-muted); font:600 12px/1 var(--cc-font); cursor:pointer; padding:0; }
+        .tw-bar-sizes button:hover { background:var(--cc-ink-2); color:#fff; }
+        .tw-bar-sizes button.on { background:#fff; color:var(--cc-ink); }
+
+        /* ══ Report reperibilità ═══════════════════════════════════════════ */
+        .rr-table th.rr-day, .rr-table td.rr-day { padding:6px 4px; min-width:30px; text-align:center; font-variant-numeric:tabular-nums; }
+        .rr-table th.rr-day small { display:block; font-weight:400; color:var(--cc-muted); }
+        .rr-table th.rr-red, .rr-table td.rr-red { background:rgba(220,38,38,.06); }
+        .rr-table th.rr-red { color:var(--cc-neg); }
+        .rr-table td.rr-day b { font-weight:600; }
+        .rr-table td.rr-day.rr-empty { color:var(--cc-line); }
+        .rr-detail { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+        .rr-card { border:1px solid var(--cc-line); border-radius:var(--cc-r); background:var(--cc-surface); }
+        .rr-card h4 { margin:0; padding:10px 12px; font:600 14px/1.2 var(--cc-font); border-bottom:1px solid var(--cc-line-2); display:flex; justify-content:space-between; gap:8px; }
+        .rr-card ul { list-style:none; margin:0; padding:6px 12px 10px; }
+        .rr-card li { display:flex; justify-content:space-between; gap:8px; padding:4px 0; font-size:12.5px; border-bottom:1px dashed var(--cc-line-2); }
+        .rr-card li:last-child { border-bottom:none; }
+        .rr-card li span:last-child { font-variant-numeric:tabular-nums; white-space:nowrap; }
         .admin-header-badge { background:#0f172a; color:#fff; }
         .admin-header-badge .header-text span { color:#94a3b8; }
         .admin-header-badge .btn-close-modal { background:#1e293b; color:#fff; }
@@ -1670,6 +1723,7 @@
                 <button data-sec="modifica" onclick="ccGo('modifica')"><span class="msym">edit_calendar</span><span>Modifica turni</span><span class="cc-count" id="cc-count-pending"></span></button>
                 <button data-sec="operatori" onclick="ccGo('operatori')"><span class="msym">group</span><span>Operatori</span></button>
                 <button data-sec="ore" onclick="ccGo('ore')"><span class="msym">schedule</span><span>Conteggio ore</span></button>
+                <button data-sec="reperibilita" onclick="ccGo('reperibilita')"><span class="msym">phone_in_talk</span><span>Report reperibilità</span></button>
                 <button data-sec="riportare" onclick="ccGo('riportare')"><span class="msym">task_alt</span><span>Da riportare</span><span class="cc-count" id="cc-count-sync"></span></button>
                 <button data-sec="impostazioni" onclick="ccGo('impostazioni')"><span class="msym">settings</span><span>Impostazioni</span></button>
             </nav>
@@ -1707,6 +1761,17 @@
     <button class="tw-sat" id="tw-sat-undo" onclick="coordUndo()" title="Annulla" aria-label="Annulla"><span class="msym">undo</span></button>
     <span class="tw-badge" id="tw-badge"></span>
     <div class="tw-caption" id="tw-caption"></div>
+    <div class="tw-bar" id="tw-bar">
+        <button class="tw-bar-btn" onclick="twSwitchMode(-1)" title="Ruota precedente" aria-label="Ruota precedente"><span class="msym">chevron_left</span></button>
+        <span class="tw-bar-mode" id="tw-bar-mode"></span>
+        <button class="tw-bar-btn" onclick="twSwitchMode(1)" title="Ruota successiva" aria-label="Ruota successiva"><span class="msym">chevron_right</span></button>
+        <span class="tw-bar-sep"></span>
+        <span class="tw-bar-sizes" role="group" aria-label="Dimensione della ruota">
+            <button data-size="P" onclick="twSetSize('P')" title="Ruota piccola">P</button>
+            <button data-size="M" onclick="twSetSize('M')" title="Ruota media">M</button>
+            <button data-size="G" onclick="twSetSize('G')" title="Ruota grande">G</button>
+        </span>
+    </div>
 </div>
 
 <div id="coord-edit-strip" class="cc-scope">
@@ -1728,7 +1793,25 @@
         <div class="sep-grid" id="sep-grid"></div>
         <div class="sep-foot">
             <button class="cc-btn danger" onclick="applyShiftChoice(null,null)"><span class="msym">ink_eraser</span>Svuota cella</button>
+            <button class="cc-btn" onclick="repOpenFromShiftPopup()"><span class="msym">phone_in_talk</span>Reperibilità</button>
             <button class="cc-btn" onclick="closeShiftEditPopup()">Chiudi</button>
+        </div>
+    </div>
+</div>
+
+<!-- Editor reperibilità: titolare del turno 13:00 › 13:00 e chi copre ciascuna delle 4 fasce -->
+<div id="rep-edit-popup" class="cc-scope" onclick="closeRepEditPopup(event)">
+    <div class="sep-box" onclick="event.stopPropagation()">
+        <div class="sep-head">
+            <div><b id="rep-edit-title">Reperibilità</b><small id="rep-edit-sub"></small></div>
+            <button class="cc-icon-btn" onclick="closeRepEditPopup()" aria-label="Chiudi"><span class="msym">close</span></button>
+        </div>
+        <div class="sep-grid" id="rep-edit-body"></div>
+        <div class="sep-foot">
+            <button class="cc-btn danger" onclick="repEditRemove()"><span class="msym">delete</span>Elimina</button>
+            <span style="flex:1"></span>
+            <button class="cc-btn" onclick="closeRepEditPopup()">Annulla</button>
+            <button class="cc-btn primary" onclick="repEditApply()"><span class="msym">check</span>Applica</button>
         </div>
     </div>
 </div>
@@ -2147,6 +2230,7 @@
         });
         listenConfigChanges();
         listenIncomingRequests();
+        listenReperibilita();
     }
 
     // Rete di sicurezza: se il browser ha cancellato i dati salvati sul dispositivo
@@ -3104,28 +3188,19 @@
     function checkReperibilitaReminder(myDriver) {
         const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
         const tDay = tomorrow.getDate();
-        const monthNames = Object.keys(MONTH_MAP);
-        const tMonthName = monthNames.find(k => MONTH_MAP[k] === tomorrow.getMonth());
-        for(let i=1; i<finalData.length; i++) {
-            let row = finalData[i]; let month = row[0].v; let day = row[1].v; if(!day || !month) continue;
-            if(parseInt(day) === tDay && (month || "").toString().toUpperCase().trim() === tMonthName) {
-                let cell = row[myDriver.idx];
-                let val = cell && cell.v ? cell.v.toString().trim() : "";
-                let subVal = cell && cell.subV ? cell.subV.toString().trim() : "";
-                let supVal = cell && cell.supV ? cell.supV.toString().trim() : "";
-                if(isRepStr(val) || isRepStr(subVal) || isRepStr(supVal)) {
-                    const reminderKey = `rep_reminder_${myDriver.originalName || myDriver.name}_${tMonthName}_${tDay}`;
-                    if(!localStorage.getItem(reminderKey)) {
-                        const dateLabel = tomorrow.toLocaleDateString('it-IT', { day:'2-digit', month:'long' });
-                        const msg = `<b>📟 Promemoria Reperibilità</b><br><span style="font-size:0.85rem;color:var(--text-sec)">Domani, <b>${dateLabel}</b>, sei <b>reperibile</b>.</span>`;
-                        notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:msg, read:false, archived:false, date:new Date().toLocaleString(), type:'turno' });
-                        saveNotifications(); updateBadge();
-                        localStorage.setItem(reminderKey, '1');
-                    }
-                }
-                break;
-            }
-        }
+        const tMonthName = Object.keys(MONTH_MAP).find(k => MONTH_MAP[k] === tomorrow.getMonth());
+        // reperibilità a fasce: titolare del turno che parte domani o fasce coperte domani
+        const R = repData(); const tDate = ymd(tomorrow); const me = myDriver.originalName || myDriver.name;
+        const mine = (R.days[tDate] || []).map((w, s) => w === me ? REP_SLOTS[s].long : null).filter(Boolean);
+        if(R.tit[tDate] !== me && !mine.length) return;
+        const reminderKey = `rep_reminder_${me}_${tMonthName}_${tDay}`;
+        if(localStorage.getItem(reminderKey)) return;
+        const dateLabel = tomorrow.toLocaleDateString('it-IT', { day:'2-digit', month:'long' });
+        const detail = R.tit[tDate] === me ? 'sei <b>reperibile</b> dalle 13:00 per 24 ore' : `copri la reperibilità: <b>${mine.join(', ')}</b>`;
+        const msg = `<b>📟 Promemoria Reperibilità</b><br><span style="font-size:0.85rem;color:var(--text-sec)">Domani, <b>${dateLabel}</b>, ${detail}.</span>`;
+        notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:msg, read:false, archived:false, date:new Date().toLocaleString(), type:'turno' });
+        saveNotifications(); updateBadge();
+        localStorage.setItem(reminderKey, '1');
     }
 
     function loadNotificationHistory() {
@@ -3496,11 +3571,23 @@
         if(t === undefined) return 0;
         return minutesFromRange(t);
     }
+    // Il file può continuare oltre dicembre (es. gennaio dell'anno dopo): le righe dopo il
+    // "giro d'anno" appartengono a SHIFT_YEAR+1 e non vanno contate nell'anno dei turni.
+    let shiftYearRollRow = null, shiftYearRollFor = null;
+    function shiftRowYear(r) {
+        if(shiftYearRollFor !== finalData) {
+            shiftYearRollRow = Infinity; let prev = -1;
+            for(let i = 1; i < finalData.length; i++) { const mi = MONTH_MAP[finalData[i][0].v]; if(mi === undefined) continue; if(mi < prev) { shiftYearRollRow = i; break; } prev = mi; }
+            shiftYearRollFor = finalData;
+        }
+        return r >= shiftYearRollRow ? SHIFT_YEAR + 1 : SHIFT_YEAR;
+    }
     function buildDaysIndex() {
         let list = [];
         for(let r=1; r<finalData.length; r++) {
             let row = finalData[r]; let mName = row[0].v; let dNum = parseInt(row[1].v);
             if(!mName || isNaN(dNum)) continue;
+            if(shiftRowYear(r) !== SHIFT_YEAR) continue;
             let mIdx = MONTH_MAP[mName]; if(mIdx === undefined) continue;
             list.push({ rowIdx:r, month:mName, monthIdx:mIdx, day:dNum, date:new Date(SHIFT_YEAR, mIdx, dNum) });
         }
@@ -3518,6 +3605,13 @@
         let mon = new Date(d); mon.setDate(d.getDate()+diffToMon); mon.setHours(0,0,0,0);
         let sun = new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
         return { start:mon, end:sun };
+    }
+    // Cartellino orario: settimana lavorativa su 6 giorni (lunedì–sabato). Con un
+    // contratto da 36 h ogni giorno lun–sab matura 6 h; la domenica non matura ore.
+    const CONTRACT_WORKDAYS = 6;
+    function isContractDay(date) { return date.getDay() !== 0; }
+    function contractMinutesFor(weeklyHours, dates) {
+        return dates.filter(isContractDay).length * weeklyHours / CONTRACT_WORKDAYS * 60;
     }
     function formatHM(totalMinutes) {
         let neg = totalMinutes < 0; let m = Math.round(Math.abs(totalMinutes));
@@ -3541,8 +3635,7 @@
         }
         if(!elapsed.length) return 0;
         let worked = elapsed.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
-        let dayCount = Math.floor((refDate - elapsed[0].date)/86400000)+1;
-        let target = (dayCount/7)*getContractHours(driverIdx)*60;
+        let target = contractMinutesFor(getContractHours(driverIdx), elapsed.map(dd => dd.date));
         return worked - target;
     }
 
@@ -3664,8 +3757,7 @@
         let statusEl = document.getElementById('hc-today-status');
         if(!elapsed.length) { statusEl.innerHTML = ""; document.getElementById('hc-projection').innerHTML = ""; return; }
         let workedSoFar = elapsed.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
-        let dayCount = Math.floor((refDate - elapsed[0].date)/86400000)+1;
-        let targetSoFar = (dayCount/7)*getContractHours(driverIdx)*60;
+        let targetSoFar = contractMinutesFor(getContractHours(driverIdx), elapsed.map(dd => dd.date));
         let delta = workedSoFar - targetSoFar;
         let cls = delta>=0 ? 'ok' : 'low';
         let msg = delta>=0 ? `IN CREDITO ${formatHM(delta)}` : `IN DEBITO ${formatHM(Math.abs(delta))}`;
@@ -3684,7 +3776,7 @@
         let rows = weekKeys.map(wk => {
             let group = weeksMap[wk];
             let tot = group.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
-            let d2 = tot - getContractHours(driverIdx)*60;
+            let d2 = tot - contractMinutesFor(getContractHours(driverIdx), group.map(dd => dd.date));
             let startLbl = group[0].date.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'});
             let cls2 = d2>=0?'pos':'neg';
             return `<div class="hc-bd-row"><div><div class="hc-bd-main">Settimana dal ${startLbl}</div><div class="hc-bd-sub">${group.length} giorni già pianificati</div></div><div style="text-align:right"><div class="hc-bd-hours">${formatHM(tot)}</div><div class="hc-bd-delta ${cls2}">${d2>=0?'+':''}${formatHM(d2)}</div></div></div>`;
@@ -3740,7 +3832,7 @@
                 chartLabels.push(giorniLbl[i]); chartData.push(+(info.minutes/60).toFixed(2));
                 breakdownRows.push({ main: dt.toLocaleDateString('it-IT',{weekday:'long',day:'2-digit',month:'2-digit'}), sub: info.label || "—", minutes: info.minutes });
             }
-            chartTargetLine = CH/7;
+            chartTargetLine = CH/CONTRACT_WORKDAYS;
         } else if(hoursPeriod === "mese") {
             let monthNamesArr = Object.keys(MONTH_MAP);
             let optsHtml = monthNamesArr.map((mn,i)=>`<option value="${i}" ${i===hoursSelectedMonthIdx?"selected":""}>${mn.charAt(0)+mn.slice(1).toLowerCase()}</option>`).join('');
@@ -3749,11 +3841,11 @@
             let weeksMap = {};
             periodDays.forEach(dd => { let wk = getISOWeek(dd.date); (weeksMap[wk] = weeksMap[wk]||[]).push(dd); });
             let weekKeys = Object.keys(weeksMap).sort((a,b)=>a-b);
-            targetHoursTotal = weekKeys.length * CH;
+            targetHoursTotal = contractMinutesFor(CH, periodDays.map(dd => dd.date)) / 60;
             weekKeys.forEach((wk,i) => {
                 let tot = weeksMap[wk].reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,hoursSelectedDriver).minutes,0);
                 chartLabels.push("Sett. "+(i+1)); chartData.push(+(tot/60).toFixed(2));
-                breakdownRows.push({ main:"Settimana "+(i+1), sub: weeksMap[wk].length+" giorni nel mese", minutes: tot, delta: tot-CH*60 });
+                breakdownRows.push({ main:"Settimana "+(i+1), sub: weeksMap[wk].length+" giorni nel mese", minutes: tot, delta: tot - contractMinutesFor(CH, weeksMap[wk].map(dd => dd.date)) });
             });
             chartTargetLine = CH;
         } else { // anno
@@ -3764,12 +3856,11 @@
             monthsPresent.forEach(mi => {
                 let dGroup = periodDays.filter(dd=>dd.monthIdx===mi);
                 let tot = dGroup.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,hoursSelectedDriver).minutes,0);
-                let weeksInMonth = new Set(dGroup.map(dd=>getISOWeek(dd.date))).size;
-                let targetM = weeksInMonth*CH;
+                let targetM = contractMinutesFor(CH, dGroup.map(dd => dd.date));
                 chartLabels.push(monthNamesArr[mi].slice(0,3));
                 chartData.push(+(tot/60).toFixed(2));
                 breakdownRows.push({ main: monthNamesArr[mi].charAt(0)+monthNamesArr[mi].slice(1).toLowerCase(), sub: dGroup.length+" giorni", minutes: tot, delta: tot-targetM });
-                targetHoursTotal += targetM;
+                targetHoursTotal += targetM / 60;
             });
         }
 
@@ -3782,7 +3873,7 @@
         let deltaTotal = totalMinutesA - targetHoursTotal*60;
         document.getElementById('hc-summary-row').innerHTML = `
             <div class="hc-summary-box"><div class="hc-summary-num">${formatHM(totalMinutesA)}</div><div class="hc-summary-lbl">Ore lavorate</div></div>
-            <div class="hc-summary-box"><div class="hc-summary-num">${targetHoursTotal}h</div><div class="hc-summary-lbl">Contrattuali</div></div>
+            <div class="hc-summary-box"><div class="hc-summary-num">${formatHM(targetHoursTotal*60)}</div><div class="hc-summary-lbl">Contrattuali</div></div>
             <div class="hc-summary-box ${deltaTotal>=0?'ok':'low'}"><div class="hc-summary-num">${deltaTotal>=0?'+':''}${formatHM(deltaTotal)}</div><div class="hc-summary-lbl">Differenza</div></div>`;
 
         let badgeEl = document.getElementById('hc-check-badge');
@@ -3992,7 +4083,8 @@
         panoramica:   { title:'Panoramica', sub:'Chi è in turno, ore da tenere d\u2019occhio e cose da fare.' },
         modifica:     { title:'Modifica turni', sub:'Modifica il calendario con la ruota strumenti.' },
         operatori:    { title:'Operatori', sub:'Aggiungi, rimuovi, riordina le colonne o nascondi temporaneamente un operatore.' },
-        ore:          { title:'Conteggio ore', sub:'Ore lavorate rispetto al contratto, per settimana, mese e anno.' },
+        ore:          { title:'Conteggio ore', sub:'Ore lavorate rispetto al contratto (6 giorni, 36 h), per settimana, mese e anno.' },
+        reperibilita: { title:'Report reperibilità', sub:'Ore di reperibilità di ogni operatore, giorno per giorno, per l’ufficio personale.' },
         riportare:    { title:'Da riportare su Excel', sub:'Modifiche fatte nell\u2019app che vanno inserite anche nel file infermieri.xlsx.' },
         impostazioni: { title:'Impostazioni', sub:'Coordinatore designato, consigli sulle ore, ruota e sessione.' }
     };
@@ -4010,7 +4102,7 @@
     function ccRenderSection() {
         const main = document.getElementById('cc-main'); if(!main) return;
         if(!finalData.length) { main.innerHTML = `<div class="cc-empty"><span class="msym">hourglass_top</span>Sto caricando il file dei turni…</div>`; return; }
-        ({ panoramica:renderCcOverview, modifica:renderCcEdit, operatori:renderCcOperators, ore:renderCcHours, riportare:renderCcSync, impostazioni:renderCcSettings })[ccSection]();
+        ({ panoramica:renderCcOverview, modifica:renderCcEdit, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, riportare:renderCcSync, impostazioni:renderCcSettings })[ccSection]();
         ccUpdateNavCounts();
     }
     function ccRefreshIfOpen() {
@@ -4173,7 +4265,8 @@
                     <div class="cc-wheel-preview" id="cc-wheel-preview"></div>
                     <div>
                         <ol>
-                            <li><b>Anello esterno</b>: scegli un turno o un\u2019assenza, poi tocca o trascina sulle celle del calendario per applicarlo.</li>
+                            <li><b>Frecce sopra la ruota</b>: cambiano la ruota tra <b>Turni</b> (turni e assenze), <b>Sequenze</b> (+5, +10, +15, 5 cicli completi P\u00b7M\u00b7N\u00b7SM\u00b7R e +7 per i diurni) e <b>Reperibilit\u00e0</b> (aggiungi, sposta, fasce e cessioni, elimina). P, M e G cambiano la dimensione.</li>
+                            <li><b>Anello esterno</b>: scegli un turno, una sequenza o uno strumento di reperibilit\u00e0, poi tocca le celle del calendario (i turni si possono anche trascinare).</li>
                             <li><b>Anello interno</b>: Seleziona (apre l\u2019editor della cella; su computer puoi anche trascinare per scambiare o estendere), Scambia (tocca due celle), Gomma, Annulla, Ripeti, Salva, Scarta, Esci.</li>
                             <li><b>Centro</b>: toccalo per chiudere o riaprire la ruota, trascinalo per spostarla dove non ti copre il calendario.</li>
                         </ol>
@@ -4193,6 +4286,8 @@
             <div class="cc-panel">
                 <div class="cc-setting"><div><b>Chiudi la ruota dopo aver scelto un turno</b><small>La ruota si riduce a un pulsante e il calendario resta libero. Toccalo per riaprirla.</small></div>
                     <label class="cc-switch"><input type="checkbox" ${autoClose?'checked':''} onchange="localStorage.setItem('${WHEEL_AUTOCLOSE_KEY}', this.checked?'1':'0')"><span></span></label></div>
+                <div class="cc-setting"><div><b>Dimensione della ruota</b><small>G \u00e8 quella classica. Su telefono la ruota si riduce da sola per stare nello schermo.</small></div>
+                    <div class="cc-seg" role="group" aria-label="Dimensione della ruota">${['P','M','G'].map(k => `<button class="${twPrefSize()===k?'active':''}" onclick="twSetSize('${k}');renderCcEdit()">${{P:'Piccola',M:'Media',G:'Grande'}[k]}</button>`).join('')}</div></div>
                 <div class="cc-setting"><div><b>Posizione della ruota</b><small>Se l\u2019hai spostata in un punto scomodo, riportala in basso a destra.</small></div>
                     <button class="cc-btn sm" onclick="twResetPosition()">Ripristina</button></div>
             </div>`;
@@ -4450,10 +4545,10 @@
                     if(!first) first = meta;
                 });
                 total += min;
-                const target = ch / 7 * u.days.filter(counts).length * 60;
+                const target = contractMinutesFor(ch, u.days.filter(counts).map(dd => dd.date));
                 return { min, meta:first, target, empty: !u.days.length };
             });
-            const target = ch / 7 * periodDays.filter(counts).length * 60;
+            const target = contractMinutesFor(ch, periodDays.filter(counts).map(dd => dd.date));
             return { d, order, ch, cells, total, target, diff: total - target, balance: computeDriverBalance(d.idx), absDays };
         });
         return { units, rows, label, discrepancy, unknown, dayCount: periodDays.length };
@@ -4538,7 +4633,7 @@
             </div>
             ${check}
             <div class="cc-legend">
-                <span>Contratto = ore settimanali \u00f7 7 \u00d7 giorni del periodo presenti nel file.</span>
+                <span>Contratto su 6 giorni: ore settimanali \u00f7 6 per ogni giorno dal luned\u00ec al sabato (36 h = 6 h al giorno); la domenica non matura ore.</span>
                 <span>Le assenze (ferie, malattia, permessi\u2026) contano 0 ore, come nel calendario.</span>
                 <span>Le ore settimanali di ciascuno si cambiano in Operatori.</span>
             </div>`;
@@ -4686,7 +4781,7 @@
     function pendingChangesCount() {
         const keys = new Set([...Object.keys(manualOverrides), ...Object.keys(coordEditBaseline || {})]);
         let n = 0; keys.forEach(k => { if(JSON.stringify(manualOverrides[k] || null) !== JSON.stringify((coordEditBaseline || {})[k] || null)) n++; });
-        return n;
+        return n + repPendingCount();
     }
     // Aggiorna solo le celle toccate: ricalcola il valore dal dato Excel + modifica
     // e ridisegna le righe interessate, invece di ricostruire tutto il calendario.
@@ -4705,18 +4800,35 @@
     }
     let ccNavCountTimer = null;
     function scheduleNavCounts() { clearTimeout(ccNavCountTimer); ccNavCountTimer = setTimeout(ccUpdateNavCounts, 400); }
-    function afterCoordChange(keys) {
+    // keys = celle di manualOverrides toccate; repDates = giorni (YYYY-MM-DD) le cui
+    // reperibilità sono cambiate: si ridisegnano solo quelle righe (e il giorno dopo).
+    function afterCoordChange(keys, repDates) {
         let done = false;
-        if(keys && keys.length && finalData.length === rawFinalData.length) {
-            const idx = coordKeyIndex(); const rows = new Set(); let miss = false;
-            keys.forEach(k => { const p = idx.get(k); if(!p || !applyOverrideAt(p.row, p.col, k)) miss = true; else rows.add(p.row); });
-            if(!miss) { renderTableRows(rows); scheduleTableHeadRefresh(); done = true; }
+        if(repDates && repDates.length) repInvalidate();
+        if(((keys && keys.length) || (repDates && repDates.length)) && finalData.length === rawFinalData.length) {
+            const rows = new Set(); let miss = false;
+            if(keys && keys.length) {
+                const idx = coordKeyIndex();
+                keys.forEach(k => { const p = idx.get(k); if(!p || !applyOverrideAt(p.row, p.col, k)) miss = true; else rows.add(p.row); });
+            }
+            (repDates || []).forEach(d => { const r = repRowOfDate(d); if(r) rows.add(r); });
+            if(!miss) { if(rows.size) renderTableRows(rows); scheduleTableHeadRefresh(); done = true; }
         }
         if(!done) { applyManualOverrides(); renderTable(); }
         updateCoordToolbarState(); scheduleNavCounts();
     }
     function pushUndo(action) { coordUndoStack.push(action); coordRedoStack = []; updateCoordToolbarState(); }
-    function applyUndoEntries(entries, useNext) { entries.forEach(en => setOverride(en.key, useNext ? en.next : en.prev)); afterCoordChange(entries.map(en => en.key)); }
+    // Le voci di annullamento con kind 'rep' (titolare) o 'repc' (cessione di una fascia)
+    // riguardano le reperibilità; le altre sono celle del calendario (manualOverrides).
+    function applyUndoEntries(entries, useNext) {
+        const repDates = [];
+        entries.forEach(en => {
+            const val = useNext ? en.next : en.prev;
+            if(en.kind === 'rep' || en.kind === 'repc') { repSetEdit(en.kind, en.key, val); repDates.push(...repDatesOfKey(en.kind, en.key)); }
+            else setOverride(en.key, val);
+        });
+        afterCoordChange(entries.filter(en => !en.kind).map(en => en.key), repDates);
+    }
     function coordUndo() { if(!coordUndoStack.length) return; vibrate(); let a = coordUndoStack.pop(); coordRedoStack.push(a); applyUndoEntries(a.entries, false); }
     function coordRedo() { if(!coordRedoStack.length) return; vibrate(); let a = coordRedoStack.pop(); coordUndoStack.push(a); applyUndoEntries(a.entries, true); }
 
@@ -4763,7 +4875,7 @@
             ]);
             if(!choice) return false;
             if(choice === 'save') { coordConfirmChanges(true); silent = true; }
-            else { manualOverrides = JSON.parse(JSON.stringify(coordEditBaseline)); coordUndoStack = []; coordRedoStack = []; applyManualOverrides(); renderTable(); }
+            else { manualOverrides = JSON.parse(JSON.stringify(coordEditBaseline)); repDiscardEdits(); coordUndoStack = []; coordRedoStack = []; applyManualOverrides(); renderTable(); }
         }
         toggleCoordEditMode(false);
         if(!silent) ccToast('Modalità modifica chiusa');
@@ -4781,6 +4893,7 @@
             twExpanded = true; twRender(); twPlace();
         } else {
             coordPaintTool = null; coordSwapMode = false; coordSwapFirst = null;
+            coordSeqTool = null; coordRepTool = null; coordRepMoveFirst = null;
             document.body.classList.remove('paint-active', 'swap-active', 'select-active');
             detachCellEditHandlers();
         }
@@ -4795,20 +4908,31 @@
             return { key:'paint', item: it, name: it ? it.label : 'Turno', hint:'tocca o trascina sulle celle per applicarlo' };
         }
         if(coordSwapMode) return { key:'swap', name:'Scambia', hint: coordSwapFirst ? 'ora tocca la seconda cella' : 'tocca la prima cella' };
+        if(coordSeqTool) {
+            const s = WHEEL_SEQUENCES.find(x => x.id === coordSeqTool);
+            if(s) return { key:'seq', seq:s, name:s.label, hint:`tocca il primo giorno: inserisce ${s.len} giorni (${s.desc})` };
+        }
+        if(coordRepTool) {
+            const r = WHEEL_REP_TOOLS.find(x => x.id === coordRepTool);
+            if(r) return { key:'rep', rep:r, name:r.label, hint: (r.id === 'move' && coordRepMoveFirst) ? 'ora tocca la cella di destinazione' : r.hint };
+        }
         return { key:'select', name:'Seleziona', hint:'tocca una cella per modificarla' };
     }
     function setCoordTool(kind, v, subV, silent) {
         coordSwapMode = kind === 'swap'; coordSwapFirst = null;
+        coordSeqTool = kind === 'seq' ? v : null;
+        coordRepTool = kind === 'rep' ? v : null;
+        coordRepMoveFirst = null;
         if(kind === 'paint') coordPaintTool = { v: v || '', subV: subV || '' };
         else if(kind === 'erase') coordPaintTool = { clear:true };
         else coordPaintTool = null;
         clearSelectedCellVisual(); coordSelectedCell = null;
         document.body.classList.toggle('paint-active', !!coordPaintTool);
-        document.body.classList.toggle('swap-active', coordSwapMode);
+        document.body.classList.toggle('swap-active', coordSwapMode || kind === 'seq' || kind === 'rep');
         document.body.classList.toggle('select-active', kind === 'select');
         applyEditModeDraggable();
         if(!silent) vibrate();
-        if((kind === 'paint' || kind === 'erase') && !silent && localStorage.getItem(WHEEL_AUTOCLOSE_KEY) !== '0') twExpanded = false;
+        if((kind === 'paint' || kind === 'erase' || kind === 'seq' || kind === 'rep') && !silent && localStorage.getItem(WHEEL_AUTOCLOSE_KEY) !== '0') twExpanded = false;
         twRender(); twPlace(); updateCoordToolbarState();
     }
     function updateCoordToolbarState() {
@@ -4828,6 +4952,7 @@
         coordEditBaseline = JSON.parse(JSON.stringify(manualOverrides));
         coordUndoStack = []; coordRedoStack = [];
         persistCoordState();
+        repPersistEdits();
         updateCoordToolbarState(); ccUpdateNavCounts(); ccRefreshIfOpen();
         const n = computePendingExcelSyncList().length;
         ccToast(n ? `Salvato. Ricorda di riportare ${n} ${n===1?'modifica':'modifiche'} su Excel.` : 'Salvato: le modifiche sono visibili a tutti.');
@@ -4838,6 +4963,7 @@
         if(!ok) return;
         vibrate();
         manualOverrides = JSON.parse(JSON.stringify(coordEditBaseline));
+        repDiscardEdits();
         coordUndoStack = []; coordRedoStack = [];
         afterCoordChange(); ccRefreshIfOpen();
     }
@@ -5005,6 +5131,8 @@
                 updateCoordToolbarState();
                 return;
             }
+            if(coordSeqTool) { applyWheelSequence(rowIndex, colIdx); return; }
+            if(coordRepTool) { repToolTap(rowIndex, colIdx); return; }
             markSelectedCell(rowIndex, colIdx); openShiftEditPopup(colIdx, rowIndex); return;
         }
         let hasSub = (finalData[rowIndex] && finalData[rowIndex][colIdx] && finalData[rowIndex][colIdx].subV) ? finalData[rowIndex][colIdx].subV.toString().trim() : "";
@@ -5084,6 +5212,54 @@
         { id:'discard', icon:'restart_alt',         label:'Scarta',     hint:'torna all\u2019ultimo salvataggio' },
         { id:'exit',    icon:'logout',              label:'Esci',       hint:'chiude la modalità modifica' }
     ];
+    // Dimensione della ruota (G = quella storica da 300 px). Su schermi piccoli si
+    // riduce da sola per stare sempre dentro lo schermo.
+    const WHEEL_SIZE_KEY = 'coord_wheel_size', WHEEL_MODE_KEY = 'coord_wheel_mode';
+    const WHEEL_SIZES = { P:210, M:250, G:300 };
+    // Tipologie di ruota: si cambiano con le frecce della barra sopra la ruota.
+    // L'anello interno (strumenti) è lo stesso per tutte, cambia l'anello esterno.
+    const WHEEL_MODES = [
+        { id:'turni',    label:'Turni',        sub:'turni e assenze' },
+        { id:'sequenze', label:'Sequenze',     sub:'+5 · +10 · +15 · +7' },
+        { id:'rep',      label:'Reperibilità', sub:'aggiungi, sposta, fasce' }
+    ];
+    // Sequenze: toccando un giorno si inseriscono i turni da quel giorno in avanti.
+    const TURNISTI_CYCLE = ['P','M','N','SM','R'];   // pomeriggio, mattina, notte, smonto, riposo
+    const WHEEL_SEQUENCES = [
+        { id:'c5',   short:'+5',  label:'+5 · un ciclo',            desc:'P › M › N › SM › R',   pattern:TURNISTI_CYCLE, len:5,  fill:'#0f766e', group:0 },
+        { id:'c10',  short:'+10', label:'+10 · due cicli',          desc:'2 × P M N SM R',               pattern:TURNISTI_CYCLE, len:10, fill:'#0d6b62', group:0 },
+        { id:'c15',  short:'+15', label:'+15 · tre cicli',          desc:'3 × P M N SM R',               pattern:TURNISTI_CYCLE, len:15, fill:'#0b5e56', group:0 },
+        { id:'c25',  short:'5×5', label:'5 turni completi',          desc:'5 cicli P M N SM R = 25 giorni',  pattern:TURNISTI_CYCLE, len:25, fill:'#08514a', group:0 },
+        { id:'d7mp', short:'+7 m', label:'+7 diurno · mattina e pomeriggio alternati', desc:'m › p › m › p › m › p › m', pattern:['m','p'], len:7, fill:'#6d28d9', group:1, dashed:true },
+        { id:'d7pm', short:'+7 p', label:'+7 diurno · pomeriggio e mattina alternati', desc:'p › m › p › m › p › m › p', pattern:['p','m'], len:7, fill:'#5b21b6', group:1, dashed:true }
+    ];
+    const WHEEL_REP_TOOLS = [
+        { id:'add',   short:'+ REP',  icon:'add_circle',    label:'Aggiungi reperibilità', hint:'tocca il giorno: reperibile dalle 13:00 per 24 h', fill:'#16a34a' },
+        { id:'move',  short:'SPOSTA', icon:'open_with',     label:'Sposta reperibilità',   hint:'tocca la reperibilità, poi la nuova cella', fill:'#d97706' },
+        { id:'fasce', short:'FASCE',  icon:'tune',          label:'Fasce e cessioni',          hint:'tocca un giorno per assegnare le 4 fasce', fill:'#2563eb' },
+        { id:'del',   short:'− REP', icon:'remove_circle', label:'Elimina reperibilità', hint:'tocca la reperibilità da eliminare', fill:'#dc2626' }
+    ];
+    let twMode = (() => { try { const m = localStorage.getItem(WHEEL_MODE_KEY); return WHEEL_MODES.some(x => x.id === m) ? m : 'turni'; } catch(e) { return 'turni'; } })();
+    let coordSeqTool = null, coordRepTool = null, coordRepMoveFirst = null;
+    function twPrefSize() { let k = 'G'; try { k = localStorage.getItem(WHEEL_SIZE_KEY) || 'G'; } catch(e) {} return WHEEL_SIZES[k] ? k : 'G'; }
+    function twSize() {
+        const fit = Math.min(window.innerWidth - 24, window.innerHeight - 150);
+        return Math.round(Math.max(170, Math.min(WHEEL_SIZES[twPrefSize()], fit)));
+    }
+    function twSetSize(k) { try { localStorage.setItem(WHEEL_SIZE_KEY, k); } catch(e) {} vibrate(); twRender(); twPlace(); }
+    function twSwitchMode(dir) {
+        const i = WHEEL_MODES.findIndex(m => m.id === twMode);
+        twMode = WHEEL_MODES[(i + dir + WHEEL_MODES.length) % WHEEL_MODES.length].id;
+        try { localStorage.setItem(WHEEL_MODE_KEY, twMode); } catch(e) {}
+        twHover = null; vibrate(); twRender(); twPlace();
+        if(ccSection === 'modifica') { const prev = document.getElementById('cc-wheel-preview'); if(prev) prev.innerHTML = buildWheelMarkup(260, true); }
+    }
+    // Elementi dell'anello esterno per la ruota attiva.
+    function wheelRingItems() {
+        if(twMode === 'sequenze') return WHEEL_SEQUENCES.map(s => ({ kind:'seq', id:s.id, short:s.short, label:s.label, time:s.desc, fill:s.fill, fg:'#fff', group:s.group, dashed:s.dashed }));
+        if(twMode === 'rep') return WHEEL_REP_TOOLS.map(r => ({ kind:'rep', id:r.id, short:r.short, label:r.label, time:r.hint, fill:r.fill, fg:'#fff', group:0, icon:r.icon }));
+        return wheelPaletteItems().map((it, i) => Object.assign({ kind:'pal', i }, it));
+    }
     function wheelPaletteItems() {
         const items = [];
         STANDARD_CODES.forEach(c => items.push({ v:c, subV:'', short:c, label:SHIFT_NAMES[c] || c, time:SCHEDULE[c] && SCHEDULE[c] !== 'RIPOSO' ? SCHEDULE[c] : '', colors:MAIN_CODE_COLORS[c], group:0 }));
@@ -5106,7 +5282,7 @@
     function buildWheelMarkup(size, preview) {
         const S = size, c = S/2, k = S/300;
         const rIn0 = 42*k, rIn1 = 88*k, rOut0 = 93*k, rOut1 = 147*k;
-        const items = wheelPaletteItems();
+        const items = wheelRingItems();
         const t = currentToolInfo();
         let paths = `<circle class="tw-back" cx="${c}" cy="${c}" r="${rOut1+1.5*k}"/>`, labels = '';
         // anello interno
@@ -5123,21 +5299,28 @@
             labels += `<span class="tw-lbl ico ${st}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px"><span class="msym" style="font-size:${Math.round(20*k)}px">${a.icon}</span></span>`;
         });
         // anello esterno, con uno stacco tra i gruppi
-        const groups = [0,1,2].map(g => items.filter(it => it.group === g));
-        const gap = 5, pad = 0.9;
+        const groups = [...new Set(items.map(it => it.group))].sort().map(g => items.filter(it => it.group === g));
+        const gap = groups.length > 1 ? 5 : 0, pad = 0.9;
         const step = (360 - gap*groups.length) / items.length;
         let ang = -step/2 - gap/2;
         groups.forEach(g => {
             ang += gap/2;
             g.forEach(it => {
                 const a0 = ang + pad/2, a1 = ang + step - pad/2;
-                const sel = !preview && coordPaintTool && !coordPaintTool.clear && coordPaintTool.v === it.v && coordPaintTool.subV === it.subV;
-                const fill = it.colors ? `var(${it.colors.bg})` : '#999';
+                let sel = false;
+                if(!preview) {
+                    if(it.kind === 'pal') sel = !!(coordPaintTool && !coordPaintTool.clear && coordPaintTool.v === it.v && coordPaintTool.subV === it.subV);
+                    else if(it.kind === 'seq') sel = coordSeqTool === it.id;
+                    else if(it.kind === 'rep') sel = coordRepTool === it.id;
+                }
+                const fill = it.fill || (it.colors ? `var(${it.colors.bg})` : '#999');
                 const idx = items.indexOf(it);
-                paths += `<path class="tw-seg ${sel?'sel':''}" data-kind="pal" data-i="${idx}" d="${annularSector(c,c,rOut0,rOut1,a0,a1)}" style="fill:${fill}"><title>${esc(it.label)}</title></path>`;
+                paths += `<path class="tw-seg ${sel?'sel':''}" data-kind="${it.kind}" data-i="${idx}" data-id="${esc(it.id || '')}" d="${annularSector(c,c,rOut0,rOut1,a0,a1)}" style="fill:${fill}"><title>${esc(it.label)}</title></path>`;
                 const [x,y] = polar(c, c, (rOut0+rOut1)/2, (a0+a1)/2);
-                const fg = it.colors ? `var(${it.colors.fg})` : '#fff';
-                labels += `<span class="tw-lbl ${it.dashed?'dashed':''}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;color:${fg};font-size:${Math.max(9, Math.round((it.short.length>2?10:11.5)*k))}px">${esc(it.short)}</span>`;
+                const fg = it.fg || (it.colors ? `var(${it.colors.fg})` : '#fff');
+                const fs = Math.max(9, Math.round((it.short.length>2?10:11.5)*k));
+                const inner = it.icon ? `<span class="msym" style="display:block;font-size:${Math.round(22*k)}px;margin:0 auto 2px">${it.icon}</span>${esc(it.short)}` : esc(it.short);
+                labels += `<span class="tw-lbl ${it.dashed?'dashed':''}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px;color:${fg};font-size:${fs}px">${inner}</span>`;
                 ang += step;
             });
             ang += gap/2;
@@ -5152,8 +5335,16 @@
         const ring = document.getElementById('tw-ring'); if(!ring) return;
         const wheel = document.getElementById('tool-wheel');
         wheel.classList.toggle('collapsed', !twExpanded);
+        const S = twSize();
+        wheel.style.width = wheel.style.height = S + 'px';
+        wheel.style.setProperty('--tw-hub', Math.max(54, Math.round(72 * S / 300)) + 'px');
+        const mode = WHEEL_MODES.find(m => m.id === twMode) || WHEEL_MODES[0];
+        const modeEl = document.getElementById('tw-bar-mode');
+        if(modeEl) modeEl.innerHTML = `${esc(mode.label)}<small>${WHEEL_MODES.indexOf(mode)+1}/${WHEEL_MODES.length} · ${esc(mode.sub)}</small>`;
+        const pref = twPrefSize();
+        document.querySelectorAll('#tw-bar .tw-bar-sizes button').forEach(b => b.classList.toggle('on', b.dataset.size === pref));
         if(twExpanded) {
-            ring.innerHTML = buildWheelMarkup(300, false);
+            ring.innerHTML = buildWheelMarkup(S, false);
             ring.querySelectorAll('path.tw-seg').forEach(p => {
                 p.addEventListener('click', twOnSegmentClick);
                 p.addEventListener('pointerenter', () => { twHover = p; twCaption(); });
@@ -5163,6 +5354,7 @@
         // centro
         const t = currentToolInfo(); const sw = document.getElementById('tw-hub-sw');
         if(t.key === 'paint' && t.item) { sw.className = 'tw-hub-sw'; sw.setAttribute('style', swatchStyle(t.item.colors)); sw.textContent = t.item.short; }
+        else if(t.key === 'seq' || t.key === 'rep') { const o = t.key === 'seq' ? t.seq : t.rep; sw.className = 'tw-hub-sw'; sw.setAttribute('style', `background:${o.fill};color:#fff;width:auto;min-width:30px;padding:0 4px`); sw.textContent = o.short; }
         else { sw.className = 'tw-hub-sw plain'; sw.removeAttribute('style'); const ic = { select:'arrow_selector_tool', swap:'swap_horiz', erase:'ink_eraser' }[t.key]; sw.innerHTML = `<span class="msym">${ic}</span>`; }
         twCaption();
     }
@@ -5170,14 +5362,15 @@
         const cap = document.getElementById('tw-caption'); if(!cap) return;
         if(twHover) {
             if(twHover.dataset.kind === 'act') { const a = WHEEL_ACTIONS.find(x => x.id === twHover.dataset.id); cap.innerHTML = `${esc(a.label)}<small>${esc(a.hint)}</small>`; return; }
-            const it = wheelPaletteItems()[+twHover.dataset.i]; cap.innerHTML = `${esc(it.label)}${it.time?`<small>${esc(it.time)}</small>`:''}`; return;
+            const it = wheelRingItems()[+twHover.dataset.i]; if(!it) return; cap.innerHTML = `${esc(it.label)}${it.time?`<small>${esc(it.time)}</small>`:''}`; return;
         }
         const t = currentToolInfo();
         cap.innerHTML = `${esc(t.name)}<small>${esc(t.hint)}</small>`;
     }
     function twOnSegmentClick(e) {
         const p = e.currentTarget;
-        if(p.dataset.kind === 'pal') { const it = wheelPaletteItems()[+p.dataset.i]; twHover = null; setCoordTool('paint', it.v, it.subV); return; }
+        if(p.dataset.kind === 'pal') { const it = wheelRingItems()[+p.dataset.i]; twHover = null; setCoordTool('paint', it.v, it.subV); return; }
+        if(p.dataset.kind === 'seq' || p.dataset.kind === 'rep') { twHover = null; setCoordTool(p.dataset.kind, p.dataset.id); return; }
         const id = p.dataset.id;
         if(id === 'select' || id === 'swap' || id === 'erase') { twHover = null; setCoordTool(id); }
         else if(id === 'undo') coordUndo();
@@ -5194,17 +5387,24 @@
         return twPos;
     }
     function twClamp(p, expanded) {
-        const W = window.innerWidth, H = window.innerHeight;
-        const r = expanded ? 150 : 34, top = expanded ? 158 : 40, bottom = expanded ? 216 : 100;
+        const W = window.innerWidth, H = window.innerHeight, half = twSize() / 2;
+        const r = expanded ? half : 34, top = expanded ? half + 46 : 40, bottom = expanded ? half + 66 : 100;
         const x = W < r*2 + 16 ? W/2 : Math.min(Math.max(p.x, r + 8), W - r - 8);
         const y = H < top + bottom ? H/2 : Math.min(Math.max(p.y, top + (expanded ? 0 : 20)), H - bottom);
         return { x, y };
     }
     function twPlace() {
         const wheel = document.getElementById('tool-wheel'); if(!wheel) return;
-        const p = twClamp(twLoadPos(), twExpanded);
-        wheel.style.transform = `translate(${Math.round(p.x - 150)}px, ${Math.round(p.y - 150)}px)`;
-        wheel.classList.toggle('caption-top', p.y > window.innerHeight - 230);
+        const p = twClamp(twLoadPos(), twExpanded), half = twSize() / 2;
+        wheel.style.transform = `translate(${Math.round(p.x - half)}px, ${Math.round(p.y - half)}px)`;
+        wheel.classList.toggle('caption-top', p.y > window.innerHeight - (half + 80));
+        // la barra (frecce + dimensione) può essere più larga della ruota: resta dentro lo schermo
+        const bar = document.getElementById('tw-bar');
+        if(bar && twExpanded) {
+            const bw = bar.offsetWidth, W = window.innerWidth;
+            const left = Math.min(Math.max(p.x - bw / 2, 8), Math.max(8, W - 8 - bw));
+            bar.style.transform = `translateX(calc(-50% + ${Math.round(left - (p.x - bw / 2))}px))`;
+        }
     }
     function twResetPosition() { twPos = twDefaultPos(); localStorage.removeItem(WHEEL_POS_KEY); twPlace(); ccToast('Ruota riportata in basso a destra'); }
     (function setupToolWheelDrag() {
@@ -5234,15 +5434,545 @@
         hub.addEventListener('pointercancel', () => { start = null; });
         hub.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); twExpanded = !twExpanded; twRender(); twPlace(); } });
     })();
-    window.addEventListener('resize', () => { if(coordEditModeActive) twPlace(); });
+    window.addEventListener('resize', () => { if(coordEditModeActive) { twRender(); twPlace(); } });
     document.addEventListener('keydown', e => {
         if(e.key !== 'Escape') return;
         if(document.getElementById('cc-dialog').classList.contains('open')) { e.preventDefault(); ccDialogResolve(null); return; }
+        if(document.getElementById('rep-edit-popup').classList.contains('open')) { e.preventDefault(); closeRepEditPopup(); return; }
         if(document.getElementById('shift-edit-popup').classList.contains('open')) { e.preventDefault(); closeShiftEditPopup(); return; }
         const cc = document.getElementById('coord-console');
         if(cc.classList.contains('open') && !(document.activeElement && document.activeElement.closest && document.activeElement.closest('.cc-op-name'))) { e.preventDefault(); closeCoordConsole(); }
     });
 
+
+    // ═══ REPERIBILITÀ A FASCE (come per gli autisti) ══════════════════════
+    // Una reperibilità dura 24 h: parte alle 13:00 del giorno X e finisce alle 13:00 del
+    // giorno X+1. Ogni giorno FISICO ha 4 fasce, nello stesso ordine usato dal programma
+    // autisti e dal portale Richieste:
+    //   [0]=00-07  [1]=07-13   coda della reperibilità iniziata IERI
+    //   [2]=13-20  [3]=20-00   reperibilità che inizia OGGI
+    // • Titolare del turno che parte il giorno X: documento infermieri26_config/reperibilita,
+    //   mappa "turni" { "YYYY-MM-DD": nome originale della colonna, "" = eliminata }. I giorni
+    //   senza voce ripiegano sul file Excel (codice "/R", es. "M/R"), così si può abbandonare
+    //   l'Excel un po' alla volta.
+    // • Cessioni di singole fasce: mappa "cessioni" dello stesso documento, con lo stesso
+    //   formato degli override autisti { date: giorno fisico della fascia, slotIndex,
+    //   newDriver, ... }, scritta dal portale Richieste (Cessione reperibilità) e dal
+    //   coordinatore dalla ruota.
+    const REP_SLOTS = [
+        { label:'00-07', long:'00:00–07:00', minutes:420 },
+        { label:'07-13', long:'07:00–13:00', minutes:360 },
+        { label:'13-20', long:'13:00–20:00', minutes:420 },
+        { label:'20-00', long:'20:00–00:00', minutes:240 }
+    ];
+    let repTurniSaved = {};        // salvato su Firestore
+    let repTurniEdits = {};        // modifiche non ancora salvate (modalità modifica)
+    let repCessioniSaved = {};     // "YYYY-MM-DD_slot" -> { newDriver, originalDriver, requestId, id }
+    let repCessioniEdits = {};     // "YYYY-MM-DD_slot" -> { newDriver } oppure null (= da rimuovere)
+    let repCache = null, repExcelCache = null, repExcelFor = null, repRowMap = null, repRowMapFor = null;
+
+    function repHas(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+    function repDateAdd(iso, n) { const p = iso.split('-').map(Number); return ymd(new Date(p[0], p[1]-1, p[2] + n)); }
+    function repDateObj(iso) { const p = iso.split('-').map(Number); return new Date(p[0], p[1]-1, p[2]); }
+    function repDateLabel(iso, long) { return iso ? repDateObj(iso).toLocaleDateString('it-IT', long ? { weekday:'long', day:'numeric', month:'long' } : { day:'2-digit', month:'2-digit' }) : ''; }
+    function repRowDate(rowIdx) {
+        const row = finalData[rowIdx]; if(!row || rowIdx < 1) return null;
+        const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
+        return (mi === undefined || isNaN(dn)) ? null : ymd(new Date(shiftRowYear(rowIdx), mi, dn));
+    }
+    function repRowOfDate(iso) {
+        if(repRowMapFor !== finalData) { repRowMap = {}; for(let r = 1; r < finalData.length; r++) { const d = repRowDate(r); if(d) repRowMap[d] = r; } repRowMapFor = finalData; }
+        return repRowMap[iso] || null;
+    }
+    function repNormName(n) { return (n || '').toString().toUpperCase().trim().replace(/\.$/, ''); }
+    // Nome qualsiasi (anche rinominato o scritto dal portale Richieste) -> nome originale della colonna.
+    function repToOrig(n) {
+        const u = repNormName(n); if(!u) return '';
+        const d = drivers.find(x => repNormName(x.originalName) === u) || drivers.find(x => repNormName(x.name) === u);
+        return d ? d.originalName : u;
+    }
+    function repDisplayName(orig) { const d = drivers.find(x => x.originalName === orig); return d ? d.name : (nameOverrides[orig] || orig || ''); }
+    function repIsFestive(iso) { const dt = repDateObj(iso); return dt.getDay() === 0 || !!HOLIDAYS[`${dt.getMonth()}-${dt.getDate()}`]; }
+
+    // Titolari letti dal file Excel (una cella con "/R" = reperibile dalle 13:00 di quel giorno).
+    function repExcelMap() {
+        if(repExcelFor === rawFinalData && repExcelCache) return repExcelCache;
+        const out = {}; const header = rawFinalData[0] || [];
+        for(let r = 1; r < rawFinalData.length; r++) {
+            const row = rawFinalData[r]; const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
+            if(mi === undefined || isNaN(dn)) continue;
+            for(let c = 3; c < row.length; c++) {
+                const x = row[c] || {};
+                if([x.v, x.subV, x.supV].some(v => isRepStr((v || '').toString()))) { out[ymd(new Date(shiftRowYear(r), mi, dn))] = header[c]; break; }
+            }
+        }
+        repExcelCache = out; repExcelFor = rawFinalData;
+        return out;
+    }
+    // Stato effettivo: titolari (Excel < salvato < modifiche) e fasce di ogni giorno fisico.
+    function repBuild() {
+        const tit = Object.assign({}, repExcelMap(), repTurniSaved, repTurniEdits);
+        Object.keys(tit).forEach(k => { if(!tit[k]) delete tit[k]; });
+        const ces = {};
+        Object.keys(repCessioniSaved).forEach(k => { ces[k] = repCessioniSaved[k]; });
+        Object.keys(repCessioniEdits).forEach(k => { if(repCessioniEdits[k]) ces[k] = repCessioniEdits[k]; else delete ces[k]; });
+        const days = {};
+        const put = (date, slot, name) => { (days[date] = days[date] || ['', '', '', ''])[slot] = name; };
+        Object.keys(tit).forEach(x => { const t = tit[x], n = repDateAdd(x, 1); put(x, 2, t); put(x, 3, t); put(n, 0, t); put(n, 1, t); });
+        Object.keys(ces).forEach(k => {
+            const i = k.lastIndexOf('_'), date = k.slice(0, i), slot = +k.slice(i + 1), who = repToOrig(ces[k].newDriver);
+            if(who && slot >= 0 && slot < 4) put(date, slot, who);
+        });
+        repCache = { tit, ces, days, raw: rawFinalData, drv: drivers };
+        return repCache;
+    }
+    function repData() { return (repCache && repCache.raw === rawFinalData && repCache.drv === drivers) ? repCache : repBuild(); }
+    function repInvalidate() { repCache = null; }
+    // Titolare del turno a cui appartiene una fascia fisica.
+    function repTitolareOfSlot(R, date, slot) { return slot >= 2 ? (R.tit[date] || '') : (R.tit[repDateAdd(date, -1)] || ''); }
+
+    // ── Visualizzazione nelle celle (stesse regole del programma autisti) ──
+    // Giorno X (inizio): il titolare vede 13-20 e 20-00; giorno X+1 (fine): 00-07 e 07-13.
+    // Verde = coperta dal titolare; rossa col nome = ceduta a quel collega; chi la riceve
+    // la vede lampeggiare giallo/rosso con il nome del titolare.
+    function repBarHtml(orig, date) {
+        const R = repData(); const f = R.days[date]; if(!f) return '';
+        const titOggi = R.tit[date] || '', titIeri = R.tit[repDateAdd(date, -1)] || '';
+        const segs = [];
+        const green = l => `<div class="rep-bar-seg green">${l}</div>`;
+        const ceduta = (l, who) => `<div class="rep-bar-seg red">${l}<br>${esc(repDisplayName(who))}</div>`;
+        const acquisita = (l, tit) => `<div class="rep-bar-seg rep-sub">${l}<br>${esc(repDisplayName(tit))}</div>`;
+        [0, 1, 2, 3].forEach(s => {
+            const who = f[s], tit = s >= 2 ? titOggi : titIeri, L = REP_SLOTS[s].label;
+            if(tit === orig) segs.push(!who || who === orig ? green(L) : ceduta(L, who));
+            else if(who === orig) segs.push(tit ? acquisita(L, tit) : green(L));
+        });
+        return segs.length ? `<div class="rep-bar">${segs.join('')}</div>` : '';
+    }
+    function repCellHtml(orig, date) {
+        if(!date) return '';
+        const R = repData();
+        return (R.tit[date] === orig ? `<div class="rep-text">REPERIBILE</div>` : '') + repBarHtml(orig, date);
+    }
+    // Riquadro nel dettaglio del giorno (tocco su una cella fuori dalla modalità modifica).
+    function repDaySectionHtml(date) {
+        const R = repData(); const tit = R.tit[date]; if(!tit || !date) return '';
+        const n = repDateAdd(date, 1);
+        const rows = [[date, 2], [date, 3], [n, 0], [n, 1]].map(([d, s]) => {
+            const who = (R.days[d] || [])[s] || tit; const ced = who !== tit;
+            return `<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 10px;border-radius:8px;background:${ced ? '#fee2e2' : '#dcfce7'};color:${ced ? '#991b1b' : '#166534'};font-weight:800;font-size:0.8rem">
+                <span>${REP_SLOTS[s].long}${s < 2 ? ' <small style="font-weight:600;opacity:.75">(' + repDateLabel(d) + ')</small>' : ''}</span><span>${esc(repDisplayName(who))}${ced ? ' <small style="font-weight:600">(ceduta)</small>' : ''}</span></div>`;
+        }).join('');
+        return `<div style="margin-top:14px;padding:12px;border-radius:14px;border:1px solid var(--border);background:var(--bg)">
+            <div style="display:flex;align-items:center;gap:6px;font-weight:900;font-size:0.8rem;color:#dc2626;margin-bottom:8px"><span class="material-icons-round" style="font-size:17px">phone_in_talk</span> REPERIBILITÀ — 13:00 › 13:00</div>
+            <div style="font-weight:800;font-size:0.85rem;margin-bottom:8px">Titolare: ${esc(repDisplayName(tit))}</div>
+            <div style="display:flex;flex-direction:column;gap:5px">${rows}</div></div>`;
+    }
+
+    // ── Firestore ──────────────────────────────────────────────────────────
+    // Tutto in un solo documento (le regole Firebase del progetto consentono infermieri26_config):
+    //   turni:    { "YYYY-MM-DD": nome originale, "" = eliminata }
+    //   cessioni: { "YYYY-MM-DD_slot": { date, slotIndex, timeSlot, originalDriver, newDriver, requestId, updatedAt } }
+    // Le cessioni hanno lo stesso formato dei documenti "reperibilita_overrides" degli autisti.
+    function repDocRef() { return db.collection('infermieri26_config').doc('reperibilita'); }
+    function listenReperibilita() {
+        if(!fbReady) return;
+        repDocRef().onSnapshot(doc => {
+            const data = doc.exists ? (doc.data() || {}) : {};
+            const t = data.turni;
+            repTurniSaved = (t && typeof t === 'object') ? Object.assign({}, t) : {};
+            const m = {}, c = (data.cessioni && typeof data.cessioni === 'object') ? data.cessioni : {};
+            Object.keys(c).forEach(k => {
+                const x = c[k]; if(!x || !x.date || x.slotIndex === undefined || x.slotIndex === null) return;
+                const p = String(x.date).split('-'); if(p.length !== 3) return;
+                const key = ymd(new Date(+p[0], +p[1] - 1, +p[2])) + '_' + (+x.slotIndex);
+                m[key] = { newDriver: x.newDriver || '', originalDriver: x.originalDriver || '', requestId: x.requestId || '', id: k };
+            });
+            repCessioniSaved = m;
+            repAfterRemoteChange();
+        }, err => console.error('Errore ascolto reperibilità:', err));
+    }
+    let repRemoteTimer = null;
+    function repAfterRemoteChange() {
+        repInvalidate();
+        clearTimeout(repRemoteTimer);
+        repRemoteTimer = setTimeout(() => {
+            if(finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
+            if(coordEditModeActive) updateCoordToolbarState();
+            ccRefreshIfOpen();
+        }, 120);
+    }
+    function repPendingCount() { return Object.keys(repTurniEdits).length + Object.keys(repCessioniEdits).length; }
+    function repDiscardEdits() { repTurniEdits = {}; repCessioniEdits = {}; repInvalidate(); }
+    async function repPersistEdits() {
+        if(!repPendingCount()) return;
+        const turni = Object.assign({}, repTurniEdits), ces = Object.assign({}, repCessioniEdits);
+        // si applica subito in locale: la conferma di Firestore arriva poi dai listener
+        Object.assign(repTurniSaved, turni);
+        const R = repData();
+        Object.keys(ces).forEach(k => { if(ces[k]) repCessioniSaved[k] = Object.assign({}, ces[k], { id: k }); else delete repCessioniSaved[k]; });
+        repTurniEdits = {}; repCessioniEdits = {}; repInvalidate();
+        if(!fbReady) return;
+        try {
+            const now = new Date().toISOString();
+            const payload = { updatedAt: now };
+            if(Object.keys(turni).length) payload.turni = turni;
+            if(Object.keys(ces).length) {
+                payload.cessioni = {};
+                Object.keys(ces).forEach(k => {
+                    const i = k.lastIndexOf('_'), date = k.slice(0, i), slot = +k.slice(i + 1);
+                    payload.cessioni[k] = ces[k] ? {
+                        date, slotIndex: slot, timeSlot: REP_SLOTS[slot].long.replace('–', '-'),
+                        originalDriver: repDisplayName(repTitolareOfSlot(R, date, slot)) || null,
+                        newDriver: repDisplayName(repToOrig(ces[k].newDriver)),
+                        requestId: 'coordinatore', updatedAt: now
+                    } : firebase.firestore.FieldValue.delete();
+                });
+            }
+            await repDocRef().set(payload, { merge:true });
+        } catch(e) { console.error('Errore salvataggio reperibilità:', e); ccToast('Reperibilità non salvate: controlla la connessione.', true); }
+    }
+
+    // ── Modifiche (con Annulla/Ripeti, salvate insieme ai turni) ──────────
+    // prev/next delle voci di annullamento: null = nessuna modifica in sospeso, {v} = valore.
+    function repSetEdit(kind, key, box) {
+        const map = kind === 'rep' ? repTurniEdits : repCessioniEdits;
+        const prev = repHas(map, key) ? { v: map[key] } : null;
+        if(box) map[key] = box.v; else delete map[key];
+        repInvalidate();
+        return prev;
+    }
+    function repDatesOfKey(kind, key) {
+        if(kind === 'rep') return [key, repDateAdd(key, 1)];
+        return [key.slice(0, key.lastIndexOf('_'))];
+    }
+    function repTitBase(date) { return repHas(repTurniSaved, date) ? (repTurniSaved[date] || '') : (repExcelMap()[date] || ''); }
+    function repCesBase(key) { return repCessioniSaved[key] ? repToOrig(repCessioniSaved[key].newDriver) : ''; }
+    // value: nome originale ('' = nessun titolare / nessuna cessione). Restituisce la voce di annullamento.
+    function repChange(kind, key, value) {
+        value = value || '';
+        const base = kind === 'rep' ? repTitBase(key) : repCesBase(key);
+        let next = null;
+        if(value !== base) next = kind === 'rep' ? { v: value } : { v: value ? { newDriver: value } : null };
+        const prev = repSetEdit(kind, key, next);
+        return { kind, key, prev, next };
+    }
+    function repTurnSlotKeys(x) { const n = repDateAdd(x, 1); return [x + '_2', x + '_3', n + '_0', n + '_1']; }
+    function repClearTurnCessioni(x, entries) {
+        repTurnSlotKeys(x).forEach(k => { if(repData().ces[k] || repHas(repCessioniEdits, k)) entries.push(repChange('repc', k, '')); });
+    }
+    function repCommitEntries(entries, msg) {
+        entries = entries.filter(en => JSON.stringify(en.prev) !== JSON.stringify(en.next));
+        if(!entries.length) return false;
+        pushUndo({ entries });
+        afterCoordChange([], entries.flatMap(en => repDatesOfKey(en.kind, en.key)));
+        vibrate();
+        if(msg) ccToast(msg);
+        return true;
+    }
+    function repCellCtx(row, col) {
+        const d = getDriverByIdx(col);
+        return { date: repRowDate(row), orig: d ? d.originalName : String((finalData[0] || [])[col] || ''), name: d ? d.name : '' };
+    }
+    // Tocco su una cella con uno strumento della ruota "Reperibilità".
+    function repToolTap(row, col) {
+        const c = repCellCtx(row, col); if(!c.date) return;
+        const R = repData(); const tit = R.tit[c.date] || ''; const lbl = repDateLabel(c.date, true);
+        const entries = [];
+        if(coordRepTool === 'add') {
+            if(tit === c.orig) { ccToast(`${c.name} è già reperibile ${lbl}.`); return; }
+            if(tit) repClearTurnCessioni(c.date, entries);
+            entries.push(repChange('rep', c.date, c.orig));
+            repCommitEntries(entries, tit ? `Reperibilità di ${lbl}: ${repDisplayName(tit)} → ${c.name}` : `${c.name} reperibile ${lbl} dalle 13:00 per 24 ore`);
+        } else if(coordRepTool === 'del') {
+            if(tit === c.orig) { repClearTurnCessioni(c.date, entries); entries.push(repChange('rep', c.date, '')); }
+            else [0, 1, 2, 3].forEach(s => { const k = c.date + '_' + s; if(R.ces[k] && repToOrig(R.ces[k].newDriver) === c.orig) entries.push(repChange('repc', k, '')); });
+            if(!repCommitEntries(entries, `Reperibilità eliminata (${c.name}, ${repDateLabel(c.date)})`)) ccToast(`Qui ${c.name} non ha reperibilità da eliminare.`, true);
+        } else if(coordRepTool === 'move') {
+            if(!coordRepMoveFirst) {
+                if(tit !== c.orig) { ccToast('Tocca prima una cella con la scritta REPERIBILE (il giorno in cui parte la reperibilità).', true); return; }
+                coordRepMoveFirst = { row, col, date: c.date, orig: c.orig };
+                markSelectedCell(row, col); vibrate(); updateCoordToolbarState();
+                return;
+            }
+            const a = coordRepMoveFirst; coordRepMoveFirst = null; clearSelectedCellVisual(); coordSelectedCell = null;
+            if(a.date === c.date && a.orig === c.orig) { updateCoordToolbarState(); return; }
+            const destTit = R.tit[c.date] || '';
+            repClearTurnCessioni(a.date, entries);
+            if(a.date !== c.date) {
+                if(destTit) repClearTurnCessioni(c.date, entries);
+                // se il giorno di destinazione aveva già un reperibile, i due si scambiano
+                entries.push(repChange('rep', a.date, destTit && destTit !== a.orig ? destTit : ''));
+            }
+            entries.push(repChange('rep', c.date, c.orig));
+            const swapTxt = (a.date !== c.date && destTit && destTit !== a.orig) ? ` (scambiata con ${repDisplayName(destTit)})` : '';
+            repCommitEntries(entries, `Reperibilità spostata: ${repDisplayName(a.orig)} ${repDateLabel(a.date)} → ${c.name} ${repDateLabel(c.date)}${swapTxt}`);
+            updateCoordToolbarState();
+        } else if(coordRepTool === 'fasce') {
+            openRepEditPopup(c.date, c.orig);
+        }
+    }
+
+    // ── Editor delle 4 fasce ───────────────────────────────────────────────
+    let repEditCtx = null;
+    function openRepEditPopup(date, origHint) {
+        if(!date) return;
+        const R = repData(); const n = repDateAdd(date, 1);
+        const tit = R.tit[date] || '';
+        repEditCtx = { date };
+        const opts = (sel, emptyLabel) => `<option value="">${emptyLabel}</option>` + drivers.map(d => `<option value="${esc(d.originalName)}" ${d.originalName === sel ? 'selected' : ''}>${esc(d.name)}</option>`).join('');
+        const slots = [[date, 2], [date, 3], [n, 0], [n, 1]];
+        const titSel = tit || origHint || '';
+        let html = `<div class="rep-ed-row tit"><label>Titolare<small>reperibile 24 h</small></label><select class="cc-input" id="rep-ed-tit" onchange="repEditTitChanged(this)">${opts(titSel, '— nessuno —')}</select></div>`;
+        slots.forEach(([d, s], i) => {
+            const who = (R.days[d] || [])[s] || '';
+            const cur = who && who !== tit ? who : '';
+            html += `<div class="rep-ed-row ${cur ? 'rep-ed-slot-ceduta' : ''}"><label>${REP_SLOTS[s].long}<small>${repDateLabel(d, true)}</small></label><select class="cc-input" id="rep-ed-s${i}" onchange="this.parentNode.classList.toggle('rep-ed-slot-ceduta', !!this.value)">${opts(cur, 'coperta dal titolare')}</select></div>`;
+        });
+        html += `<p class="rep-ed-note">Scegli un collega in una fascia per cederla: nel calendario il titolare la vede rossa con il nome, chi la copre la vede lampeggiare. Le cessioni inviate dal portale Richieste compaiono già qui. Le modifiche vanno salvate con Salva, come i turni.</p>`;
+        document.getElementById('rep-edit-title').textContent = 'Reperibilità ' + repDateLabel(date, true);
+        document.getElementById('rep-edit-sub').textContent = `dalle 13:00 di ${repDateLabel(date, true)} alle 13:00 di ${repDateLabel(n, true)}`;
+        document.getElementById('rep-edit-body').innerHTML = html;
+        const m = document.getElementById('rep-edit-popup'); m.style.display = 'flex';
+        requestAnimationFrame(() => m.classList.add('open'));
+    }
+    function repEditTitChanged(sel) {
+        // una fascia ceduta proprio al nuovo titolare torna "coperta dal titolare"
+        for(let i = 0; i < 4; i++) { const s = document.getElementById('rep-ed-s' + i); if(s && s.value === sel.value) { s.value = ''; s.parentNode.classList.remove('rep-ed-slot-ceduta'); } }
+    }
+    function closeRepEditPopup(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('rep-edit-popup'); m.classList.remove('open');
+        setTimeout(() => { if(!m.classList.contains('open')) m.style.display = 'none'; }, 150);
+        repEditCtx = null;
+    }
+    function repEditApply() {
+        if(!repEditCtx) return;
+        const date = repEditCtx.date;
+        const tit = document.getElementById('rep-ed-tit').value;
+        const keys = repTurnSlotKeys(date);
+        const entries = [repChange('rep', date, tit)];
+        keys.forEach((k, i) => {
+            const v = document.getElementById('rep-ed-s' + i).value;
+            const want = (v && v !== tit) ? v : '';
+            const R = repData(); const cur = R.ces[k] ? repToOrig(R.ces[k].newDriver) : '';
+            if(want !== cur || repHas(repCessioniEdits, k)) entries.push(repChange('repc', k, want));
+        });
+        closeRepEditPopup();
+        if(!repCommitEntries(entries, 'Reperibilità aggiornata')) ccToast('Nessuna modifica.');
+    }
+    function repEditRemove() {
+        if(!repEditCtx) return;
+        const date = repEditCtx.date; const entries = [];
+        repClearTurnCessioni(date, entries);
+        entries.push(repChange('rep', date, ''));
+        closeRepEditPopup();
+        if(!repCommitEntries(entries, 'Reperibilità eliminata')) ccToast('Questo giorno non ha reperibilità.');
+    }
+    function repOpenFromShiftPopup() {
+        if(!coordEditPopupTarget) return;
+        const { row, col } = coordEditPopupTarget; const c = repCellCtx(row, col);
+        closeShiftEditPopup();
+        setTimeout(() => openRepEditPopup(c.date, c.orig), 160);
+    }
+
+    // ── Sequenze della ruota (+5, +10, +15, 5 cicli, +7 diurni) ────────────
+    function applyWheelSequence(row, col) {
+        const s = WHEEL_SEQUENCES.find(x => x.id === coordSeqTool); if(!s) return;
+        const entries = []; let last = row;
+        for(let i = 0; i < s.len; i++) {
+            const r = row + i; if(!finalData[r] || shiftRowYear(r) !== shiftRowYear(row)) break; // non oltre il cambio d'anno
+            const key = cellKey(r, col);
+            const next = { v: s.pattern[i % s.pattern.length], subV: '' };
+            const prev = setOverride(key, next);
+            entries.push({ key, prev, next }); last = r;
+        }
+        if(!entries.length) return;
+        pushUndo({ entries });
+        afterCoordChange(entries.map(en => en.key)); vibrate();
+        const d = getDriverByIdx(col);
+        ccToast(`${d ? d.name + ': ' : ''}${entries.length} turni inseriti dal ${repDateLabel(repRowDate(row))} al ${repDateLabel(repRowDate(last))}`);
+    }
+
+    // ═══ REPORT REPERIBILITÀ (Area Coordinatore) ══════════════════════════
+    // Ore di reperibilità per operatore e giorno fisico del mese scelto, per l'ufficio
+    // personale: 00-07 = 7 h, 07-13 = 6 h, 13-20 = 7 h, 20-00 = 4 h (24 h per turno).
+    let ccRepMonth = new Date().getFullYear() === SHIFT_YEAR ? new Date().getMonth() : 0;
+    function ccRepNav(delta) { ccRepMonth = delta === 0 ? (new Date().getFullYear() === SHIFT_YEAR ? new Date().getMonth() : 0) : Math.min(11, Math.max(0, ccRepMonth + delta)); renderCcReperibilita(); }
+    function repMonthReport(monthIdx) {
+        const R = repData();
+        const nDays = new Date(SHIFT_YEAR, monthIdx + 1, 0).getDate();
+        const dates = []; for(let d = 1; d <= nDays; d++) dates.push(ymd(new Date(SHIFT_YEAR, monthIdx, d)));
+        const per = {}; const dayTot = new Array(nDays + 1).fill(0);
+        dates.forEach((dt, i) => {
+            const f = R.days[dt]; if(!f) return;
+            f.forEach((who, s) => {
+                if(!who) return;
+                const p = per[who] = per[who] || { days:{}, total:0, festive:0, list:{} };
+                const m = REP_SLOTS[s].minutes;
+                p.days[i + 1] = (p.days[i + 1] || 0) + m; p.total += m; dayTot[i + 1] += m;
+                if(repIsFestive(dt)) p.festive += m;
+                (p.list[dt] = p.list[dt] || []).push(s);
+            });
+        });
+        const order = o => { const k = drivers.findIndex(d => d.originalName === o); return k === -1 ? 9999 : k; };
+        const rows = Object.keys(per).sort((a, b) => order(a) - order(b) || a.localeCompare(b)).map(o => Object.assign({ orig:o, name:repDisplayName(o) }, per[o]));
+        const title = MONTH_NAMES_IT[monthIdx].charAt(0).toUpperCase() + MONTH_NAMES_IT[monthIdx].slice(1) + ' ' + SHIFT_YEAR;
+        return { monthIdx, nDays, dates, rows, dayTot, title, total: rows.reduce((a, r) => a + r.total, 0), festive: rows.reduce((a, r) => a + r.festive, 0) };
+    }
+    function repHours(min) { const h = min / 60; return Number.isInteger(h) ? String(h) : h.toFixed(1).replace('.', ','); }
+    function repListText(p, dt) { return p.list[dt].slice().sort((a, b) => a - b).map(s => REP_SLOTS[s].label).join(', '); }
+    function renderCcReperibilita() {
+        const main = document.getElementById('cc-main');
+        const M = repMonthReport(ccRepMonth);
+        const wd = ['D','L','M','M','G','V','S'];
+        const head = M.dates.map((dt, i) => `<th class="rr-day ${repIsFestive(dt) ? 'rr-red' : ''}">${i + 1}<small>${wd[repDateObj(dt).getDay()]}</small></th>`).join('');
+        const body = M.rows.map(r => `<tr><td class="cc-sticky"><div class="cc-opname">${esc(r.name)}</div></td>${M.dates.map((dt, i) => {
+            const m = r.days[i + 1] || 0;
+            return `<td class="rr-day ${repIsFestive(dt) ? 'rr-red' : ''} ${m ? '' : 'rr-empty'}" ${m ? `title="${esc(repListText(r, dt))}"` : ''}>${m ? `<b>${repHours(m)}</b>` : '·'}</td>`;
+        }).join('')}<td class="r cc-sep-l cc-num"><b style="font-weight:600">${repHours(r.total)} h</b></td><td class="r cc-num">${repHours(r.festive)} h</td></tr>`).join('');
+        const foot = M.dates.map((dt, i) => { const m = M.dayTot[i + 1]; const warn = m && m !== 1440; return `<td class="rr-day cc-num ${repIsFestive(dt) ? 'rr-red' : ''}" ${warn ? 'style="color:var(--cc-neg)" title="Copertura diversa da 24 h"' : ''}>${m ? repHours(m) : '·'}</td>`; }).join('');
+        const missing = M.dates.filter((dt, i) => M.dayTot[i + 1] !== 1440).length;
+        const detail = M.rows.map(r => `<div class="rr-card"><h4><span>${esc(r.name)}</span><span class="cc-num">${repHours(r.total)} h</span></h4><ul>${Object.keys(r.list).sort().map(dt => {
+            const m = r.list[dt].reduce((a, s) => a + REP_SLOTS[s].minutes, 0);
+            return `<li><span>${esc(repDateObj(dt).toLocaleDateString('it-IT', { weekday:'short', day:'2-digit', month:'2-digit' }))} · ${esc(repListText(r, dt))}</span><span>${repHours(m)} h</span></li>`;
+        }).join('')}</ul></div>`).join('');
+        main.innerHTML = `
+            <div class="cc-toolbar">
+                <div class="cc-period-nav">
+                    <button class="cc-icon-btn" onclick="ccRepNav(-1)" aria-label="Mese precedente"><span class="msym">chevron_left</span></button>
+                    <span class="cc-period-label">${esc(M.title)}</span>
+                    <button class="cc-icon-btn" onclick="ccRepNav(1)" aria-label="Mese successivo"><span class="msym">chevron_right</span></button>
+                </div>
+                <button class="cc-btn sm" onclick="ccRepNav(0)">Questo mese</button>
+                <div class="cc-spacer"></div>
+                <span class="cc-hint">Totale mese: <b class="cc-num">${repHours(M.total)} h</b> · festive ${repHours(M.festive)} h</span>
+            </div>
+            ${M.rows.length ? `
+            <div class="cc-table-wrap">
+                <table class="cc-table rr-table">
+                    <thead><tr><th class="cc-sticky">Operatore<small>ore per giorno</small></th>${head}<th class="r cc-sep-l">Totale<small>ore</small></th><th class="r">Festive<small>dom. e festivi</small></th></tr></thead>
+                    <tbody>${body}</tbody>
+                    <tfoot><tr><td class="cc-sticky">Totale giorno</td>${foot}<td class="r cc-sep-l cc-num">${repHours(M.total)} h</td><td class="r cc-num">${repHours(M.festive)} h</td></tr></tfoot>
+                </table>
+            </div>
+            ${missing ? `<div class="cc-check warn"><span class="msym">warning</span>${missing} ${missing === 1 ? 'giorno non ha' : 'giorni non hanno'} 24 h di reperibilità coperte (in rosso nella riga Totale giorno).</div>` : `<div class="cc-check ok"><span class="msym">verified</span>Tutti i giorni del mese hanno 24 h di reperibilità coperte.</div>`}
+            <div class="cc-panel" style="margin-top:14px"><div class="cc-panel-head"><h3>Dettaglio per operatore</h3></div><div class="cc-panel-body"><div class="rr-detail">${detail}</div></div></div>`
+            : `<div class="cc-empty"><span class="msym">event_busy</span>Nessuna reperibilità in ${esc(M.title.toLowerCase())}.</div>`}
+            <div class="cc-legend">
+                <span>Fasce: 00-07 = 7 h, 07-13 = 6 h, 13-20 = 7 h, 20-00 = 4 h. Ogni ora è attribuita al giorno in cui cade (la reperibilità parte alle 13:00 e finisce alle 13:00 del giorno dopo).</span>
+                <span>Le cessioni (portale Richieste o ruota) contano per chi copre davvero la fascia.</span>
+            </div>`;
+        document.getElementById('cc-top-actions').innerHTML = M.rows.length
+            ? `<button class="cc-btn" onclick="repReportPrint()"><span class="msym">print</span>Stampa</button><button class="cc-btn primary" onclick="repReportPdf()"><span class="msym">picture_as_pdf</span>Scarica PDF</button>`
+            : '';
+    }
+    // Documento stampabile, isolato dalla pagina (A4 orizzontale).
+    function repReportHtml(M) {
+        const wd = ['D','L','M','M','G','V','S'];
+        const th = M.dates.map((dt, i) => `<th class="${repIsFestive(dt) ? 'f' : ''}">${i + 1}<br><small>${wd[repDateObj(dt).getDay()]}</small></th>`).join('');
+        const rows = M.rows.map(r => `<tr><td class="n">${esc(r.name)}</td>${M.dates.map((dt, i) => { const m = r.days[i + 1] || 0; return `<td class="${repIsFestive(dt) ? 'f' : ''}">${m ? repHours(m) : ''}</td>`; }).join('')}<td class="t">${repHours(r.total)}</td><td class="t">${repHours(r.festive)}</td></tr>`).join('');
+        const foot = M.dates.map((dt, i) => `<td class="${repIsFestive(dt) ? 'f' : ''}">${M.dayTot[i + 1] ? repHours(M.dayTot[i + 1]) : ''}</td>`).join('');
+        const det = M.rows.map(r => `<div class="card"><h3>${esc(r.name)} <span>${repHours(r.total)} h</span></h3><table class="d">${Object.keys(r.list).sort().map(dt => `<tr><td>${esc(repDateObj(dt).toLocaleDateString('it-IT', { weekday:'short', day:'2-digit', month:'2-digit' }))}</td><td>${esc(repListText(r, dt))}</td><td class="t">${repHours(r.list[dt].reduce((a, s) => a + REP_SLOTS[s].minutes, 0))} h</td></tr>`).join('')}</table></div>`).join('');
+        return `<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><title>Reperibilità infermieri — ${esc(M.title)}</title><style>
+            @page { size:A4 landscape; margin:10mm; }
+            * { box-sizing:border-box; } body { font:10px/1.3 Arial, Helvetica, sans-serif; color:#111; margin:0; }
+            h1 { font-size:16px; margin:0 0 2px; } .sub { color:#555; margin:0 0 10px; }
+            table.m { border-collapse:collapse; width:100%; } .m th, .m td { border:1px solid #bbb; padding:3px 2px; text-align:center; }
+            .m th { background:#eef1f5; font-size:9px; } .m th small { font-weight:normal; color:#666; }
+            .m td.n { text-align:left; font-weight:bold; white-space:nowrap; padding:3px 5px; } .m td.t { font-weight:bold; background:#f6f7f9; }
+            .m .f { background:#fdecec; } .m tfoot td { font-weight:bold; background:#eef1f5; }
+            .legend { margin:8px 0 14px; color:#555; } h2 { font-size:13px; margin:14px 0 6px; page-break-after:avoid; }
+            .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; } .card { border:1px solid #ccc; border-radius:4px; padding:5px 7px; break-inside:avoid; }
+            .card h3 { font-size:11px; margin:0 0 4px; display:flex; justify-content:space-between; } table.d { width:100%; border-collapse:collapse; }
+            .d td { padding:1px 0; border-bottom:1px dotted #ddd; } .d td.t { text-align:right; white-space:nowrap; }
+            .firma { margin-top:24px; display:flex; justify-content:space-between; } .firma div { width:40%; border-top:1px solid #333; padding-top:4px; text-align:center; }
+        </style></head><body>
+            <h1>Reperibilità infermieri — ${esc(M.title)}</h1>
+            <p class="sub">Ore di reperibilità per operatore e giorno · totale mese ${repHours(M.total)} h (festive ${repHours(M.festive)} h) · generato il ${new Date().toLocaleString('it-IT')}</p>
+            <table class="m"><thead><tr><th>Operatore</th>${th}<th>Tot. ore</th><th>Festive</th></tr></thead><tbody>${rows}</tbody>
+            <tfoot><tr><td class="n">Totale giorno</td>${foot}<td class="t">${repHours(M.total)}</td><td class="t">${repHours(M.festive)}</td></tr></tfoot></table>
+            <p class="legend">Fasce: 00-07 = 7 h · 07-13 = 6 h · 13-20 = 7 h · 20-00 = 4 h. Ore attribuite al giorno in cui cadono. Colonne rosate = domeniche e festivi.</p>
+            <h2>Dettaglio per operatore</h2><div class="grid">${det}</div>
+            <div class="firma"><div>Il coordinatore</div><div>Ufficio personale</div></div>
+        </body></html>`;
+    }
+    function repReportPrint() {
+        const M = repMonthReport(ccRepMonth); if(!M.rows.length) return;
+        const old = document.getElementById('rep-print-frame'); if(old) old.remove();
+        const fr = document.createElement('iframe');
+        fr.id = 'rep-print-frame'; fr.setAttribute('aria-hidden', 'true');
+        fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
+        document.body.appendChild(fr);
+        const doc = fr.contentWindow.document; doc.open(); doc.write(repReportHtml(M)); doc.close();
+        setTimeout(() => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch(e) { ccToast('Stampa non riuscita.', true); } }, 250);
+    }
+    function repLoadScript(src) {
+        return new Promise((ok, ko) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => ko(new Error('Impossibile caricare ' + src)); document.head.appendChild(s); });
+    }
+    async function repEnsurePdfLib() {
+        if(!(window.jspdf && window.jspdf.jsPDF)) await repLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+        if(!window.jspdf.jsPDF.API.autoTable) await repLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+        return window.jspdf.jsPDF;
+    }
+    // Costruisce il PDF del mese (restituisce il documento jsPDF, senza scaricarlo).
+    async function repBuildPdf(monthIdx) {
+        const jsPDF = await repEnsurePdfLib();
+        const M = repMonthReport(monthIdx);
+        const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+        const W = doc.internal.pageSize.getWidth();
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
+        doc.text(`Reperibilità infermieri - ${M.title}`, 10, 13);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(90);
+        doc.text(`Totale mese ${repHours(M.total)} h (festive ${repHours(M.festive)} h) - generato il ${new Date().toLocaleString('it-IT')}`, 10, 18.5);
+        doc.setTextColor(0);
+        const wd = ['D','L','M','M','G','V','S'];
+        const fest = M.dates.map(repIsFestive);
+        const head = [['Operatore', ...M.dates.map((dt, i) => `${i + 1}\n${wd[repDateObj(dt).getDay()]}`), 'Tot.', 'Fest.']];
+        const body = M.rows.map(r => [r.name, ...M.dates.map((dt, i) => r.days[i + 1] ? repHours(r.days[i + 1]) : ''), repHours(r.total), repHours(r.festive)]);
+        const foot = [['Totale giorno', ...M.dates.map((dt, i) => M.dayTot[i + 1] ? repHours(M.dayTot[i + 1]) : ''), repHours(M.total), repHours(M.festive)]];
+        doc.autoTable({
+            head, body, foot, startY:22, margin:{ left:10, right:10 }, theme:'grid',
+            styles:{ fontSize:7, cellPadding:1, halign:'center', valign:'middle', lineColor:[190, 190, 190], lineWidth:0.1 },
+            headStyles:{ fillColor:[232, 236, 242], textColor:20, fontStyle:'bold', fontSize:6.5 },
+            footStyles:{ fillColor:[232, 236, 242], textColor:20, fontStyle:'bold' },
+            columnStyles:{ 0:{ halign:'left', fontStyle:'bold', cellWidth:30 } },
+            didParseCell: data => {
+                const c = data.column.index;
+                if(c >= 1 && c <= M.nDays && fest[c - 1] && data.section !== 'head') data.cell.styles.fillColor = [253, 234, 234];
+                if(c >= 1 && c <= M.nDays && fest[c - 1] && data.section === 'head') data.cell.styles.textColor = [200, 30, 30];
+                if(c > M.nDays && data.section === 'body') data.cell.styles.fontStyle = 'bold';
+            }
+        });
+        let y = doc.lastAutoTable.finalY + 5;
+        doc.setFontSize(8); doc.setTextColor(90);
+        doc.text('Fasce: 00-07 = 7 h, 07-13 = 6 h, 13-20 = 7 h, 20-00 = 4 h. Ore attribuite al giorno in cui cadono. Colonne rosate = domeniche e festivi.', 10, y);
+        doc.setTextColor(0);
+        // firme sotto la tabella (su una pagina nuova solo se non c'è spazio)
+        y += 22;
+        if(y > doc.internal.pageSize.getHeight() - 12) { doc.addPage(); y = 30; }
+        doc.setFontSize(9);
+        doc.line(20, y, 110, y); doc.line(W - 110, y, W - 20, y);
+        doc.text('Il coordinatore', 65, y + 5, { align:'center' }); doc.text('Ufficio personale', W - 65, y + 5, { align:'center' });
+        const det = [];
+        M.rows.forEach(r => Object.keys(r.list).sort().forEach((dt, k) => det.push([k === 0 ? r.name : '', repDateObj(dt).toLocaleDateString('it-IT', { weekday:'short', day:'2-digit', month:'2-digit' }), repListText(r, dt), repHours(r.list[dt].reduce((a, s) => a + REP_SLOTS[s].minutes, 0)) + ' h', k === 0 ? repHours(r.total) + ' h' : ''])));
+        doc.addPage();
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text(`Dettaglio per operatore - ${M.title}`, 10, 13);
+        doc.autoTable({
+            head:[['Operatore', 'Giorno', 'Fasce', 'Ore', 'Totale mese']], body:det, startY:18, margin:{ left:10, right:10 }, theme:'striped',
+            styles:{ fontSize:8, cellPadding:1.2 }, headStyles:{ fillColor:[30, 41, 59] },
+            columnStyles:{ 0:{ fontStyle:'bold', cellWidth:45 }, 3:{ halign:'right', cellWidth:18 }, 4:{ halign:'right', fontStyle:'bold', cellWidth:25 } }
+        });
+        return { doc, M };
+    }
+    async function repReportPdf() {
+        try {
+            ccToast('Preparo il PDF…');
+            const { doc, M } = await repBuildPdf(ccRepMonth);
+            doc.save(`reperibilita-infermieri-${MONTH_NAMES_IT[M.monthIdx]}-${SHIFT_YEAR}.pdf`);
+            ccToast('PDF scaricato');
+        } catch(e) { console.error(e); ccToast('PDF non creato: controlla la connessione.', true); }
+    }
 
     // ── renderTable ───────────────────────────────────────────────────────────
     // Costruita fuori dal DOM (DocumentFragment) e in un solo inserimento: prima i
@@ -5283,7 +6013,7 @@
         thead.innerHTML = ""; thead.appendChild(frag);
     }
     function buildDayRow(i, today) {
-        const year = 2026;
+        const year = shiftRowYear(i);
         let row = finalData[i]; let mName = row[0].v; let dNum = parseInt(row[1].v);
         let tr = document.createElement('tr'); tr.dataset.row = i;
         let mIdx = MONTH_MAP[mName]; let dateObj = new Date(year, mIdx, dNum);
@@ -5310,6 +6040,7 @@
         let html = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="${mClass}" title="Operatori mattina">M<b>${countM}</b></span><span class="${pClass}" title="Operatori pomeriggio">P<b>${countP}</b></span></div></td>`;
 
         let prevRow = finalData[i-1];
+        const isoDate = ymd(dateObj);
         rtCols.forEach(d => {
             let cellInfo = row[d.idx] || { v:"", subV:"" };
             let prevCellInfo = prevRow ? prevRow[d.idx] : null;
@@ -5321,7 +6052,7 @@
             const orig = String(d.originalName || d.name).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const click = `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const sel = coordEditModeActive && coordSelectedCell && coordSelectedCell.row === i && coordSelectedCell.col === d.idx;
-            html += `<td${sel?' class="coord-selected"':''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${formatCell(cellInfo, prevCellInfo, showGraziella)}</td>`;
+            html += `<td${sel?' class="coord-selected"':''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
         });
         tr.innerHTML = html;
         return tr;
@@ -5365,7 +6096,9 @@
     }
 
     // ── formatCell ────────────────────────────────────────────────────────────
-    function formatCell(info, prevInfo, showGraziella = false) {
+    // repOverride: HTML della reperibilità a fasce (badge + striscia); se passato sostituisce
+    // il vecchio riconoscimento dal testo della cella ("M/R").
+    function formatCell(info, prevInfo, showGraziella = false, repOverride) {
         let rawValStr = (info.v || "").toString().trim();
         let val       = rawValStr;
         let subVal    = (info.subV  || "").toString().trim().toLowerCase();
@@ -5381,6 +6114,7 @@
         }
         if(!isReperibile && (isRepStr(subVal) || isRepStr(supVal))) isReperibile = true;
         let repHtml = isReperibile ? `<div class="rep-text">REPERIBILE</div>` : "";
+        if(repOverride !== undefined) repHtml = repOverride;
 
         // ── SMONTO dopo M+N ───────────────────────────────────────────────────
         if(isMN(prevRawVal)) {
@@ -5529,8 +6263,7 @@
                     : (isMN(rawV)
                         ? `M: ${SCHEDULE["M"]} / N: ${SCHEDULE["N"]}`
                         : (SCHEDULE[uVal] || uVal));
-                let strSup = (cell.supV||"").toString().trim(), strV = (cell.v||"").toString().trim(), strSub = (cell.subV||"").toString().trim();
-                if(isRepStr(strSup)||isRepStr(strV)||isRepStr(strSub)) time += ` &nbsp;<span style="color:#ef4444;font-weight:900;font-size:0.75rem;">(REPERIBILE)</span>`;
+                if(repData().tit[repRowDate(rowIndex)] === d.originalName) time += ` &nbsp;<span style="color:#ef4444;font-weight:900;font-size:0.75rem;">(REPERIBILE)</span>`;
                 let badgeStyle = "background:#e2e8f0;color:#475569";
                 if(uVal==="M") badgeStyle="background:#dbeafe;color:#1e40af";
                 if(uVal==="P") badgeStyle="background:#ffedd5;color:#9a3412";
@@ -5553,6 +6286,7 @@
         } else {
             list.innerHTML += `<div style="padding:20px;text-align:center;color:#94a3b8;font-size:0.9rem">Nessun infermiere in questo turno.</div>`;
         }
+        list.innerHTML += repDaySectionHtml(repRowDate(rowIndex));
         modal.style.display = 'flex'; setTimeout(() => modal.classList.add('open'), 10);
     }
     function closeShiftModal(e) { if(e && e.target !== e.currentTarget) return; let m = document.getElementById('shift-modal'); m.classList.remove('open'); setTimeout(() => m.style.display='none', 200); }
@@ -5904,6 +6638,7 @@
         'admin-login-modal': closeAdminLoginModal,
         'admin-panel-modal': closeAdminPanel,
         'hours-modal': closeHoursModal,
+        'rep-edit-popup': closeRepEditPopup,
         'cc-dialog': closeCcDialog,
         'coord-console': closeCoordConsole,
         'shift-edit-popup': closeShiftEditPopup,
