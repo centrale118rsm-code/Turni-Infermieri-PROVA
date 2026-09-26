@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,balance,calendar_month,check,check_circle,chevron_left,chevron_right,close,delete,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,group,hourglass_top,ink_eraser,login,logout,open_with,person_add,person_remove,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,save,schedule,search,settings,space_dashboard,swap_horiz,task_alt,today,tune,undo,verified,visibility_off,warning&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,balance,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,group,history,hourglass_top,ink_eraser,login,logout,open_with,person_add,person_remove,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,swap_horiz,sync,task_alt,today,tune,undo,upload,verified,visibility,visibility_off,warning&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -749,6 +749,17 @@
             .cc-top-actions { order:3; width:100%; flex-wrap:wrap; }
             .cc-top-actions:empty { display:none; }
         }
+
+        /* striscia "stai guardando un anno passato" */
+        #year-banner { display:none; align-items:center; gap:8px; height:34px; padding:0 16px; background:#b45309; color:#fff; font-size:0.8rem; font-weight:700; cursor:pointer; }
+        #year-banner .material-icons-round { font-size:17px; }
+        #year-banner .material-icons-round:last-child { margin-left:auto; }
+        .cc-archive-banner { display:flex; align-items:center; gap:10px; padding:10px 28px; background:var(--cc-warn-soft); color:var(--cc-warn); font:500 13px/1.3 var(--cc-font); border-bottom:1px solid var(--cc-line); }
+        .cc-archive-banner .msym { font-size:19px; }
+        .cc-archive-banner button { margin-left:auto; }
+        .dat-status li .msym { font-size:20px; }
+        .dat-log li { align-items:flex-start; }
+        .dat-log li small { margin-top:2px; }
 
         /* pannelli e sezioni */
         .cc-panel { background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:var(--cc-r); margin-bottom:18px; }
@@ -1827,6 +1838,7 @@
                 <button data-sec="reperibilita" onclick="ccGo('reperibilita')"><span class="msym">phone_in_talk</span><span>Report reperibilità</span></button>
                 <div class="cc-nav-group">Sistema</div>
                 <button data-sec="riportare" onclick="ccGo('riportare')"><span class="msym">task_alt</span><span>Da riportare</span><span class="cc-count" id="cc-count-sync"></span></button>
+                <button data-sec="dati" onclick="ccGo('dati')"><span class="msym">shield</span><span>Dati e backup</span></button>
                 <button data-sec="impostazioni" onclick="ccGo('impostazioni')"><span class="msym">settings</span><span>Impostazioni</span></button>
             </nav>
             <div class="cc-side-foot">
@@ -1840,6 +1852,7 @@
                 <div class="cc-top-actions" id="cc-top-actions"></div>
                 <button class="cc-icon-btn" onclick="closeCoordConsole()" title="Chiudi e torna al calendario" aria-label="Chiudi"><span class="msym">close</span></button>
             </div>
+            <div class="cc-archive-banner" id="cc-archive-banner" style="display:none"></div>
             <main class="cc-main" id="cc-main"></main>
         </section>
     </div>
@@ -2161,6 +2174,9 @@
                 <div class="menu-item" onclick="openHoursModal()">
                     <span class="material-icons-round">query_stats</span> Conteggio Orario
                 </div>
+                <div class="menu-item" id="menu-year-picker" style="display:none" onclick="openYearPicker()">
+                    <span class="material-icons-round">history</span> Anni passati
+                </div>
                 <div class="menu-sep"></div>
                 <div class="menu-item" onclick="openCoordLoginModal()">
                     <span class="material-icons-round">supervisor_account</span> Area Coordinatore
@@ -2177,6 +2193,11 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div id="year-banner" onclick="switchToYear(activeYear)" role="button">
+        <span class="material-icons-round">history</span>
+        <span id="year-banner-text"></span>
+        <span class="material-icons-round">chevron_right</span>
     </div>
 </header>
 
@@ -2207,12 +2228,25 @@
 <script>
     const FILE_NAME = "infermieri.xlsx?v=" + new Date().getTime();
     const MONTH_MAP = { "GENNAIO":0,"FEBBRAIO":1,"MARZO":2,"APRILE":3,"MAGGIO":4,"GIUGNO":5,"LUGLIO":6,"AGOSTO":7,"SETTEMBRE":8,"OTTOBRE":9,"NOVEMBRE":10,"DICEMBRE":11 };
-    const HOLIDAYS = {
+    const FIXED_HOLIDAYS = {
         "0-1":"CAPODANNO","0-6":"EPIFANIA","1-5":"S. AGATA","2-25":"ARENGO","3-1":"REGGENZA",
-        "3-5":"PASQUA","3-6":"LUN. ANGELO","4-1":"1° MAGGIO","5-4":"CORPUS DOM.",
-        "6-28":"LIBERAZIONE","7-15":"FERRAGOSTO","8-3":"S. MARINO","9-1":"REGGENZA",
+        "4-1":"1° MAGGIO","6-28":"LIBERAZIONE","7-15":"FERRAGOSTO","8-3":"S. MARINO","9-1":"REGGENZA",
         "10-1":"OGNISSANTI","10-2":"COMM. DEFUNTI","11-8":"IMMACOLATA","11-25":"NATALE","11-26":"S. STEFANO"
     };
+    // Pasqua (algoritmo di Gauss/Meeus), Lunedì dell'Angelo e Corpus Domini (+60 giorni) cambiano ogni anno.
+    function easterDate(y) {
+        const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25);
+        const g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4;
+        const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+        return new Date(y, Math.floor((h + l - 7 * m + 114) / 31) - 1, ((h + l - 7 * m + 114) % 31) + 1);
+    }
+    function holidaysFor(y) {
+        const H = Object.assign({}, FIXED_HOLIDAYS), e = easterDate(y);
+        const add = (n, name) => { const d = new Date(e); d.setDate(d.getDate() + n); H[`${d.getMonth()}-${d.getDate()}`] = name; };
+        add(0, 'PASQUA'); add(1, 'LUN. ANGELO'); add(60, 'CORPUS DOM.');
+        return H;
+    }
+    let HOLIDAYS = holidaysFor(2026);
     const SCHEDULE = { "M":"06:30 - 13:15","P":"12:45 - 20:10","N":"19:45 - 00:00","SM":"00:00 - 07:20","S":"00:00 - 07:20","R":"RIPOSO" };
     const SCHEDULE_DIURNI = { "m":"06:30 - 13:42","p":"13:15 - 20:27","r":"RIPOSO" };
     const DEFAULT_SCHEDULE = Object.assign({}, SCHEDULE);
@@ -2240,10 +2274,19 @@
         appId: "1:389097635025:web:331564551f0e5190a199f0",
         measurementId: "G-PBBLRX8ZZZ"
     };
-    let fbApp, db, fbAuth, fbReady = false;
+    let fbApp, db, fbAuth, fbReady = false, fbPersistence = false;
+    // PROVA usa documenti propri dentro infermieri26_config ("prova_settings", "prova_turni_…"),
+    // così le prove non toccano l'app di produzione, che legge "settings". Per andare in
+    // produzione basta DATA_NS = ''. Il documento "reperibilita" resta condiviso di proposito:
+    // è quello in cui scrive anche il portale Richieste.
+    const DATA_NS = 'prova_';
+    function cfgRef(name) { return db.collection('infermieri26_config').doc(DATA_NS + name); }
     try {
         fbApp = firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
+        // memoria offline: le scritture fatte senza rete restano in coda sul dispositivo
+        // (anche chiudendo l'app) e partono appena torna la connessione
+        try { db.enablePersistence({ synchronizeTabs:true }).then(() => { fbPersistence = true; }).catch(e => console.warn('Memoria offline non disponibile:', e && e.code)); } catch(e) {}
         fbAuth = firebase.auth();
         fbReady = true;
     } catch(e) { console.error("Errore inizializzazione Firebase:", e); }
@@ -2490,9 +2533,17 @@
     // ── Config remota (colori, nomi operatori, orari) ───────────────────────
     function listenConfigChanges() {
         if(!fbReady) return;
-        db.collection('infermieri26_config').doc('settings').onSnapshot(doc => {
-            if(!doc.exists) return;
+        cfgRef('settings').onSnapshot(doc => {
+            if(!doc.exists) { seedNamespaceSettings(); resolveConfigReady(); return; }
             const data = doc.data();
+            if(data.dataSource !== undefined) dataSourceMode = data.dataSource === 'firebase' ? 'firebase' : 'excel';
+            if(data.activeYear !== undefined && data.activeYear) activeYear = +data.activeYear;
+            if(data.archivedYears !== undefined) archivedYears = (data.archivedYears || []).map(Number);
+            // è stato attivato il passaggio a Firebase mentre questa app girava ancora sull'Excel
+            if(appBooted && bootMode === 'excel' && dataSourceMode === 'firebase' && !sessionStorage.getItem('fb_mode_reloaded')) {
+                sessionStorage.setItem('fb_mode_reloaded', '1'); location.reload(); return;
+            }
+            updateYearUi();
             if(data.colors) { colorOverrides = data.colors; applyColorOverrides(); }
             if(data.nameOverrides) { nameOverrides = data.nameOverrides; applyNameOverrides(); }
             if(data.operatorConfig !== undefined) {
@@ -2506,14 +2557,10 @@
             if(data.scheduleOverride) { scheduleOverride = data.scheduleOverride; applyScheduleOverride(); }
             if(data.welcome) { welcomeConfig = Object.assign({}, DEFAULT_WELCOME_BAKED, data.welcome); }
             if(data.announcements) { customAnnouncements = data.announcements; }
-            if(data.manualOverrides !== undefined && (!coordEditModeActive || coordUndoStack.length === 0)) {
-                manualOverrides = data.manualOverrides || {};
-                if(!coordEditModeActive) { coordEditBaseline = JSON.parse(JSON.stringify(manualOverrides)); }
-                applyManualOverrides();
-                if(typeof finalData !== 'undefined' && finalData.length) renderTable();
-                if(document.getElementById('hours-modal')?.classList.contains('open')) renderHoursDetail();
-                if(coordEditModeActive) updateCoordToolbarState();
-                ccRefreshIfOpen();
+            if(dataSourceMode === 'excel' && data.manualOverrides !== undefined) {
+                // le modifiche degli altri si fondono con quelle in sospeso su questo dispositivo
+                mergeRemoteOverrides(data.manualOverrides || {}, null);
+                refreshAfterRemoteOverrides();
             }
             if(data.excelSyncedMarks !== undefined) {
                 excelSyncedMarks = data.excelSyncedMarks || {};
@@ -2524,7 +2571,8 @@
                 checkIfIAmCoordinator();
                 renderCoordinatorTab();
             }
-        }, err => console.error("Errore ascolto config:", err));
+            resolveConfigReady();
+        }, err => { console.error("Errore ascolto config:", err); resolveConfigReady(); });
     }
 
     // ── Coordinatore designato: selezionabile in Area Coordinatore, notifiche
@@ -2786,7 +2834,7 @@
         colorOverrides = newColors;
         applyColorOverrides();
         if(fbReady) {
-            db.collection('infermieri26_config').doc('settings').set({ colors: newColors }, { merge:true })
+            cfgRef('settings').set({ colors: newColors }, { merge:true })
                 .then(() => showAdminToast("Colori salvati e sincronizzati"))
                 .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
         } else showAdminToast("Colori applicati (offline)");
@@ -2796,7 +2844,7 @@
         Object.entries(DEFAULT_COLORS).forEach(([k,v]) => document.documentElement.style.setProperty(k, v));
         populateAdminColorInputs();
         colorOverrides = {};
-        if(fbReady) db.collection('infermieri26_config').doc('settings').set({ colors: {} }, { merge:true }).catch(()=>{});
+        if(fbReady) cfgRef('settings').set({ colors: {} }, { merge:true }).catch(()=>{});
         showAdminToast("Colori predefiniti ripristinati");
     }
 
@@ -2819,7 +2867,7 @@
         nameOverrides = newOverrides;
         applyNameOverrides();
         if(fbReady) {
-            db.collection('infermieri26_config').doc('settings').set({ nameOverrides: newOverrides }, { merge:true })
+            cfgRef('settings').set({ nameOverrides: newOverrides }, { merge:true })
                 .then(() => showAdminToast("Nomi salvati e sincronizzati"))
                 .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
         } else showAdminToast("Nomi applicati (offline)");
@@ -2837,7 +2885,7 @@
         scheduleOverride = { SCHEDULE: newSched, SCHEDULE_DIURNI: newSchedD };
         applyScheduleOverride();
         if(fbReady) {
-            db.collection('infermieri26_config').doc('settings').set({ scheduleOverride }, { merge:true })
+            cfgRef('settings').set({ scheduleOverride }, { merge:true })
                 .then(() => showAdminToast("Orari salvati e sincronizzati"))
                 .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
         } else showAdminToast("Orari applicati (offline)");
@@ -2863,7 +2911,7 @@
             duration: duration
         };
         if(fbReady) {
-            db.collection('infermieri26_config').doc('settings').set({ welcome: welcomeConfig }, { merge:true })
+            cfgRef('settings').set({ welcome: welcomeConfig }, { merge:true })
                 .then(() => showAdminToast("Avviso salvato e sincronizzato"))
                 .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
         } else showAdminToast("Avviso applicato (offline)");
@@ -2910,7 +2958,7 @@
         vibrate();
         customAnnouncements = (adminAnnouncementsDraft || []).filter(a => (a.title && a.title.trim()) || (a.text && a.text.trim()));
         if(fbReady) {
-            db.collection('infermieri26_config').doc('settings').set({ announcements: customAnnouncements }, { merge:true })
+            cfgRef('settings').set({ announcements: customAnnouncements }, { merge:true })
                 .then(() => showAdminToast("Avvisi salvati e sincronizzati"))
                 .catch(e => { console.error(e); showAdminToast("Errore salvataggio"); });
         } else showAdminToast("Avvisi applicati (offline)");
@@ -3018,10 +3066,15 @@
     let coordEditPopupTarget = null;       // {driverIdx, rowIdx} cella target del popup di modifica
     let hoursSelectedDriver = null, hoursPeriod = "settimana";
     let aiAdviceEnabled = (localStorage.getItem('ai_advice_enabled') === '1');
-    let hoursWeekAnchor = new Date(2026, new Date().getMonth(), new Date().getDate());
+    let hoursWeekAnchor = new Date(2026, new Date().getMonth(), new Date().getDate());   // riallineata a SHIFT_YEAR all'avvio
     let hoursSelectedMonthIdx = new Date().getMonth();
     let hoursChartInstance = null;
-    const SHIFT_YEAR = 2026;
+    let SHIFT_YEAR = 2026;
+    function setShiftYear(y) {
+        SHIFT_YEAR = y; HOLIDAYS = holidaysFor(y);
+        const sub = document.querySelector('.app-subtitle-text'); if(sub) sub.textContent = 'Calendario ' + y;
+        document.title = 'INFERMIERI ' + y;
+    }
     const SPECIAL_SUBCODES = {
         v:  "FERIE RESIDUE", r: "RECUPERO", f: "CONGEDO ORDINARIO (C.O.)", m: "MALATTIA",
         p:  "PERMESSO", c: "PERMESSO STUDIO", pn: "PERMESSO NOTTE", ng: "FESTIVO NON GODUTO",
@@ -3125,11 +3178,17 @@
             const optUpd = document.getElementById('options-last-update'); if(optUpd) optUpd.innerText = lastUpText;
         } catch(e) {}
         const splashMinTime = new Promise(resolve => setTimeout(resolve, 2000));
-        try {
-            const response = await fetch(FILE_NAME); if(!response.ok) throw new Error("File mancante");
-            const buffer = await response.arrayBuffer(); await loadWorkbook(buffer, splashMinTime);
-        } catch(e) {
-            console.error(e); document.getElementById('splash-brand').style.display = 'none';
+        // l'Excel si scarica in parallelo; intanto si chiede a Firebase se i turni vivono ormai solo lì
+        const excelAttempt = (async () => {
+            try { const response = await fetch(FILE_NAME); if(!response.ok) throw new Error("File mancante"); return await response.arrayBuffer(); }
+            catch(e) { console.error(e); return null; }
+        })();
+        await waitForConfig(6000);
+        if(dataSourceMode === 'firebase') { await bootFirebaseMode(splashMinTime); return; }
+        const buffer = await excelAttempt;
+        if(buffer) { bootMode = 'excel'; await loadWorkbook(buffer, splashMinTime); appBooted = true; }
+        else {
+            document.getElementById('splash-brand').style.display = 'none';
             document.getElementById('manual-upload').style.display = 'block';
         }
     };
@@ -3225,7 +3284,10 @@
     }
 
     function initApp() {
+        if(SHIFT_YEAR !== activeYear && dataSourceMode === 'firebase') setShiftYear(activeYear);
+        hoursWeekAnchor = new Date(SHIFT_YEAR, new Date().getMonth(), new Date().getDate());
         rebuildDrivers();                    // ordine, nascosti e rimossi decisi in Area Coordinatore
+        updateYearUi();
         let savedDr = localStorage.getItem("selected_nurses");
         if(savedDr) { try { const arr = JSON.parse(savedDr); if(Array.isArray(arr)) selectedDrivers = new Set(arr); } catch(e) {} }
         renderDriverFilterDropdown(); updateDriverFilterBadge();
@@ -3618,7 +3680,10 @@
         if(end <= start) end += 1440; // turno che attraversa la mezzanotte (es. Notte 19:45-00:00)
         return end - start;
     }
-    function overrideKey(originalName, monthName, day) { return `${originalName}__${monthName}-${day}`; }
+    function overrideKey(originalName, monthName, day, year) {
+        const k = `${originalName}__${monthName}-${day}`;
+        return (year && year !== SHIFT_YEAR) ? `${k}@${year}` : k;
+    }
 
     // Assenze giustificate (ferie, recupero, congedo, malattia, permessi, festivi, gravidanza,
     // sostituzione coordinatore…): coprono l'intera giornata di contratto, cioè ore settimanali
@@ -3806,7 +3871,7 @@
             let row = finalData[r]; let mName = row[0].v; let dNum = parseInt(row[1].v);
             for(let i=3; i<header.length; i++) {
                 let origName = header[i];
-                let key = overrideKey(origName, mName, dNum);
+                let key = overrideKey(origName, mName, dNum, shiftRowYear(r));
                 let ov = manualOverrides[key];
                 if(ov) row[i] = Object.assign({}, row[i], { v: ov.v, subV: ov.subV || "", overridden:true, customMinutes: ov.customMinutes });
             }
@@ -4031,6 +4096,576 @@
     }
 
     // ═══════════════════════════════════════════════════════════════════════
+    // SICUREZZA DEI DATI — salvataggi per singola casella, conferma, bozza, storico,
+    // istantanee, backup, anni e passaggio definitivo a Firebase
+    // ═══════════════════════════════════════════════════════════════════════
+    // Origine dei turni: 'excel' = infermieri.xlsx + modifiche (manualOverrides nel documento
+    // impostazioni); 'firebase' = i turni vivono solo su Firestore, un documento per mese
+    // ("turni_AAAA-MM", mappa cells) e l'Excel non viene più letto.
+    let dataSourceMode = 'excel', activeYear = 2026, archivedYears = [];
+    let bootMode = null, appBooted = false;
+    let configReadyResolve = null, configReadyDone = false;
+    const configReady = new Promise(r => { configReadyResolve = r; });
+    function resolveConfigReady() { if(!configReadyDone) { configReadyDone = true; configReadyResolve(); } }
+    function waitForConfig(ms) { return Promise.race([configReady, new Promise(r => setTimeout(r, ms))]); }
+
+    // Prima apertura di PROVA con i documenti separati: si parte da una copia delle impostazioni
+    // condivise (una volta sola), poi le due app vanno ognuna per conto suo.
+    let nsSeedTried = false;
+    function seedNamespaceSettings() {
+        if(!DATA_NS || nsSeedTried || !fbReady) return;
+        nsSeedTried = true;
+        db.collection('infermieri26_config').doc('settings').get().then(d => {
+            if(!d.exists) return;
+            return cfgRef('settings').get().then(p => { if(!p.exists) return cfgRef('settings').set(Object.assign({}, d.data(), { copiedFromSharedAt: new Date().toISOString() })); });
+        }).catch(e => console.error('Copia iniziale impostazioni non riuscita:', e));
+    }
+
+    // ── Modifiche in sospeso e fusione con quelle degli altri dispositivi ──
+    // coordEditBaseline = ultimo stato confermato dal server; manualOverrides = stato locale.
+    function pendingKeySet() {
+        const set = new Set();
+        new Set([...Object.keys(manualOverrides), ...Object.keys(coordEditBaseline || {})]).forEach(k => {
+            if(JSON.stringify(manualOverrides[k] || null) !== JSON.stringify((coordEditBaseline || {})[k] || null)) set.add(k);
+        });
+        return set;
+    }
+    function setOrDel(map, k, v) { if(v === undefined || v === null) delete map[k]; else map[k] = JSON.parse(JSON.stringify(v)); }
+    // Una casella cambiata da un altro coordinatore arriva subito; una casella che qui è ancora
+    // da salvare resta com'è (e al salvataggio si scrive solo lei, senza toccare le altre).
+    function mergeRemoteOverrides(remote, inScope) {
+        const pend = pendingKeySet();
+        const keys = new Set([...Object.keys(remote), ...Object.keys(coordEditBaseline || {}), ...Object.keys(manualOverrides)]);
+        keys.forEach(k => {
+            if(inScope && !inScope(k)) return;
+            const r = remote[k];
+            if(!pend.has(k)) setOrDel(manualOverrides, k, r);
+            setOrDel(coordEditBaseline, k, r);
+        });
+    }
+    let remoteRefreshTimer = null;
+    function refreshAfterRemoteOverrides() {
+        clearTimeout(remoteRefreshTimer);
+        remoteRefreshTimer = setTimeout(() => {
+            if(isViewingArchive()) return;
+            applyManualOverrides();
+            if(typeof finalData !== 'undefined' && finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
+            if(document.getElementById('hours-modal')?.classList.contains('open')) renderHoursDetail();
+            if(coordEditModeActive) updateCoordToolbarState();
+            ccRefreshIfOpen();
+        }, 80);
+    }
+
+    // ── Scrittura di una casella: valore completo (i campi assenti vengono cancellati) ──
+    function cellWriteValue(v) {
+        const del = firebase.firestore.FieldValue.delete();
+        if(!v) return del;
+        const has = v.customMinutes !== undefined && v.customMinutes !== null && v.customMinutes !== '';
+        return { v: v.v || '', subV: v.subV || '', customMinutes: has ? v.customMinutes : del };
+    }
+    function keyMonthIdx(key) {
+        const i = key.indexOf('__'); if(i === -1) return -1;
+        const ds = key.slice(i + 2).split('@')[0];
+        return MONTH_MAP[ds.slice(0, ds.lastIndexOf('-'))] ?? -1;
+    }
+    function monthDocName(year, mIdx) { return `turni_${year}-${String(mIdx + 1).padStart(2, '0')}`; }
+    // Aggiunge al batch le sole caselle cambiate (mai l'elenco intero).
+    function addCellWrites(batch, changes) {
+        const now = new Date().toISOString();
+        if(dataSourceMode === 'firebase') {
+            const byMonth = {};
+            changes.forEach(c => { const m = keyMonthIdx(c.key); if(m < 0) return; (byMonth[m] = byMonth[m] || {})[c.key] = cellWriteValue(c.next); });
+            Object.keys(byMonth).forEach(m => batch.set(cfgRef(monthDocName(activeYear, +m)), { cells: byMonth[m], updatedAt: now }, { merge:true }));
+        } else {
+            const cells = {}; changes.forEach(c => { cells[c.key] = cellWriteValue(c.next); });
+            batch.set(cfgRef('settings'), { manualOverrides: cells }, { merge:true });
+        }
+    }
+    function whoAmI() { return (userIdentity || coordinatorName || 'Coordinatore') + ' · ' + getDeviceLabel(); }
+    function addLogWrite(batch, items, note) {
+        const now = new Date(), id = now.getTime().toString(36) + Math.random().toString(36).slice(2, 6);
+        const slim = v => (v === undefined ? null : v);
+        batch.set(cfgRef('log_' + ymd(now)), { entries: { [id]: {
+            t: now.toISOString(), who: whoAmI(), note: note || '', year: activeYear, mode: dataSourceMode,
+            items: items.map(it => ({ k: it.k, key: it.key, prev: slim(it.prev), next: slim(it.next) }))
+        } } }, { merge:true });
+    }
+    // Commit con attesa della conferma. Senza rete si risolve dopo 5 s come 'queued' (la scrittura
+    // resta in coda); se più tardi arriva un errore o la conferma, lo gestiscono onLateFail/onLateOk.
+    function commitWithConfirm(batch, onLateOk, onLateFail) {
+        return new Promise(resolve => {
+            let settled = false;
+            batch.commit().then(() => { if(!settled) { settled = true; resolve('ok'); } else if(onLateOk) onLateOk(); })
+                .catch(e => { console.error('Salvataggio non riuscito:', e); if(!settled) { settled = true; resolve({ error: e }); } else if(onLateFail) onLateFail(e); });
+            setTimeout(() => { if(!settled) { settled = true; resolve('queued'); } }, 5000);
+        });
+    }
+    let saveInFlight = false;
+    async function saveAllPendingChanges(quiet) {
+        if(isViewingArchive()) { ccToast('Anno archiviato: sola lettura.', true); return false; }
+        if(saveInFlight) { ccToast('Salvataggio già in corso…'); return false; }
+        const changes = [...pendingKeySet()].map(k => ({ key: k, prev: (coordEditBaseline || {})[k] || null, next: manualOverrides[k] || null }));
+        const rep = repBuildPayload();
+        if(!changes.length && !rep) { ccToast('Non ci sono modifiche da salvare.'); return true; }
+        if(!fbReady) { ccToast('Firebase non disponibile: le modifiche restano su questo dispositivo.', true); return false; }
+        vibrate(); saveInFlight = true; ccToast('Salvataggio in corso…');
+        const batch = db.batch();
+        if(changes.length) addCellWrites(batch, changes);
+        if(rep) batch.set(repDocRef(), rep.payload, { merge:true });
+        addLogWrite(batch, changes.map(c => ({ k:'cell', key:c.key, prev:c.prev, next:c.next })).concat(rep ? rep.log : []));
+        // se la conferma arriva tardi con un errore, le modifiche tornano "da salvare"
+        const lateFail = e => {
+            changes.forEach(c => { if(JSON.stringify(coordEditBaseline[c.key] || null) === JSON.stringify(c.next || null)) setOrDel(coordEditBaseline, c.key, c.prev); });
+            if(rep) { Object.assign(repTurniEdits, rep.turni); Object.assign(repCessioniEdits, rep.ces); repInvalidate(); }
+            updateCoordToolbarState(); ccUpdateNavCounts();
+            ccToast('Il salvataggio in coda non è andato a buon fine: le modifiche sono di nuovo da salvare.', true);
+        };
+        const res = await commitWithConfirm(batch, () => { draftClear(); markLastSave(); }, lateFail);
+        saveInFlight = false;
+        if(res && res.error) {
+            ccToast('Salvataggio NON riuscito (' + (res.error.code || 'errore') + '). Le modifiche sono ancora qui: riprova.', true);
+            return false;
+        }
+        if(res === 'queued' && !fbPersistence) {
+            ccToast('Nessuna connessione: il salvataggio partirà appena torna la rete. Non chiudere l’app fino ad allora.', true);
+            return false;   // restano "da salvare": quando la scrittura arriva, lo conferma l'ascolto dei dati
+        }
+        changes.forEach(c => setOrDel(coordEditBaseline, c.key, c.next));
+        if(rep) repMarkSaved(rep);
+        coordUndoStack = []; coordRedoStack = [];
+        if(res === 'ok') { draftClear(); markLastSave(); } else draftSaveNow();
+        updateCoordToolbarState(); ccUpdateNavCounts(); ccRefreshIfOpen(); renderTableHead();
+        if(res === 'queued') ccToast('Senza rete: salvato sul dispositivo, verrà inviato appena torna la connessione.');
+        else {
+            const n = dataSourceMode === 'excel' ? computePendingExcelSyncList().length : 0;
+            ccToast(n ? `Salvato. Ricorda di riportare ${n} ${n===1?'modifica':'modifiche'} su Excel.` : 'Salvato: le modifiche sono visibili a tutti.');
+        }
+        maybeDailySnapshot();
+        return true;
+    }
+    function markLastSave() { try { localStorage.setItem('coord_last_save_' + DATA_NS, new Date().toISOString()); } catch(e) {} }
+
+    // ── Bozza sul dispositivo: le modifiche non ancora salvate sopravvivono a chiusure e ricariche ──
+    function draftKey() { return 'coord_draft_v1_' + DATA_NS + (dataSourceMode === 'firebase' ? activeYear : 'excel'); }
+    let draftTimer = null;
+    function draftSaveSoon() { clearTimeout(draftTimer); draftTimer = setTimeout(draftSaveNow, 600); }
+    function draftSaveNow() {
+        try {
+            const pend = [...pendingKeySet()];
+            if(!pend.length && !repPendingCount()) { localStorage.removeItem(draftKey()); return; }
+            const cells = {}; pend.forEach(k => { cells[k] = manualOverrides[k] || null; });
+            localStorage.setItem(draftKey(), JSON.stringify({ ts: Date.now(), cells, turni: repTurniEdits, cessioni: repCessioniEdits }));
+        } catch(e) {}
+    }
+    function draftClear() { try { localStorage.removeItem(draftKey()); } catch(e) {} }
+    function draftRead() { try { return JSON.parse(localStorage.getItem(draftKey()) || 'null'); } catch(e) { return null; } }
+    let draftOffered = false;
+    async function draftOfferRestore() {
+        if(draftOffered || pendingChangesCount()) return;
+        const d = draftRead(); if(!d) return;
+        const cells = d.cells || {}, n = Object.keys(cells).length + Object.keys(d.turni || {}).length + Object.keys(d.cessioni || {}).length;
+        // tiene solo ciò che è ancora diverso da quanto salvato
+        const diff = Object.keys(cells).filter(k => JSON.stringify(cells[k] || null) !== JSON.stringify((coordEditBaseline || {})[k] || null));
+        if(!n || (!diff.length && !Object.keys(d.turni || {}).length && !Object.keys(d.cessioni || {}).length)) { draftClear(); return; }
+        draftOffered = true;
+        const when = new Date(d.ts).toLocaleString('it-IT', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+        const choice = await ccDialog('Modifiche non salvate trovate', `Su questo dispositivo ci sono ${n} modifiche non salvate (${when}). Vuoi riprenderle? Potrai controllarle prima di salvarle.`, [
+            { label:'Scarta', kind:'danger', value:'no' }, { label:'Riprendi', kind:'primary', value:'yes' }
+        ]);
+        if(choice === 'no') { draftClear(); return; }
+        if(choice !== 'yes') return;
+        diff.forEach(k => setOrDel(manualOverrides, k, cells[k]));
+        Object.assign(repTurniEdits, d.turni || {}); Object.assign(repCessioniEdits, d.cessioni || {}); repInvalidate();
+        afterCoordChange(); ccToast('Modifiche riprese: controllale e premi Salva.');
+    }
+    window.addEventListener('beforeunload', e => {
+        if(typeof pendingChangesCount === 'function' && pendingChangesCount() > 0) { draftSaveNow(); e.preventDefault(); e.returnValue = ''; }
+    });
+
+    // ── Istantanee (copie complete salvate su Firebase) ─────────────────────
+    let repRawCessioni = {};   // mappa "cessioni" così com'è su Firestore (per le istantanee)
+    function buildSnapshotContent() {
+        const content = {
+            app:'turni-infermieri', version:1, ns: DATA_NS, createdAt: new Date().toISOString(), createdBy: whoAmI(),
+            mode: dataSourceMode, activeYear,
+            settings: { operatorConfig, nameOverrides, coordinatorName: coordinatorName || null, excelSyncedMarks },
+            reperibilita: { turni: repTurniSaved, cessioni: repRawCessioni }
+        };
+        const saved = JSON.parse(JSON.stringify(coordEditBaseline || {}));   // solo ciò che è confermato dal server
+        if(dataSourceMode === 'firebase') {
+            content.turni = {};
+            Object.keys(saved).forEach(k => { const m = keyMonthIdx(k); if(m < 0) return; const id = String(m + 1).padStart(2, '0'); (content.turni[id] = content.turni[id] || {})[k] = saved[k]; });
+        } else content.settings.manualOverrides = saved;
+        return content;
+    }
+    async function takeSnapshot(kind) {
+        if(!fbReady || isViewingArchive()) return null;
+        const now = new Date();
+        const id = kind === 'daily' ? 'snap_' + ymd(now) : 'snap_' + ymd(now) + '_' + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0');
+        const content = buildSnapshotContent(); content.kind = kind;
+        const json = JSON.stringify(content);
+        if(json.length > 950000) { console.warn('Istantanea troppo grande:', json.length); return null; }
+        await cfgRef(id).set({ kind, createdAt: content.createdAt, size: json.length, data: json });
+        return id;
+    }
+    // Una copia al giorno (la prima volta che il coordinatore apre la console o salva) e pulizia
+    // delle copie giornaliere più vecchie di 14 giorni.
+    function maybeDailySnapshot() {
+        if(!fbReady || isViewingArchive() || !appBooted) return;
+        const key = 'snap_done_' + DATA_NS + ymd(new Date());
+        try { if(localStorage.getItem(key)) return; } catch(e) {}
+        const id = 'snap_' + ymd(new Date());
+        cfgRef(id).get().then(d => d.exists ? null : takeSnapshot('daily')).then(() => {
+            try { localStorage.setItem(key, '1'); } catch(e) {}
+            const old = new Date(); old.setDate(old.getDate() - 15);
+            cfgRef('snap_' + ymd(old)).delete().catch(() => {});
+        }).catch(e => console.warn('Istantanea giornaliera non riuscita:', e));
+    }
+    async function listSnapshots() {
+        const out = [];
+        try {
+            const FP = firebase.firestore.FieldPath.documentId();
+            const q = await db.collection('infermieri26_config').where(FP, '>=', DATA_NS + 'snap_').where(FP, '<', DATA_NS + 'snap_').get();
+            q.forEach(d => out.push({ id: d.id.slice(DATA_NS.length), kind: d.data().kind, createdAt: d.data().createdAt, size: d.data().size }));
+        } catch(e) {
+            // senza permesso di elencare: si provano le ultime 15 copie giornaliere
+            for(let i = 0; i < 15; i++) { const dt = new Date(); dt.setDate(dt.getDate() - i); const id = 'snap_' + ymd(dt);
+                try { const d = await cfgRef(id).get(); if(d.exists) out.push({ id, kind: d.data().kind, createdAt: d.data().createdAt, size: d.data().size }); } catch(err) {} }
+        }
+        return out.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    }
+    // Ripristino: prima si salva una copia dello stato attuale, poi si riscrivono i dati.
+    async function restoreFromContent(content, label) {
+        if(!content || content.app !== 'turni-infermieri') { ccToast('File non valido: non è un backup dei turni infermieri.', true); return; }
+        if(isViewingArchive()) { ccToast('Torna all’anno attivo prima di ripristinare.', true); return; }
+        if(content.mode !== dataSourceMode || (content.mode === 'firebase' && +content.activeYear !== activeYear)) {
+            ccToast(`Questa copia è di un’altra situazione (${content.mode === 'firebase' ? 'Firebase ' + content.activeYear : 'Excel'}): non la ripristino per non mescolare i dati.`, true); return;
+        }
+        const when = new Date(content.createdAt).toLocaleString('it-IT');
+        const ok = await ccConfirm('Ripristinare questa copia?', `Turni e reperibilità tornano com’erano il ${when}. Tutto ciò che è stato salvato dopo verrà sostituito (prima faccio comunque una copia di adesso, recuperabile).`, 'Ripristina', 'solid-danger');
+        if(!ok) return;
+        try {
+            ccToast('Copia di sicurezza di adesso…');
+            await takeSnapshot('prima-del-ripristino');
+            const batch = db.batch(), now = new Date().toISOString();
+            if(content.mode === 'firebase') {
+                for(let m = 0; m < 12; m++) { const id = String(m + 1).padStart(2, '0'); batch.set(cfgRef(monthDocName(activeYear, m)), { cells: (content.turni || {})[id] || {}, updatedAt: now, restoredFrom: content.createdAt }); }
+            } else {
+                batch.update(cfgRef('settings'), { manualOverrides: (content.settings || {}).manualOverrides || {}, excelSyncedMarks: (content.settings || {}).excelSyncedMarks || {} });
+            }
+            if(content.settings && content.settings.operatorConfig) batch.update(cfgRef('settings'), { operatorConfig: content.settings.operatorConfig, nameOverrides: content.settings.nameOverrides || {} });
+            if(content.reperibilita) batch.set(repDocRef(), { turni: content.reperibilita.turni || {}, cessioni: content.reperibilita.cessioni || {}, updatedAt: now });
+            addLogWrite(batch, [], 'Ripristino della copia del ' + when + (label ? ' (' + label + ')' : ''));
+            await batch.commit();
+            draftClear();
+            ccToast('Ripristino completato: ricarico l’app…');
+            setTimeout(() => location.reload(), 900);
+        } catch(e) { console.error(e); ccToast('Ripristino non riuscito: ' + (e.code || e.message), true); }
+    }
+    async function restoreSnapshot(id) {
+        try { const d = await cfgRef(id).get(); if(!d.exists) { ccToast('Copia non trovata.', true); return; } await restoreFromContent(JSON.parse(d.data().data), id); }
+        catch(e) { ccToast('Copia non leggibile.', true); }
+    }
+    async function downloadSnapshot(id) {
+        try { const d = await cfgRef(id).get(); if(!d.exists) return; downloadText(`turni-infermieri-${id}.json`, d.data().data); } catch(e) { ccToast('Download non riuscito.', true); }
+    }
+    function downloadText(name, text) {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type:'application/json' })); a.download = name;
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    }
+    // Backup completo da tenere sul computer: stato attuale + anni archiviati.
+    async function downloadFullBackup() {
+        try {
+            ccToast('Preparo il backup…');
+            const content = buildSnapshotContent(); content.kind = 'backup-manuale';
+            content.archivio = {};
+            for(const y of archivedYears) {
+                const meta = await cfgRef('anno_' + y).get(); const turni = {};
+                for(let m = 0; m < 12; m++) { const d = await cfgRef(monthDocName(y, m)).get(); if(d.exists) turni[String(m + 1).padStart(2, '0')] = d.data().cells || {}; }
+                content.archivio[y] = { meta: meta.exists ? meta.data() : null, turni };
+            }
+            downloadText(`backup-turni-infermieri-${ymd(new Date())}.json`, JSON.stringify(content, null, 1));
+            try { localStorage.setItem('coord_last_backup_' + DATA_NS, new Date().toISOString()); } catch(e) {}
+            ccToast('Backup scaricato: conservalo in un posto sicuro (es. Google Drive).');
+            if(ccSection === 'dati') ccRefreshIfOpen();
+        } catch(e) { console.error(e); ccToast('Backup non riuscito: ' + (e.code || e.message), true); }
+    }
+    function pickBackupFile() {
+        const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json,application/json';
+        inp.onchange = () => { const f = inp.files[0]; if(!f) return; const r = new FileReader(); r.onload = () => { try { restoreFromContent(JSON.parse(r.result), f.name); } catch(e) { ccToast('File non leggibile.', true); } }; r.readAsText(f); };
+        inp.click();
+    }
+
+    // ── Storico delle modifiche ─────────────────────────────────────────────
+    let ccLogCache = [];
+    async function loadRecentLogs(days) {
+        const out = [];
+        for(let i = 0; i < days; i++) {
+            const dt = new Date(); dt.setDate(dt.getDate() - i);
+            try { const d = await cfgRef('log_' + ymd(dt)).get(); if(d.exists) Object.entries(d.data().entries || {}).forEach(([id, e]) => out.push(Object.assign({ id }, e))); } catch(e) {}
+        }
+        return out.sort((a, b) => (b.t || '').localeCompare(a.t || ''));
+    }
+    function describeLogItem(it) {
+        const val = v => v ? (v.v !== undefined ? (describeOverrideValue(v) || '—') : repDisplayName(v)) : '—';
+        if(it.k === 'cell') {
+            const i = it.key.indexOf('__'), who = i > 0 ? repDisplayName(it.key.slice(0, i)) : it.key;
+            const ds = it.key.slice(i + 2).split('@')[0];
+            return `${who} · ${ds.toLowerCase().replace('-', ' ')}: ${val(it.prev)} → ${val(it.next)}`;
+        }
+        if(it.k === 'rep') return `Reperibilità ${repDateLabel(it.key)}: ${val(it.prev)} → ${val(it.next)}`;
+        const i = it.key.lastIndexOf('_');
+        return `Fascia ${REP_SLOTS[+it.key.slice(i + 1)].label} del ${repDateLabel(it.key.slice(0, i))}: ${val(it.prev)} → ${val(it.next)}`;
+    }
+    // "Annulla" una modifica dello storico: rimette i valori di prima come modifiche da salvare.
+    function revertLogEntry(idx) {
+        const e = ccLogCache[idx]; if(!e) return;
+        if(isViewingArchive() || (e.mode && e.mode !== dataSourceMode) || (e.mode === 'firebase' && e.year && +e.year !== activeYear)) { ccToast('Questa modifica riguarda un altro anno o un’altra origine dei turni.', true); return; }
+        const entries = [];
+        (e.items || []).forEach(it => {
+            if(it.k === 'cell') { const prev = setOverride(it.key, it.prev || null); entries.push({ key: it.key, prev, next: it.prev || null }); }
+            else if(it.k === 'rep' || it.k === 'repc') entries.push(repChange(it.k, it.key, it.prev || ''));
+        });
+        if(!entries.length) return;
+        pushUndo({ entries });
+        afterCoordChange(entries.filter(x => !x.kind).map(x => x.key), entries.filter(x => x.kind).flatMap(x => repDatesOfKey(x.kind, x.key)));
+        ccToast(`${entries.length} ${entries.length === 1 ? 'valore riportato' : 'valori riportati'} a prima: controlla e premi Salva.`);
+        ccGo('modifica');
+    }
+
+    // ── Turni solo su Firebase: calendario generato e un documento per mese ──
+    function buildBlankYearData(year, baseNames) {
+        const header = ['MESE', 'GIORNO', 'NOME'].concat(baseNames);
+        const rows = [header];
+        Object.keys(MONTH_MAP).forEach((mn, mi) => {
+            const days = new Date(year, mi + 1, 0).getDate();
+            for(let d = 1; d <= days; d++) { const row = [{ v: mn }, { v: d }, { v: '' }]; baseNames.forEach(() => row.push({ v: '', subV: '', supV: '' })); rows.push(row); }
+        });
+        return rows;
+    }
+    let monthUnsubs = [];
+    function listenYearMonths(year, timeoutMs) {
+        monthUnsubs.forEach(u => u()); monthUnsubs = [];
+        return new Promise(resolve => {
+            let pending = 12, done = false;
+            const finish = () => { if(!done) { done = true; resolve(); } };
+            for(let m = 0; m < 12; m++) {
+                let first = true;
+                monthUnsubs.push(cfgRef(monthDocName(year, m)).onSnapshot(doc => {
+                    const cells = doc.exists ? (doc.data().cells || {}) : {};
+                    mergeRemoteOverrides(cells, k => keyMonthIdx(k) === m);
+                    if(first) { first = false; if(--pending === 0) finish(); }
+                    else refreshAfterRemoteOverrides();
+                }, err => { console.error('Errore ascolto turni ' + monthDocName(year, m), err); if(first) { first = false; if(--pending === 0) finish(); } }));
+            }
+            setTimeout(finish, timeoutMs);
+        });
+    }
+    async function bootFirebaseMode(splashMinTime) {
+        bootMode = 'firebase';
+        setShiftYear(activeYear);
+        hoursWeekAnchor = new Date(SHIFT_YEAR, new Date().getMonth(), new Date().getDate());
+        await listenYearMonths(activeYear, 5000);
+        excelParsedData = buildBlankYearData(activeYear, operatorConfig.baseNames || []);
+        rebuildDataFromExcel(); initApp(); updateYearUi();
+        appBooted = true;
+        if(splashMinTime) await splashMinTime;
+        document.getElementById('loader').style.opacity = '0';
+        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+    }
+    // Passaggio definitivo: i turni del calendario (Excel + modifiche) vengono copiati su Firebase,
+    // un documento per mese; le reperibilità "/R" dell'Excel diventano reperibilità dell'app.
+    async function ccMigrateToFirebase() {
+        if(dataSourceMode === 'firebase') return;
+        if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
+        if(!excelParsedData.length || !finalData.length) { ccToast('Turni non ancora caricati: riprova tra poco.', true); return; }
+        const year = SHIFT_YEAR;
+        const ok = await ccConfirm(`Passare definitivamente a Firebase?`,
+            `I turni del ${year} visibili ora a calendario vengono copiati su Firebase, mese per mese. Da quel momento l’app non legge più infermieri.xlsx: ogni turno si assegna solo da qui. Prima faccio una copia di sicurezza. Fallo solo quando l’Excel caricato è quello giusto.`,
+            'Copia e passa a Firebase', 'solid-danger');
+        if(!ok) return;
+        try {
+            ccToast('Copia di sicurezza…');
+            await takeSnapshot('prima-del-passaggio-a-firebase');
+            const header = finalData[0], months = {};
+            let n = 0;
+            for(let r = 1; r < finalData.length; r++) {
+                if(shiftRowYear(r) !== year) continue;
+                const mName = finalData[r][0].v, dNum = parseInt(finalData[r][1].v), mi = MONTH_MAP[mName];
+                if(mi === undefined || isNaN(dNum)) continue;
+                for(let i = 3; i < header.length; i++) {
+                    const c = finalData[r][i] || {};
+                    let v = (c.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
+                    const sv = (c.subV || '').toString().trim();
+                    const hasMin = c.customMinutes !== undefined && c.customMinutes !== null && c.customMinutes !== '';
+                    if(!v && !sv && !hasMin) continue;
+                    const val = { v, subV: sv }; if(hasMin) val.customMinutes = c.customMinutes;
+                    (months[mi] = months[mi] || {})[overrideKey(header[i], mName, dNum)] = val; n++;
+                }
+            }
+            const excelTit = repExcelMap(), repTurni = {};
+            Object.keys(excelTit).forEach(d => { if(d.startsWith(year + '-') && !repHas(repTurniSaved, d)) repTurni[d] = excelTit[d]; });
+            const baseNames = (excelParsedData[0] || []).slice(3);
+            const batch = db.batch(), now = new Date().toISOString();
+            for(let m = 0; m < 12; m++) batch.set(cfgRef(monthDocName(year, m)), { cells: months[m] || {}, updatedAt: now, source: 'excel' });
+            if(Object.keys(repTurni).length) batch.set(repDocRef(), { turni: repTurni, updatedAt: now }, { merge:true });
+            batch.update(cfgRef('settings'), { dataSource: 'firebase', activeYear: year, archivedYears: [], operatorConfig: Object.assign({}, operatorConfig, { baseNames }), migratedAt: now });
+            addLogWrite(batch, [], `Passaggio a Firebase: ${n} turni copiati dal file Excel`);
+            await batch.commit();
+            sessionStorage.setItem('fb_mode_reloaded', '1');
+            ccToast(`Fatto: ${n} turni copiati. Riapro l’app…`);
+            setTimeout(() => location.reload(), 1200);
+        } catch(e) { console.error('Migrazione non riuscita:', e); ccToast('Passaggio non riuscito: ' + (e.code || e.message) + '. Nulla è stato cambiato.', true); }
+    }
+    // Anno nuovo: l'anno attivo viene chiuso (sola lettura, con la sua squadra e le ore di contratto)
+    // e si apre il successivo, vuoto, con la stessa squadra.
+    async function ccStartNewYear() {
+        if(dataSourceMode !== 'firebase' || isViewingArchive()) return;
+        if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
+        const next = activeYear + 1;
+        const ok = await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura. Il ${next} parte vuoto con la stessa squadra e le stesse ore di contratto. Prima faccio una copia di sicurezza.`, `Apri il ${next}`, 'solid-danger');
+        if(!ok) return;
+        try {
+            await takeSnapshot('prima-del-nuovo-anno');
+            const header = (finalData[0] || []).slice(3);
+            const newBase = header.filter(n => !operatorConfig.removed[n]);
+            const batch = db.batch(), now = new Date().toISOString();
+            batch.set(cfgRef('anno_' + activeYear), { year: activeYear, baseNames: header, contract: operatorConfig.contract || {}, removed: operatorConfig.removed || {}, nameOverrides, closedAt: now, closedBy: whoAmI() });
+            batch.update(cfgRef('settings'), { activeYear: next, archivedYears: [...new Set(archivedYears.concat([activeYear]))], operatorConfig: Object.assign({}, operatorConfig, { baseNames: newBase, added: [], removed: {} }) });
+            addLogWrite(batch, [], `Chiuso il ${activeYear}, aperto il ${next}`);
+            await batch.commit();
+            ccToast(`Fatto: da ora si lavora sul ${next}.`);
+            setTimeout(() => location.reload(), 1000);
+        } catch(e) { console.error(e); ccToast('Operazione non riuscita: ' + (e.code || e.message), true); }
+    }
+
+    // ── Consultazione degli anni passati (per tutti, sola lettura) ──────────
+    let ccArchiveBackup = null;
+    function isViewingArchive() { return ccArchiveBackup !== null; }
+    async function switchToYear(rawYear) {
+        const year = parseInt(rawYear, 10);
+        if(!year || year === activeYear) { returnToActiveYear(); return; }
+        if(coordEditModeActive) { const ok = await exitCoordEdit(true); if(!ok) return; }
+        try {
+            const meta = await cfgRef('anno_' + year).get();
+            if(!meta.exists) { alert(`Nessun dato salvato per il ${year}.`); return; }
+            const m = meta.data(), cells = {};
+            for(let mi = 0; mi < 12; mi++) { const d = await cfgRef(monthDocName(year, mi)).get(); if(d.exists) Object.assign(cells, d.data().cells || {}); }
+            if(!isViewingArchive()) ccArchiveBackup = { finalData, rawFinalData, drivers, operatorConfig, excelParsedData, SHIFT_YEAR, selectedDrivers };
+            const baseNames = (m.baseNames || []).filter(n => !(m.removed || {})[n]);
+            setShiftYear(year);
+            excelParsedData = buildBlankYearData(year, baseNames);
+            rawFinalData = JSON.parse(JSON.stringify(excelParsedData));
+            finalData = JSON.parse(JSON.stringify(rawFinalData));
+            const header = finalData[0];
+            for(let r = 1; r < finalData.length; r++) {
+                const mName = finalData[r][0].v, dNum = finalData[r][1].v;
+                for(let i = 3; i < header.length; i++) { const ov = cells[overrideKey(header[i], mName, dNum)]; if(ov) finalData[r][i] = Object.assign({}, finalData[r][i], { v: ov.v || '', subV: ov.subV || '', customMinutes: ov.customMinutes }); }
+            }
+            drivers = baseNames.map((name, i) => ({ name: (m.nameOverrides || {})[name] || nameOverrides[name] || name, idx: i + 3, originalName: name, virtual:false, hidden:false }));
+            operatorConfig = normalizeOperatorConfig({ contract: m.contract || {}, baseNames });
+            selectedDrivers = new Set();
+            refreshAfterYearSwitch();
+            setTimeout(scrollToToday, 300);
+        } catch(e) { console.error(e); alert('Impossibile aprire il ' + year + ': ' + (e.code || e.message)); }
+    }
+    function returnToActiveYear() {
+        if(!isViewingArchive()) return;
+        const b = ccArchiveBackup; ccArchiveBackup = null;
+        finalData = b.finalData; rawFinalData = b.rawFinalData; drivers = b.drivers; operatorConfig = b.operatorConfig;
+        excelParsedData = b.excelParsedData; selectedDrivers = b.selectedDrivers; setShiftYear(b.SHIFT_YEAR);
+        applyManualOverrides();
+        refreshAfterYearSwitch();
+        setTimeout(scrollToToday, 300);
+    }
+    function refreshAfterYearSwitch() {
+        vibrate(); repInvalidate();
+        hoursWeekAnchor = new Date(SHIFT_YEAR, new Date().getMonth(), new Date().getDate());
+        if(finalData.length) renderTable();
+        renderDriverFilterDropdown(); updateDriverFilterBadge();
+        updateYearUi();
+        const el = document.getElementById('coord-console');
+        if(el && el.classList.contains('open')) { if(isViewingArchive() && ['modifica','operatori'].includes(ccSection)) ccGo('panoramica'); else ccRenderSection(); }
+    }
+    function updateYearUi() {
+        const item = document.getElementById('menu-year-picker');
+        if(item) item.style.display = (dataSourceMode === 'firebase' && archivedYears.length) ? '' : 'none';
+        const banner = document.getElementById('year-banner');
+        if(banner) {
+            const on = isViewingArchive();
+            banner.style.display = on ? 'flex' : 'none';
+            if(on) document.getElementById('year-banner-text').textContent = `Stai guardando il ${SHIFT_YEAR} (sola lettura) · tocca per tornare al ${activeYear}`;
+            document.documentElement.style.setProperty('--header-h', on ? 'calc(var(--header-base-h) + var(--safe-top) + 34px)' : 'calc(var(--header-base-h) + var(--safe-top))');
+        }
+        const ccb = document.getElementById('cc-archive-banner');
+        if(ccb) {
+            if(isViewingArchive()) { ccb.style.display = 'flex'; ccb.innerHTML = `<span class="msym">visibility</span><span>Stai guardando il ${SHIFT_YEAR}, in sola lettura.</span><button class="cc-btn sm" onclick="switchToYear(${activeYear})">Torna al ${activeYear}</button>`; }
+            else { ccb.style.display = 'none'; ccb.innerHTML = ''; }
+        }
+        document.querySelectorAll('#cc-nav button[data-sec="modifica"], #cc-nav button[data-sec="operatori"]').forEach(b => b.style.display = isViewingArchive() ? 'none' : '');
+        const rb = document.querySelector('#cc-nav button[data-sec="riportare"]'); if(rb) rb.style.display = dataSourceMode === 'firebase' ? 'none' : '';
+    }
+    async function openYearPicker() {
+        const m = document.getElementById('menu-dropdown'); if(m && m.style.display === 'flex') toggleMenu();
+        const shown = SHIFT_YEAR;
+        const years = [activeYear].concat(archivedYears.filter(y => y !== activeYear).sort((a, b) => b - a));
+        const choice = await ccDialog('Anni', 'Scegli l’anno da consultare. Gli anni passati sono in sola lettura.',
+            years.map(y => ({ label: `${y}${y === activeYear ? ' · attuale' : ''}${y === shown ? ' ✓' : ''}`, kind: y === activeYear ? 'primary' : '', value: String(y) })).concat([{ label:'Chiudi', kind:'ghost', value:null }]));
+        if(choice) switchToYear(choice);
+    }
+
+    // ── Sezione "Dati e backup" dell'Area Coordinatore ─────────────────────
+    async function renderCcData() {
+        const main = document.getElementById('cc-main');
+        const fmt = iso => iso ? new Date(iso).toLocaleString('it-IT', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : 'mai';
+        let lastSave = null, lastBackup = null; try { lastSave = localStorage.getItem('coord_last_save_' + DATA_NS); lastBackup = localStorage.getItem('coord_last_backup_' + DATA_NS); } catch(e) {}
+        const draft = draftRead();
+        const row = (ok, title, text) => `<li><span class="msym" style="color:var(${ok ? '--cc-pos' : '--cc-warn'})">${ok ? 'check_circle' : 'warning'}</span><span class="cc-grow"><b style="font-weight:600">${title}</b><small>${text}</small></span></li>`;
+        const backupOld = !lastBackup || (Date.now() - new Date(lastBackup).getTime()) > 8 * 86400000;
+        main.innerHTML = `
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Protezione dei dati</h3></div>
+                <ul class="cc-list dat-status">
+                    ${row(true, 'Salvataggio per singola casella', 'Ogni salvataggio scrive solo le caselle cambiate: due coordinatori non si cancellano più a vicenda.')}
+                    ${row(fbPersistence, 'Memoria offline ' + (fbPersistence ? 'attiva' : 'non disponibile su questo browser'), fbPersistence ? 'Senza rete i salvataggi restano in coda sul dispositivo e partono appena torna la connessione.' : 'Senza rete non chiudere l’app finché il salvataggio non è confermato.')}
+                    ${row(!draft, draft ? 'Bozza non salvata su questo dispositivo' : 'Nessuna bozza in sospeso', draft ? 'Ci sono modifiche non salvate: aprendo Modifica turni ti propongo di riprenderle.' : 'Le modifiche non salvate vengono conservate qui anche se l’app si chiude.')}
+                    ${row(true, 'Ultimo salvataggio da questo dispositivo', fmt(lastSave))}
+                    ${row(!backupOld, 'Ultimo backup scaricato', fmt(lastBackup) + (backupOld ? ' — scaricane uno almeno una volta a settimana' : ''))}
+                </ul>
+            </div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Backup</h3></div><div class="cc-panel-body">
+                <p class="cc-note" style="margin-bottom:12px">Un file con turni, reperibilità, operatori e anni archiviati. Tienilo su Google Drive: con quello si recupera tutto anche se Firebase venisse svuotato.</p>
+                <div class="cc-inline-form">
+                    <button class="cc-btn primary" onclick="downloadFullBackup()"><span class="msym">download</span>Scarica backup completo</button>
+                    <button class="cc-btn" onclick="takeSnapshot('manuale').then(id => { if(id) { ccToast('Copia creata'); ccRefreshIfOpen(); } })"><span class="msym">save_as</span>Crea copia adesso</button>
+                    <button class="cc-btn danger" onclick="pickBackupFile()"><span class="msym">upload</span>Ripristina da file…</button>
+                </div>
+            </div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Copie automatiche</h3><span class="cc-hint">una al giorno, ultime 14</span></div><div class="cc-panel-body" id="dat-snaps"><p class="cc-note">Carico…</p></div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Storico modifiche</h3><span class="cc-hint">ultimi 7 giorni</span></div><div class="cc-panel-body" id="dat-log"><p class="cc-note">Carico…</p></div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Origine dei turni e anni</h3></div><div class="cc-panel-body">
+                ${dataSourceMode === 'firebase' ? `
+                    <p class="cc-note" style="margin-bottom:12px"><span class="msym" style="vertical-align:-4px;color:var(--cc-pos)">cloud_done</span> I turni si gestiscono solo da questa app (un documento per mese su Firebase). Anno attivo: <b>${activeYear}</b>${archivedYears.length ? ` · archiviati: ${archivedYears.slice().sort((a,b)=>b-a).join(', ')}` : ''}.</p>
+                    <div class="cc-inline-form">
+                        ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}
+                        <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>
+                    </div>` : `
+                    <p class="cc-note" style="margin-bottom:12px">I turni arrivano ancora da infermieri.xlsx; le modifiche fatte qui sono correzioni sopra il file. Passando a Firebase l’Excel non serve più e si potranno archiviare gli anni.</p>
+                    <button class="cc-btn danger" onclick="ccMigrateToFirebase()"><span class="msym">cloud_upload</span>Passa definitivamente a Firebase…</button>`}
+            </div></div>`;
+        maybeDailySnapshot();
+        // copie e storico si caricano dopo, senza bloccare la pagina
+        listSnapshots().then(list => {
+            const el = document.getElementById('dat-snaps'); if(!el) return;
+            el.innerHTML = list.length ? `<ul class="cc-list">${list.map(sn => `<li><span class="msym">backup</span><span class="cc-grow">${esc(fmt(sn.createdAt))}<small>${esc({ daily:'copia giornaliera', manuale:'copia manuale' }[sn.kind] || (sn.kind || '').replace(/-/g, ' '))} · ${Math.round((sn.size || 0) / 1024)} KB</small></span><button class="cc-btn sm" onclick="downloadSnapshot('${sn.id}')" title="Scarica"><span class="msym">download</span></button><button class="cc-btn sm danger" onclick="restoreSnapshot('${sn.id}')"><span class="msym">restore</span>Ripristina</button></li>`).join('')}</ul>` : `<p class="cc-note">Ancora nessuna copia: la prima si crea oggi.</p>`;
+        });
+        loadRecentLogs(7).then(list => {
+            ccLogCache = list;
+            const el = document.getElementById('dat-log'); if(!el) return;
+            el.innerHTML = list.length ? `<ul class="cc-list dat-log">${list.slice(0, 60).map((e, i) => `<li><span class="cc-grow"><b style="font-weight:600">${esc(fmt(e.t))}</b> · ${esc(e.who || '')}${e.note ? `<small>${esc(e.note)}</small>` : ''}${(e.items || []).slice(0, 6).map(it => `<small>${esc(describeLogItem(it))}</small>`).join('')}${(e.items || []).length > 6 ? `<small>… e altre ${(e.items || []).length - 6}</small>` : ''}</span>${(e.items || []).length ? `<button class="cc-btn sm" onclick="revertLogEntry(${i})"><span class="msym">undo</span>Annulla</button>` : ''}</li>`).join('')}</ul>` : `<p class="cc-note">Nessuna modifica salvata negli ultimi 7 giorni.</p>`;
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
     // AREA COORDINATORE — console, operatori, conteggio ore, ruota strumenti
     // ═══════════════════════════════════════════════════════════════════════
     const COORD_SESSION_KEY = 'coord_session_v2';
@@ -4065,7 +4700,7 @@
     // cancellate spariscono davvero); se il documento non esiste ripiega su set/merge.
     function saveSettingsFields(obj) {
         if(!fbReady) return Promise.resolve();
-        const ref = db.collection('infermieri26_config').doc('settings');
+        const ref = cfgRef('settings');
         return ref.update(obj).catch(() => ref.set(obj, { merge:true }));
     }
 
@@ -4077,7 +4712,8 @@
             hidden: (c.hidden && typeof c.hidden === 'object') ? Object.assign({}, c.hidden) : {},
             removed: (c.removed && typeof c.removed === 'object') ? Object.assign({}, c.removed) : {},
             added: Array.isArray(c.added) ? c.added.filter(o => o && o.name).map(o => Object.assign({}, o)) : [],
-            contract: (c.contract && typeof c.contract === 'object') ? Object.assign({}, c.contract) : {}
+            contract: (c.contract && typeof c.contract === 'object') ? Object.assign({}, c.contract) : {},
+            baseNames: Array.isArray(c.baseNames) ? c.baseNames.slice() : []
         };
     }
     function injectVirtualOperators(data) {
@@ -4158,7 +4794,7 @@
         cancelAnimationFrame(el._openRaf || 0);
         el._openRaf = requestAnimationFrame(() => { el._openRaf = 0; el.classList.add('open'); });
         document.body.classList.add('cc-lock');
-        if(isCoordLoggedIn()) showConsoleApp(section || ccSection);
+        if(isCoordLoggedIn()) { showConsoleApp(section || ccSection); maybeDailySnapshot(); }
         else showConsoleLogin();
         setCurrentView('Area Coordinatore');
     }
@@ -4209,10 +4845,13 @@
         ore:          { title:'Conteggio ore', sub:'Ore lavorate rispetto al contratto (6 giorni, 36 h), per settimana, mese e anno.' },
         reperibilita: { title:'Report reperibilità', sub:'Ore di reperibilità di ogni operatore, giorno per giorno, per l’ufficio personale.' },
         riportare:    { title:'Da riportare su Excel', sub:'Modifiche fatte nell\u2019app che vanno inserite anche nel file infermieri.xlsx.' },
+        dati:         { title:'Dati e backup', sub:'Protezione dei turni: backup, copie automatiche, storico delle modifiche, anni e origine dei dati.' },
         impostazioni: { title:'Impostazioni', sub:'Coordinatore designato, consigli sulle ore, ruota e sessione.' }
     };
     function ccGo(section) {
         if(!CC_SECTIONS[section]) section = 'panoramica';
+        if(section === 'riportare' && dataSourceMode === 'firebase') section = 'panoramica';
+        if(['modifica','operatori'].includes(section) && isViewingArchive()) section = 'panoramica';
         ccSection = section;
         document.querySelectorAll('#cc-nav button').forEach(b => b.classList.toggle('active', b.dataset.sec === section));
         document.getElementById('cc-title').textContent = CC_SECTIONS[section].title;
@@ -4225,7 +4864,7 @@
     function ccRenderSection() {
         const main = document.getElementById('cc-main'); if(!main) return;
         if(!finalData.length) { main.innerHTML = `<div class="cc-empty"><span class="msym">hourglass_top</span>Sto caricando il file dei turni…</div>`; return; }
-        ({ panoramica:renderCcOverview, modifica:renderCcEdit, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, riportare:renderCcSync, impostazioni:renderCcSettings })[ccSection]();
+        ({ panoramica:renderCcOverview, modifica:renderCcEdit, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, riportare:renderCcSync, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
         ccUpdateNavCounts();
     }
     function ccRefreshIfOpen() {
@@ -4237,6 +4876,7 @@
         ccRenderSection();
     }
     function ccUpdateNavCounts() {
+        updateYearUi();
         const s = document.getElementById('cc-count-sync'); if(s) { const n = computePendingExcelSyncList().length; s.textContent = n ? n : ''; }
         const p = document.getElementById('cc-count-pending'); if(p) { const n = pendingChangesCount(); p.textContent = n ? n : ''; }
     }
@@ -4805,7 +5445,7 @@
             const newDisplay = describeOverrideValue(overrideVal);
             if(rawDisplay === newDisplay) return;
             if(excelSyncedMarks[key] === JSON.stringify(overrideVal)) return;
-            const k = dateStr.lastIndexOf('-'); const mName = dateStr.substring(0, k); const dNum = parseInt(dateStr.substring(k + 1));
+            const ds = dateStr.split('@')[0]; const k = ds.lastIndexOf('-'); const mName = ds.substring(0, k); const dNum = parseInt(ds.substring(k + 1));
             list.push({ key, driverName: d.name, virtual: d.virtual, dateLabel: dateStr, monthIdx: MONTH_MAP[mName] ?? 99, day: dNum, oldDisplay: rawDisplay, newDisplay });
         });
         list.sort((a,b) => (a.monthIdx - b.monthIdx) || (a.day - b.day) || a.driverName.localeCompare(b.driverName));
@@ -4839,17 +5479,20 @@
         const it = ccSyncCache[i]; if(!it) return;
         vibrate();
         excelSyncedMarks[it.key] = JSON.stringify(manualOverrides[it.key] || null);
-        persistCoordState(); renderCcSync(); ccUpdateNavCounts();
+        persistSyncMarks([it.key]); renderCcSync(); ccUpdateNavCounts();
     }
     async function confirmAllSyncDone() {
         const list = computePendingExcelSyncList(); if(!list.length) return;
         const ok = await ccConfirm(`Segnare ${list.length} modifiche come riportate?`, 'Fallo solo se le hai già inserite tutte nel file Excel.', 'Segna tutte');
         if(!ok) return;
         list.forEach(it => { excelSyncedMarks[it.key] = JSON.stringify(manualOverrides[it.key] || null); });
-        persistCoordState(); renderCcSync(); ccUpdateNavCounts(); ccToast('Elenco svuotato');
+        persistSyncMarks(list.map(it => it.key)); renderCcSync(); ccUpdateNavCounts(); ccToast('Elenco svuotato');
     }
-    function persistCoordState() {
-        return saveSettingsFields({ manualOverrides, excelSyncedMarks }).catch(e => { console.error('Errore salvataggio coordinatore:', e); ccToast('Salvataggio non riuscito: controlla la connessione.', true); });
+    // "Riportato su Excel": si scrivono solo le voci toccate, senza riscrivere tutto l'elenco
+    function persistSyncMarks(keys) {
+        if(!fbReady || !keys.length) return Promise.resolve();
+        const marks = {}; keys.forEach(k => { marks[k] = excelSyncedMarks[k]; });
+        return cfgRef('settings').set({ excelSyncedMarks: marks }, { merge:true }).catch(e => { console.error('Errore salvataggio segni Excel:', e); ccToast('Salvataggio non riuscito: controlla la connessione.', true); });
     }
 
     // ═══ IMPOSTAZIONI ═════════════════════════════════════════════════════
@@ -4885,7 +5528,7 @@
         const sel = document.getElementById('coord-select-name');
         if(!sel || !sel.value) { ccToast('Scegli un operatore prima di salvare.', true); return; }
         if(!fbReady) return;
-        db.collection('infermieri26_config').doc('settings').set({ coordinatorName: sel.value }, { merge:true })
+        cfgRef('settings').set({ coordinatorName: sel.value }, { merge:true })
             .then(() => { coordinatorName = sel.value; checkIfIAmCoordinator(); renderCoordinatorTab(); ccToast('Coordinatore aggiornato'); vibrate(); })
             .catch(e => { console.error('Errore salvataggio coordinatore:', e); ccToast('Salvataggio non riuscito.', true); });
     }
@@ -4894,7 +5537,7 @@
     function cellKey(row, col) {
         let d = getDriverByIdx(col); let orig = d ? (d.originalName||d.name) : String(finalData[0][col]);
         let mName = finalData[row][0].v; let dNum = finalData[row][1].v;
-        return overrideKey(orig, mName, dNum);
+        return overrideKey(orig, mName, dNum, shiftRowYear(row));
     }
     function setOverride(key, value) {
         let prev = manualOverrides[key] !== undefined ? Object.assign({}, manualOverrides[key]) : null;
@@ -4939,7 +5582,7 @@
         }
         if(!done) { applyManualOverrides(); renderTable(); }
         if(repDates && repDates.length) updateRepNowPill();
-        updateCoordToolbarState(); scheduleNavCounts();
+        updateCoordToolbarState(); scheduleNavCounts(); draftSaveSoon();
     }
     function pushUndo(action) { coordUndoStack.push(action); coordRedoStack = []; updateCoordToolbarState(); }
     // Le voci di annullamento con kind 'rep' (titolare) o 'repc' (cessione di una fascia)
@@ -4985,6 +5628,7 @@
     }
 
     function enterCoordEdit() {
+        if(isViewingArchive()) { ccToast(`Il ${SHIFT_YEAR} è archiviato: si può solo consultare. Torna al ${activeYear} per modificare.`, true); return; }
         closeCoordConsole();
         if(!coordEditModeActive) toggleCoordEditMode(true);
         setTimeout(() => { scrollToToday(); }, 200);
@@ -4998,8 +5642,8 @@
                 { label:'Salva ed esci', kind:'primary', value:'save' }
             ]);
             if(!choice) return false;
-            if(choice === 'save') { coordConfirmChanges(true); silent = true; }
-            else { manualOverrides = JSON.parse(JSON.stringify(coordEditBaseline)); repDiscardEdits(); coordUndoStack = []; coordRedoStack = []; applyManualOverrides(); renderTable(); }
+            if(choice === 'save') { const ok = await coordConfirmChanges(true); if(!ok) return false; silent = true; }
+            else { manualOverrides = JSON.parse(JSON.stringify(coordEditBaseline)); repDiscardEdits(); coordUndoStack = []; coordRedoStack = []; draftClear(); applyManualOverrides(); renderTable(); }
         }
         toggleCoordEditMode(false);
         if(!silent) ccToast('Modalità modifica chiusa');
@@ -5012,6 +5656,7 @@
         document.getElementById('tool-wheel').classList.toggle('show', active);
         if(active) {
             if(!coordUndoStack.length && !pendingChangesCount()) coordEditBaseline = JSON.parse(JSON.stringify(manualOverrides));
+            setTimeout(draftOfferRestore, 400);
             attachCellEditHandlers();
             setCoordTool('select', null, null, true);
             twExpanded = true; twRender(); twPlace();
@@ -5071,16 +5716,7 @@
         const u = document.getElementById('tw-sat-undo'); if(u) u.disabled = !coordUndoStack.length;
         if(coordEditModeActive && twExpanded) twRender();
     }
-    function coordConfirmChanges(quiet) {
-        vibrate();
-        coordEditBaseline = JSON.parse(JSON.stringify(manualOverrides));
-        coordUndoStack = []; coordRedoStack = [];
-        persistCoordState();
-        repPersistEdits();
-        updateCoordToolbarState(); ccUpdateNavCounts(); ccRefreshIfOpen();
-        const n = computePendingExcelSyncList().length;
-        ccToast(n ? `Salvato. Ricorda di riportare ${n} ${n===1?'modifica':'modifiche'} su Excel.` : 'Salvato: le modifiche sono visibili a tutti.');
-    }
+    function coordConfirmChanges(quiet) { return saveAllPendingChanges(quiet); }
     async function coordResetChanges() {
         const n = pendingChangesCount(); if(!n) { ccToast('Non ci sono modifiche da scartare.'); return; }
         const ok = await ccConfirm(`Scartare ${n} ${n===1?'modifica':'modifiche'}?`, 'Il calendario torna all\u2019ultima versione salvata.', 'Scarta', 'solid-danger');
@@ -5089,6 +5725,7 @@
         manualOverrides = JSON.parse(JSON.stringify(coordEditBaseline));
         repDiscardEdits();
         coordUndoStack = []; coordRedoStack = [];
+        draftClear();
         afterCoordChange(); ccRefreshIfOpen();
     }
 
@@ -5192,7 +5829,7 @@
     function coordOnPointerUp() {
         if(!coordPainting) return;
         coordPainting = false;
-        if(coordPaintBatchEntries.length) { pushUndo({ entries: coordPaintBatchEntries }); vibrate(); }
+        if(coordPaintBatchEntries.length) { pushUndo({ entries: coordPaintBatchEntries }); vibrate(); draftSaveSoon(); }
         coordPaintBatchEntries = []; coordPaintTouchedKeys = new Set();
         scheduleNavCounts();
     }
@@ -5310,12 +5947,13 @@
         return ov.v || "vuoto";
     }
     function describeRawExcelValue(orig, dateStr) {
+        const at = dateStr.indexOf('@'); const wantYear = at === -1 ? SHIFT_YEAR : parseInt(dateStr.slice(at + 1)); if(at !== -1) dateStr = dateStr.slice(0, at);
         let idx1 = dateStr.lastIndexOf('-'); let mName = dateStr.substring(0, idx1); let dNum = dateStr.substring(idx1 + 1);
         let headerRaw = rawFinalData[0]; let idx = headerRaw ? headerRaw.indexOf(orig) : -1;
         if(idx === -1) return "vuoto (excel)";
         for(let r=1; r<rawFinalData.length; r++) {
             let row = rawFinalData[r];
-            if(row[0].v === mName && String(parseInt(row[1].v)) === String(parseInt(dNum))) {
+            if(row[0].v === mName && String(parseInt(row[1].v)) === String(parseInt(dNum)) && shiftRowYear(r) === wantYear) {
                 let c = row[idx] || {};
                 let sub = (c.subV || "").toString().trim().toLowerCase();
                 if(sub && SPECIAL_SUBCODES[sub]) return SPECIAL_SUBCODES[sub];
@@ -5722,7 +6360,7 @@
                 const key = ymd(new Date(+p[0], +p[1] - 1, +p[2])) + '_' + (+x.slotIndex);
                 m[key] = { newDriver: x.newDriver || '', originalDriver: x.originalDriver || '', requestId: x.requestId || '', id: k };
             });
-            repCessioniSaved = m;
+            repCessioniSaved = m; repRawCessioni = c;
             repAfterRemoteChange();
         }, err => console.error('Errore ascolto reperibilità:', err));
     }
@@ -5738,33 +6376,38 @@
     }
     function repPendingCount() { return Object.keys(repTurniEdits).length + Object.keys(repCessioniEdits).length; }
     function repDiscardEdits() { repTurniEdits = {}; repCessioniEdits = {}; repInvalidate(); }
-    async function repPersistEdits() {
-        if(!repPendingCount()) return;
+    // Contenuto da scrivere per le reperibilità in sospeso (senza toccare lo stato locale).
+    function repBuildPayload() {
         const turni = Object.assign({}, repTurniEdits), ces = Object.assign({}, repCessioniEdits);
-        // si applica subito in locale: la conferma di Firestore arriva poi dai listener
-        Object.assign(repTurniSaved, turni);
-        const R = repData();
-        Object.keys(ces).forEach(k => { if(ces[k]) repCessioniSaved[k] = Object.assign({}, ces[k], { id: k }); else delete repCessioniSaved[k]; });
-        repTurniEdits = {}; repCessioniEdits = {}; repInvalidate();
-        if(!fbReady) return;
-        try {
-            const now = new Date().toISOString();
-            const payload = { updatedAt: now };
-            if(Object.keys(turni).length) payload.turni = turni;
-            if(Object.keys(ces).length) {
-                payload.cessioni = {};
-                Object.keys(ces).forEach(k => {
-                    const i = k.lastIndexOf('_'), date = k.slice(0, i), slot = +k.slice(i + 1);
-                    payload.cessioni[k] = ces[k] ? {
-                        date, slotIndex: slot, timeSlot: REP_SLOTS[slot].long.replace('–', '-'),
-                        originalDriver: repDisplayName(repTitolareOfSlot(R, date, slot)) || null,
-                        newDriver: repDisplayName(repToOrig(ces[k].newDriver)),
-                        requestId: 'coordinatore', updatedAt: now
-                    } : firebase.firestore.FieldValue.delete();
-                });
-            }
-            await repDocRef().set(payload, { merge:true });
-        } catch(e) { console.error('Errore salvataggio reperibilità:', e); ccToast('Reperibilità non salvate: controlla la connessione.', true); }
+        const count = Object.keys(turni).length + Object.keys(ces).length;
+        if(!count) return null;
+        const R = repData(), now = new Date().toISOString();
+        const payload = { updatedAt: now };
+        if(Object.keys(turni).length) payload.turni = turni;
+        if(Object.keys(ces).length) {
+            payload.cessioni = {};
+            Object.keys(ces).forEach(k => {
+                const i = k.lastIndexOf('_'), date = k.slice(0, i), slot = +k.slice(i + 1);
+                payload.cessioni[k] = ces[k] ? {
+                    date, slotIndex: slot, timeSlot: REP_SLOTS[slot].long.replace('\u2013', '-'),
+                    originalDriver: repDisplayName(repTitolareOfSlot(R, date, slot)) || null,
+                    newDriver: repDisplayName(repToOrig(ces[k].newDriver)),
+                    requestId: 'coordinatore', updatedAt: now
+                } : firebase.firestore.FieldValue.delete();
+            });
+        }
+        const log = [];
+        Object.keys(turni).forEach(d => log.push({ k:'rep', key:d, prev: repTitBase(d) || null, next: turni[d] || null }));
+        Object.keys(ces).forEach(k => log.push({ k:'repc', key:k, prev: repCesBase(k) || null, next: ces[k] ? repToOrig(ces[k].newDriver) : null }));
+        return { payload, turni, ces, count, log };
+    }
+    // Dopo la conferma: le modifiche diventano "salvate" (solo quelle inviate, non quelle nuove).
+    function repMarkSaved(p) {
+        Object.assign(repTurniSaved, p.turni);
+        Object.keys(p.ces).forEach(k => { if(p.ces[k]) repCessioniSaved[k] = Object.assign({}, p.ces[k], { id: k }); else delete repCessioniSaved[k]; });
+        Object.keys(p.turni).forEach(k => { if(JSON.stringify(repTurniEdits[k]) === JSON.stringify(p.turni[k])) delete repTurniEdits[k]; });
+        Object.keys(p.ces).forEach(k => { if(JSON.stringify(repCessioniEdits[k]) === JSON.stringify(p.ces[k])) delete repCessioniEdits[k]; });
+        repInvalidate();
     }
 
     // ── Modifiche (con Annulla/Ripeti, salvate insieme ai turni) ──────────
