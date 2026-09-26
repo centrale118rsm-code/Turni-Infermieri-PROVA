@@ -622,6 +622,74 @@
         #hours-modal .modal-content { max-width:680px; max-height:94vh; }
         #hours-modal.open .modal-content { transform:translateY(0); }
         .hc-header-badge { background:linear-gradient(135deg,#0f172a,#1e293b); color:#fff; }
+        /* ── Centro notifiche ── */
+        .nt-tabs { display:flex; gap:6px; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--bg); }
+        .nt-tab { flex:1; height:36px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-sec); font-weight:700; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; font-family:inherit; }
+        .nt-tab.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+        .nt-tab-count:empty { display:none; }
+        .nt-tab-count { background:#ef4444; color:#fff; border-radius:999px; font-size:0.68rem; padding:1px 7px; }
+        #notif-list-container { padding:6px 14px 18px; }
+        .nt-section { display:flex; align-items:center; gap:8px; font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--text-sec); margin:14px 2px 4px; }
+        .nt-section span { background:var(--border); color:var(--text-main); border-radius:999px; padding:0 7px; font-size:0.66rem; }
+        .nt-day { font-size:0.72rem; font-weight:700; color:var(--text-sec); margin:10px 4px 6px; text-transform:capitalize; }
+        .nt-card { display:flex; gap:12px; align-items:flex-start; padding:12px; margin-bottom:8px; border-radius:14px; background:var(--bg-card); border:1px solid var(--border); cursor:pointer; position:relative; transition:box-shadow .15s, border-color .15s; }
+        .nt-card.unread { border-color:var(--primary); box-shadow:0 0 0 1px var(--primary), 0 6px 16px -8px rgba(29,78,216,.45); }
+        .nt-card.unread::before { content:""; position:absolute; top:12px; right:12px; width:8px; height:8px; border-radius:50%; background:#ef4444; }
+        .nt-ico { width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+        .nt-ico .material-icons-round { font-size:20px; }
+        .nt-main { flex:1; min-width:0; }
+        .nt-top { display:flex; align-items:baseline; gap:8px; padding-right:12px; }
+        .nt-top b { flex:1; font-size:0.9rem; color:var(--text-main); }
+        .nt-time { font-size:0.7rem; color:var(--text-sec); font-weight:600; }
+        .nt-detail { font-size:0.82rem; color:var(--text-sec); margin-top:2px; line-height:1.35; }
+        .nt-list { display:none; list-style:none; margin:8px 0 0; padding:8px 10px; border-radius:10px; background:var(--bg); max-height:220px; overflow:auto; }
+        .nt-card.open .nt-list { display:block; }
+        .nt-card.open .nt-more { display:none; }
+        .nt-list li { display:flex; justify-content:space-between; gap:10px; font-size:0.78rem; padding:3px 0; border-bottom:1px dashed var(--border); }
+        .nt-list li:last-child { border-bottom:none; }
+        .nt-list li span { color:var(--text-sec); } .nt-list li b { color:var(--text-main); text-align:right; }
+        .nt-more { font-size:0.72rem; color:var(--primary); font-weight:700; margin-top:4px; }
+        .nt-actions { display:flex; flex-direction:column; gap:6px; margin-top:18px; }
+        .nt-act { width:34px; height:34px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text-sec); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .nt-act .material-icons-round { font-size:18px; }
+        .nt-act.ok { color:#16a34a; } .nt-act.danger { color:#dc2626; }
+        .nt-intro { display:flex; gap:10px; align-items:center; padding:12px; margin:10px 0; border-radius:14px; background:rgba(29,78,216,.08); border:1px solid rgba(29,78,216,.25); }
+        .nt-intro > .material-icons-round { color:var(--primary); }
+        .nt-intro b { display:block; font-size:0.85rem; color:var(--text-main); } .nt-intro small { display:block; font-size:0.75rem; color:var(--text-sec); line-height:1.35; }
+        .nt-intro button { margin-left:auto; border:none; background:var(--primary); color:#fff; border-radius:9px; padding:8px 12px; font-weight:700; cursor:pointer; font-family:inherit; }
+        .nt-empty { text-align:center; color:var(--text-sec); font-weight:600; font-size:0.88rem; padding:40px 10px; }
+        .nt-empty .material-icons-round { display:block; font-size:40px; opacity:.4; margin-bottom:6px; }
+        /* ── Conteggio orario a griglia ── */
+        .hg-nav { display:flex; align-items:center; justify-content:center; gap:12px; padding:14px 16px 6px; }
+        .hg-nav-btn { width:38px; height:38px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .hg-month { min-width:150px; text-align:center; font-weight:800; font-size:1.1rem; color:var(--text-main); }
+        .hg-month small { font-weight:600; color:var(--text-sec); font-size:0.8rem; }
+        .hg-legend { display:flex; justify-content:center; gap:14px; flex-wrap:wrap; font-size:0.72rem; font-weight:600; color:var(--text-sec); padding:0 16px 10px; }
+        .hg-legend i { display:inline-block; width:22px; height:10px; border-radius:5px; margin-right:5px; vertical-align:-1px; }
+        .hg-wrap { overflow-x:auto; padding:0 12px 6px; -webkit-overflow-scrolling:touch; }
+        .hg-table { width:100%; border-collapse:separate; border-spacing:0 5px; min-width:520px; }
+        .hg-table thead th { position:static; background:none; height:auto; min-width:0; font-size:0.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--text-sec); padding:4px 6px; text-align:center; border:none; backdrop-filter:none; white-space:nowrap; }
+        .hg-table thead th::before { display:none; }
+        .hg-table thead th small { display:block; font-weight:600; text-transform:none; letter-spacing:0; opacity:.8; }
+        .hg-table tbody td, .hg-table tbody th { height:auto; padding:8px 6px; text-align:center; border:none; vertical-align:middle; }
+        .hg-table tbody td b { display:block; font-size:0.9rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
+        .hg-table tbody td small { display:block; font-size:0.68rem; font-weight:700; margin-top:1px; font-variant-numeric:tabular-nums; }
+        .hg-table small.neg { color:#b91c1c; } .hg-table small.pos { color:#15803d; } .hg-table small.eq { color:var(--text-sec); }
+        body.dark-mode .hg-table small.neg { color:#fca5a5; } body.dark-mode .hg-table small.pos { color:#86efac; }
+        .hg-table td.fut b { opacity:.7; font-style:italic; }
+        .hg-table .hg-name { position:sticky; left:0; z-index:2; text-align:left; background:var(--bg-card); min-width:118px; max-width:130px; cursor:pointer; border-radius:12px 0 0 12px; box-shadow:4px 0 8px -6px rgba(0,0,0,.25); }
+        .hg-table thead .hg-name { background:var(--bg-card); box-shadow:none; }
+        .hg-table tbody .hg-name span { display:block; font-weight:800; font-size:0.82rem; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .hg-table tbody .hg-name small { display:block; font-size:0.66rem; color:var(--text-sec); font-weight:600; }
+        .hg-table tbody .hg-name em { font-style:normal; font-size:0.6rem; font-weight:800; background:var(--primary); color:#fff; border-radius:4px; padding:0 5px; margin-left:4px; }
+        .hg-table tbody tr.me .hg-name { box-shadow:inset 3px 0 0 var(--primary), 4px 0 8px -6px rgba(0,0,0,.25); }
+        .hg-table tbody .hg-name span { display:inline-block; max-width:100%; }
+        .hg-table .hg-tot { background:var(--bg-card); border-radius:0 12px 12px 0; min-width:120px; text-align:right; padding-right:12px; }
+        .hg-table thead .hg-tot { text-align:right; }
+        .hg-table td.hg-tot div { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
+        .hg-table td.hg-tot b { font-size:1rem; }
+        .hg-spark { color:var(--text-main); flex-shrink:0; }
+        .hg-note { font-size:0.72rem; color:var(--text-sec); line-height:1.45; padding:4px 18px 18px; margin:0; }
         .hc-header-badge .header-text span { color:#94a3b8; }
         .hc-header-badge .btn-close-modal { background:#1e293b; color:#fff; }
         .hc-search { margin:14px 18px 6px; position:relative; }
@@ -1559,10 +1627,10 @@
         <div class="modal-header">
             <div class="header-text">
                 <h3><span class="material-icons-round" style="margin-right:10px">notifications</span> NOTIFICHE</h3>
-                <span>Avvisi turni e reperibilità</span>
+                <span id="nt-subtitle">Avvisi sui tuoi turni e reperibilità</span>
             </div>
             <div style="display:flex;gap:10px">
-                <button class="btn-close-modal" id="btn-archive-all-notif" title="Archivia tutte le notifiche attive" onclick="clearAllNotif()">
+                <button class="btn-close-modal" id="btn-archive-all-notif" title="Segna tutte come lette" onclick="clearAllNotif()">
                     <span class="material-icons-round">done_all</span>
                 </button>
                 <button class="btn-close-modal" onclick="closeNotifCenter()">
@@ -1570,10 +1638,10 @@
                 </button>
             </div>
         </div>
-        <div class="admin-tabs" style="padding:12px 16px;">
-            <button class="admin-tab-btn active" data-notiftab="attive" onclick="switchNotifTab('attive',this)"><span class="material-icons-round">notifications_active</span> Attive</button>
-            <button class="admin-tab-btn" data-notiftab="archivio" onclick="switchNotifTab('archivio',this)"><span class="material-icons-round">archive</span> Archivio</button>
-            <button class="admin-tab-btn" data-notiftab="storico" onclick="switchNotifTab('storico',this)"><span class="material-icons-round">history</span> Storico</button>
+        <div class="nt-tabs" role="tablist">
+            <button class="nt-tab active" data-notiftab="nuove" onclick="switchNotifTab('nuove',this)">Da leggere <span class="nt-tab-count" id="nt-count-nuove"></span></button>
+            <button class="nt-tab" data-notiftab="tutte" onclick="switchNotifTab('tutte',this)">Tutte</button>
+            <button class="nt-tab" data-notiftab="archivio" onclick="switchNotifTab('archivio',this)">Archivio</button>
         </div>
         <div class="modal-body notif-list" id="notif-list-container"></div>
     </div>
@@ -1848,17 +1916,24 @@
         <div class="modal-header hc-header-badge">
             <div class="header-text">
                 <h3><span class="material-icons-round" style="margin-right:10px">query_stats</span> CONTEGGIO ORARIO</h3>
-                <span>Ore lavorate per operatore</span>
+                <span>Ore del mese di tutti, settimana per settimana</span>
             </div>
             <button class="btn-close-modal" onclick="closeHoursModal()"><span class="material-icons-round">close</span></button>
         </div>
         <div class="modal-body">
             <div id="hc-list-view">
-                <div class="hc-search">
-                    <span class="material-icons-round">search</span>
-                    <input type="text" id="hc-search-input" placeholder="Cerca operatore..." oninput="renderHoursOperatorList()">
+                <div class="hg-nav">
+                    <button class="hg-nav-btn" onclick="hgNav(-1)" aria-label="Mese precedente"><span class="material-icons-round">chevron_left</span></button>
+                    <div class="hg-month" id="hg-month"></div>
+                    <button class="hg-nav-btn" onclick="hgNav(1)" aria-label="Mese successivo"><span class="material-icons-round">chevron_right</span></button>
                 </div>
-                <div class="hc-op-list" id="hc-op-list"></div>
+                <div class="hg-legend">
+                    <span><i style="background:rgba(239,68,68,.35)"></i>sotto le ore</span>
+                    <span><i style="background:rgba(59,130,246,.18)"></i>in pari</span>
+                    <span><i style="background:rgba(34,197,94,.38)"></i>sopra le ore</span>
+                </div>
+                <div class="hg-wrap" id="hg-grid"></div>
+                <p class="hg-note">Ogni settimana: ore fatte e differenza rispetto al contratto (6 h al giorno, lunedì–sabato; ferie e assenze giustificate contano come giornata). Il colore segue l’andamento: rosso sotto, verde sopra. Tocca un nome per il dettaglio.</p>
             </div>
             <div id="hc-detail-view" style="display:none;">
                 <div class="hc-back-row">
@@ -3179,7 +3254,6 @@
     function menuTree() {
         const dark = document.body.classList.contains('dark-mode');
         const hasYears = typeof dataSourceMode !== 'undefined' && dataSourceMode === 'firebase' && archivedYears.length > 0;
-        const coordSec = (id, icon, label, desc) => ({ id:'cc-' + id, icon, label, desc, color: MN_COLORS.coord, run: () => { ccPendingSection = id; openCoordConsole(id); } });
         return [
             { group:'Calendario' },
             { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori' + (hasYears ? ', anni passati' : ''), color: MN_COLORS.cal, children: [
@@ -3199,15 +3273,7 @@
                 { id:'as', icon:'open_in_new', label:'Turni autisti', desc:'Apre l\u2019app degli autisti soccorritori', color: MN_COLORS.link, run: () => window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/', '_blank') }
             ] },
             { group:'Gestione' },
-            { id:'coord', icon:'supervisor_account', label:'Area coordinatore', desc:'Turni, operatori, ore, reperibilità, backup', color: MN_COLORS.coord, lock:true, children: [
-                coordSec('panoramica', 'space_dashboard', 'Panoramica', 'Chi è in turno e cose da fare'),
-                coordSec('modifica', 'edit_calendar', 'Modifica turni', 'La ruota sul calendario'),
-                coordSec('operatori', 'badge', 'Operatori', 'Colonne, ordine, ore di contratto'),
-                coordSec('ore', 'schedule', 'Conteggio ore', 'Tabella ore di tutti'),
-                coordSec('reperibilita', 'phone_in_talk', 'Report reperibilità', 'Ore del mese, stampa e PDF'),
-                coordSec('dati', 'shield', 'Dati e backup', 'Copie, storico, anni'),
-                coordSec('impostazioni', 'settings', 'Impostazioni', 'Coordinatore designato e altro')
-            ] },
+            { id:'coord', icon:'supervisor_account', label:'Area coordinatore', desc:'Accesso riservato', color: MN_COLORS.coord, lock:true, run: () => openCoordLoginModal() },
             { id:'admin', icon:'admin_panel_settings', label:'Area admin', desc:'Accesso riservato', color: MN_COLORS.admin, lock:true, run: () => openAdminLoginModal() },
             { group:'App' },
             { id:'imp', icon:'tune', label:'Impostazioni', desc:'Tema, notifiche, utente, aggiornamento', color: MN_COLORS.imp, children: [
@@ -3457,42 +3523,52 @@
     }
     // ── Notifiche: cambi turno e reperibilità dell'operatore loggato ────────
     function checkForScheduleChanges() {
-        // Monitoriamo automaticamente solo la colonna dell'operatore attualmente
-        // identificato (non serve più selezionare manualmente chi seguire).
+        // Si segue automaticamente la colonna dell'operatore identificato.
         if(!userIdentity || userIdentity === 'Ospite') return;
-        const myDriver = drivers.find(d => d.name === userIdentity);
-        if(!myDriver) return;
-        const dIdx = myDriver.idx;
-        let currentSnapshot = {};
-        for(let i=1; i<finalData.length; i++) {
-            let row = finalData[i]; let month = row[0].v; let day = row[1].v; if(!day || !month) continue;
-            let dateKey = `${month}-${day}`;
-            let cell = row[dIdx]; let val = cell && cell.v ? cell.v.toString().trim() : "";
-            currentSnapshot[dateKey] = val;
+        if(typeof isViewingArchive === 'function' && isViewingArchive()) return;
+        const myDriver = drivers.find(d => d.name === userIdentity); if(!myDriver) return;
+        const dIdx = myDriver.idx, orig = myDriver.originalName || myDriver.name;
+        const current = {}, labels = {};
+        for(let i = 1; i < finalData.length; i++) {
+            const row = finalData[i], month = row[0].v, day = row[1].v; if(!day || !month) continue;
+            if(shiftRowYear(i) !== SHIFT_YEAR) continue;
+            const key = `${month}-${day}`, cell = row[dIdx] || {};
+            const sub = (cell.subV || '').toString().trim().toLowerCase();
+            current[key] = (cell.v ? cell.v.toString().trim() : '') + (SPECIAL_SUBCODES[sub] ? '|' + sub : '');
         }
-        let snapKey = `nurse_schedule_snapshot_${myDriver.originalName || myDriver.name}`;
+        const snapKey = `nurse_schedule_snapshot_${SHIFT_YEAR}_${orig}`, legacyKey = `nurse_schedule_snapshot_${orig}`;
         let oldJson = localStorage.getItem(snapKey);
+        if(!oldJson && SHIFT_YEAR === 2026) oldJson = localStorage.getItem(legacyKey);
+        const show = v => { const [code, sub] = v.split('|'); return sub ? (SPECIAL_SUBCODES[sub] || sub).toLowerCase().replace(/^./, c => c.toUpperCase()) : formatShiftLabel(code); };
         if(oldJson) {
-            let oldSnapshot = JSON.parse(oldJson); let changesFound = [];
-            for(const [dateKey, newVal] of Object.entries(currentSnapshot)) {
-                let oldVal = oldSnapshot[dateKey];
-                if(oldVal !== undefined && oldVal !== newVal) {
-                    const dateLabel = formatNotifDateKey(dateKey);
-                    let detailMsg = oldVal === ""
-                        ? `<b>🆕 Nuovo turno inserito</b> — ${dateLabel}<br><span style="font-size:0.85rem;color:var(--text-sec)">Turno assegnato: <b>${formatShiftLabel(newVal)}</b></span>`
-                        : newVal === ""
-                        ? `<b>🗑️ Turno rimosso</b> — ${dateLabel}<br><span style="font-size:0.85rem;color:var(--text-sec)">Era: <b>${formatShiftLabel(oldVal)}</b></span>`
-                        : `<b>🔄 Turno modificato</b> — ${dateLabel}<br><span style="font-size:0.85rem;color:var(--text-sec)">Da <b>${formatShiftLabel(oldVal)}</b> a <b>${formatShiftLabel(newVal)}</b></span>`;
-                    changesFound.push(detailMsg);
-                    notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:detailMsg, read:false, archived:false, date:new Date().toLocaleString(), type:'turno' });
-                }
-            }
-            if(changesFound.length > 0) { saveNotifications(); updateBadge(); showChangeAlert(changesFound); }
+            const old = JSON.parse(oldJson), added = [], changed = [], removed = [];
+            Object.entries(current).forEach(([k, v]) => {
+                const o = old[k]; if(o === undefined || o === v) return;
+                const lbl = formatNotifDateKey(k);
+                if(!o) added.push({ label: lbl, value: show(v) });
+                else if(!v) removed.push({ label: lbl, value: 'era ' + show(o) });
+                else changed.push({ label: lbl, value: show(o) + ' \u2192 ' + show(v) });
+            });
+            const push = obj => notifHistory.unshift(Object.assign({ id: Date.now() + Math.random(), ts: Date.now(), read:false, archived:false, date: new Date().toLocaleString(), type:'turno' }, obj));
+            const alerts = [];
+            if(added.length >= 3) {
+                const months = [...new Set(added.map(a => a.label.split(' ').slice(-1)[0]))].join(', ');
+                push({ kind:'nuovi', title:`Nuovi turni pubblicati`, detail:`${added.length} giorni assegnati (${months})`, items: added, text:`<b>Nuovi turni pubblicati</b> \u2014 ${added.length} giorni` });
+                alerts.push(`<b>🆕 Nuovi turni pubblicati</b><br><span style="font-size:0.85rem;color:var(--text-sec)">${added.length} giorni assegnati (${months})</span>`);
+            } else added.forEach(a => { push({ kind:'nuovo', title:'Nuovo turno', detail:`${a.label}: ${a.value}`, text:`<b>🆕 Nuovo turno</b> \u2014 ${a.label}` }); alerts.push(`<b>🆕 Nuovo turno</b> \u2014 ${a.label}<br><span style="font-size:0.85rem;color:var(--text-sec)">${a.value}</span>`); });
+            if(changed.length > 3) {
+                push({ kind:'modifiche', title:'Turni modificati', detail:`${changed.length} giorni cambiati`, items: changed, text:`<b>Turni modificati</b> \u2014 ${changed.length} giorni` });
+                alerts.push(`<b>🔄 ${changed.length} turni modificati</b>`);
+            } else changed.forEach(a => { push({ kind:'modificato', title:'Turno modificato', detail:`${a.label}: ${a.value}`, text:`<b>🔄 Turno modificato</b> \u2014 ${a.label}` }); alerts.push(`<b>🔄 Turno modificato</b> \u2014 ${a.label}<br><span style="font-size:0.85rem;color:var(--text-sec)">${a.value}</span>`); });
+            removed.forEach(a => { push({ kind:'rimosso', title:'Turno rimosso', detail:`${a.label}: ${a.value}`, text:`<b>🗑️ Turno rimosso</b> \u2014 ${a.label}` }); alerts.push(`<b>🗑️ Turno rimosso</b> \u2014 ${a.label}<br><span style="font-size:0.85rem;color:var(--text-sec)">${a.value}</span>`); });
+            if(alerts.length) { saveNotifications(); updateBadge(); showChangeAlert(alerts); if(document.getElementById('notif-center-modal').classList.contains('open')) renderNotifList(); }
         }
-        localStorage.setItem(snapKey, JSON.stringify(currentSnapshot));
+        localStorage.setItem(snapKey, JSON.stringify(current));
         checkReperibilitaReminder(myDriver);
     }
-
+    // Ricontrollo quando arrivano modifiche mentre l'app è aperta (non solo all'avvio).
+    let scheduleCheckTimer = null;
+    function scheduleCheckSoon() { clearTimeout(scheduleCheckTimer); scheduleCheckTimer = setTimeout(() => { if(appBooted) checkForScheduleChanges(); }, 2500); }
     function checkReperibilitaReminder(myDriver) {
         const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
         const tDay = tomorrow.getDate();
@@ -3506,7 +3582,7 @@
         const dateLabel = tomorrow.toLocaleDateString('it-IT', { day:'2-digit', month:'long' });
         const detail = R.tit[tDate] === me ? 'sei <b>reperibile</b> dalle 13:00 per 24 ore' : `copri la reperibilità: <b>${mine.join(', ')}</b>`;
         const msg = `<b>📟 Promemoria Reperibilità</b><br><span style="font-size:0.85rem;color:var(--text-sec)">Domani, <b>${dateLabel}</b>, ${detail}.</span>`;
-        notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:msg, read:false, archived:false, date:new Date().toLocaleString(), type:'turno' });
+        notifHistory.unshift({ id:Date.now()+Math.random(), ts:Date.now(), text:msg, kind:'rep', title:'Reperibilit\u00e0 domani', detail: `${dateLabel}: ${R.tit[tDate] === me ? 'reperibile dalle 13:00 per 24 ore' : 'copri ' + mine.join(', ')}`, read:false, archived:false, date:new Date().toLocaleString(), type:'turno' });
         saveNotifications(); updateBadge();
         localStorage.setItem(reminderKey, '1');
     }
@@ -3520,17 +3596,15 @@
     function updateBadge() { const c = notifHistory.filter(n => !n.read && !n.archived).length; const b = document.getElementById('notif-badge'); if(c > 0) b.classList.add('visible'); else b.classList.remove('visible'); }
     function openNotifCenter() {
         vibrate(); let modal = document.getElementById('notif-center-modal'); modal.style.display = 'flex'; setTimeout(() => modal.classList.add('open'), 10);
-        currentNotifTab = 'attive';
-        document.querySelectorAll('#notif-center-modal .admin-tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelector('#notif-center-modal .admin-tab-btn[data-notiftab="attive"]').classList.add('active');
+        currentNotifTab = notifHistory.some(n => !n.read && !n.archived) ? 'nuove' : 'tutte';
+        document.querySelectorAll('#notif-center-modal .nt-tab').forEach(b => b.classList.toggle('active', b.dataset.notiftab === currentNotifTab));
         updateArchiveAllBtnVisibility();
         renderNotifList(); setCurrentView("Notifiche");
-        setTimeout(() => { notifHistory.forEach(n => n.read = true); saveNotifications(); updateBadge(); }, 1000);
     }
     function closeNotifCenter() { let modal = document.getElementById('notif-center-modal'); modal.classList.remove('open'); setTimeout(() => modal.style.display = 'none', 300); }
     function switchNotifTab(tab, btnEl) {
         vibrate(); currentNotifTab = tab;
-        document.querySelectorAll('#notif-center-modal .admin-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#notif-center-modal .nt-tab').forEach(b => b.classList.remove('active'));
         if(btnEl) btnEl.classList.add('active');
         updateArchiveAllBtnVisibility();
         renderNotifList();
@@ -3538,7 +3612,7 @@
     // Il pulsante "Archivia tutte" ha senso solo tra le notifiche Attive.
     function updateArchiveAllBtnVisibility() {
         const btn = document.getElementById('btn-archive-all-notif');
-        if(btn) btn.style.display = currentNotifTab === 'attive' ? 'flex' : 'none';
+        if(btn) btn.style.display = notifHistory.some(n => !n.read && !n.archived) ? 'flex' : 'none';
     }
     // Timestamp numerico affidabile per ordinare/raggruppare: le notifiche più vecchie,
     // salvate prima di questa revisione, non hanno "ts" — si ricava dalla data testuale.
@@ -3575,78 +3649,72 @@
         if(item.reqId) return true;
         return /nuova richiesta/i.test(item.text || '');
     }
+    // Tipo di notifica (anche per quelle salvate prima di questa versione, dal testo).
+    const NT_KINDS = {
+        nuovi:      { icon:'event_available', color:'#16a34a', title:'Nuovi turni pubblicati' },
+        nuovo:      { icon:'event_available', color:'#16a34a', title:'Nuovo turno' },
+        modificato: { icon:'sync',            color:'#2563eb', title:'Turno modificato' },
+        modifiche:  { icon:'sync',            color:'#2563eb', title:'Turni modificati' },
+        rimosso:    { icon:'event_busy',      color:'#dc2626', title:'Turno rimosso' },
+        rep:        { icon:'phone_in_talk',   color:'#e11d48', title:'Reperibilit\u00e0' },
+        richiesta:  { icon:'assignment',      color:'#7c3aed', title:'Nuova richiesta' },
+        altro:      { icon:'notifications',   color:'#64748b', title:'Avviso' }
+    };
+    function notifKind(n) {
+        if(n.kind && NT_KINDS[n.kind]) return n.kind;
+        if(isRichiestaNotif(n)) return 'richiesta';
+        const t = (n.text || '').toLowerCase();
+        if(t.includes('reperibil')) return 'rep';
+        if(t.includes('nuovo turno')) return 'nuovo';
+        if(t.includes('rimosso')) return 'rimosso';
+        if(t.includes('modificato')) return 'modificato';
+        return 'altro';
+    }
     function renderNotifList() {
         const c = document.getElementById('notif-list-container');
-        const items = currentNotifTab === 'storico'
-            ? notifHistory.slice()
-            : notifHistory.filter(n => currentNotifTab === 'archivio' ? n.archived : !n.archived);
-        if(items.length === 0) {
-            const emptyMsg = currentNotifTab === 'archivio' ? 'Archivio vuoto.' : currentNotifTab === 'storico' ? 'Nessuna notifica nello storico.' : 'Nessuna notifica attiva.';
-            c.innerHTML = `<div class="no-notif">${emptyMsg}</div>`;
+        const unread = notifHistory.filter(n => !n.read && !n.archived).length;
+        const cnt = document.getElementById('nt-count-nuove'); if(cnt) cnt.textContent = unread || '';
+        const sub = document.getElementById('nt-subtitle');
+        if(sub) sub.textContent = (userIdentity && userIdentity !== 'Ospite') ? `Avvisi sui turni e le reperibilit\u00e0 di ${userIdentity}` : 'Scegli chi sei per ricevere avvisi sui tuoi turni';
+        const items = currentNotifTab === 'archivio' ? notifHistory.filter(n => n.archived)
+            : currentNotifTab === 'nuove' ? notifHistory.filter(n => !n.read && !n.archived)
+            : notifHistory.filter(n => !n.archived);
+        let intro = '';
+        if(!userIdentity || userIdentity === 'Ospite') intro = `<div class="nt-intro"><span class="material-icons-round">info</span><div><b>Non sai chi sei per l\u2019app</b><small>Scegli il tuo nome: ti avviseremo quando ti assegnano nuovi turni, quando cambiano e il giorno prima di una reperibilit\u00e0.</small></div><button onclick="closeNotifCenter();setTimeout(requestChangeIdentityDirect,300)">Scegli</button></div>`;
+        if(!items.length) {
+            const msg = currentNotifTab === 'archivio' ? 'Archivio vuoto.' : currentNotifTab === 'nuove' ? 'Sei in pari: nessuna notifica da leggere.' : 'Nessuna notifica.';
+            c.innerHTML = intro + `<div class="nt-empty"><span class="material-icons-round">${currentNotifTab === 'nuove' ? 'mark_email_read' : 'notifications_none'}</span>${msg}</div>`;
             return;
         }
-        // Le richieste dal portale Richieste hanno un elenco a parte, sempre in cima,
-        // rispetto agli avvisi di cambio turno/reperibilità: sono cose diverse (una
-        // richiede un'azione di approvazione, l'altra è solo un'informazione).
-        const richiesteItems = items.filter(isRichiestaNotif);
-        const turnoItems     = items.filter(n => !isRichiestaNotif(n));
-        let html = '';
-        if(richiesteItems.length > 0) {
-            html += `<div class="notif-section-title richiesta"><span class="material-icons-round">assignment</span> Richieste <span class="notif-section-count">${richiesteItems.length}</span></div>`;
-            html += renderNotifGroup(richiesteItems);
-        }
-        if(turnoItems.length > 0) {
-            html += `<div class="notif-section-title turno" style="${richiesteItems.length > 0 ? 'margin-top:22px;' : ''}"><span class="material-icons-round">event_note</span> Turni e Reperibilità <span class="notif-section-count">${turnoItems.length}</span></div>`;
-            html += renderNotifGroup(turnoItems);
-        }
+        const rich = items.filter(n => notifKind(n) === 'richiesta'), rest = items.filter(n => notifKind(n) !== 'richiesta');
+        let html = intro;
+        if(rich.length) html += `<div class="nt-section">Richieste da gestire <span>${rich.length}</span></div>` + renderNotifGroup(rich);
+        if(rest.length) html += `<div class="nt-section">Turni e reperibilit\u00e0 <span>${rest.length}</span></div>` + renderNotifGroup(rest);
         c.innerHTML = html;
     }
-    // Raggruppa per anno/giorno un sottoinsieme di notifiche (richieste oppure turni) e
-    // genera le card, con le azioni giuste secondo la scheda attiva e il tipo di notifica.
     function renderNotifGroup(items) {
-        const sorted = items.slice().sort((a,b) => getNotifTs(b) - getNotifTs(a));
-        let html = ''; let lastYear = null, lastDayKey = null;
+        const sorted = items.slice().sort((a, b) => getNotifTs(b) - getNotifTs(a));
+        let html = '', lastDay = null;
         sorted.forEach(item => {
-            const d = new Date(getNotifTs(item));
-            const year = d.getFullYear();
-            const dayKey = d.toDateString();
-            if(year !== lastYear) {
-                html += `<div class="notif-group-year">${year}</div>`;
-                lastYear = year; lastDayKey = null;
-            }
-            if(dayKey !== lastDayKey) {
-                const dayCount = sorted.filter(x => new Date(getNotifTs(x)).toDateString() === dayKey).length;
-                html += `<div class="notif-group-day"><span class="notif-group-day-label">${formatNotifDayLabel(d)}</span><span class="notif-group-day-count">${dayCount}</span></div>`;
-                lastDayKey = dayKey;
-            }
-            const timeStr = getNotifTs(item) ? d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }) : item.date;
-            const archivedTag = (currentNotifTab === 'storico' && item.archived) ? `<span class="notif-archived-tag">Archiviata</span>` : '';
-            const isRichiesta = isRichiestaNotif(item);
-            const icon = isRichiesta ? '📋 ' : '';
-
-            let actionsHtml = '';
-            if(currentNotifTab === 'archivio') {
-                actionsHtml = `<div class="notif-actions">
-                    <button class="btn-del-notif" title="Ripristina" style="position:static;" onclick="restoreNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">unarchive</span></button>
-                    <button class="btn-del-notif" title="Elimina definitivamente" style="position:static;color:#dc2626" onclick="permanentDeleteNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">delete_forever</span></button>
-                </div>`;
-            } else if(currentNotifTab === 'attive' && isRichiesta) {
-                // Le richieste hanno due azioni: spuntarla (archivia con un bagliore verde)
-                // oppure aprirla direttamente nel portale Richieste.
-                actionsHtml = `<div class="notif-actions">
-                    <button class="notif-action-btn open" title="Apri nel portale Richieste" onclick="openRequestFromNotif(${item.reqId ? `'${item.reqId}'` : 'null'})"><span class="material-icons-round" style="font-size:19px">open_in_new</span></button>
-                    <button class="notif-action-btn check" title="Segna come gestita e archivia" onclick="checkOffRichiesta(${item.id})"><span class="material-icons-round" style="font-size:20px">check_circle</span></button>
-                </div>`;
-            } else if(currentNotifTab === 'attive') {
-                actionsHtml = `<div class="notif-actions">
-                    <button class="btn-del-notif" title="Archivia" style="position:static;" onclick="deleteNotif(${item.id})"><span class="material-icons-round" style="font-size:18px">archive</span></button>
-                </div>`;
-            } // storico: nessuna azione, è solo consultazione
-
-            html += `<div class="notif-item ${item.read?'':'unread'} ${isRichiesta?'notif-richiesta':''}" data-id="${item.id}">
-                <div class="notif-date">${timeStr}${archivedTag}</div>
-                <div class="notif-text">${icon}${item.text}</div>
-                ${actionsHtml}
+            const d = new Date(getNotifTs(item)), dayKey = d.toDateString();
+            if(dayKey !== lastDay) { html += `<div class="nt-day">${formatNotifDayLabel(d)}${d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : ''}</div>`; lastDay = dayKey; }
+            const k = notifKind(item), K = NT_KINDS[k];
+            const time = d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
+            const title = item.title || K.title;
+            const detail = item.detail !== undefined ? esc(item.detail) : (item.text || '');
+            const list = (item.items || []).map(it => `<li><span>${esc(it.label)}</span><b>${esc(it.value)}</b></li>`).join('');
+            let actions = '';
+            if(currentNotifTab === 'archivio') actions = `<button class="nt-act" title="Ripristina" onclick="event.stopPropagation();restoreNotif(${item.id})"><span class="material-icons-round">unarchive</span></button><button class="nt-act danger" title="Elimina" onclick="event.stopPropagation();permanentDeleteNotif(${item.id})"><span class="material-icons-round">delete_forever</span></button>`;
+            else if(k === 'richiesta') actions = `<button class="nt-act" title="Apri nel portale Richieste" onclick="event.stopPropagation();openRequestFromNotif(${item.reqId ? `'${item.reqId}'` : 'null'})"><span class="material-icons-round">open_in_new</span></button><button class="nt-act ok" title="Gestita: archivia" onclick="event.stopPropagation();checkOffRichiesta(${item.id})"><span class="material-icons-round">check_circle</span></button>`;
+            else actions = `<button class="nt-act" title="Archivia" onclick="event.stopPropagation();deleteNotif(${item.id})"><span class="material-icons-round">archive</span></button>`;
+            html += `<div class="nt-card notif-item ${item.read ? '' : 'unread'} ${list ? 'has-list' : ''}" data-id="${item.id}" onclick="notifTap('${item.id}')">
+                <span class="nt-ico" style="background:${K.color}"><span class="material-icons-round">${K.icon}</span></span>
+                <div class="nt-main">
+                    <div class="nt-top"><b>${esc(title)}</b><span class="nt-time">${time}</span></div>
+                    <div class="nt-detail">${detail}</div>
+                    ${list ? `<ul class="nt-list">${list}</ul><div class="nt-more">${(item.items || []).length} giorni \u00b7 tocca per vedere</div>` : ''}
+                </div>
+                <div class="nt-actions">${actions}</div>
             </div>`;
         });
         return html;
@@ -3654,7 +3722,14 @@
     function deleteNotif(id) { vibrate(); const n = notifHistory.find(x => x.id === id); if(n) n.archived = true; saveNotifications(); renderNotifList(); updateBadge(); }
     function restoreNotif(id) { vibrate(); const n = notifHistory.find(x => x.id === id); if(n) n.archived = false; saveNotifications(); renderNotifList(); updateBadge(); }
     function permanentDeleteNotif(id) { if(!confirm("Eliminare definitivamente questa notifica?")) return; vibrate(); notifHistory = notifHistory.filter(n => n.id !== id); saveNotifications(); renderNotifList(); updateBadge(); }
-    function clearAllNotif() { if(confirm("Archiviare tutte le notifiche attive?")) { vibrate(); notifHistory.forEach(n => { if(!n.archived) n.archived = true; }); saveNotifications(); renderNotifList(); updateBadge(); } }
+    function clearAllNotif() { vibrate(); notifHistory.forEach(n => { n.read = true; }); saveNotifications(); updateArchiveAllBtnVisibility(); renderNotifList(); updateBadge(); }
+    // Tocco su una notifica: diventa letta e mostra/nasconde il dettaglio.
+    function notifTap(id) {
+        const n = notifHistory.find(x => String(x.id) === String(id)); if(!n) return;
+        const card = document.querySelector(`.nt-card[data-id="${id}"]`);
+        if(!n.read) { n.read = true; saveNotifications(); updateBadge(); updateArchiveAllBtnVisibility(); if(card) card.classList.remove('unread'); const c = document.getElementById('nt-count-nuove'); if(c) { const k = notifHistory.filter(x => !x.read && !x.archived).length; c.textContent = k || ''; } }
+        if(card) card.classList.toggle('open');
+    }
     // Spunta una richiesta: bagliore verde sulla card, poi la archivia davvero e ridisegna.
     function checkOffRichiesta(id) {
         vibrate();
@@ -3690,8 +3765,9 @@
         }
         const upper = val.toUpperCase().replace(/\s+/g,'');
         if(isMN(upper)) return "Mattina + Notte" + repSuffix;
-        const SHIFT_FULL_LABELS = { M:"Mattina", P:"Pomeriggio", N:"Notte", SM:"Smonto", R:"Riposo" };
-        return (SHIFT_FULL_LABELS[upper] || val) + repSuffix;
+        const SHIFT_FULL_LABELS = { M:"Mattina", P:"Pomeriggio", N:"Notte", SM:"Smonto", S:"Smonto", R:"Riposo" };
+        const diurno = /^[a-z]/.test(val) && SHIFT_FULL_LABELS[upper] ? " (diurno)" : "";
+        return (SHIFT_FULL_LABELS[upper] || val) + diurno + repSuffix;
     }
     function showChangeAlert(changes) {
         const box = document.getElementById('alert-message-text');
@@ -4022,8 +4098,8 @@
         closeMenu(); vibrate();
         document.getElementById('hc-list-view').style.display = 'block';
         document.getElementById('hc-detail-view').style.display = 'none';
-        document.getElementById('hc-search-input').value = "";
-        renderHoursOperatorList();
+        const now = new Date(); hgMonth = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : (now.getFullYear() > SHIFT_YEAR ? 11 : 0);
+        renderHoursGrid();
         let m = document.getElementById('hours-modal'); m.style.display = 'flex';
         setTimeout(()=>m.classList.add('open'),10);
     }
@@ -4032,6 +4108,62 @@
         let m = document.getElementById('hours-modal'); m.classList.remove('open');
         setTimeout(()=>m.style.display='none',300);
         if(hoursChartInstance) { hoursChartInstance.destroy(); hoursChartInstance = null; }
+    }
+    // ── Griglia mensile: righe = operatori, colonne = settimane del mese ──
+    let hgMonth = new Date().getMonth();
+    function hgNav(d) { vibrate(); hgMonth = Math.min(11, Math.max(0, hgMonth + d)); renderHoursGrid(); }
+    // colore della settimana secondo la differenza (minuti) rispetto al contratto
+    function hgTint(delta) {
+        if(Math.abs(delta) < 30) return [59,130,246,0.14];
+        const a = Math.min(0.42, 0.16 + Math.abs(delta) / 360 * 0.12);
+        return delta < 0 ? [239,68,68,a] : [34,197,94,a];
+    }
+    const hgRgba = c => `rgba(${c[0]},${c[1]},${c[2]},${c[3].toFixed(3)})`;
+    const hgMix = (a, b) => a.map((v, i) => (v + b[i]) / 2);
+    // piccola onda del saldo progressivo nel mese
+    function hgSpark(points) {
+        if(points.length < 2) return '';
+        const W = 64, H = 20, max = Math.max(60, ...points.map(p => Math.abs(p)));
+        const xy = points.map((p, i) => [i * W / (points.length - 1), H / 2 - p / max * (H / 2 - 2)]);
+        let d = `M${xy[0][0].toFixed(1)} ${xy[0][1].toFixed(1)}`;
+        for(let i = 1; i < xy.length; i++) { const mx = (xy[i - 1][0] + xy[i][0]) / 2; d += ` C${mx.toFixed(1)} ${xy[i - 1][1].toFixed(1)}, ${mx.toFixed(1)} ${xy[i][1].toFixed(1)}, ${xy[i][0].toFixed(1)} ${xy[i][1].toFixed(1)}`; }
+        const last = points[points.length - 1], col = Math.abs(last) < 30 ? '#3b82f6' : (last < 0 ? '#dc2626' : '#16a34a');
+        return `<svg class="hg-spark" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true"><line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="currentColor" stroke-opacity=".18" stroke-dasharray="2 2"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round"/></svg>`;
+    }
+    function renderHoursGrid() {
+        const el = document.getElementById('hg-grid'); if(!el) return;
+        document.getElementById('hg-month').innerHTML = `${MONTH_NAMES_IT[hgMonth].charAt(0).toUpperCase() + MONTH_NAMES_IT[hgMonth].slice(1)} <small>${SHIFT_YEAR}</small>`;
+        const days = buildDaysIndex().filter(dd => dd.monthIdx === hgMonth);
+        const map = {}, weeks = [];
+        days.forEach(dd => { const k = ymd(getWeekRange(dd.date).start); if(!map[k]) { map[k] = []; weeks.push(k); } map[k].push(dd); });
+        const cols = weeks.map((k, i) => { const g = map[k]; return { label: 'Sett. ' + (i + 1), sub: g[0].day + (g.length > 1 ? '\u2013' + g[g.length - 1].day : ''), days: g }; });
+        const today = new Date(); today.setHours(0,0,0,0);
+        const me = userIdentity ? userIdentity.toUpperCase() : '';
+        const rows = drivers.filter(d => !d.hidden).map(d => {
+            const ch = getContractHours(d.idx);
+            let run = 0, tot = 0, tgt = 0; const spark = [0];
+            const cells = cols.map(c => {
+                const w = c.days.reduce((a, dd) => a + computeDayInfo(dd.rowIdx, d.idx).minutes, 0);
+                const t = contractMinutesFor(ch, c.days.map(dd => dd.date));
+                tot += w; tgt += t; run += w - t; spark.push(run);
+                return { w, t, delta: w - t, future: c.days[0].date > today };
+            });
+            return { d, ch, cells, tot, tgt, spark, isMe: me && (d.name.toUpperCase() === me || (d.originalName || '').toUpperCase() === me) };
+        });
+        rows.sort((a, b) => (b.isMe - a.isMe));
+        const head = `<tr><th class="hg-name">Operatore</th>${cols.map(c => `<th>${c.label}<small>${c.sub} ${MONTH_NAMES_IT[hgMonth].slice(0,3)}</small></th>`).join('')}<th class="hg-tot">Ore del mese</th></tr>`;
+        const body = rows.map(r => {
+            const tints = r.cells.map(c => hgTint(c.delta));
+            const tds = r.cells.map((c, i) => {
+                const cur = tints[i], prev = i ? hgMix(tints[i - 1], cur) : cur, next = i < tints.length - 1 ? hgMix(cur, tints[i + 1]) : cur;
+                const bg = `linear-gradient(90deg, ${hgRgba(prev)} 0%, ${hgRgba(cur)} 50%, ${hgRgba(next)} 100%)`;
+                const cls = Math.abs(c.delta) < 30 ? 'eq' : (c.delta < 0 ? 'neg' : 'pos');
+                return `<td class="${c.future ? 'fut' : ''}" style="background:${bg}"><b>${fmtHM(c.w)}</b><small class="${cls}">${fmtHM(c.delta, true) || '0:00'}</small></td>`;
+            }).join('');
+            const dt = r.tot - r.tgt, dcls = Math.abs(dt) < 30 ? 'eq' : (dt < 0 ? 'neg' : 'pos');
+            return `<tr class="${r.isMe ? 'me' : ''}"><th class="hg-name" onclick="openHoursDetail(${r.d.idx}, ${hgMonth})"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}<small>${r.ch} h/sett.</small></th>${tds}<td class="hg-tot"><div><b>${fmtHM(r.tot)}</b>${hgSpark(r.spark)}</div><small class="${dcls}">${fmtHM(dt, true) || '0:00'} su ${fmtHM(r.tgt)}</small></td></tr>`;
+        }).join('');
+        el.innerHTML = rows.length ? `<table class="hg-table"><thead>${head}</thead><tbody>${body}</tbody></table>` : '<div class="coord-sync-empty">Nessun dato per questo mese</div>';
     }
     function renderHoursOperatorList() {
         const listEl = document.getElementById('hc-op-list'); if(!listEl) return;
@@ -4054,15 +4186,15 @@
         document.getElementById('hc-detail-view').style.display='none';
         if(hoursChartInstance) { hoursChartInstance.destroy(); hoursChartInstance = null; }
     }
-    function openHoursDetail(driverIdx) {
+    function openHoursDetail(driverIdx, monthIdx) {
         vibrate();
-        hoursSelectedDriver = driverIdx; hoursPeriod = "settimana";
-        hoursWeekAnchor = new Date(); hoursSelectedMonthIdx = new Date().getMonth();
+        hoursSelectedDriver = driverIdx; hoursPeriod = monthIdx !== undefined ? "mese" : "settimana";
+        hoursWeekAnchor = new Date(); hoursSelectedMonthIdx = monthIdx !== undefined ? monthIdx : new Date().getMonth();
         document.getElementById('hc-list-view').style.display='none';
         document.getElementById('hc-detail-view').style.display='block';
         let d = getDriverByIdx(driverIdx);
         document.getElementById('hc-detail-name').innerText = d ? d.name : "";
-        document.querySelectorAll('.hc-period-tab').forEach(t=>t.classList.toggle('active', t.dataset.period==='settimana'));
+        document.querySelectorAll('.hc-period-tab').forEach(t=>t.classList.toggle('active', t.dataset.period===hoursPeriod));
         renderHoursDetail();
     }
     function setHoursPeriod(p) {
@@ -4289,7 +4421,8 @@
             if(isViewingArchive()) return;
             applyManualOverrides();
             if(typeof finalData !== 'undefined' && finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
-            if(document.getElementById('hours-modal')?.classList.contains('open')) renderHoursDetail();
+            scheduleCheckSoon();
+            if(document.getElementById('hours-modal')?.classList.contains('open')) { if(document.getElementById('hc-detail-view').style.display === 'none') renderHoursGrid(); else renderHoursDetail(); }
             if(coordEditModeActive) updateCoordToolbarState();
             ccRefreshIfOpen();
         }, 80);
