@@ -141,6 +141,35 @@
         }
         .menu-item:hover, .menu-item:active { background-color: var(--hdr-hover); }
         .menu-item span { color: var(--hdr-muted); font-size: 20px; }
+        /* ── Menu a cartelle ── */
+        #menu-dropdown { width: min(330px, calc(100vw - 16px)); max-height: calc(100vh - var(--header-h) - 24px); padding: 0; overflow: hidden; flex-direction: column; }
+        .mn-head { display: flex; align-items: center; gap: 8px; padding: 12px 12px 10px 14px; border-bottom: 1px solid var(--hdr-border); min-height: 56px; }
+        .mn-head .mn-back { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--hdr-border); background: transparent; color: var(--hdr-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+        .mn-head .mn-back:hover { background: var(--hdr-hover); }
+        .mn-title { flex: 1; min-width: 0; }
+        .mn-title b { display: block; font-size: 15px; font-weight: 700; color: var(--text-main); line-height: 1.2; }
+        .mn-title small { display: block; font-size: 11.5px; color: var(--hdr-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mn-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+        .mn-body { overflow-y: auto; padding: 6px; }
+        .mn-body.slide-in { animation: mnIn 0.18s ease-out; }
+        .mn-body.slide-back { animation: mnBack 0.18s ease-out; }
+        @keyframes mnIn { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+        @keyframes mnBack { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
+        .mn-group { font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hdr-muted); padding: 10px 10px 5px; }
+        .mn-row { width: 100%; display: flex; align-items: center; gap: 11px; padding: 8px 8px; border: none; border-radius: 9px; background: transparent; color: var(--text-main); cursor: pointer; text-align: left; font-family: inherit; }
+        .mn-row:hover, .mn-row:focus-visible { background: var(--hdr-hover); outline: none; }
+        .mn-ico { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; }
+        .mn-ico .material-icons-round { font-size: 19px; }
+        .mn-txt { flex: 1; min-width: 0; }
+        .mn-txt b { display: block; font-size: 14px; font-weight: 600; line-height: 1.2; }
+        .mn-txt small { display: block; font-size: 11.5px; color: var(--hdr-muted); margin-top: 1px; line-height: 1.25; }
+        .mn-row .mn-go { color: var(--hdr-muted); font-size: 20px; }
+        .mn-row .mn-count { font-size: 11px; font-weight: 700; color: var(--hdr-muted); background: var(--hdr-hover); border-radius: 999px; padding: 2px 7px; }
+        .mn-switch { width: 34px; height: 20px; border-radius: 999px; background: var(--hdr-border); position: relative; flex-shrink: 0; transition: background 0.15s; }
+        .mn-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.15s; }
+        .mn-switch.on { background: var(--primary); }
+        .mn-switch.on::after { transform: translateX(14px); }
+        .mn-foot { padding: 8px 14px 10px; border-top: 1px solid var(--hdr-border); font-size: 11px; color: var(--hdr-muted); display: flex; justify-content: space-between; gap: 8px; }
         .menu-sep { height: 1px; background: var(--hdr-border); margin: 5px 6px; flex-shrink: 0; }
         .hdr-only-sm { display: none !important; }
         @media (max-width: 560px) { .menu-item.hdr-only-sm { display: flex !important; } .menu-sep.hdr-only-sm { display: block !important; } }
@@ -2160,43 +2189,9 @@
                 </div>
                 <div class="driver-filter-grid" id="driver-filter-grid"></div>
             </div>
-            <div id="menu-dropdown">
-                <div class="menu-item hdr-only-sm" onclick="toggleMenu();setTimeout(()=>toggleMonthDropdown(),60)">
-                    <span class="material-icons-round">calendar_month</span> Vai a un mese
-                </div>
-                <div class="menu-item hdr-only-sm" onclick="toggleMenu();window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/','_blank')">
-                    <span class="material-icons-round">local_shipping</span> Turni autisti
-                </div>
-                <div class="menu-sep hdr-only-sm"></div>
-                <div class="menu-item" onclick="openDinnerModal()">
-                    <span class="material-icons-round">restaurant</span> Organizza Uscita
-                </div>
-                <div class="menu-item" onclick="openWheelModal()">
-                    <span class="material-icons-round">casino</span> La Ruota della Sfiga
-                </div>
-                <div class="menu-item" onclick="openOptionsModal()">
-                    <span class="material-icons-round">settings</span> Opzioni
-                </div>
-                <div class="menu-item" onclick="openHoursModal()">
-                    <span class="material-icons-round">query_stats</span> Conteggio Orario
-                </div>
-                <div class="menu-item" id="menu-year-picker" style="display:none" onclick="openYearPicker()">
-                    <span class="material-icons-round">history</span> Anni passati
-                </div>
-                <div class="menu-sep"></div>
-                <div class="menu-item" onclick="openCoordLoginModal()">
-                    <span class="material-icons-round">supervisor_account</span> Area Coordinatore
-                </div>
-                <div class="menu-item" onclick="openAdminLoginModal()">
-                    <span class="material-icons-round">admin_panel_settings</span> Area Admin
-                </div>
-                <div class="menu-sep"></div>
-                <div class="menu-item" onclick="requestChangeIdentity()">
-                    <span class="material-icons-round">switch_account</span> Cambia Utente
-                </div>
-                <div class="menu-item" onclick="vibrate();location.reload()">
-                    <span class="material-icons-round">refresh</span> Aggiorna
-                </div>
+            <div id="menu-dropdown" role="menu" aria-label="Menu" onclick="event.stopPropagation()">
+                <div class="mn-head" id="mn-head"></div>
+                <div class="mn-body" id="mn-body"></div>
             </div>
         </div>
     </div>
@@ -2500,7 +2495,7 @@
         setTimeout(() => { m.style.display = 'none'; showStartupMessages(); }, 300);
     }
     function requestChangeIdentity() {
-        toggleMenu(); vibrate();
+        closeMenu(); vibrate();
         requestChangeIdentityDirect();
     }
     function requestChangeIdentityDirect() {
@@ -2664,7 +2659,7 @@
 
     // ── Login Admin ──────────────────────────────────────────────────────
     function openAdminLoginModal() {
-        toggleMenu();
+        closeMenu();
         document.getElementById('admin-pw-input').value = "";
         document.getElementById('admin-pw-error').innerText = "";
         let m = document.getElementById('admin-login-modal'); m.style.display = 'flex';
@@ -2687,6 +2682,7 @@
         let m = document.getElementById('admin-panel-modal'); m.style.display = 'flex';
         setTimeout(() => m.classList.add('open'), 10);
         switchAdminTab('accessi', document.querySelector('.admin-tab-btn[data-tab="accessi"]'));
+        if(pendingAdminTab) { const t = pendingAdminTab; pendingAdminTab = null; switchAdminTab(t, document.querySelector(`.admin-tab-btn[data-tab="${t}"]`)); }
         startAdminAccessListener();
         populateAdminColorInputs();
         populateAdminOperatorInputs();
@@ -3119,14 +3115,118 @@
     function toggleMenu() {
         vibrate(); let m = document.getElementById('menu-dropdown');
         if(m.style.display === 'flex') { m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 100); }
-        else { m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10); }
+        else { menuPath = []; renderMenu(); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10); }
     }
+    function closeMenu() { const m = document.getElementById('menu-dropdown'); if(m && m.style.display === 'flex') toggleMenu(); }
+
+    // ═══ MENU A CARTELLE (icona con le tre lineette) ═══════════════════════
+    // Ogni voce: icona, titolo, descrizione; le cartelle (children) si aprono dentro al
+    // menu con "indietro". Le azioni chiudono il menu e partono dopo che il tasto
+    // indietro del telefono ha consumato la voce di cronologia del menu.
+    let menuPath = [], pendingAdminTab = null, ccPendingSection = null;
+    const MN_COLORS = { cal:'#2563eb', ore:'#0f766e', svago:'#d97706', link:'#7c3aed', coord:'#0b6e7f', admin:'#334155', imp:'#64748b' };
+    function menuGo(fn) {
+        const m = document.getElementById('menu-dropdown');
+        if(!m || m.style.display !== 'flex') { fn(); return; }
+        toggleMenu();
+        if(modalHistoryPushed) {
+            let done = false;
+            const go = () => { if(done) return; done = true; window.removeEventListener('popstate', go); setTimeout(fn, 0); };
+            window.addEventListener('popstate', go); setTimeout(go, 400);
+        } else setTimeout(fn, 60);
+    }
+    function menuTree() {
+        const dark = document.body.classList.contains('dark-mode');
+        const hasYears = typeof dataSourceMode !== 'undefined' && dataSourceMode === 'firebase' && archivedYears.length > 0;
+        const coordSec = (id, icon, label, desc) => ({ id:'cc-' + id, icon, label, desc, color: MN_COLORS.coord, run: () => { ccPendingSection = id; openCoordConsole(id); } });
+        const adminTab = (id, icon, label, desc) => ({ id:'ad-' + id, icon, label, desc, color: MN_COLORS.admin, run: () => { pendingAdminTab = id; openAdminLoginModal(); } });
+        return [
+            { group:'Calendario' },
+            { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori' + (hasYears ? ', anni passati' : ''), color: MN_COLORS.cal, children: [
+                { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
+                { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
+                { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
+                hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Consulta gli anni archiviati (sola lettura)', color: MN_COLORS.cal, run: () => openYearPicker() } : null
+            ] },
+            { id:'ore', icon:'query_stats', label:'Conteggio orario', desc:'Ore lavorate e saldo rispetto al contratto', color: MN_COLORS.ore, run: () => openHoursModal() },
+            { group:'Squadra' },
+            { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo e ruota della sfiga', color: MN_COLORS.svago, children: [
+                { id:'dinner', icon:'restaurant', label:'Organizza un\u2019uscita', desc:'Chi è libero per colazione, pranzo, cena…', color: MN_COLORS.svago, run: () => openDinnerModal() },
+                { id:'wheel', icon:'casino', label:'La ruota della sfiga', desc:'Estrai a sorte chi tocca', color: MN_COLORS.svago, run: () => openWheelModal() }
+            ] },
+            { id:'link', icon:'apps', label:'Collegamenti', desc:'Richieste e turni autisti', color: MN_COLORS.link, children: [
+                { id:'req', icon:'assignment', label:'Richieste', desc:'Ferie, permessi, cambi turno, cessioni', color: MN_COLORS.link, run: () => window.openRichiestePanel && window.openRichiestePanel() },
+                { id:'as', icon:'open_in_new', label:'Turni autisti', desc:'Apre l\u2019app degli autisti soccorritori', color: MN_COLORS.link, run: () => window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/', '_blank') }
+            ] },
+            { group:'Gestione' },
+            { id:'coord', icon:'supervisor_account', label:'Area coordinatore', desc:'Turni, operatori, ore, reperibilità, backup', color: MN_COLORS.coord, lock:true, children: [
+                coordSec('panoramica', 'space_dashboard', 'Panoramica', 'Chi è in turno e cose da fare'),
+                coordSec('modifica', 'edit_calendar', 'Modifica turni', 'La ruota sul calendario'),
+                coordSec('operatori', 'badge', 'Operatori', 'Colonne, ordine, ore di contratto'),
+                coordSec('ore', 'schedule', 'Conteggio ore', 'Tabella ore di tutti'),
+                coordSec('reperibilita', 'phone_in_talk', 'Report reperibilità', 'Ore del mese, stampa e PDF'),
+                coordSec('dati', 'shield', 'Dati e backup', 'Copie, storico, anni'),
+                coordSec('impostazioni', 'settings', 'Impostazioni', 'Coordinatore designato e altro')
+            ] },
+            { id:'admin', icon:'admin_panel_settings', label:'Area admin', desc:'Accessi, aspetto, testi', color: MN_COLORS.admin, lock:true, children: [
+                adminTab('accessi', 'insights', 'Accessi', 'Chi usa l\u2019app e quando'),
+                adminTab('aspetto', 'palette', 'Aspetto', 'Colori dei turni'),
+                adminTab('operatori', 'badge', 'Nomi operatori', 'Come appaiono i nomi'),
+                adminTab('turni', 'schedule', 'Orari dei turni', 'Inizio e fine di ogni turno'),
+                adminTab('testi', 'campaign', 'Testi e avvisi', 'Messaggio di benvenuto e annunci'),
+                adminTab('esporta', 'file_download', 'Esporta', 'Scarica la pagina aggiornata')
+            ] },
+            { group:'App' },
+            { id:'imp', icon:'tune', label:'Impostazioni', desc:'Tema, notifiche, utente, aggiornamento', color: MN_COLORS.imp, children: [
+                { id:'dark', icon: dark ? 'dark_mode' : 'light_mode', label:'Tema scuro', desc: dark ? 'Attivo' : 'Disattivato', color: MN_COLORS.imp, toggle: dark, stay:true, run: () => { toggleDarkMode(); renderMenu(); } },
+                { id:'opts', icon:'settings', label:'Opzioni dell\u2019app', desc:'Notifiche, installazione e altro', color: MN_COLORS.imp, run: () => openOptionsModal() },
+                { id:'user', icon:'switch_account', label:'Cambia utente', desc: userIdentity ? 'Ora sei ' + userIdentity : 'Scegli chi sei', color: MN_COLORS.imp, run: () => requestChangeIdentity() },
+                { id:'reload', icon:'refresh', label:'Aggiorna l\u2019app', desc:'Ricarica per avere l\u2019ultima versione', color: MN_COLORS.imp, run: () => { vibrate(); location.reload(); } }
+            ] }
+        ];
+    }
+    function menuNodeAt(path) {
+        let list = menuTree(), node = null;
+        for(const id of path) { node = list.find(n => n && n.id === id); if(!node || !node.children) return null; list = node.children; }
+        return { node, list };
+    }
+    function renderMenu(dir) {
+        let cur = menuNodeAt(menuPath);
+        if(!cur) { menuPath = []; cur = menuNodeAt([]); }
+        const head = document.getElementById('mn-head'), body = document.getElementById('mn-body'); if(!head || !body) return;
+        if(!menuPath.length) {
+            const nm = userIdentity || 'Ospite';
+            head.innerHTML = `<span class="mn-avatar">${esc(nm.slice(0, 2).toUpperCase())}</span><span class="mn-title"><b>${esc(nm)}</b><small>Turni infermieri ${SHIFT_YEAR}</small></span>`;
+        } else {
+            const trail = menuPath.map((id, i) => (menuNodeAt(menuPath.slice(0, i + 1)) || {}).node).filter(Boolean);
+            const crumbs = ['Menu'].concat(trail.slice(0, -1).map(n => n.label)).join(' \u203a ');
+            head.innerHTML = `<button class="mn-back" onclick="menuBack()" aria-label="Indietro"><span class="material-icons-round">arrow_back</span></button><span class="mn-title"><b>${esc(cur.node.label)}</b><small>${esc(crumbs)}</small></span>`;
+        }
+        body.innerHTML = cur.list.filter(Boolean).map(n => {
+            if(n.group) return `<div class="mn-group">${esc(n.group)}</div>`;
+            const right = n.children ? `${n.lock ? '<span class="material-icons-round mn-go" style="font-size:15px">lock</span>' : ''}<span class="material-icons-round mn-go">chevron_right</span>`
+                : (n.toggle !== undefined ? `<span class="mn-switch ${n.toggle ? 'on' : ''}"></span>` : '');
+            return `<button class="mn-row" role="menuitem" onclick="menuPick('${n.id}')"><span class="mn-ico" style="background:${n.color}"><span class="material-icons-round">${n.icon}</span></span><span class="mn-txt"><b>${esc(n.label)}</b>${n.desc ? `<small>${esc(n.desc)}</small>` : ''}</span>${right}</button>`;
+        }).join('');
+        body.classList.remove('slide-in', 'slide-back'); void body.offsetWidth;
+        if(dir) body.classList.add(dir === 'back' ? 'slide-back' : 'slide-in');
+        body.scrollTop = 0;
+    }
+    function menuPick(id) {
+        const cur = menuNodeAt(menuPath); if(!cur) return;
+        const n = cur.list.find(x => x && x.id === id); if(!n) return;
+        vibrate();
+        if(n.children) { menuPath.push(id); renderMenu('in'); return; }
+        if(n.stay) { n.run(); return; }
+        menuGo(n.run);
+    }
+    function menuBack() { vibrate(); menuPath.pop(); renderMenu('back'); }
 
     // compatibilità: la vecchia barra a scomparsa non esiste più
     function toggleActions() {}
 
     function openOptionsModal() {
-        toggleMenu(); let m = document.getElementById('options-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+        closeMenu(); let m = document.getElementById('options-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
         const tg = document.getElementById('dark-mode-toggle'); if(tg) tg.checked = document.body.classList.contains('dark-mode');
         const nameEl = document.getElementById('options-identity-name'), avEl = document.getElementById('options-identity-avatar');
         if(nameEl && avEl) {
@@ -3886,7 +3986,7 @@
 
     // ── Modale Conteggio Orario: elenco operatori ────────────────────────────
     function openHoursModal() {
-        toggleMenu(); vibrate();
+        closeMenu(); vibrate();
         document.getElementById('hc-list-view').style.display = 'block';
         document.getElementById('hc-detail-view').style.display = 'none';
         document.getElementById('hc-search-input').value = "";
@@ -4833,7 +4933,7 @@
         const val = document.getElementById('cc-pw').value;
         if(val === COORD_PASSWORD) {
             localStorage.setItem(COORD_SESSION_KEY, coordToken(COORD_PASSWORD));
-            vibrate(); showConsoleApp('panoramica');
+            vibrate(); showConsoleApp(ccPendingSection || 'panoramica'); ccPendingSection = null;
         } else {
             document.getElementById('cc-pw-error').textContent = 'Password non corretta.';
             document.getElementById('cc-pw').select();
@@ -6209,6 +6309,8 @@
     window.addEventListener('resize', () => { if(coordEditModeActive) { twRender(); twPlace(); } });
     document.addEventListener('keydown', e => {
         if(e.key !== 'Escape') return;
+        const mnu = document.getElementById('menu-dropdown');
+        if(mnu && mnu.style.display === 'flex') { e.preventDefault(); if(menuPath.length) menuBack(); else toggleMenu(); return; }
         if(document.getElementById('cc-dialog').classList.contains('open')) { e.preventDefault(); ccDialogResolve(null); return; }
         if(document.getElementById('rep-edit-popup').classList.contains('open')) { e.preventDefault(); closeRepEditPopup(); return; }
         if(document.getElementById('shift-edit-popup').classList.contains('open')) { e.preventDefault(); closeShiftEditPopup(); return; }
@@ -7196,7 +7298,7 @@
 
     // ── Organizza Uscita ──────────────────────────────────────────────────────
     function openDinnerModal() {
-        toggleMenu();
+        closeMenu();
         let m = document.getElementById('dinner-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
         setCurrentView("Organizza Uscita");
         resetDinnerStep();
@@ -7315,7 +7417,7 @@
     }
 
     function openWheelModal() {
-        toggleMenu();
+        closeMenu();
         resetWheelFullState();
         document.getElementById('wheel-modal').style.display = 'flex';
         setTimeout(() => document.getElementById('wheel-modal').classList.add('open'), 10);
