@@ -1044,6 +1044,12 @@
         .rep-bar-seg.rep-sub { animation:rep-blink 1s steps(1, end) infinite; }
         @keyframes rep-blink { 0%, 49% { background:#dc2626; color:#fff; } 50%, 100% { background:#facc15; color:#78350f; } }
         .cell .rep-text + .rep-bar { margin-top:2px; }
+        /* versione compatta: fasce e scritta REPERIBILE più piccole, così la casella resta bassa */
+        .rep-bar { min-height:15px; margin-top:2px; gap:1px; padding:0 1px; border-radius:4px; }
+        .rep-bar-seg { font-size:0.5rem; line-height:1; padding:1px; border-radius:2px; letter-spacing:-0.2px; }
+        .rep-bar-seg.green { font-size:0.52rem; }
+        .cell .rep-text { font-size:0.52rem; padding:1px 5px; margin-bottom:1px; border-radius:4px; letter-spacing:0.3px; line-height:1.15; }
+        .cell .rep-text + .rep-bar { margin-top:1px; }
 
         /* ══ Barra della ruota: cambio ruota (frecce) e dimensione ══════════ */
         .tw-bar { position:absolute; left:50%; bottom:calc(100% + 6px); transform:translateX(-50%); display:flex; align-items:center; gap:2px; background:var(--cc-ink); color:#fff; border-radius:6px; padding:3px; pointer-events:auto; box-shadow:0 4px 12px rgba(12,18,26,.25); white-space:nowrap; font-family:var(--cc-font); }
@@ -4487,10 +4493,11 @@
         try {
             ccToast('Copia di sicurezza…');
             await takeSnapshot('prima-del-passaggio-a-firebase');
-            const header = finalData[0], months = {};
-            let n = 0;
+            const header = finalData[0], months = {}, nextMonths = {};
+            let n = 0, nNext = 0;
             for(let r = 1; r < finalData.length; r++) {
-                if(shiftRowYear(r) !== year) continue;
+                const ry = shiftRowYear(r);
+                if(ry !== year && ry !== year + 1) continue;
                 const mName = finalData[r][0].v, dNum = parseInt(finalData[r][1].v), mi = MONTH_MAP[mName];
                 if(mi === undefined || isNaN(dNum)) continue;
                 for(let i = 3; i < header.length; i++) {
@@ -4500,17 +4507,20 @@
                     const hasMin = c.customMinutes !== undefined && c.customMinutes !== null && c.customMinutes !== '';
                     if(!v && !sv && !hasMin) continue;
                     const val = { v, subV: sv }; if(hasMin) val.customMinutes = c.customMinutes;
-                    (months[mi] = months[mi] || {})[overrideKey(header[i], mName, dNum)] = val; n++;
+                    // i mesi dell'anno dopo (es. gennaio in fondo all'Excel) vanno già nel documento di quell'anno
+                    if(ry === year) { (months[mi] = months[mi] || {})[overrideKey(header[i], mName, dNum)] = val; n++; }
+                    else { (nextMonths[mi] = nextMonths[mi] || {})[overrideKey(header[i], mName, dNum)] = val; nNext++; }
                 }
             }
             const excelTit = repExcelMap(), repTurni = {};
-            Object.keys(excelTit).forEach(d => { if(d.startsWith(year + '-') && !repHas(repTurniSaved, d)) repTurni[d] = excelTit[d]; });
+            Object.keys(excelTit).forEach(d => { if((d.startsWith(year + '-') || d.startsWith((year + 1) + '-')) && !repHas(repTurniSaved, d)) repTurni[d] = excelTit[d]; });
             const baseNames = (excelParsedData[0] || []).slice(3);
             const batch = db.batch(), now = new Date().toISOString();
             for(let m = 0; m < 12; m++) batch.set(cfgRef(monthDocName(year, m)), { cells: months[m] || {}, updatedAt: now, source: 'excel' });
+            Object.keys(nextMonths).forEach(m => batch.set(cfgRef(monthDocName(year + 1, +m)), { cells: nextMonths[m], updatedAt: now, source: 'excel' }));
             if(Object.keys(repTurni).length) batch.set(repDocRef(), { turni: repTurni, updatedAt: now }, { merge:true });
             batch.update(cfgRef('settings'), { dataSource: 'firebase', activeYear: year, archivedYears: [], operatorConfig: Object.assign({}, operatorConfig, { baseNames }), migratedAt: now });
-            addLogWrite(batch, [], `Passaggio a Firebase: ${n} turni copiati dal file Excel`);
+            addLogWrite(batch, [], `Passaggio a Firebase: ${n} turni del ${year}${nNext ? ` e ${nNext} del ${year + 1}` : ''} copiati dal file Excel`);
             await batch.commit();
             sessionStorage.setItem('fb_mode_reloaded', '1');
             ccToast(`Fatto: ${n} turni copiati. Riapro l’app…`);
