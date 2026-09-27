@@ -347,7 +347,7 @@
         .dsc-p { background:#e0e7ff; color:#3730a3; }
         .dsc-alert-3 { background:#450a0a !important; color:#fff !important; animation:dscBlink 1s infinite; }
         @keyframes dscBlink { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
-        .th-balance { font-size:0.6rem; font-weight:800; margin-top:3px; padding:1px 6px; border-radius:6px; display:inline-block; }
+        .th-balance { font-size:0.6rem; font-weight:800; margin:3px auto 0; padding:1px 6px; border-radius:6px; display:table; line-height:1.35; }   /* sotto il nome: in linea finiva fuori dalla colonna */
         .th-balance.pos { background:#dcfce7; color:#166534; }
         .th-balance.neg { background:#fee2e2; color:#991b1b; }
         /* selettore del periodo del saldo, nella cella DATA */
@@ -617,6 +617,49 @@
         #admin-panel-modal.open .modal-content { transform:translateY(0); }
 
         /* ── CONTEGGIO ORARIO ──────────────────────────────────────────────── */
+        /* ── La mia pagina ── */
+        #me-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6200; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #me-modal.open { opacity:1; }
+        #me-modal .modal-content { max-width:560px; max-height:94vh; }
+        #me-modal.open .modal-content { transform:translateY(0); }
+        .me-hero { display:flex; align-items:center; gap:14px; padding:16px 18px 8px; }
+        .me-hero .ab-av { width:52px; height:52px; font-size:1.05rem; }
+        .me-hero b { display:block; font-size:1.25rem; font-weight:800; color:var(--text-main); }
+        .me-hero small { color:var(--text-sec); font-weight:600; font-size:0.8rem; }
+        .me-card { margin:8px 14px; padding:14px; border-radius:16px; background:var(--bg-card); border:1px solid var(--border); }
+        .me-card h4 { margin:0 0 10px; font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--text-sec); display:flex; align-items:center; gap:6px; }
+        .me-card h4 .material-icons-round { font-size:16px; }
+        .me-day { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px dashed var(--border); }
+        .me-day:last-child { border-bottom:none; }
+        .me-day .when { width:74px; font-size:0.78rem; font-weight:700; color:var(--text-sec); text-transform:capitalize; }
+        .me-day .when.today { color:var(--primary); }
+        .me-day .chip { min-width:46px; text-align:center; padding:5px 8px; border-radius:8px; font-weight:800; font-size:0.78rem; background:var(--sw, var(--bg)); color:var(--sf, var(--text-main)); }
+        .me-day .what { flex:1; min-width:0; font-size:0.82rem; color:var(--text-main); font-weight:600; }
+        .me-day .what small { display:block; color:var(--text-sec); font-weight:600; font-size:0.72rem; }
+        .me-rep { font-size:0.62rem; font-weight:800; color:#fff; background:#dc2626; border-radius:5px; padding:2px 6px; white-space:nowrap; }
+        .me-hours { display:flex; align-items:flex-end; justify-content:space-between; gap:10px; }
+        .me-hours b { font-size:1.6rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
+        .me-hours b small { font-size:0.85rem; color:var(--text-sec); font-weight:700; }
+        .me-bar { height:8px; border-radius:4px; background:var(--bg); margin-top:8px; overflow:hidden; box-shadow:inset 0 0 0 1px var(--border); }
+        .me-bar i { display:block; height:100%; border-radius:4px; background:linear-gradient(90deg,#1d4ed8,#22c55e); }
+        .me-kv { display:flex; justify-content:space-between; font-size:0.8rem; margin-top:8px; color:var(--text-sec); font-weight:600; }
+        .me-kv b.neg { color:#dc2626; } .me-kv b.pos { color:#16a34a; }
+        .me-counters { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+        .me-counters div { text-align:center; padding:10px 4px; border-radius:12px; background:var(--bg); }
+        .me-counters b { display:block; font-size:1.3rem; font-weight:800; color:var(--text-main); }
+        .me-counters small { font-size:0.62rem; font-weight:800; text-transform:uppercase; color:var(--text-sec); letter-spacing:.03em; }
+        .me-counters em { display:block; font-style:normal; font-size:0.7rem; font-weight:700; color:#15803d; }
+        .me-counters em.over { color:#dc2626; }
+        .me-btns { display:flex; gap:8px; margin:10px 14px 18px; }
+        .me-btns button { flex:1; height:42px; border-radius:12px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-weight:700; font-size:0.82rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; font-family:inherit; }
+        .me-btns button .material-icons-round { font-size:18px; color:var(--primary); }
+        /* ── Controlli (copertura e regole), in modifica turni ── */
+        body.coord-edit-mode .td-date.chk-warn { box-shadow: inset 0 0 0 3px #dc2626 !important; }
+        body.coord-edit-mode .td-date.chk-warn::after { content:"!"; position:absolute; top:2px; right:3px; width:15px; height:15px; border-radius:50%; background:#dc2626; color:#fff; font-size:10px; font-weight:900; line-height:15px; text-align:center; }
+        .chk-flag { display:none; }
+        body.coord-edit-mode td[data-col] { position:relative; }
+        body.coord-edit-mode .chk-flag { display:flex; position:absolute; top:1px; left:1px; z-index:5; width:16px; height:16px; border-radius:50%; background:#f59e0b; color:#fff; font-size:10px; font-weight:900; align-items:center; justify-content:center; box-shadow:0 0 0 2px var(--bg-card); pointer-events:auto; cursor:help; }
+        body.coord-edit-mode .chk-flag.err { background:#dc2626; }
         #abs-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6200; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
         #abs-modal.open { opacity:1; }
         #abs-modal .modal-content { max-width:860px; max-height:94vh; }
@@ -2009,6 +2052,20 @@
 
 <div id="admin-save-toast" class="admin-save-toast"><span class="material-icons-round">check_circle</span> <span id="admin-save-toast-text">Salvato</span></div>
 
+<!-- ══════════════ LA MIA PAGINA ══════════════ -->
+<div id="me-modal" onclick="closeMyPage(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header hc-header-badge">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">person</span> LA MIA PAGINA</h3>
+                <span>Turni, ore, assenze e reperibilità</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeMyPage()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body" id="me-body"></div>
+    </div>
+</div>
+
 <!-- ══════════════ CONTEGGIO ASSENZE ══════════════ -->
 <div id="abs-modal" onclick="closeAbsModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
@@ -2814,6 +2871,7 @@
                 excelSyncedMarks = data.excelSyncedMarks || {};
                 renderCoordSyncList();
             }
+            if(data.coverageMin) { coverageMin = Object.assign({}, COVERAGE_DEFAULT, data.coverageMin); dayChecksCache = null; }
             if(data.coordinatorName !== undefined) {
                 coordinatorName = data.coordinatorName || null;
                 checkIfIAmCoordinator();
@@ -3386,11 +3444,14 @@
         const dark = document.body.classList.contains('dark-mode');
         const hasYears = typeof dataSourceMode !== 'undefined' && dataSourceMode === 'firebase' && archivedYears.length > 0;
         return [
+            { group:'Per te' },
+            { id:'me', icon:'person', label:'La mia pagina', desc: (userIdentity && userIdentity !== 'Ospite') ? 'Prossimi turni, ore, assenze, reperibilit\u00e0' : 'Scegli prima chi sei', color:'#1d4ed8', run: () => openMyPage() },
             { group:'Calendario' },
             { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori' + (hasYears ? ', anni passati' : ''), color: MN_COLORS.cal, children: [
                 { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
+                { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
                 hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Consulta gli anni archiviati (sola lettura)', color: MN_COLORS.cal, run: () => openYearPicker() } : null
             ] },
             { id:'ore', icon:'query_stats', label:'Conteggio orario', desc:'Ore lavorate e saldo rispetto al contratto', color: MN_COLORS.ore, run: () => openHoursModal() },
@@ -3625,6 +3686,7 @@
         hoursWeekAnchor = new Date(SHIFT_YEAR, new Date().getMonth(), new Date().getDate());
         rebuildDrivers();                    // ordine, nascosti e rimossi decisi in Area Coordinatore
         updateYearUi();
+        publishSaldiSoon();
         let savedDr = localStorage.getItem("selected_nurses");
         if(savedDr) { try { const arr = JSON.parse(savedDr); if(Array.isArray(arr)) selectedDrivers = new Set(arr); } catch(e) {} }
         renderDriverFilterDropdown(); updateDriverFilterBadge();
@@ -4250,6 +4312,213 @@
         setTimeout(()=>m.style.display='none',300);
         if(hoursChartInstance) { hoursChartInstance.destroy(); hoursChartInstance = null; }
     }
+    // ═══ CONTROLLI: COPERTURA E REGOLE SUI TURNI ═════════════════════════
+    // Copertura: persone per mattina/pomeriggio/notte sotto la soglia, giorno senza
+    // reperibile, reperibile assente. Regole: notte senza smonto, riposo sotto le 10 ore
+    // (il passaggio pomeriggio → mattina della rotazione in quinta dà 10 h 20 ed è ammesso),
+    // 7 o più giorni lavorati di fila. Visibili in Modifica turni e nella Panoramica.
+    const COVERAGE_DEFAULT = { M:3, P:3, N:2 };
+    let coverageMin = Object.assign({}, COVERAGE_DEFAULT), dayChecksCache = null;
+    const SHIFT_SPAN = { M:['06:30','13:15'], P:['12:45','20:10'], N:['19:45','24:00'], m:['06:30','13:42'], p:['13:15','20:27'] };
+    function shiftSpan(code) {
+        const sched = /^[mp]$/.test(code) ? SCHEDULE_DIURNI[code] : SCHEDULE[code];
+        let a, b;
+        if(sched && sched.includes('-')) { [a, b] = sched.split('-').map(x => x.trim()); } else if(SHIFT_SPAN[code]) [a, b] = SHIFT_SPAN[code]; else return null;
+        const t = x => { const [h, m] = x.split(':').map(Number); return h * 60 + m; };
+        let s0 = t(a), e0 = t(b); if(e0 <= s0) e0 += 1440; return [s0, e0];
+    }
+    // codice del turno lavorato: vuoto per le assenze (malattia "m" e permesso "p" hanno
+    // lo stesso codice della mattina e del pomeriggio dei diurnisti)
+    function workCode(rowIdx, idx) { const i = computeDayInfo(rowIdx, idx); return i.justified ? '' : i.code; }
+    function dayChecks() {
+        if(dayChecksCache) return dayChecksCache;
+        const days = buildDaysIndex(), rows = {}, R = repData();
+        const get = r => rows[r] = rows[r] || { day: [], cells: {} };
+        const flag = (r, idx, msg, err) => { const x = get(r); const c = x.cells[idx] = x.cells[idx] || { msgs: [], err: false }; c.msgs.push(msg); if(err) c.err = true; };
+        const active = drivers.filter(d => !d.hidden);
+        days.forEach((dd, i) => {
+            const cnt = { M:0, P:0, N:0 };
+            active.forEach(d => { const c = workCode(dd.rowIdx, d.idx); if(c === 'M' || c === 'm' || c === 'M+N') cnt.M++; if(c === 'P' || c === 'p') cnt.P++; if(c === 'N' || c === 'M+N') cnt.N++; });
+            const names = { M:'mattina', P:'pomeriggio', N:'notte' };
+            ['M','P','N'].forEach(k => { if(cnt[k] < coverageMin[k]) get(dd.rowIdx).day.push(`${names[k]}: ${cnt[k]} su ${coverageMin[k]}`); });
+            const iso = ymd(dd.date);
+            if(!R.tit[iso]) get(dd.rowIdx).day.push('nessun reperibile dalle 13:00');
+            (R.days[iso] || []).forEach((who, s) => {
+                if(!who) return; const d = drivers.find(x => x.originalName === who); if(!d) return;
+                const meta = ccCodeMeta(computeDayInfo(dd.rowIdx, d.idx));
+                if(meta.kind === 'abs') get(dd.rowIdx).day.push(`reperibile ${d.name} assente (${meta.label.toLowerCase()}) nella fascia ${REP_SLOTS[s].label}`);
+            });
+        });
+        active.forEach(d => {
+            let run = 0;
+            days.forEach((dd, i) => {
+                const a = workCode(dd.rowIdx, d.idx), next = days[i + 1] ? workCode(days[i + 1].rowIdx, d.idx) : null;
+                if(['M','P','N','m','p','M+N'].includes(a)) { run++; if(run === 7) flag(dd.rowIdx, d.idx, '7\u00b0 giorno lavorato di fila senza riposo'); } else run = 0;
+                if(!next) return;
+                if(a === 'N' && next && !['SM','S'].includes(next)) { flag(days[i + 1].rowIdx, d.idx, 'dopo la notte manca lo smonto', true); return; }
+                if(a === 'M+N' || a === 'N') return;
+                const A = shiftSpan(a), B = shiftSpan(next === 'M+N' ? 'M' : next);
+                if(A && B) { const gap = 1440 + B[0] - A[1]; if(gap < 600) flag(days[i + 1].rowIdx, d.idx, `riposo di ${Math.floor(gap / 60)} h ${String(gap % 60).padStart(2, '0')} dal turno precedente`, true); }
+            });
+        });
+        dayChecksCache = { rows, days };
+        return dayChecksCache;
+    }
+    function renderChecksPanel() {
+        const { rows, days } = dayChecks();
+        const today = new Date(); today.setHours(0, 0, 0, 0); const end = new Date(today); end.setDate(end.getDate() + 30);
+        const items = [];
+        days.filter(dd => dd.date >= today && dd.date <= end).forEach(dd => {
+            const x = rows[dd.rowIdx]; if(!x) return;
+            const lbl = dd.date.toLocaleDateString('it-IT', { weekday:'short', day:'numeric', month:'short' });
+            x.day.forEach(m => items.push({ lbl, m, err: /nessun|assente/.test(m) || true }));
+            Object.entries(x.cells).forEach(([idx, c]) => { const d = getDriverByIdx(+idx); c.msgs.forEach(m => items.push({ lbl, m: (d ? d.name + ': ' : '') + m, err: c.err })); });
+        });
+        const list = items.length ? `<ul class="cc-list">${items.slice(0, 40).map(it => `<li><span class="msym" style="color:var(${it.err ? '--cc-neg' : '--cc-warn'})">warning</span><span class="cc-grow">${esc(it.lbl)}<small>${esc(it.m)}</small></span></li>`).join('')}${items.length > 40 ? `<li><span class="cc-grow"><small>\u2026 e altri ${items.length - 40}</small></span></li>` : ''}</ul>`
+            : `<div class="cc-empty"><span class="msym">verified</span>Nessun problema di copertura o di regole nei prossimi 30 giorni.</div>`;
+        return `<div class="cc-panel"><div class="cc-panel-head"><h3>Controlli dei prossimi 30 giorni</h3><span class="cc-hint">${items.length} ${items.length === 1 ? 'avviso' : 'avvisi'}</span><button class="cc-link" onclick="enterCoordEdit()">Vedi nel calendario</button></div>${list}</div>`;
+    }
+    function saveCoverageMin() {
+        const v = k => Math.max(0, Math.min(15, parseInt(document.getElementById('cov-' + k).value) || 0));
+        coverageMin = { M: v('M'), P: v('P'), N: v('N') }; dayChecksCache = null;
+        if(fbReady) cfgRef('settings').set({ coverageMin }, { merge:true }).then(() => ccToast('Soglie salvate')).catch(() => ccToast('Salvataggio non riuscito.', true));
+    }
+
+    // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
+    // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
+    // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
+    // qualcosa è cambiato rispetto a quanto già pubblicato.
+    let saldiTimer = null, saldiLast = null;
+    function publishSaldiSoon() { clearTimeout(saldiTimer); saldiTimer = setTimeout(publishSaldi, 4000); }
+    function publishSaldi() {
+        if(!fbReady || !appBooted || isViewingArchive() || !finalData.length) return;
+        const all = buildDaysIndex(), operatori = {};
+        drivers.forEach(d => {
+            const a = absCountFor(d, all);
+            operatori[d.originalName] = { name: d.name, co:{ used:a.allow.co, max:ABS_ALLOW.co }, str:{ used:a.allow.sp, max:ABS_ALLOW.sp }, pn:{ used:a.allow.pn, max:ABS_ALLOW.pn } };
+        });
+        const json = JSON.stringify({ year: SHIFT_YEAR, operatori });
+        if(json === saldiLast) return;
+        cfgRef('saldi').get().then(doc => {
+            const cur = doc.exists ? JSON.stringify({ year: doc.data().year, operatori: doc.data().operatori }) : null;
+            saldiLast = json;
+            if(cur === json) return;
+            return cfgRef('saldi').set({ year: SHIFT_YEAR, operatori, updatedAt: new Date().toISOString() });
+        }).catch(e => console.warn('Saldi non pubblicati:', e));
+    }
+
+    // ═══ LA MIA PAGINA ═══════════════════════════════════════════════════
+    function openMyPage() {
+        closeMenu(); vibrate();
+        renderMyPage();
+        const m = document.getElementById('me-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+        setCurrentView('La mia pagina');
+    }
+    function closeMyPage(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('me-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+    }
+    function renderMyPage() {
+        const body = document.getElementById('me-body');
+        const d = userIdentity && userIdentity !== 'Ospite' ? drivers.find(x => x.name === userIdentity || x.originalName === userIdentity.toUpperCase()) : null;
+        if(!d) { body.innerHTML = `<div class="nt-intro" style="margin:16px"><span class="material-icons-round">info</span><div><b>Chi sei?</b><small>Scegli il tuo nome per vedere i tuoi turni, le ore, le assenze e le reperibilit\u00e0.</small></div><button onclick="closeMyPage();setTimeout(requestChangeIdentityDirect,300)">Scegli</button></div>`; return; }
+        const all = buildDaysIndex(), today = new Date(); today.setHours(0, 0, 0, 0);
+        const R = repData(), me = d.originalName;
+        // prossimi 7 giorni
+        const next = all.filter(dd => dd.date >= today).slice(0, 7).map(dd => {
+            const info = computeDayInfo(dd.rowIdx, d.idx), meta = ccCodeMeta(info), iso = ymd(dd.date);
+            const sched = info.code && (/^[mpr]$/.test(info.code) ? SCHEDULE_DIURNI[info.code] : SCHEDULE[info.code]);
+            const label = meta.kind === 'abs' ? ((ABS_TYPES[info.code] || {}).label || meta.label) : (SHIFT_NAMES[info.code] || info.label || 'Libero');
+            const mine = (R.days[iso] || []).map((w, s) => w === me ? REP_SLOTS[s].label : null).filter(Boolean);
+            const rep = R.tit[iso] === me ? '<span class="me-rep">REPERIBILE</span>' : (mine.length ? `<span class="me-rep">REP ${mine.join(' ')}</span>` : '');
+            const when = dd.date.getTime() === today.getTime() ? 'Oggi' : dd.date.toLocaleDateString('it-IT', { weekday:'short', day:'numeric' });
+            return `<div class="me-day"><span class="when ${when === 'Oggi' ? 'today' : ''}">${when}</span><span class="chip" style="${swatchStyle(meta.colors)}">${esc(meta.short || '\u2014')}</span><span class="what">${esc(label.charAt(0).toUpperCase() + label.slice(1))}${sched && sched !== 'RIPOSO' && meta.kind !== 'abs' ? `<small>${esc(sched)}</small>` : ''}</span>${rep}</div>`;
+        }).join('');
+        // ore del mese
+        const mi = today.getFullYear() === SHIFT_YEAR ? today.getMonth() : 0, mdays = all.filter(dd => dd.monthIdx === mi);
+        const worked = mdays.reduce((a, dd) => a + computeDayInfo(dd.rowIdx, d.idx).minutes, 0);
+        const target = contractMinutesFor(getContractHours(d.idx), mdays.map(dd => dd.date));
+        const soFar = mdays.filter(dd => dd.date <= today), workedSoFar = soFar.reduce((a, dd) => a + computeDayInfo(dd.rowIdx, d.idx).minutes, 0);
+        const bal = computeDriverBalance(d.idx);
+        // assenze
+        const ab = absCountFor(d, all);
+        const cnt = (used, max, lbl) => `<div><small>${lbl}</small><b>${used}/${max}</b><em class="${used > max ? 'over' : ''}">${used > max ? 'oltre di ' + (used - max) : 'restano ' + (max - used)}</em></div>`;
+        // reperibilità
+        const future = Object.keys(R.tit).filter(k => R.tit[k] === me && repDateObj(k) >= today).sort().slice(0, 6);
+        let repMin = 0; mdays.forEach(dd => (R.days[ymd(dd.date)] || []).forEach((w, s) => { if(w === me) repMin += REP_SLOTS[s].minutes; }));
+        body.innerHTML = `
+            <div class="me-hero"><span class="ab-av">${esc(absInitials(d.name))}</span><div><b>${esc(d.name)}</b><small>${today.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' })}</small></div></div>
+            <div class="me-card"><h4><span class="material-icons-round">event</span>Prossimi 7 giorni</h4>${next || '<small>Nessun turno in calendario.</small>'}</div>
+            <div class="me-card"><h4><span class="material-icons-round">schedule</span>Ore di ${MONTH_NAMES_IT[mi]}</h4>
+                <div class="me-hours"><b>${fmtHM(worked)} <small>/ ${fmtHM(target)}</small></b></div>
+                <div class="me-bar"><i style="width:${Math.min(100, target ? worked / target * 100 : 0).toFixed(0)}%"></i></div>
+                <div class="me-kv"><span>Fatte finora</span><b>${fmtHM(workedSoFar)}</b></div>
+                <div class="me-kv"><span>Saldo da gennaio a oggi</span><b class="${bal < 0 ? 'neg' : 'pos'}">${fmtHM(bal, true) || '0:00'}</b></div>
+            </div>
+            <div class="me-card"><h4><span class="material-icons-round">beach_access</span>Assenze ${SHIFT_YEAR}</h4>
+                <div class="me-counters">${cnt(ab.allow.co, ABS_ALLOW.co, 'C.O.')}${cnt(ab.allow.sp, ABS_ALLOW.sp, 'Straordinari')}${cnt(ab.allow.pn, ABS_ALLOW.pn, 'Notte')}</div>
+                ${(ab.counts.m || ab.counts.r) ? `<div class="me-kv"><span>Malattia \u00b7 recuperi</span><b>${ab.counts.m || 0} \u00b7 ${ab.counts.r || 0} giorni</b></div>` : ''}
+            </div>
+            <div class="me-card"><h4><span class="material-icons-round">phone_in_talk</span>Reperibilit\u00e0</h4>
+                <div class="me-kv" style="margin-top:0"><span>Ore di reperibilit\u00e0 a ${MONTH_NAMES_IT[mi]}</span><b>${repHours(repMin)} h</b></div>
+                <div class="me-kv"><span>Prossime</span><b>${future.length ? future.map(k => repDateObj(k).toLocaleDateString('it-IT', { day:'numeric', month:'short' })).join(', ') : 'nessuna in calendario'}</b></div>
+            </div>
+            <div class="me-btns">
+                <button onclick="closeMyPage();setTimeout(() => { openHoursModal(); setTimeout(() => openHoursDetail(${d.idx}, ${mi}), 350); }, 250)"><span class="material-icons-round">query_stats</span>Le mie ore</button>
+                <button onclick="closeMyPage();setTimeout(() => { openAbsModal(); setTimeout(() => absOpenDetail(${d.idx}), 350); }, 250)"><span class="material-icons-round">event_busy</span>Le mie assenze</button>
+            </div>`;
+    }
+
+    // ═══ STAMPA DEL MESE (PDF per la bacheca) ═════════════════════════════
+    async function printMonthPick() {
+        const now = new Date(), cur = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : 0;
+        const opts = [cur - 1, cur, cur + 1].filter(m => m >= 0 && m <= 11);
+        const choice = await ccDialog('Stampa del mese', 'Scegli il mese: scarico un PDF A4 orizzontale con i turni di tutti, pronto da appendere.',
+            opts.map(m => ({ label: MONTH_NAMES_IT[m].charAt(0).toUpperCase() + MONTH_NAMES_IT[m].slice(1), kind: m === cur ? 'primary' : '', value: String(m) })).concat([{ label:'Annulla', kind:'ghost', value:null }]));
+        if(choice !== null && choice !== undefined) printMonthPdf(+choice);
+    }
+    async function printMonthPdf(mi, returnDoc) {
+        try {
+            ccToast('Preparo il PDF\u2026');
+            const jsPDF = await repEnsurePdfLib();
+            const days = buildDaysIndex().filter(dd => dd.monthIdx === mi);
+            const ops = drivers.filter(d => !d.hidden);
+            const R = repData(), css = getComputedStyle(document.documentElement);
+            const hex = v => { const c = (css.getPropertyValue(v) || '').trim(); const m = /^#([0-9a-f]{6})$/i.exec(c); return m ? [parseInt(m[1].slice(0,2),16), parseInt(m[1].slice(2,4),16), parseInt(m[1].slice(4,6),16)] : null; };
+            const title = MONTH_NAMES_IT[mi].charAt(0).toUpperCase() + MONTH_NAMES_IT[mi].slice(1) + ' ' + SHIFT_YEAR;
+            const wd = ['D','L','M','M','G','V','S'];
+            const head = [['Infermiere', ...days.map(dd => `${dd.day}\n${wd[dd.date.getDay()]}`)]];
+            const metas = ops.map(d => days.map(dd => ccCodeMeta(computeDayInfo(dd.rowIdx, d.idx))));
+            const body = ops.map((d, i) => [d.name, ...metas[i].map(m => m.short === 'M+N' ? 'MN' : (m.short || ''))]);
+            body.push(['Reperibile', ...days.map(dd => { const t = R.tit[ymd(dd.date)]; return t ? repDisplayName(t).slice(0, 5) : ''; })]);
+            const fest = days.map(dd => dd.date.getDay() === 0 || !!HOLIDAYS[`${dd.date.getMonth()}-${dd.date.getDate()}`]);
+            const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.text(`Turni infermieri - ${title}`, 10, 12);
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90);
+            doc.text(`Stampato il ${new Date().toLocaleString('it-IT')} - M mattina, P pomeriggio, N notte, S/SM smonto, R riposo, lettere minuscole = diurni; assenze: CO, FER, REC, PER, MAL, STU, PN, NG, NL, SC, GR`, 10, 17);
+            doc.setTextColor(0);
+            doc.autoTable({
+                head, body, startY: 20, margin:{ left:8, right:8 }, theme:'grid',
+                styles:{ fontSize:6.5, cellPadding:0.8, halign:'center', valign:'middle', lineColor:[200,200,200], lineWidth:0.1, minCellHeight:5.2 },
+                headStyles:{ fillColor:[11,34,87], textColor:255, fontStyle:'bold', fontSize:6.2 },
+                columnStyles:{ 0:{ halign:'left', fontStyle:'bold', cellWidth:24 } },
+                didParseCell: data => {
+                    const c = data.column.index;
+                    if(c < 1) { if(data.section === 'body' && data.row.index === body.length - 1) data.cell.styles.fillColor = [254,226,226]; return; }
+                    if(data.section === 'head') { if(fest[c - 1]) data.cell.styles.fillColor = [185,28,28]; return; }
+                    if(data.row.index === body.length - 1) { data.cell.styles.fillColor = [254,226,226]; data.cell.styles.fontSize = 5; data.cell.styles.textColor = [153,27,27]; return; }
+                    const m = metas[data.row.index][c - 1]; if(!m || !m.colors) { if(fest[c - 1]) data.cell.styles.fillColor = [253,240,240]; return; }
+                    const bg = hex(m.colors.bg), fg = hex(m.colors.fg);
+                    if(bg) data.cell.styles.fillColor = bg; if(fg) data.cell.styles.textColor = fg;
+                    data.cell.styles.fontStyle = 'bold';
+                }
+            });
+            if(returnDoc) return doc;
+            doc.save(`turni-infermieri-${MONTH_NAMES_IT[mi]}-${SHIFT_YEAR}.pdf`);
+            ccToast('PDF scaricato');
+        } catch(e) { console.error(e); ccToast('PDF non creato: controlla la connessione.', true); }
+    }
+
     // ═══ CONTEGGIO ASSENZE ═══════════════════════════════════════════════
     // Giorni per tipo di assenza (codice sotto il turno) e giornate particolari lavorate.
     // Spettanze annue: 31 giorni di C.O., 6 permessi straordinari, 2 permessi notte; ogni
@@ -4711,7 +4980,7 @@
             if(isViewingArchive()) return;
             applyManualOverrides();
             if(typeof finalData !== 'undefined' && finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
-            scheduleCheckSoon();
+            scheduleCheckSoon(); publishSaldiSoon();
             if(document.getElementById('hours-modal')?.classList.contains('open')) { if(document.getElementById('hc-detail-view').style.display === 'none') renderHoursGrid(); else renderHoursDetail(); }
             if(coordEditModeActive) updateCoordToolbarState();
             ccRefreshIfOpen();
@@ -4802,7 +5071,7 @@
             const n = dataSourceMode === 'excel' ? computePendingExcelSyncList().length : 0;
             ccToast(n ? `Salvato. Ricorda di riportare ${n} ${n===1?'modifica':'modifiche'} su Excel.` : 'Salvato: le modifiche sono visibili a tutti.');
         }
-        maybeDailySnapshot();
+        maybeDailySnapshot(); publishSaldiSoon();
         return true;
     }
     function markLastSave() { try { localStorage.setItem('coord_last_save_' + DATA_NS, new Date().toISOString()); } catch(e) {} }
@@ -5576,6 +5845,7 @@
                 <button class="cc-icon-btn" onclick="ccBoardShift(1)" title="Giorno successivo" aria-label="Giorno successivo"><span class="msym">chevron_right</span></button>
             </div>
             ${boardHtml}
+            ${renderChecksPanel()}
             <div class="cc-grid-2">
                 <div class="cc-panel"><div class="cc-panel-head"><h3>Saldo ore da tenere d\u2019occhio</h3><button class="cc-link" onclick="ccGo('ore')">Conteggio completo</button></div>${hoursList}</div>
                 <div class="cc-panel"><div class="cc-panel-head"><h3>In sospeso</h3></div>${todoHtml}</div>
@@ -6078,6 +6348,18 @@
                 </div>
             </div>
             <div class="cc-panel">
+                <div class="cc-panel-head"><h3>Copertura minima per turno</h3></div>
+                <div class="cc-panel-body">
+                    <p class="cc-note" style="margin-bottom:12px">Sotto questi numeri il giorno viene segnalato in rosso in Modifica turni e nella Panoramica.</p>
+                    <div class="cc-inline-form">
+                        <label class="cc-field" style="max-width:110px">Mattina<input type="number" min="0" max="15" class="cc-input" id="cov-M" value="${coverageMin.M}"></label>
+                        <label class="cc-field" style="max-width:110px">Pomeriggio<input type="number" min="0" max="15" class="cc-input" id="cov-P" value="${coverageMin.P}"></label>
+                        <label class="cc-field" style="max-width:110px">Notte<input type="number" min="0" max="15" class="cc-input" id="cov-N" value="${coverageMin.N}"></label>
+                        <button class="cc-btn primary" onclick="saveCoverageMin()" style="align-self:flex-end">Salva</button>
+                    </div>
+                </div>
+            </div>
+            <div class="cc-panel">
                 <div class="cc-setting"><div><b>Consigli sulle ore nel calendario</b><small>Mostra un\u2019icona sopra gli operatori sotto di 2 h o sopra di 4 h rispetto al contratto, con un suggerimento.</small></div>
                     <label class="cc-switch"><input type="checkbox" ${aiAdviceEnabled?'checked':''} onchange="toggleAiAdvice(this.checked)"><span></span></label></div>
             </div>
@@ -6232,7 +6514,7 @@
             document.body.classList.remove('paint-active', 'swap-active', 'select-active');
             detachCellEditHandlers();
         }
-        if(finalData.length) { if(rtCols.length && document.querySelector('#table-body tr[data-row]')) renderTableHead(); else renderTable(); }
+        if(finalData.length) renderTable();   // ridisegno completo: in modifica compaiono gli avvisi di copertura e regole
         if(!active) clearTimeout(rtHeadTimer);
         updateCoordToolbarState(); ccUpdateNavCounts();
     }
@@ -7463,7 +7745,9 @@
         // lampeggia in rosso come avviso. La notte non viene più mostrata qui.
         const mClass = countM === 3 ? 'dsc-m dsc-alert-3' : 'dsc-m';
         const pClass = countP === 3 ? 'dsc-p dsc-alert-3' : 'dsc-p';
-        let html = `<td class="${dateClass}">${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="${mClass}" title="Operatori mattina">M<b>${countM}</b></span><span class="${pClass}" title="Operatori pomeriggio">P<b>${countP}</b></span></div></td>`;
+        const chk = coordEditModeActive ? dayChecks().rows[i] : null;
+        if(chk && chk.day.length) dateClass += ' chk-warn';
+        let html = `<td class="${dateClass}"${chk && chk.day.length ? ` title="${esc(chk.day.join(' \u00b7 '))}"` : ''}>${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="${mClass}" title="Operatori mattina">M<b>${countM}</b></span><span class="${pClass}" title="Operatori pomeriggio">P<b>${countP}</b></span></div></td>`;
 
         let prevRow = finalData[i-1];
         const isoDate = ymd(dateObj);
@@ -7478,12 +7762,13 @@
             const orig = String(d.originalName || d.name).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const click = `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const sel = coordEditModeActive && coordSelectedCell && coordSelectedCell.row === i && coordSelectedCell.col === d.idx;
-            html += `<td${sel?' class="coord-selected"':''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
+            html += `<td${sel?' class="coord-selected"':''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
         });
         tr.innerHTML = html;
         return tr;
     }
     function renderTable() {
+        dayChecksCache = null;
         const tbody = document.getElementById('table-body');
         rtCols = rtVisibleCols();
         renderTableHead();
@@ -7537,7 +7822,7 @@
         if(root.getPropertyValue('--cell-h') !== H + 'px') root.setProperty('--cell-h', H + 'px');
     }
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if(document.querySelector('#table-body tr[data-row]')) fitCalendarCells(); });
-    function renderTableRows(rowSet) {
+    function renderTableRows(rowSet) { dayChecksCache = null;
         const tbody = document.getElementById('table-body'); if(!tbody || !rtCols.length) { renderTable(); return; }
         const rows = new Set();
         rowSet.forEach(r => { r = +r; if(r >= 1 && r < finalData.length) rows.add(r); if(r + 1 < finalData.length) rows.add(r + 1); });
@@ -8099,6 +8384,7 @@
         'admin-login-modal': closeAdminLoginModal,
         'admin-panel-modal': closeAdminPanel,
         'hours-modal': closeHoursModal,
+        'me-modal': closeMyPage,
         'abs-modal': () => { if(absDetailIdx !== null) { absCloseDetail(); setTimeout(syncModalHistoryState, 0); } else closeAbsModal(); },
         'rep-edit-popup': closeRepEditPopup,
         'cc-dialog': closeCcDialog,
