@@ -932,6 +932,11 @@
         .ov-adv-seg { display:inline-flex; gap:3px; padding:3px; margin-top:8px; background:var(--bg); border:1px solid var(--border); border-radius:10px; }
         .ov-adv-seg button { height:30px; padding:0 12px; border:none; border-radius:8px; background:transparent; color:var(--text-sec); font:700 12px 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
         .ov-adv-seg button.on { background:#16a34a; color:#fff; }
+        .ov-adv-seg.kind { display:flex; margin:0 0 8px; }
+        .ov-adv-seg.kind button { flex:1; height:34px; font-size:12.5px; }
+        .ov-adv-seg.kind button.on { background:var(--primary); }
+        body.ov-adv .ov-table td.ov-s.off, body.ov-adv .ov-table td.ov-d.off { background:var(--bg); color:var(--text-sec); }
+        .ovs-badge.off { background:var(--bg); color:var(--text-sec); border:1px solid var(--border); }
         .ov-months { display:flex; gap:6px; overflow-x:auto; padding-top:8px; -webkit-overflow-scrolling:touch; }
         .ov-months button { flex:none; display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 10px; border-radius:999px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font:700 12px 'Plus Jakarta Sans',sans-serif; text-transform:capitalize; cursor:pointer; }
         .ov-months button b { min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:#dcfce7; color:#166534; font-size:10.5px; line-height:18px; text-align:center; }
@@ -2641,7 +2646,7 @@
     <div class="ov-bar">
         <button class="ov-btn" onclick="toggleCalView()" title="Torna alla vista dettagliata"><span class="material-icons-round">view_agenda</span><span class="l-long">Vista dettagliata</span></button>
         <div class="ov-title"><b>Vista d’insieme</b><small id="ov-sub">Tutto l’anno</small></div>
-        <button class="ov-btn" id="ov-adv-btn" onclick="ovToggleAdvice()"><span class="material-icons-round">beach_access</span><span class="l-long">Ferie consigliate</span><span class="l-short">Ferie</span></button>
+        <button class="ov-btn" id="ov-adv-btn" onclick="ovToggleAdvice()"><span class="material-icons-round">beach_access</span><span class="l-long">Ferie e permessi</span><span class="l-short">Ferie</span></button>
     </div>
     <div class="ov-advice" id="ov-advice"></div>
     <div class="ov-scroll" id="ov-scroll"><div id="ov-body"></div></div>
@@ -3644,10 +3649,12 @@
                 hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Consulta gli anni archiviati (sola lettura)', color: MN_COLORS.cal, run: () => openYearPicker() } : null
             ] },
             { id:'view', icon: calOverview ? 'view_agenda' : 'grid_view', label: calOverview ? 'Vista dettagliata' : 'Vista d’insieme', desc: calOverview ? 'Torna al calendario giorno per giorno' : 'Tutto l’anno a colpo d’occhio', color: MN_COLORS.cal, run: () => toggleCalView() },
-            { id:'ferie', icon:'beach_access', label:'Quando prendere le ferie', desc:'Giorni e periodi consigliati', color:'#16a34a', run: () => openFerieAdvice() },
+            { id:'ferie', icon:'beach_access', label:'Quando prendere le ferie', desc:'Periodi e giorni consigliati', color:'#16a34a', run: () => openFerieAdvice('ferie') },
+            { id:'perm', icon:'event_available', label:'Quando prendere un permesso', desc:'Permessi straordinari e recuperi: giorni consigliati', color:'#0d9488', run: () => openFerieAdvice('perm') },
             { id:'ore', icon:'query_stats', label:'Conteggio orario', desc:'Ore lavorate e saldo rispetto al contratto', color: MN_COLORS.ore, run: () => openHoursModal() },
             { id:'assenze', icon:'event_busy', label:'Conteggio assenze', desc:'C.O., permessi, malattia, domeniche e festivi lavorati', color:'#b45309', run: () => openAbsModal() },
             { group:'Squadra' },
+            { id:'share', icon:'share', label:'Condividi l’app', desc:'Mandala su WhatsApp a chi non ce l’ha', color:'#16a34a', stay:true, run: () => shareAppWhatsApp() },
             { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo e ruota della sfiga', color: MN_COLORS.svago, children: [
                 { id:'dinner', icon:'restaurant', label:'Organizza un\u2019uscita', desc:'Chi è libero per colazione, pranzo, cena…', color: MN_COLORS.svago, run: () => openDinnerModal() },
                 { id:'wheel', icon:'casino', label:'La ruota della sfiga', desc:'Estrai a sorte chi tocca', color: MN_COLORS.svago, run: () => openWheelModal() }
@@ -4668,11 +4675,15 @@
         try { localStorage.setItem(key, '1'); } catch(e) {}
     }
 
-    // ═══ FERIE: REGOLE E GIORNI CONSIGLIATI ══════════════════════════════
+    // ═══ FERIE E PERMESSI: REGOLE E GIORNI CONSIGLIATI ═════════════════════
     // Le regole le decide il coordinatore (Area coordinatore > Regole ferie).
-    var FERIE_DEFAULT = { max:3, ferieCodes:['f','v'], blockCodes:['p','pn'], maxOther:0, minDays:3, useCoverage:true, blocked:[] };
+    // Ferie: periodi di più giorni. Permessi straordinari e recuperi: singoli giorni.
+    var PERM_DEFAULT = { max:1, maxAbsent:5, codes:['p','pn','r'], useCoverage:true };
+    var FERIE_DEFAULT = { max:3, ferieCodes:['f','v'], blockCodes:['p','pn'], maxOther:0, minDays:3, useCoverage:true, blocked:[], perm: Object.assign({}, PERM_DEFAULT) };
     var ferieRules = JSON.parse(JSON.stringify(FERIE_DEFAULT));
     const FR_SHIFT = { M:'mattina', P:'pomeriggio', N:'notte' };
+    const FR_WORK = ['M','P','N','m','p','M+N'];
+    function frBlockedOn(rules, dd) { const iso = ymd(dd.date); return (rules.blocked || []).find(b => b.from && b.from <= iso && iso <= (b.to || b.from)); }
     function ferieDay(dd, active, rules) {
         rules = rules || ferieRules;
         const fer = [], oth = [], cnt = { M:0, P:0, N:0 };
@@ -4687,8 +4698,7 @@
             const c = workCode(dd.rowIdx, d.idx);
             if(c === 'M' || c === 'm' || c === 'M+N') cnt.M++; if(c === 'P' || c === 'p') cnt.P++; if(c === 'N' || c === 'M+N') cnt.N++;
         });
-        const iso = ymd(dd.date);
-        const bl = (rules.blocked || []).find(b => b.from && b.from <= iso && iso <= (b.to || b.from));
+        const bl = frBlockedOn(rules, dd);
         const low = rules.useCoverage && (cnt.M + cnt.P + cnt.N) > 0 ? ['M','P','N'].filter(k => cnt[k] < coverageMin[k]) : [];
         const reasons = [];
         if(bl) reasons.push('periodo bloccato dal coordinatore' + (bl.note ? ' (' + bl.note + ')' : ''));
@@ -4697,6 +4707,40 @@
         if(low.length) reasons.push('copertura già sotto il minimo: ' + low.map(k => FR_SHIFT[k]).join(', '));
         const free = Math.max(0, rules.max - fer.length);
         return { fer, oth, cnt, bl, reasons, free, status: reasons.length ? 'no' : (free <= 1 ? 'last' : 'ok') };
+    }
+    function permRules(rules) { return Object.assign({}, PERM_DEFAULT, (rules || ferieRules).perm || {}); }
+    // Un giorno per un permesso straordinario o un recupero. Se si sa chi guarda (me),
+    // conta solo se quel giorno lavora e se la sua assenza lascia il turno sotto il minimo.
+    function permDay(dd, active, me, rules) {
+        rules = rules || ferieRules; const R = permRules(rules);
+        const perm = [], fer = [], absent = [], cnt = { M:0, P:0, N:0 };
+        active.forEach(d => {
+            const cell = finalData[dd.rowIdx][d.idx] || {};
+            const sub = (cell.subV || '').toString().trim().toLowerCase();
+            if(SPECIAL_SUBCODES[sub] !== undefined) {
+                absent.push(d);
+                if(R.codes.includes(sub)) perm.push(d); else if(rules.ferieCodes.includes(sub)) fer.push(d);
+                return;
+            }
+            const c = workCode(dd.rowIdx, d.idx);
+            if(c === 'M' || c === 'm' || c === 'M+N') cnt.M++; if(c === 'P' || c === 'p') cnt.P++; if(c === 'N' || c === 'M+N') cnt.N++;
+        });
+        let myShift = null, meAbsent = false;
+        if(me) { const info = computeDayInfo(dd.rowIdx, me.idx); if(info.justified) meAbsent = true; else if(FR_WORK.includes(info.code)) myShift = info.code; }
+        const bl = frBlockedOn(rules, dd), reasons = [];
+        let tight = false;
+        if(bl) reasons.push('periodo bloccato dal coordinatore' + (bl.note ? ' (' + bl.note + ')' : ''));
+        if(perm.length >= R.max) reasons.push(`già ${perm.length} con permesso o recupero (massimo ${R.max})`);
+        if(absent.length >= R.maxAbsent) reasons.push(`già ${absent.length} assenti in totale (massimo ${R.maxAbsent})`);
+        if(R.useCoverage && (cnt.M + cnt.P + cnt.N) > 0) {
+            if(myShift) (myShift === 'M+N' ? ['M','N'] : [myShift.toUpperCase()]).forEach(k => { if(cnt[k] - 1 < coverageMin[k]) reasons.push(`senza di te ${({ M:'la mattina', P:'il pomeriggio', N:'la notte' })[k]} scenderebbe a ${cnt[k] - 1} su ${coverageMin[k]}`); });
+            else if(!me) { const low = ['M','P','N'].filter(k => cnt[k] < coverageMin[k]); if(low.length) reasons.push('copertura già sotto il minimo: ' + low.map(k => FR_SHIFT[k]).join(', ')); tight = ['M','P','N'].some(k => cnt[k] === coverageMin[k]); }
+        }
+        let status;
+        if(me && !myShift) status = 'off';
+        else if(reasons.length) status = 'no';
+        else status = (R.max > 1 && perm.length === R.max - 1) || absent.length === R.maxAbsent - 1 || tight ? 'last' : 'ok';
+        return { perm, fer, absent, cnt, bl, reasons, myShift, meAbsent, free: Math.max(0, R.max - perm.length), status };
     }
     function frShort(a, b) {
         const f = (d, m) => d.getDate() + (m ? ' ' + MONTH_NAMES_IT[d.getMonth()].slice(0, 3) : '');
@@ -4726,16 +4770,25 @@
         if((r.blocked || []).length) parts.push(r.blocked.length === 1 ? '1 periodo bloccato' : r.blocked.length + ' periodi bloccati');
         return 'Regole del coordinatore: ' + parts.join(' · ') + '.';
     }
+    function frOrList(a) { return a.length > 1 ? a.slice(0, -1).join(', ') + ' o ' + a[a.length - 1] : (a[0] || ''); }
+    function permRulesText(r) {
+        const R = permRules(r);
+        const parts = [`al massimo ${R.max} con ${frOrList(R.codes.map(k => SPECIAL_SUBCODES[k].toLowerCase()))} nello stesso giorno`, `al massimo ${R.maxAbsent} assenti in totale`];
+        if(R.useCoverage) parts.push('copertura minima rispettata');
+        if((r.blocked || []).length) parts.push(r.blocked.length === 1 ? '1 periodo bloccato' : r.blocked.length + ' periodi bloccati');
+        return 'Regole del coordinatore: ' + parts.join(' · ') + '.';
+    }
 
     // ═══ VISTA D'INSIEME DEL CALENDARIO ═════════════════════════════════
     // Tutto l'anno a colpo d'occhio: una riga per giorno, una colonnina per operatore,
-    // colori dei turni. Con "Ferie consigliate" i giorni si colorano secondo le regole.
-    var calOverview = false, ovAdvice = false, ovRenderTimer = null, ovInfo = {};
+    // colori dei turni. Con "Ferie e permessi" i giorni si colorano secondo le regole.
+    var calOverview = false, ovAdvice = false, ovRenderTimer = null, ovInfo = {}, ovAdvKind = 'ferie';
     function setCalView(v, opts) {
         const on = v === 'insieme';
         if(on && coordEditModeActive) { ccToast('Chiudi prima la modifica dei turni', true); return; }
         calOverview = on;
         if(opts && opts.advice !== undefined) ovAdvice = !!opts.advice;
+        if(opts && opts.kind) ovAdvKind = opts.kind;
         document.body.classList.toggle('cal-overview', on);
         document.body.classList.toggle('ov-adv', on && ovAdvice);
         document.getElementById('ov-view').classList.toggle('open', on);
@@ -4743,25 +4796,26 @@
         else { ovCloseSheet(); setCurrentView('Tabella Turni'); }
     }
     function toggleCalView() { vibrate(); setCalView(calOverview ? 'dettaglio' : 'insieme'); }
-    function openFerieAdvice() { vibrate(); setCalView('insieme', { advice:true }); }
+    function openFerieAdvice(kind) { vibrate(); setCalView('insieme', { advice:true, kind: kind || 'ferie' }); }
     function ovToggleAdvice() { vibrate(); ovAdvice = !ovAdvice; document.body.classList.toggle('ov-adv', ovAdvice); renderOvAdvice(); }
+    function ovAdvSetKind(k) { vibrate(); if(ovAdvKind === k) return; ovAdvKind = k; ovAdvMonth = null; renderOverview(true); }
     function renderOverviewSoon() { clearTimeout(ovRenderTimer); ovRenderTimer = setTimeout(() => { if(calOverview) renderOverview(true); }, 250); }
     function renderOverview(keepScroll) {
         const box = document.getElementById('ov-body'); if(!box || !calOverview) return;
         if(!finalData.length) { box.innerHTML = '<div class="coord-sync-empty">Sto caricando i turni…</div>'; return; }
         const sc = document.getElementById('ov-scroll'), top = sc.scrollTop;
-        const me = prefMe();
+        const me = prefMe(), perm = ovAdvKind === 'perm', PR = permRules();
         let active = drivers.filter(d => !d.hidden);
         if(me && prefs.myColFirst && active.includes(me)) active = [me].concat(active.filter(d => d !== me));
         const today = new Date(); today.setHours(0, 0, 0, 0);
-        const head = `<tr><th class="ov-d">Giorno</th>${active.map(d => `<th class="ov-op ${me && d.idx === me.idx ? 'me' : ''}" title="${esc(d.name)}"><span>${esc(d.name)}</span></th>`).join('')}<th class="ov-s" title="Persone in ferie">Ferie</th></tr>`;
+        const head = `<tr><th class="ov-d">Giorno</th>${active.map(d => `<th class="ov-op ${me && d.idx === me.idx ? 'me' : ''}" title="${esc(d.name)}"><span>${esc(d.name)}</span></th>`).join('')}<th class="ov-s" title="${perm ? 'Persone con permesso o recupero' : 'Persone in ferie'}">${perm ? 'Perm.' : 'Ferie'}</th></tr>`;
         let html = '', lastM = -1; ovInfo = {};
         buildDaysIndex().forEach(dd => {
             if(dd.monthIdx !== lastM) {
                 lastM = dd.monthIdx;
                 html += `<tr class="ov-mh" id="ov-m-${lastM}"><td colspan="${active.length + 2}">${MONTH_NAMES_IT[lastM]} ${SHIFT_YEAR}</td></tr>`;
             }
-            const f = ferieDay(dd, active); ovInfo[dd.rowIdx] = f;
+            const f = perm ? permDay(dd, active, me) : ferieDay(dd, active); ovInfo[dd.rowIdx] = f;
             const red = dd.date.getDay() === 0 || dd.date.getDay() === 6 || HOLIDAYS[`${dd.monthIdx}-${dd.day}`];
             const isToday = dd.date.getTime() === today.getTime();
             const wd = dd.date.toLocaleDateString('it-IT', { weekday:'short' }).slice(0, 2);
@@ -4773,7 +4827,8 @@
                 const col = meta.colors ? `--sw:var(${meta.colors.bg});--sf:var(${meta.colors.fg})` : (info.code === 'gr' ? '--sw:#ec4899;--sf:#fff' : '');
                 cells += `<td class="ov-c${mine}" style="${col}">${esc(meta.short)}</td>`;
             });
-            html += `<tr class="ov-row${isToday ? ' ov-today' : ''}" id="ov-r-${dd.rowIdx}" onclick="ovDayTap(${dd.rowIdx})"><td class="ov-d ${red ? 'red' : ''} ${f.status}"><b>${dd.day}</b><small>${wd}</small></td>${cells}<td class="ov-s ${f.status}">${f.fer.length}<small style="opacity:.7">/${ferieRules.max}</small></td></tr>`;
+            const sum = perm ? `${f.perm.length}<small style="opacity:.7">/${PR.max}</small>` : `${f.fer.length}<small style="opacity:.7">/${ferieRules.max}</small>`;
+            html += `<tr class="ov-row${isToday ? ' ov-today' : ''}" id="ov-r-${dd.rowIdx}" onclick="ovDayTap(${dd.rowIdx})"><td class="ov-d ${red ? 'red' : ''} ${f.status}"><b>${dd.day}</b><small>${wd}</small></td>${cells}<td class="ov-s ${f.status}">${sum}</td></tr>`;
         });
         box.innerHTML = `<table class="ov-table" id="ov-table"><thead>${head}</thead><tbody>${html}</tbody></table>`;
         ovFitCells(active.length);
@@ -4791,6 +4846,7 @@
         const el = document.getElementById('ov-advice'); if(!el) return;
         const btn = document.getElementById('ov-adv-btn'); if(btn) btn.classList.toggle('on', ovAdvice);
         if(!ovAdvice) { el.innerHTML = ''; return; }
+        const perm = ovAdvKind === 'perm', me = prefMe();
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const card = p => `<button class="ov-per ${p.minFree <= 1 ? 'last' : ''}" onclick="ovScrollTo('ov-r-${p.row}')"><b>${p.label}</b><small>${p.n} giorni · ${p.minFree <= 1 ? '1 posto libero' : 'almeno ' + p.minFree + ' posti'}</small></button>`;
         // mesi ancora utili: da quello corrente (se l'anno è questo) a dicembre
@@ -4800,33 +4856,44 @@
         const active = drivers.filter(d => !d.hidden), byMonth = {};
         buildDaysIndex().forEach(dd => {
             if(dd.date < today) return;
-            const st = (ovInfo[dd.rowIdx] || ferieDay(dd, active)).status;
-            const b = byMonth[dd.monthIdx] = byMonth[dd.monthIdx] || { ok:0, last:0, no:0, free:[] };
-            b[st]++; if(st !== 'no') b.free.push(dd);
+            const st = (ovInfo[dd.rowIdx] || (perm ? permDay(dd, active, me) : ferieDay(dd, active))).status;
+            const b = byMonth[dd.monthIdx] = byMonth[dd.monthIdx] || { ok:0, last:0, no:0, off:0, free:[] };
+            b[st]++; if(st === 'ok' || st === 'last') b.free.push(dd);
         });
         if(ovAdvMonth === null || !months.includes(ovAdvMonth)) ovAdvMonth = months.find(x => byMonth[x] && byMonth[x].free.length) ?? (months.length ? months[0] : 0);
-        const dayBtn = dd => `<button class="ov-per ${ovInfo[dd.rowIdx] && ovInfo[dd.rowIdx].status === 'last' ? 'last' : ''}" onclick="ovScrollTo('ov-r-${dd.rowIdx}')"><b>${frShort(dd.date)}</b><small>${dd.date.toLocaleDateString('it-IT', { weekday:'long' })}</small></button>`;
+        const dayBtn = dd => { const f = ovInfo[dd.rowIdx] || {}; const sh = perm && f.myShift ? ' · ' + (SHIFT_NAMES[f.myShift] || f.myShift).toLowerCase() : '';
+            return `<button class="ov-per ${f.status === 'last' ? 'last' : ''}" onclick="ovScrollTo('ov-r-${dd.rowIdx}')"><b>${frShort(dd.date)}</b><small>${dd.date.toLocaleDateString('it-IT', { weekday:'long' })}${sh}</small></button>`; };
+        const monthsRow = m => `<div class="ov-months">${months.map(x => { const n = (byMonth[x] || { free:[] }).free.length; return `<button class="${x === m ? 'on' : ''}" onclick="ovAdvSetMonth(${x})">${MONTH_NAMES_IT[x].slice(0, 3)}<b>${n}</b></button>`; }).join('')}</div>`;
+        const sumLine = (m, b) => `<div class="ov-sum-line"><b>${MONTH_NAMES_IT[m].charAt(0).toUpperCase() + MONTH_NAMES_IT[m].slice(1)}:</b> <span class="g">${b.ok} consigliati</span> · <span class="y">${b.last} ${perm ? 'al limite' : 'con un solo posto'}</span> · <span class="r">${b.no} sconsigliati</span>${perm && me ? ` · ${b.off} in cui non lavori` : ''}</div>`;
         let list;
-        if(ovAdvMode === 'mese') {
+        if(perm) {
+            if(ovAdvMode === 'mese') {
+                const m = ovAdvMonth, b = byMonth[m] || { ok:0, last:0, no:0, off:0, free:[] };
+                list = monthsRow(m) + sumLine(m, b) + (b.free.length ? `<div class="ov-periods">${b.free.map(dayBtn).join('')}</div>` : `<div class="ov-none">In ${MONTH_NAMES_IT[m]} non ci sono giorni consigliati per un permesso o un recupero.</div>`);
+            } else {
+                const all = months.flatMap(m => (byMonth[m] || { free:[] }).free);
+                list = all.length ? `<div class="ov-sum-line">${all.length} giorni consigliati da oggi a fine anno${me ? ' tra quelli in cui lavori' : ''}</div><div class="ov-periods">${all.map(dayBtn).join('')}</div>`
+                    : `<div class="ov-none">Da oggi a fine anno non ci sono giorni consigliati per un permesso o un recupero.</div>`;
+            }
+            if(!me) list += `<div class="ov-none">Scegli chi sei (Menu › Impostazioni › Cambia utente) per vedere solo i giorni in cui lavori e se la tua assenza lascerebbe scoperto il turno.</div>`;
+        } else if(ovAdvMode === 'mese') {
             const m = ovAdvMonth, from = new Date(SHIFT_YEAR, m, 1), to = new Date(SHIFT_YEAR, m + 1, 0);
-            const P = feriePeriods(ferieRules, from < today ? today : from, to), b = byMonth[m] || { ok:0, last:0, no:0, free:[] };
-            const mName = MONTH_NAMES_IT[m].charAt(0).toUpperCase() + MONTH_NAMES_IT[m].slice(1);
-            list = `<div class="ov-months">${months.map(x => { const n = (byMonth[x] || { free:[] }).free.length; return `<button class="${x === m ? 'on' : ''}" onclick="ovAdvSetMonth(${x})">${MONTH_NAMES_IT[x].slice(0, 3)}<b>${n}</b></button>`; }).join('')}</div>
-                <div class="ov-sum-line"><b>${mName}:</b> <span class="g">${b.ok} consigliati</span> · <span class="y">${b.last} con un solo posto</span> · <span class="r">${b.no} sconsigliati</span></div>
-                ${P.length ? `<div class="ov-periods">${P.map(card).join('')}</div>${(() => { const single = b.free.filter(dd => !P.some(p => dd.date >= p.start && dd.date <= p.end)); return single.length ? `<div class="ov-none">Altri giorni liberi (singoli o brevi):</div><div class="ov-periods">${single.map(dayBtn).join('')}</div>` : ''; })()}`
-                    : (b.free.length ? `<div class="ov-none">Nessun periodo di almeno ${ferieRules.minDays} giorni di fila. Giorni singoli disponibili:</div><div class="ov-periods">${b.free.map(dayBtn).join('')}</div>`
-                    : `<div class="ov-none">In ${MONTH_NAMES_IT[m]} non ci sono giorni disponibili per le ferie.</div>`)}`;
+            const P = feriePeriods(ferieRules, from < today ? today : from, to), b = byMonth[m] || { ok:0, last:0, no:0, off:0, free:[] };
+            list = monthsRow(m) + sumLine(m, b) + (P.length ? `<div class="ov-periods">${P.map(card).join('')}</div>${(() => { const single = b.free.filter(dd => !P.some(p => dd.date >= p.start && dd.date <= p.end)); return single.length ? `<div class="ov-none">Altri giorni liberi (singoli o brevi):</div><div class="ov-periods">${single.map(dayBtn).join('')}</div>` : ''; })()}`
+                : (b.free.length ? `<div class="ov-none">Nessun periodo di almeno ${ferieRules.minDays} giorni di fila. Giorni singoli disponibili:</div><div class="ov-periods">${b.free.map(dayBtn).join('')}</div>`
+                : `<div class="ov-none">In ${MONTH_NAMES_IT[m]} non ci sono giorni disponibili per le ferie.</div>`));
         } else {
             const P = feriePeriods(ferieRules, today);
             list = P.length ? `<div class="ov-sum-line">${P.length} ${P.length === 1 ? 'periodo disponibile' : 'periodi disponibili'} da oggi a fine anno (di almeno ${ferieRules.minDays} giorni)</div><div class="ov-periods">${P.map(card).join('')}</div>`
                 : `<div class="ov-none">Da oggi a fine anno non ci sono periodi di almeno ${ferieRules.minDays} giorni senza ostacoli.</div>`;
         }
-        el.innerHTML = `<div class="ov-legend"><span><i style="background:#22c55e"></i>Consigliato</span><span><i style="background:#f59e0b"></i>Un solo posto libero</span><span><i style="background:#ef4444"></i>Sconsigliato</span><span style="margin-left:auto">tocca un giorno per i dettagli</span></div>
-            <div class="ov-rules">${esc(ferieRulesText(ferieRules))}</div>
-            <div class="ov-adv-seg"><button class="${ovAdvMode === 'tutti' ? 'on' : ''}" onclick="ovAdvSetMode('tutti')">Tutti i periodi</button><button class="${ovAdvMode === 'mese' ? 'on' : ''}" onclick="ovAdvSetMode('mese')">Per mese</button></div>
+        el.innerHTML = `<div class="ov-adv-seg kind"><button class="${perm ? '' : 'on'}" onclick="ovAdvSetKind('ferie')">Ferie</button><button class="${perm ? 'on' : ''}" onclick="ovAdvSetKind('perm')">Permessi e recuperi</button></div>
+            <div class="ov-legend"><span><i style="background:#22c55e"></i>Consigliato</span><span><i style="background:#f59e0b"></i>${perm ? 'Al limite' : 'Un solo posto libero'}</span><span><i style="background:#ef4444"></i>Sconsigliato</span>${perm && me ? '<span><i style="background:#cbd5e1"></i>Non lavori</span>' : ''}<span style="margin-left:auto">tocca un giorno per i dettagli</span></div>
+            <div class="ov-rules">${esc(perm ? permRulesText(ferieRules) : ferieRulesText(ferieRules))}</div>
+            <div class="ov-adv-seg"><button class="${ovAdvMode === 'tutti' ? 'on' : ''}" onclick="ovAdvSetMode('tutti')">${perm ? 'Tutti i giorni' : 'Tutti i periodi'}</button><button class="${ovAdvMode === 'mese' ? 'on' : ''}" onclick="ovAdvSetMode('mese')">Per mese</button></div>
             ${list}`;
     }
-    // Posti disponibili: tutti i periodi da oggi, oppure un mese alla volta.
+    // Posti disponibili: tutti da oggi, oppure un mese alla volta.
     var ovAdvMode = 'tutti', ovAdvMonth = null;
     function ovAdvSetMode(m) { vibrate(); ovAdvMode = m; renderOvAdvice(); if(m === 'mese') ovScrollTo('ov-m-' + ovAdvMonth); }
     function ovAdvSetMonth(m) { vibrate(); ovAdvMonth = m; renderOvAdvice(); ovScrollTo('ov-m-' + m); }
@@ -4844,22 +4911,32 @@
     function ovDayTap(r) {
         vibrate();
         const dd = buildDaysIndex().find(x => x.rowIdx === r), f = ovInfo[r]; if(!dd || !f) return;
-        const active = drivers.filter(d => !d.hidden), me = prefMe();
+        const active = drivers.filter(d => !d.hidden), me = prefMe(), perm = ovAdvKind === 'perm', PR = permRules();
         const chip = (d, extra) => { const meta = ccCodeMeta(computeDayInfo(r, d.idx)); const st = meta.colors ? `--sw:var(${meta.colors.bg});--sf:var(${meta.colors.fg})` : ''; return `<span class="ovs-chip" style="${st}">${esc(d.name)}${extra ? ' · ' + esc(extra) : ''}</span>`; };
         const groups = { M:[], P:[], N:[] };
         active.forEach(d => { const c = workCode(r, d.idx); if(c === 'M' || c === 'm' || c === 'M+N') groups.M.push(d); if(c === 'P' || c === 'p') groups.P.push(d); if(c === 'N' || c === 'M+N') groups.N.push(d); });
         const absent = active.filter(d => computeDayInfo(r, d.idx).justified);
+        const fer = f.fer || [], permList = perm ? f.perm : absent.filter(d => PR.codes.includes(computeDayInfo(r, d.idx).code));
         const title = dd.date.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' });
-        const badge = f.status === 'no' ? `<b>Sconsigliato per le ferie</b><ul>${f.reasons.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`
-            : (f.status === 'last' ? `<b>Ultimo posto libero</b> — ${f.fer.length} in ferie su ${ferieRules.max}.` : `<b>Consigliato</b> — ${f.free} posti liberi su ${ferieRules.max}.`);
+        const why = `<ul>${f.reasons.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+        let badge;
+        if(perm) badge = f.status === 'off' ? `<b>Quel giorno non lavori</b> — ${f.meAbsent ? 'sei già assente' : 'sei di riposo o di smonto'}: non serve un permesso.`
+            : f.status === 'no' ? `<b>Sconsigliato per un permesso o un recupero</b>${why}`
+            : f.status === 'last' ? `<b>Possibile, ma al limite</b> — ${f.perm.length} con permesso o recupero, ${f.absent.length} assenti in totale.`
+            : `<b>Consigliato per un permesso o un recupero</b>${f.myShift ? ' — faresti ' + esc((SHIFT_NAMES[f.myShift] || f.myShift).toLowerCase()) + '.' : '.'}`;
+        else badge = f.status === 'no' ? `<b>Sconsigliato per le ferie</b>${why}`
+            : (f.status === 'last' ? `<b>Ultimo posto libero</b> — ${fer.length} in ferie su ${ferieRules.max}.` : `<b>Consigliato</b> — ${f.free} posti liberi su ${ferieRules.max}.`);
         let mine = '';
         if(me) { const info = computeDayInfo(r, me.idx); const meta = ccCodeMeta(info); mine = `<div class="ovs-sec">Tu</div><div class="ovs-chips">${chip(me, meta.kind === 'abs' ? meta.label.toLowerCase() : (SHIFT_NAMES[info.code] || info.label || 'libero'))}</div>`; }
+        const others = absent.filter(d => !fer.includes(d) && !permList.includes(d));
+        const list = (label, arr, extra) => `<div class="ovs-sec">${label} (${arr.length})</div>${arr.length ? `<div class="ovs-chips">${arr.map(d => chip(d, extra ? extra(d) : '')).join('')}</div>` : '<div class="ovs-empty">Nessuno</div>'}`;
         document.getElementById('ov-sheet-card').innerHTML = `
             <div class="ovs-head"><b>${esc(title.charAt(0).toUpperCase() + title.slice(1))}</b><button onclick="ovCloseSheet()" aria-label="Chiudi"><span class="material-icons-round">close</span></button></div>
             <div class="ovs-badge ${f.status}">${badge}</div>
             ${mine}
-            <div class="ovs-sec">In ferie (${f.fer.length})</div>${f.fer.length ? `<div class="ovs-chips">${f.fer.map(d => chip(d)).join('')}</div>` : '<div class="ovs-empty">Nessuno</div>'}
-            <div class="ovs-sec">Altre assenze</div>${absent.filter(d => !f.fer.includes(d)).length ? `<div class="ovs-chips">${absent.filter(d => !f.fer.includes(d)).map(d => chip(d, ccCodeMeta(computeDayInfo(r, d.idx)).label.toLowerCase())).join('')}</div>` : '<div class="ovs-empty">Nessuna</div>'}
+            ${list('In ferie', fer)}
+            ${list('Permessi e recuperi', permList, d => ccCodeMeta(computeDayInfo(r, d.idx)).label.toLowerCase())}
+            ${list('Altre assenze', others, d => ccCodeMeta(computeDayInfo(r, d.idx)).label.toLowerCase())}
             ${['M','P','N'].map(k => `<div class="ovs-sec">${FR_SHIFT[k]} (${groups[k].length}${coverageMin[k] ? ' su ' + coverageMin[k] : ''})</div>${groups[k].length ? `<div class="ovs-chips">${groups[k].map(d => chip(d)).join('')}</div>` : '<div class="ovs-empty">Nessuno</div>'}`).join('')}
             <div class="ovs-actions"><button onclick="ovCloseSheet()">Chiudi</button><button class="pri" onclick="ovGoToDay(${r})">Apri nel calendario</button></div>`;
         document.getElementById('ov-sheet').classList.add('open');
@@ -4870,17 +4947,28 @@
         setTimeout(() => { const tr = document.querySelector(`#table-body tr[data-row="${r}"]`); if(tr) window.scrollTo({ top: window.scrollY + tr.getBoundingClientRect().top - 200, behavior:'smooth' }); }, 120);
     }
 
-    // ═══ AREA COORDINATORE: REGOLE FERIE ═════════════════════════════════
+    // ═══ CONDIVIDI L'APP SU WHATSAPP ════════════════════════════════════
+    function shareAppWhatsApp() {
+        vibrate();
+        const url = location.origin + location.pathname.replace(/index\.html$/, '');
+        const msg = `Ciao! Questa è l’app dei turni degli infermieri del 118: ${url}\n\nPer averla sul telefono come un’app:\n• Android: aprila con Chrome, tocca ⋮ e poi “Aggiungi a schermata Home”\n• iPhone: aprila con Safari, tocca Condividi e poi “Aggiungi alla schermata Home”`;
+        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+        closeMenu();
+    }
+
+    // ═══ AREA COORDINATORE: REGOLE FERIE E PERMESSI ══════════════════════
     let frDraft = null;
     function renderCcFerie() {
         const main = document.getElementById('cc-main');
         if(!frDraft) frDraft = JSON.parse(JSON.stringify(ferieRules));
-        const D = frDraft;
+        frDraft.perm = Object.assign({}, PERM_DEFAULT, frDraft.perm || {});
+        const D = frDraft, PD = D.perm;
         const chk = (list, k, label) => `<label class="fr-chk"><input type="checkbox" ${D[list].includes(k) ? 'checked' : ''} onchange="frToggle('${list}','${k}',this.checked)">${esc(label)}</label>`;
+        const chkP = (k, label) => `<label class="fr-chk"><input type="checkbox" ${PD.codes.includes(k) ? 'checked' : ''} onchange="frTogglePerm('${k}',this.checked)">${esc(label)}</label>`;
         const lbl = k => (ABS_TYPES[k] || {}).label || SPECIAL_SUBCODES[k];
         const today = new Date(); today.setHours(0, 0, 0, 0); const end = new Date(today); end.setDate(end.getDate() + 90);
-        const active = drivers.filter(d => !d.hidden), stat = { ok:0, last:0, no:0 };
-        buildDaysIndex().filter(dd => dd.date >= today && dd.date <= end).forEach(dd => stat[ferieDay(dd, active, D).status]++);
+        const active = drivers.filter(d => !d.hidden), stat = { ok:0, last:0, no:0 }, statP = { ok:0, last:0, no:0, off:0 };
+        buildDaysIndex().filter(dd => dd.date >= today && dd.date <= end).forEach(dd => { stat[ferieDay(dd, active, D).status]++; statP[permDay(dd, active, null, D).status]++; });
         const P = feriePeriods(D, today, end);
         const rng = b => { const a = new Date(b.from + 'T00:00'), z = new Date((b.to || b.from) + 'T00:00'); return frShort(a, z); };
         main.innerHTML = `
@@ -4898,9 +4986,20 @@
                 <div class="fr-chks">${['p','pn','r','m','c','gr','ng','nl','z'].map(k => chk('blockCodes', k, lbl(k))).join('')}</div>
                 <div class="cc-inline-form" style="margin-top:14px"><label class="cc-field" style="max-width:230px">Quante se ne tollerano<input type="number" min="0" max="10" class="cc-input" value="${D.maxOther}" onchange="frSet('maxOther', this.value)"></label></div>
             </div></div>
-            <div class="cc-panel"><div class="cc-setting"><div><b>Rispetta la copertura minima</b><small>Sconsiglia i giorni in cui mattina, pomeriggio o notte sono già sotto la copertura minima (${coverageMin.M} / ${coverageMin.P} / ${coverageMin.N}, in Impostazioni).</small></div>
+            <div class="cc-panel"><div class="cc-setting"><div><b>Ferie: rispetta la copertura minima</b><small>Sconsiglia i giorni in cui mattina, pomeriggio o notte sono già sotto la copertura minima (${coverageMin.M} / ${coverageMin.P} / ${coverageMin.N}, in Impostazioni).</small></div>
                 <label class="cc-switch"><input type="checkbox" ${D.useCoverage ? 'checked' : ''} onchange="frSet('useCoverage', this.checked)"><span></span></label></div></div>
-            <div class="cc-panel"><div class="cc-panel-head"><h3>Periodi bloccati</h3><span class="cc-hint">ferie sconsigliate in queste date</span></div><div class="cc-panel-body">
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Permessi e recuperi (assenze di un giorno)</h3></div><div class="cc-panel-body">
+                <p class="cc-note" style="margin-bottom:12px">L’operatore vede i singoli giorni consigliati (Menu › Quando prendere un permesso). Se ha scelto il suo nome vede solo i giorni in cui lavora, e il giorno è sconsigliato se senza di lui il suo turno scende sotto la copertura minima.</p>
+                <div class="cc-inline-form">
+                    <label class="cc-field" style="max-width:220px">Massimo nello stesso giorno<input type="number" min="1" max="10" class="cc-input" value="${PD.max}" onchange="frSetPerm('max', this.value)"></label>
+                    <label class="cc-field" style="max-width:250px">Massimo assenti in totale (ferie comprese)<input type="number" min="1" max="20" class="cc-input" value="${PD.maxAbsent}" onchange="frSetPerm('maxAbsent', this.value)"></label>
+                </div>
+                <p class="cc-note" style="margin:14px 0 8px">Cosa conta come permesso di un giorno</p>
+                <div class="fr-chks">${['p','pn','r','c'].map(k => chkP(k, lbl(k))).join('')}</div>
+                <div class="cc-setting" style="padding:14px 0 0"><div><b>Rispetta la copertura minima</b><small>Il giorno è sconsigliato se il turno dell’operatore resterebbe sotto il minimo.</small></div>
+                    <label class="cc-switch"><input type="checkbox" ${PD.useCoverage ? 'checked' : ''} onchange="frSetPerm('useCoverage', this.checked)"><span></span></label></div>
+            </div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Periodi bloccati</h3><span class="cc-hint">ferie e permessi sconsigliati in queste date</span></div><div class="cc-panel-body">
                 ${D.blocked.length ? `<ul class="cc-list">${D.blocked.map((b, i) => `<li><span class="msym" style="color:var(--cc-neg)">event_busy</span><span class="cc-grow">${esc(rng(b))}<small>${esc(b.note || 'senza motivo indicato')}</small></span><button class="cc-btn ghost" onclick="frDelBlock(${i})" title="Togli"><span class="msym">delete</span></button></li>`).join('')}</ul>` : '<p class="cc-note">Nessun periodo bloccato.</p>'}
                 <div class="cc-inline-form" style="margin-top:14px">
                     <label class="cc-field" style="max-width:170px">Dal<input type="date" id="fr-from" class="cc-input"></label>
@@ -4910,8 +5009,11 @@
                 </div>
             </div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Anteprima dei prossimi 90 giorni</h3><span class="cc-hint">con le regole qui sopra</span></div><div class="cc-panel-body">
+                <p class="cc-note" style="margin-bottom:8px"><b>Ferie</b></p>
                 <div class="fr-kpis"><div class="ok"><b>${stat.ok}</b><small>giorni consigliati</small></div><div class="last"><b>${stat.last}</b><small>con un solo posto</small></div><div class="no"><b>${stat.no}</b><small>sconsigliati</small></div></div>
-                <p class="cc-note" style="margin-top:12px">${P.length ? 'Periodi consigliati: ' + P.slice(0, 6).map(p => esc(p.label) + ' (' + p.n + ' gg)').join(' · ') : 'Nessun periodo consigliato con queste regole.'}</p>
+                <p class="cc-note" style="margin-top:10px">${P.length ? 'Periodi consigliati: ' + P.slice(0, 6).map(p => esc(p.label) + ' (' + p.n + ' gg)').join(' · ') : 'Nessun periodo consigliato con queste regole.'}</p>
+                <p class="cc-note" style="margin:14px 0 8px"><b>Permessi e recuperi</b></p>
+                <div class="fr-kpis"><div class="ok"><b>${statP.ok}</b><small>giorni consigliati</small></div><div class="last"><b>${statP.last}</b><small>al limite</small></div><div class="no"><b>${statP.no}</b><small>sconsigliati</small></div></div>
             </div></div>
             <div class="fr-save"><button class="cc-btn ghost" onclick="frOpenOverview()"><span class="msym">visibility</span>Vedi nel calendario</button><button class="cc-btn primary" onclick="frSave()"><span class="msym">save</span>Salva le regole</button></div>`;
     }
@@ -4920,9 +5022,18 @@
         else frDraft[k] = Math.max(k === 'maxOther' ? 0 : 1, Math.min(k === 'minDays' ? 31 : 15, parseInt(v) || 0));
         renderCcFerie();
     }
+    function frSetPerm(k, v) {
+        if(k === 'useCoverage') frDraft.perm[k] = !!v;
+        else frDraft.perm[k] = Math.max(1, Math.min(k === 'maxAbsent' ? 20 : 10, parseInt(v) || 0));
+        renderCcFerie();
+    }
     function frToggle(list, k, on) {
         const s = new Set(frDraft[list]); if(on) s.add(k); else s.delete(k);
         frDraft[list] = [...s]; renderCcFerie();
+    }
+    function frTogglePerm(k, on) {
+        const s = new Set(frDraft.perm.codes); if(on) s.add(k); else s.delete(k);
+        frDraft.perm.codes = [...s]; renderCcFerie();
     }
     function frAddBlock() {
         const from = document.getElementById('fr-from').value, to = document.getElementById('fr-to').value || from;
@@ -4935,10 +5046,11 @@
     function frDelBlock(i) { frDraft.blocked.splice(i, 1); renderCcFerie(); }
     function frSave() {
         if(!frDraft.ferieCodes.length) { ccToast('Scegli almeno un tipo di assenza che conta come ferie.', true); return; }
+        if(!frDraft.perm.codes.length) { ccToast('Scegli almeno un tipo di permesso di un giorno.', true); return; }
         if(!fbReady) { ccToast('Nessuna connessione: regole non salvate, riprova tra poco.', true); return; }
         ferieRules = JSON.parse(JSON.stringify(frDraft));
         if(calOverview) renderOverview(true);
-        cfgRef('settings').set({ ferieRules }, { merge:true }).then(() => ccToast('Regole ferie salvate')).catch(() => ccToast('Salvataggio non riuscito.', true));
+        cfgRef('settings').set({ ferieRules }, { merge:true }).then(() => ccToast('Regole salvate')).catch(() => ccToast('Salvataggio non riuscito.', true));
     }
     function frOpenOverview() { closeCoordConsole(); setTimeout(() => setCalView('insieme', { advice:true }), 200); }
 
@@ -6255,7 +6367,7 @@
         operatori:    { title:'Operatori', sub:'Aggiungi, rimuovi, riordina le colonne o nascondi temporaneamente un operatore.' },
         ore:          { title:'Conteggio ore', sub:'Ore lavorate rispetto al contratto (6 giorni, 36 h), per settimana, mese e anno.' },
         reperibilita: { title:'Report reperibilità', sub:'Ore di reperibilità di ogni operatore, giorno per giorno, per l’ufficio personale.' },
-        ferie:        { title:'Regole ferie', sub:'Quante persone in ferie insieme, assenze incompatibili e periodi bloccati: gli operatori vedono i periodi consigliati.' },
+        ferie:        { title:'Regole ferie e permessi', sub:'Quante persone in ferie insieme, assenze incompatibili e periodi bloccati: gli operatori vedono i periodi consigliati.' },
         riportare:    { title:'Da riportare su Excel', sub:'Modifiche fatte nell\u2019app che vanno inserite anche nel file infermieri.xlsx.' },
         dati:         { title:'Dati e backup', sub:'Protezione dei turni: backup, copie automatiche, storico delle modifiche, anni e origine dei dati.' },
         impostazioni: { title:'Impostazioni', sub:'Coordinatore designato, consigli sulle ore, ruota e sessione.' }
