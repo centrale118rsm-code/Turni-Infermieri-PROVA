@@ -17,7 +17,7 @@
     <link rel="icon" type="image/png" href="logo.png">
     <title>INFERMIERI 2026</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -2808,7 +2808,7 @@
             }, { merge:true });
         } catch(e) { console.error("Errore scrittura sessione:", e); }
         sendHeartbeat();
-        setInterval(sendHeartbeat, 20000);
+        setInterval(sendHeartbeat, 45000);
         document.addEventListener('visibilitychange', sendHeartbeat);
         window.addEventListener('pagehide', () => {
             try {
@@ -2816,8 +2816,7 @@
             } catch(e) {}
         });
         listenConfigChanges();
-        listenIncomingRequests();
-        listenReperibilita();
+        listenReperibilita();   // le richieste in arrivo si ascoltano solo sul telefono del coordinatore
     }
 
     // Rete di sicurezza: se il browser ha cancellato i dati salvati sul dispositivo
@@ -2940,8 +2939,11 @@
         openIdentityModal();
     }
 
-    function sendHeartbeat() {
+    // Segnale "app aperta" per l'area admin: solo con l'app in primo piano (in background
+    // basta l'ultimo segnale di chiusura), per non consumare scritture Firebase inutili.
+    function sendHeartbeat(e) {
         if(!fbReady) return;
+        if(document.visibilityState !== 'visible' && !(e && e.type === 'visibilitychange')) return;
         db.collection('infermieri26_accessi').doc(sessionId).set({
             lastActive: firebase.firestore.FieldValue.serverTimestamp(),
             currentView: currentViewLabel,
@@ -3021,8 +3023,10 @@
     function normalizeNameForMatch(n) {
         return (n || "").toString().toUpperCase().trim();
     }
+    let richiesteListenerStarted = false;
     function checkIfIAmCoordinator() {
         isCoordinator = !!(userIdentity && coordinatorName && normalizeNameForMatch(userIdentity) === normalizeNameForMatch(coordinatorName));
+        if(isCoordinator && !richiesteListenerStarted && fbReady) { richiesteListenerStarted = true; listenIncomingRequests(); }
     }
 
     // ── Notifiche richieste in arrivo dal portale Richieste Infermieri ──────
@@ -3168,7 +3172,7 @@
         if(adminAccessDocs.length === 0) { c.innerHTML = `<div class="admin-empty"><span class="material-icons-round">devices_other</span><br>Nessun accesso registrato.</div>`; document.getElementById('admin-stat-online').innerText = 0; document.getElementById('admin-stat-total').innerText = 0; return; }
         let onlineCount = 0;
         c.innerHTML = adminAccessDocs.map(a => {
-            const isOnline = a.online && a.lastActive && (Date.now() - tsToMillis(a.lastActive)) < 60000;
+            const isOnline = a.online && a.lastActive && (Date.now() - tsToMillis(a.lastActive)) < 100000;
             if(isOnline) onlineCount++;
             const start = tsToMillis(a.startTime) || Date.now();
             const mainLabel = a.identity ? a.identity : 'Non identificato';
@@ -3201,7 +3205,7 @@
     function openAccessDetail(docId) {
         const a = adminAccessDocs.find(d => d.id === docId); if(!a) return;
         vibrate();
-        const isOnline = a.online && a.lastActive && (Date.now() - tsToMillis(a.lastActive)) < 60000;
+        const isOnline = a.online && a.lastActive && (Date.now() - tsToMillis(a.lastActive)) < 100000;
         const name = a.identity || 'Non identificato';
         document.getElementById('access-detail-name').innerText = name;
         document.getElementById('access-detail-avatar').innerText = name.substring(0,2).toUpperCase();
@@ -3471,7 +3475,7 @@
         }
     }
 
-    const audioGraziella = new Audio('graziella.mp3');
+    const audioGraziella = new Audio(); audioGraziella.preload = 'none'; audioGraziella.src = 'graziella.mp3';   // si scarica solo quando serve
     function playGraziella() {
         if(navigator.vibrate) navigator.vibrate(10);
         audioGraziella.currentTime = 0;
@@ -3767,13 +3771,17 @@
         } catch(e) {}
         const splashMinTime = new Promise(resolve => setTimeout(resolve, 2000));
         // l'Excel si scarica in parallelo; intanto si chiede a Firebase se i turni vivono ormai solo lì
-        const excelAttempt = (async () => {
+        // se l'ultima volta i turni erano già su Firebase, l'Excel (300 KB) non si scarica nemmeno
+        let lastDs = null; try { lastDs = localStorage.getItem('data_source_' + DATA_NS); } catch(e) {}
+        const fetchExcel = async () => {
             try { const response = await fetch(FILE_NAME); if(!response.ok) throw new Error("File mancante"); return await response.arrayBuffer(); }
             catch(e) { console.error(e); return null; }
-        })();
+        };
+        const excelAttempt = lastDs === 'firebase' ? null : fetchExcel();
         await waitForConfig(6000);
+        try { localStorage.setItem('data_source_' + DATA_NS, dataSourceMode); } catch(e) {}
         if(dataSourceMode === 'firebase') { await bootFirebaseMode(splashMinTime); return; }
-        const buffer = await excelAttempt;
+        const buffer = await (excelAttempt || fetchExcel());
         if(buffer) { bootMode = 'excel'; await loadWorkbook(buffer, splashMinTime); appBooted = true; }
         else {
             document.getElementById('splash-brand').style.display = 'none';
@@ -3911,6 +3919,7 @@
         // Si segue automaticamente la colonna dell'operatore identificato.
         if(!userIdentity || userIdentity === 'Ospite') return;
         if(typeof isViewingArchive === 'function' && isViewingArchive()) return;
+        if(!fbMonthsReady()) return;   // turni non ancora tutti arrivati: si ricontrolla quando ci sono
         const myDriver = drivers.find(d => d.name === userIdentity); if(!myDriver) return;
         const dIdx = myDriver.idx, orig = myDriver.originalName || myDriver.name;
         const current = {}, labels = {};
@@ -4678,19 +4687,24 @@
     // ═══ FERIE E PERMESSI: REGOLE E GIORNI CONSIGLIATI ═════════════════════
     // Le regole le decide il coordinatore (Area coordinatore > Regole ferie).
     // Ferie: periodi di più giorni. Permessi straordinari e recuperi: singoli giorni.
-    var PERM_DEFAULT = { max:1, maxAbsent:5, codes:['p','pn','r'], useCoverage:true };
-    var FERIE_DEFAULT = { max:3, ferieCodes:['f','v'], blockCodes:['p','pn'], maxOther:0, minDays:3, useCoverage:true, blocked:[], perm: Object.assign({}, PERM_DEFAULT) };
+    var PERM_DEFAULT = { max:1, codes:['p','pn','r'], useCoverage:true };
+    // totalMax: assenti al massimo nello stesso giorno fra tutte le assenze in totalCodes
+    // (ferie, permessi, recuperi, malattia...), vale sia per le ferie sia per i permessi.
+    var FERIE_DEFAULT = { max:3, totalMax:3, totalCodes:['f','v','p','pn','r','c','m','ng','nl'], ferieCodes:['f','v'], blockCodes:['p','pn'], maxOther:0, minDays:3, useCoverage:true, blocked:[], perm: Object.assign({}, PERM_DEFAULT) };
+    function frTotal(rules) { return { max: rules.totalMax || FERIE_DEFAULT.totalMax, codes: rules.totalCodes || FERIE_DEFAULT.totalCodes }; }
     var ferieRules = JSON.parse(JSON.stringify(FERIE_DEFAULT));
     const FR_SHIFT = { M:'mattina', P:'pomeriggio', N:'notte' };
     const FR_WORK = ['M','P','N','m','p','M+N'];
     function frBlockedOn(rules, dd) { const iso = ymd(dd.date); return (rules.blocked || []).find(b => b.from && b.from <= iso && iso <= (b.to || b.from)); }
     function ferieDay(dd, active, rules) {
         rules = rules || ferieRules;
-        const fer = [], oth = [], cnt = { M:0, P:0, N:0 };
+        const T = frTotal(rules);
+        const fer = [], oth = [], cnt = { M:0, P:0, N:0 }; let tot = 0;
         active.forEach(d => {
             const cell = finalData[dd.rowIdx][d.idx] || {};
             const sub = (cell.subV || '').toString().trim().toLowerCase();
             if(SPECIAL_SUBCODES[sub] !== undefined) {
+                if(T.codes.includes(sub)) tot++;
                 if(rules.ferieCodes.includes(sub)) fer.push(d);
                 else if(rules.blockCodes.includes(sub)) oth.push({ d, sub });
                 return;
@@ -4703,22 +4717,23 @@
         const reasons = [];
         if(bl) reasons.push('periodo bloccato dal coordinatore' + (bl.note ? ' (' + bl.note + ')' : ''));
         if(fer.length >= rules.max) reasons.push(`già ${fer.length} ${fer.length === 1 ? 'persona' : 'persone'} in ferie (massimo ${rules.max})`);
+        else if(tot >= T.max) reasons.push(`già ${tot} assenti in totale (massimo ${T.max})`);
         if(oth.length > rules.maxOther) oth.forEach(o => reasons.push(`${SPECIAL_SUBCODES[o.sub].toLowerCase()} di ${o.d.name}`));
         if(low.length) reasons.push('copertura già sotto il minimo: ' + low.map(k => FR_SHIFT[k]).join(', '));
-        const free = Math.max(0, rules.max - fer.length);
-        return { fer, oth, cnt, bl, reasons, free, status: reasons.length ? 'no' : (free <= 1 ? 'last' : 'ok') };
+        const free = Math.max(0, Math.min(rules.max - fer.length, T.max - tot));
+        return { fer, oth, cnt, bl, reasons, free, tot, status: reasons.length ? 'no' : (free <= 1 ? 'last' : 'ok') };
     }
     function permRules(rules) { return Object.assign({}, PERM_DEFAULT, (rules || ferieRules).perm || {}); }
     // Un giorno per un permesso straordinario o un recupero. Se si sa chi guarda (me),
     // conta solo se quel giorno lavora e se la sua assenza lascia il turno sotto il minimo.
     function permDay(dd, active, me, rules) {
-        rules = rules || ferieRules; const R = permRules(rules);
+        rules = rules || ferieRules; const R = permRules(rules), T = frTotal(rules);
         const perm = [], fer = [], absent = [], cnt = { M:0, P:0, N:0 };
         active.forEach(d => {
             const cell = finalData[dd.rowIdx][d.idx] || {};
             const sub = (cell.subV || '').toString().trim().toLowerCase();
             if(SPECIAL_SUBCODES[sub] !== undefined) {
-                absent.push(d);
+                if(T.codes.includes(sub)) absent.push(d);
                 if(R.codes.includes(sub)) perm.push(d); else if(rules.ferieCodes.includes(sub)) fer.push(d);
                 return;
             }
@@ -4731,7 +4746,7 @@
         let tight = false;
         if(bl) reasons.push('periodo bloccato dal coordinatore' + (bl.note ? ' (' + bl.note + ')' : ''));
         if(perm.length >= R.max) reasons.push(`già ${perm.length} con permesso o recupero (massimo ${R.max})`);
-        if(absent.length >= R.maxAbsent) reasons.push(`già ${absent.length} assenti in totale (massimo ${R.maxAbsent})`);
+        if(absent.length >= T.max) reasons.push(`già ${absent.length} assenti in totale (massimo ${T.max})`);
         if(R.useCoverage && (cnt.M + cnt.P + cnt.N) > 0) {
             if(myShift) (myShift === 'M+N' ? ['M','N'] : [myShift.toUpperCase()]).forEach(k => { if(cnt[k] - 1 < coverageMin[k]) reasons.push(`senza di te ${({ M:'la mattina', P:'il pomeriggio', N:'la notte' })[k]} scenderebbe a ${cnt[k] - 1} su ${coverageMin[k]}`); });
             else if(!me) { const low = ['M','P','N'].filter(k => cnt[k] < coverageMin[k]); if(low.length) reasons.push('copertura già sotto il minimo: ' + low.map(k => FR_SHIFT[k]).join(', ')); tight = ['M','P','N'].some(k => cnt[k] === coverageMin[k]); }
@@ -4739,7 +4754,7 @@
         let status;
         if(me && !myShift) status = 'off';
         else if(reasons.length) status = 'no';
-        else status = (R.max > 1 && perm.length === R.max - 1) || absent.length === R.maxAbsent - 1 || tight ? 'last' : 'ok';
+        else status = (R.max > 1 && perm.length === R.max - 1) || absent.length === T.max - 1 || tight ? 'last' : 'ok';
         return { perm, fer, absent, cnt, bl, reasons, myShift, meAbsent, free: Math.max(0, R.max - perm.length), status };
     }
     function frShort(a, b) {
@@ -4764,7 +4779,7 @@
         return out;
     }
     function ferieRulesText(r) {
-        const parts = [`massimo ${r.max} in ferie nello stesso giorno`];
+        const parts = [`massimo ${r.max} in ferie e ${frTotal(r).max} assenti in totale nello stesso giorno`];
         if(r.blockCodes.length) parts.push(`${r.maxOther ? 'al massimo ' + r.maxOther : 'nessun'} ${r.maxOther ? 'tra ' : ''}${r.blockCodes.map(k => SPECIAL_SUBCODES[k].toLowerCase()).join(', ')} nello stesso giorno`);
         if(r.useCoverage) parts.push('copertura minima rispettata');
         if((r.blocked || []).length) parts.push(r.blocked.length === 1 ? '1 periodo bloccato' : r.blocked.length + ' periodi bloccati');
@@ -4773,7 +4788,7 @@
     function frOrList(a) { return a.length > 1 ? a.slice(0, -1).join(', ') + ' o ' + a[a.length - 1] : (a[0] || ''); }
     function permRulesText(r) {
         const R = permRules(r);
-        const parts = [`al massimo ${R.max} con ${frOrList(R.codes.map(k => SPECIAL_SUBCODES[k].toLowerCase()))} nello stesso giorno`, `al massimo ${R.maxAbsent} assenti in totale`];
+        const parts = [`al massimo ${R.max} con ${frOrList(R.codes.map(k => SPECIAL_SUBCODES[k].toLowerCase()))} nello stesso giorno`, `al massimo ${frTotal(r).max} assenti in totale (ferie comprese)`];
         if(R.useCoverage) parts.push('copertura minima rispettata');
         if((r.blocked || []).length) parts.push(r.blocked.length === 1 ? '1 periodo bloccato' : r.blocked.length + ' periodi bloccati');
         return 'Regole del coordinatore: ' + parts.join(' · ') + '.';
@@ -4962,6 +4977,8 @@
         const main = document.getElementById('cc-main');
         if(!frDraft) frDraft = JSON.parse(JSON.stringify(ferieRules));
         frDraft.perm = Object.assign({}, PERM_DEFAULT, frDraft.perm || {});
+        if(!frDraft.totalMax) frDraft.totalMax = FERIE_DEFAULT.totalMax;
+        if(!Array.isArray(frDraft.totalCodes)) frDraft.totalCodes = FERIE_DEFAULT.totalCodes.slice();
         const D = frDraft, PD = D.perm;
         const chk = (list, k, label) => `<label class="fr-chk"><input type="checkbox" ${D[list].includes(k) ? 'checked' : ''} onchange="frToggle('${list}','${k}',this.checked)">${esc(label)}</label>`;
         const chkP = (k, label) => `<label class="fr-chk"><input type="checkbox" ${PD.codes.includes(k) ? 'checked' : ''} onchange="frTogglePerm('${k}',this.checked)">${esc(label)}</label>`;
@@ -4972,6 +4989,12 @@
         const P = feriePeriods(D, today, end);
         const rng = b => { const a = new Date(b.from + 'T00:00'), z = new Date((b.to || b.from) + 'T00:00'); return frShort(a, z); };
         main.innerHTML = `
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Assenti in totale nello stesso giorno</h3></div><div class="cc-panel-body">
+                <p class="cc-note" style="margin-bottom:12px">Limite unico per ferie, permessi, recuperi e le altre assenze scelte qui sotto: raggiunto questo numero, il giorno è sconsigliato sia per le ferie sia per i permessi.</p>
+                <div class="cc-inline-form"><label class="cc-field" style="max-width:220px">Massimo assenti nello stesso giorno<input type="number" min="1" max="15" class="cc-input" value="${frTotal(D).max}" onchange="frSet('totalMax', this.value)"></label></div>
+                <p class="cc-note" style="margin:14px 0 8px">Quali assenze contano nel totale</p>
+                <div class="fr-chks">${['f','v','p','pn','r','c','m','ng','nl','gr'].map(k => chk('totalCodes', k, lbl(k))).join('')}</div>
+            </div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Persone in ferie nello stesso giorno</h3></div><div class="cc-panel-body">
                 <p class="cc-note" style="margin-bottom:12px">Gli operatori vedono in verde i giorni consigliati, in giallo quelli con un solo posto libero e in rosso quelli sconsigliati (Menu › Quando prendere le ferie).</p>
                 <div class="cc-inline-form">
@@ -4992,7 +5015,6 @@
                 <p class="cc-note" style="margin-bottom:12px">L’operatore vede i singoli giorni consigliati (Menu › Quando prendere un permesso). Se ha scelto il suo nome vede solo i giorni in cui lavora, e il giorno è sconsigliato se senza di lui il suo turno scende sotto la copertura minima.</p>
                 <div class="cc-inline-form">
                     <label class="cc-field" style="max-width:220px">Massimo nello stesso giorno<input type="number" min="1" max="10" class="cc-input" value="${PD.max}" onchange="frSetPerm('max', this.value)"></label>
-                    <label class="cc-field" style="max-width:250px">Massimo assenti in totale (ferie comprese)<input type="number" min="1" max="20" class="cc-input" value="${PD.maxAbsent}" onchange="frSetPerm('maxAbsent', this.value)"></label>
                 </div>
                 <p class="cc-note" style="margin:14px 0 8px">Cosa conta come permesso di un giorno</p>
                 <div class="fr-chks">${['p','pn','r','c'].map(k => chkP(k, lbl(k))).join('')}</div>
@@ -5024,7 +5046,7 @@
     }
     function frSetPerm(k, v) {
         if(k === 'useCoverage') frDraft.perm[k] = !!v;
-        else frDraft.perm[k] = Math.max(1, Math.min(k === 'maxAbsent' ? 20 : 10, parseInt(v) || 0));
+        else frDraft.perm[k] = Math.max(1, Math.min(10, parseInt(v) || 0));
         renderCcFerie();
     }
     function frToggle(list, k, on) {
@@ -5046,6 +5068,7 @@
     function frDelBlock(i) { frDraft.blocked.splice(i, 1); renderCcFerie(); }
     function frSave() {
         if(!frDraft.ferieCodes.length) { ccToast('Scegli almeno un tipo di assenza che conta come ferie.', true); return; }
+        if(!frDraft.totalCodes.length) { ccToast('Scegli quali assenze contano nel totale.', true); return; }
         if(!frDraft.perm.codes.length) { ccToast('Scegli almeno un tipo di permesso di un giorno.', true); return; }
         if(!fbReady) { ccToast('Nessuna connessione: regole non salvate, riprova tra poco.', true); return; }
         ferieRules = JSON.parse(JSON.stringify(frDraft));
@@ -5060,17 +5083,19 @@
     // qualcosa è cambiato rispetto a quanto già pubblicato.
     let saldiTimer = null, saldiLast = null;
     function publishSaldiSoon() { clearTimeout(saldiTimer); saldiTimer = setTimeout(publishSaldi, 4000); }
+    // JSON con le chiavi in ordine: Firestore restituisce le mappe in un ordine diverso
+    function stableJson(o) { return JSON.stringify(o, (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((a, x) => (a[x] = v[x], a), {}) : v); }
     function publishSaldi() {
-        if(!fbReady || !appBooted || isViewingArchive() || !finalData.length) return;
+        if(!fbReady || !appBooted || isViewingArchive() || !finalData.length || !fbMonthsReady()) return;
         const all = buildDaysIndex(), operatori = {};
         drivers.forEach(d => {
             const a = absCountFor(d, all);
             operatori[d.originalName] = { name: d.name, co:{ used:a.allow.co, max:ABS_ALLOW.co }, str:{ used:a.allow.sp, max:ABS_ALLOW.sp }, pn:{ used:a.allow.pn, max:ABS_ALLOW.pn } };
         });
-        const json = JSON.stringify({ year: SHIFT_YEAR, operatori });
+        const json = stableJson({ year: SHIFT_YEAR, operatori });
         if(json === saldiLast) return;
         cfgRef('saldi').get().then(doc => {
-            const cur = doc.exists ? JSON.stringify({ year: doc.data().year, operatori: doc.data().operatori }) : null;
+            const cur = doc.exists ? stableJson({ year: doc.data().year, operatori: doc.data().operatori }) : null;
             saldiLast = json;
             if(cur === json) return;
             return cfgRef('saldi').set({ year: SHIFT_YEAR, operatori, updatedAt: new Date().toISOString() });
@@ -5804,8 +5829,10 @@
         const id = kind === 'daily' ? 'snap_' + ymd(now) : 'snap_' + ymd(now) + '_' + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0');
         const content = buildSnapshotContent(); content.kind = kind;
         const json = JSON.stringify(content);
-        if(json.length > 950000) { console.warn('Istantanea troppo grande:', json.length); return null; }
+        if(json.length > 950000) { console.warn('Istantanea troppo grande:', json.length); ccToast('Copia di sicurezza troppo grande per Firebase: scarica il backup completo da Dati e backup.', true); return null; }
         await cfgRef(id).set({ kind, createdAt: content.createdAt, size: json.length, data: json });
+        // indice leggero: per elencare le copie non serve scaricarle tutte (ognuna pesa centinaia di KB)
+        cfgRef('snapindex').set({ items: { [id]: { kind, createdAt: content.createdAt, size: json.length } } }, { merge:true }).catch(() => {});
         return id;
     }
     // Una copia al giorno (la prima volta che il coordinatore apre la console o salva) e pulizia
@@ -5817,12 +5844,30 @@
         const id = 'snap_' + ymd(new Date());
         cfgRef(id).get().then(d => d.exists ? null : takeSnapshot('daily')).then(() => {
             try { localStorage.setItem(key, '1'); } catch(e) {}
-            const old = new Date(); old.setDate(old.getDate() - 15);
-            cfgRef('snap_' + ymd(old)).delete().catch(() => {});
+            return cleanupDailySnapshots();
         }).catch(e => console.warn('Istantanea giornaliera non riuscita:', e));
+    }
+    // Toglie tutte le copie giornaliere più vecchie di 14 giorni (non solo quella di 15 giorni fa:
+    // se il coordinatore non apre l'app per un po' le vecchie non restano per sempre).
+    async function cleanupDailySnapshots() {
+        const limit = new Date(); limit.setDate(limit.getDate() - 14); const cut = 'snap_' + ymd(limit);
+        const list = await listSnapshots();
+        const old = list.filter(s => s.kind === 'daily' && /^snap_\d{4}-\d{2}-\d{2}$/.test(s.id) && s.id < cut);
+        for(const s of old) {
+            await cfgRef(s.id).delete().catch(() => {});
+            await cfgRef('snapindex').update({ ['items.' + s.id]: firebase.firestore.FieldValue.delete() }).catch(() => {});
+        }
     }
     async function listSnapshots() {
         const out = [];
+        try {   // prima l'indice (un solo documento piccolo)
+            const ix = await cfgRef('snapindex').get();
+            const items = ix.exists ? (ix.data().items || {}) : null;
+            if(items && Object.keys(items).length) {
+                Object.keys(items).forEach(id => out.push(Object.assign({ id }, items[id])));
+                return out.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+            }
+        } catch(e) {}
         try {
             const FP = firebase.firestore.FieldPath.documentId();
             const q = await db.collection('infermieri26_config').where(FP, '>=', DATA_NS + 'snap_').where(FP, '<', DATA_NS + 'snap_').get();
@@ -5832,6 +5877,8 @@
             for(let i = 0; i < 15; i++) { const dt = new Date(); dt.setDate(dt.getDate() - i); const id = 'snap_' + ymd(dt);
                 try { const d = await cfgRef(id).get(); if(d.exists) out.push({ id, kind: d.data().kind, createdAt: d.data().createdAt, size: d.data().size }); } catch(err) {} }
         }
+        // prima volta: si crea l'indice con le copie trovate
+        if(out.length && fbReady) { const items = {}; out.forEach(s => items[s.id] = { kind: s.kind || '', createdAt: s.createdAt || '', size: s.size || 0 }); cfgRef('snapindex').set({ items }, { merge:true }).catch(() => {}); }
         return out.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
     }
     // Ripristino: prima si salva una copia dello stato attuale, poi si riscrivono i dati.
@@ -5944,21 +5991,41 @@
         return rows;
     }
     let monthUnsubs = [];
+    // Stato di ogni mese del calendario su Firebase: 'wait' finché non arriva, 'ok', 'err'.
+    // Finché non sono arrivati tutti non si pubblicano i saldi e non si confrontano i turni
+    // per le notifiche (un mese mancante sembrerebbe "turni rimossi").
+    let fbMonthState = [];
+    function fbMonthsReady() { return dataSourceMode !== 'firebase' || isViewingArchive() || (fbMonthState.length === 12 && fbMonthState.every(s => s === 'ok')); }
+    let fbMonthsWarned = false;
+    function fbMonthsWarn() {
+        if(fbMonthsWarned || fbMonthsReady()) return; fbMonthsWarned = true;
+        const bad = fbMonthState.map((s, i) => s === 'ok' ? null : MONTH_NAMES_IT[i]).filter(Boolean);
+        ccToast(`Connessione lenta: ${bad.length === 12 ? 'i turni' : bad.join(', ')} ${bad.length === 1 ? 'arriva' : 'arrivano'} appena possibile`, true);
+    }
+    function fbMonthsAllLoaded() { fbMonthsWarned = false; publishSaldiSoon(); scheduleCheckSoon(); }
     function listenYearMonths(year, timeoutMs) {
         monthUnsubs.forEach(u => u()); monthUnsubs = [];
+        fbMonthState = Array(12).fill('wait');
         return new Promise(resolve => {
             let pending = 12, done = false;
             const finish = () => { if(!done) { done = true; resolve(); } };
             for(let m = 0; m < 12; m++) {
                 let first = true;
-                monthUnsubs.push(cfgRef(monthDocName(year, m)).onSnapshot(doc => {
+                monthUnsubs.push(cfgRef(monthDocName(year, m)).onSnapshot({ includeMetadataChanges: false }, doc => {
+                    // senza rete e senza copia sul dispositivo Firestore risponde "documento inesistente":
+                    // non è un mese vuoto, si aspetta il server
+                    if(!doc.exists && doc.metadata.fromCache) return;
                     const cells = doc.exists ? (doc.data().cells || {}) : {};
                     mergeRemoteOverrides(cells, k => keyMonthIdx(k) === m);
-                    if(first) { first = false; if(--pending === 0) finish(); }
+                    if(first) {
+                        first = false; fbMonthState[m] = 'ok';
+                        if(--pending === 0) { finish(); if(appBooted) fbMonthsAllLoaded(); }
+                        else if(done) refreshAfterRemoteOverrides();   // arrivato dopo l'avvio: si ridisegna subito
+                    }
                     else refreshAfterRemoteOverrides();
-                }, err => { console.error('Errore ascolto turni ' + monthDocName(year, m), err); if(first) { first = false; if(--pending === 0) finish(); } }));
+                }, err => { console.error('Errore ascolto turni ' + monthDocName(year, m), err); fbMonthState[m] = 'err'; if(first) { first = false; if(--pending === 0) finish(); } fbMonthsWarn(); }));
             }
-            setTimeout(finish, timeoutMs);
+            setTimeout(() => { finish(); if(pending > 0) fbMonthsWarn(); }, timeoutMs);
         });
     }
     async function bootFirebaseMode(splashMinTime) {
