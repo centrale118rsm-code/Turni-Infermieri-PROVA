@@ -683,7 +683,36 @@
         body.coord-edit-mode td[data-col] { position:relative; }
         body.coord-edit-mode .chk-flag { display:flex; position:absolute; top:1px; left:1px; z-index:5; width:16px; height:16px; border-radius:50%; background:#f59e0b; color:#fff; font-size:10px; font-weight:900; align-items:center; justify-content:center; box-shadow:0 0 0 2px var(--bg-card); pointer-events:auto; cursor:help; }
         body.coord-edit-mode .chk-flag.err { background:#dc2626; }
-        #abs-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6200; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #abs-modal, #eq-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6200; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #eq-modal.open { opacity:1; }
+        #eq-modal .modal-content { max-width:860px; max-height:94vh; }
+        #eq-modal.open .modal-content { transform:translateY(0); }
+        #eq-grid { overflow:visible; padding:0 12px 6px; }
+        .eq-table { width:100%; border-collapse:separate; border-spacing:0 5px; }
+        .eq-table thead tr { height:40px; } .eq-table tbody tr { height:46px; }
+        .eq-table thead th { position:static; background:none; height:auto; min-width:0; font-size:0.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--text-sec); padding:4px 6px; text-align:center; border:none; backdrop-filter:none; white-space:nowrap; cursor:pointer; }
+        .eq-table thead th::before { display:none; }
+        .eq-table thead th.on { color:var(--primary); }
+        .eq-table thead th small { display:block; font-weight:600; text-transform:none; letter-spacing:0; opacity:.8; }
+        .eq-table tbody td, .eq-table tbody th { height:auto; border:none; background:var(--bg-card); padding:6px; text-align:center; vertical-align:middle; }
+        .eq-table .eq-name { position:static; text-align:left; width:130px; min-width:130px; max-width:130px; border-radius:12px 0 0 12px; box-shadow:6px 0 8px -8px rgba(0,0,0,.35); }
+        .eq-table thead .eq-name { box-shadow:none; cursor:default; }
+        .eq-table tbody .eq-name span { font-weight:800; font-size:0.82rem; color:var(--text-main); }
+        .eq-table tbody .eq-name em { font-style:normal; font-size:0.6rem; font-weight:800; background:var(--primary); color:#fff; border-radius:4px; padding:0 5px; margin-left:4px; }
+        .eq-table tbody tr.me .eq-name { box-shadow:inset 3px 0 0 var(--primary), 6px 0 8px -8px rgba(0,0,0,.35); }
+        .eq-table tbody tr td:last-child { border-radius:0 12px 12px 0; }
+        .eq-c { position:relative; }
+        .eq-c b { position:relative; z-index:1; font-size:0.92rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
+        .eq-c i { position:absolute; left:6px; bottom:5px; height:3px; border-radius:2px; background:var(--border); max-width:calc(100% - 12px); }
+        .eq-c.hi { background:#fff1e6 !important; } .eq-c.hi b { color:#c2410c; } .eq-c.hi i { background:#fb923c; }
+        .eq-c.lo { background:#e8f4ff !important; } .eq-c.lo b { color:#1d4ed8; } .eq-c.lo i { background:#60a5fa; }
+        .eq-c.pos b { color:#15803d; } .eq-c.neg b { color:#b91c1c; }
+        body.dark-mode .eq-c.hi { background:rgba(251,146,60,.15) !important; } body.dark-mode .eq-c.lo { background:rgba(96,165,250,.15) !important; }
+        .eq-table tbody tr.eq-avg td, .eq-table tbody tr.eq-avg th { background:var(--bg); }
+        .eq-table tbody tr.eq-avg b, .eq-table tbody tr.eq-avg span { color:var(--text-sec); }
+        .eq-key { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-2px; }
+        .eq-key.hi { background:#fb923c; } .eq-key.lo { background:#60a5fa; }
+        @media (max-width:560px) { .eq-table .eq-name { width:92px; min-width:92px; max-width:92px; padding-left:8px; } .eq-table tbody .eq-name span { font-size:0.72rem; } .eq-table tbody .eq-name em { display:none; } }
         #abs-modal.open { opacity:1; }
         #abs-modal .modal-content { max-width:860px; max-height:94vh; }
         #abs-modal.open .modal-content { transform:translateY(0); }
@@ -2221,6 +2250,27 @@
 </div>
 
 <!-- ══════════════ CONTEGGIO ASSENZE ══════════════ -->
+<div id="eq-modal" onclick="closeEquity(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header hc-header-badge">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">balance</span> EQUITÀ DELL’ANNO</h3>
+                <span>Notti, weekend, festivi e reperibilità di ognuno, rispetto alla media</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeEquity()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="ab-toolbar">
+                <div class="ab-period">
+                    <button data-p="oggi" onclick="eqSetPeriod('oggi')">Fino a oggi</button>
+                    <button data-p="anno" onclick="eqSetPeriod('anno')">Anno intero</button>
+                </div>
+            </div>
+            <div class="hg-wrap" id="eq-grid"></div>
+            <p class="hg-note" id="eq-note"></p>
+        </div>
+    </div>
+</div>
 <div id="abs-modal" onclick="closeAbsModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header hc-header-badge">
@@ -2325,6 +2375,7 @@
                 <div class="cc-nav-group">Calendario</div>
                 <button data-sec="panoramica" onclick="ccGo('panoramica')"><span class="msym">space_dashboard</span><span>Panoramica</span></button>
                 <button data-sec="modifica" onclick="ccGo('modifica')"><span class="msym">edit_calendar</span><span>Modifica turni</span><span class="cc-count" id="cc-count-pending"></span></button>
+                <button data-sec="bozza" onclick="ccGo('bozza')"><span class="msym">event_upcoming</span><span>Bozza del mese</span></button>
                 <div class="cc-nav-group">Personale</div>
                 <button data-sec="operatori" onclick="ccGo('operatori')"><span class="msym">group</span><span>Operatori</span></button>
                 <button data-sec="ore" onclick="ccGo('ore')"><span class="msym">schedule</span><span>Conteggio ore</span></button>
@@ -3706,6 +3757,7 @@
             { id:'ferie', icon:'beach_access', label:'Ferie e permessi', desc:'Quando prenderli: giorni e periodi consigliati', color:'#16a34a', run: () => openFerieAdvice() },
             { id:'ore', icon:'query_stats', label:'Conteggio orario', desc:'Ore lavorate e saldo rispetto al contratto', color: MN_COLORS.ore, run: () => openHoursModal() },
             { id:'assenze', icon:'event_busy', label:'Conteggio assenze', desc:'C.O., permessi, malattia, domeniche e festivi lavorati', color:'#b45309', run: () => openAbsModal() },
+            { id:'equita', icon:'balance', label:'Equità dell’anno', desc:'Notti, weekend, festivi e reperibilità di ognuno', color:'#0f766e', run: () => openEquity() },
             { group:'Squadra' },
             { id:'share', icon:'share', label:'Condividi l’app', desc:'Mandala su WhatsApp a chi non ce l’ha', color:'#16a34a', stay:true, run: () => shareAppWhatsApp() },
             { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo e ruota della sfiga', color: MN_COLORS.svago, children: [
@@ -5265,7 +5317,7 @@
         }
         const out = [header], rowM = raw[1] || [], rowD = raw[2] || []; let month = '';
         for(let c = 2; c < rowD.length; c++) {
-            const mt = val(rowM[c]); if(typeof mt === 'string' && mt.trim()) { const p = mt.split('.')[0].trim().toUpperCase(); if(MONTH_MAP[p] !== undefined) month = p; }
+            const mt = val(rowM[c]); if(typeof mt === 'string' && mt.trim()) { const up = mt.toUpperCase(), p = Object.keys(MONTH_MAP).find(m => up.includes(m)); if(p) month = p; }
             const dn = parseInt(val(rowD[c])); if(!month || isNaN(dn) || dn < 1) continue;
             const line = [{ v: month }, { v: dn }, { v: '' }];
             people.forEach(p => line.push({ v: val(raw[p.idx] && raw[p.idx][c]), subV: p.sub && raw[p.sub] ? val(raw[p.sub][c]) : '' }));
@@ -5339,6 +5391,246 @@
             </div>`);
         }
         return box(cards.length ? cards.join('') : '<div class="ot-empty">Nessuno in questo turno</div>');
+    }
+
+    // ═══ EQUITÀ DELL'ANNO ════════════════════════════════════════════════
+    // Per ogni persona: notti, domeniche, sabati e festivi lavorati, reperibilità (turni da
+    // titolare e ore di fascia) e saldo ore. Ogni numero è confrontato con la media della
+    // squadra: arancione = oltre il 20% sopra, azzurro = oltre il 20% sotto.
+    let eqPeriod = 'oggi', eqSort = null;
+    const EQ_COLS = [
+        { k: 'notti', label: 'Notti', onlyDoers: true },
+        { k: 'dom', label: 'Domeniche' },
+        { k: 'sab', label: 'Sabati' },
+        { k: 'fest', label: 'Festivi' },
+        { k: 'repT', label: 'Reperibilità', sub: 'turni' },
+        { k: 'repH', label: 'Ore rep.', fmt: m => Math.round(m / 60) },
+        { k: 'saldo', label: 'Saldo ore', fmt: m => fmtHM(m, true) || '0:00', signed: true }
+    ];
+    function openEquity() {
+        closeMenu(); vibrate(); eqSort = null; renderEquity();
+        const m = document.getElementById('eq-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+        setCurrentView('Equità');
+    }
+    function closeEquity(e) { if(e && e.target !== e.currentTarget) return; const m = document.getElementById('eq-modal'); m.classList.remove('open'); setTimeout(() => { if(!m.classList.contains('open')) m.style.display = 'none'; }, 300); }
+    function eqSetPeriod(p) { vibrate(); eqPeriod = p; renderEquity(); }
+    function eqSortBy(k) { vibrate(); eqSort = eqSort === k ? null : k; renderEquity(); }
+    function computeEquity() {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const all = buildDaysIndex(), days = eqPeriod === 'oggi' ? all.filter(dd => dd.date <= today) : all;
+        const R = repData(), me = prefMe();
+        const rows = drivers.filter(d => !d.hidden).map(d => {
+            const r = { d, isMe: !!me && me.idx === d.idx, notti: 0, dom: 0, sab: 0, fest: 0, repT: 0, repH: 0, worked: 0 };
+            days.forEach(dd => {
+                const info = computeDayInfo(dd.rowIdx, d.idx); r.worked += info.minutes || 0;
+                const c = info.justified ? '' : info.code;
+                const works = ['M', 'P', 'N', 'M+N', 'm', 'p'].includes(c) || (info.custom && customCodes[c] && customCodes[c].kind === 'work');
+                if(works) {
+                    const g = dd.date.getDay();
+                    if(g === 0) r.dom++; if(g === 6) r.sab++;
+                    if(HOLIDAYS[`${dd.monthIdx}-${dd.day}`]) r.fest++;
+                    if(c === 'N' || c === 'M+N') r.notti++;
+                }
+                const iso = ymd(dd.date);
+                if(R.tit[iso] === d.originalName) r.repT++;
+                (R.days[iso] || []).forEach((who, s) => { if(who === d.originalName) r.repH += REP_SLOTS[s].minutes; });
+            });
+            r.saldo = r.worked - contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date));
+            return r;
+        });
+        const avg = {};
+        EQ_COLS.forEach(c => { const set = c.onlyDoers ? rows.filter(r => r[c.k] > 0) : rows; avg[c.k] = set.length ? set.reduce((a, r) => a + r[c.k], 0) / set.length : 0; });
+        return { rows, avg, days };
+    }
+    function renderEquity() {
+        const { rows, avg, days } = computeEquity();
+        document.querySelectorAll('#eq-modal .ab-period button').forEach(b => b.classList.toggle('active', b.dataset.p === eqPeriod));
+        let list = rows.slice();
+        if(eqSort) list.sort((a, b) => b[eqSort] - a[eqSort]); else list.sort((a, b) => b.isMe - a.isMe);
+        const max = {}; EQ_COLS.forEach(c => max[c.k] = Math.max(1, ...rows.map(r => Math.abs(r[c.k]))));
+        const cell = (c, r) => {
+            const v = r[c.k], txt = c.fmt ? c.fmt(v) : v;
+            if(c.signed) return `<td class="eq-c ${Math.abs(v) < 30 ? '' : (v < 0 ? 'neg' : 'pos')}"><b>${txt}</b></td>`;
+            let cls = '';
+            if(!(c.onlyDoers && v === 0) && avg[c.k] > 0) { const q = v / avg[c.k]; cls = q >= 1.2 ? 'hi' : (q <= 0.8 ? 'lo' : ''); }
+            return `<td class="eq-c ${cls}"><b>${txt}</b><i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></td>`;
+        };
+        const headL = `<th class="eq-name">${eqPeriod === 'oggi' ? 'Fino a oggi' : 'Anno ' + SHIFT_YEAR}</th>`;
+        const headR = EQ_COLS.map(c => `<th onclick="eqSortBy('${c.k}')" class="${eqSort === c.k ? 'on' : ''}">${c.label}${c.sub ? `<small>${c.sub}</small>` : ''}</th>`).join('');
+        const items = list.map(r => ({ attrs: `class="${r.isMe ? 'me' : ''}"`, left: `<th class="eq-name"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</th>`, right: EQ_COLS.map(c => cell(c, r)).join('') }));
+        items.push({ attrs: 'class="eq-avg"', left: '<th class="eq-name"><span>Media</span></th>', right: EQ_COLS.map(c => `<td class="eq-c"><b>${c.signed ? '' : (c.fmt ? c.fmt(avg[c.k]) : avg[c.k].toFixed(1))}</b></td>`).join('') });
+        document.getElementById('eq-grid').innerHTML = xgHtml('eq-table', headL, headR, items, 620);
+        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. <span class="eq-key hi"></span> oltre il 20% sopra la media della squadra, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti la media conta solo chi ne fa. Tocca un titolo di colonna per ordinare.`;
+    }
+
+    // ═══ BOZZA AUTOMATICA DEL MESE ═══════════════════════════════════════
+    // Continua la rotazione di ognuno guardando le 6 settimane prima del mese:
+    //  • turnisti: la fase nel ciclo P › M › N › SM › R (ogni giorno noto "vota" la fase);
+    //  • diurnisti: si ripete la settimana (o le due settimane) che spiega meglio le ultime 4.
+    // Non tocca mai le assenze; di norma riempie solo le caselle vuote. Poi chiude i buchi di
+    // copertura di mattina e pomeriggio richiamando chi è di riposo (senza scendere sotto i
+    // riposi settimanali). Autisti: cambio del turnista il lunedì dopo 5 settimane di blocco.
+    // Il risultato entra come modifiche NON salvate: si rivede nel calendario, poi Salva o Scarta.
+    const DRAFT_CYCLE = ['P', 'M', 'N', 'SM', 'R'];
+    const DRAFT_IS_AS = typeof TEAM_AS !== 'undefined' && TEAM_AS;
+    let draftOpts = { month: null, onlyEmpty: true, cover: true, blocks: true }, draftLast = null;
+    function draftCode(r, idx) {
+        const cell = finalData[r][idx] || {}, sub = String(cell.subV || '').trim().toLowerCase();
+        if(SPECIAL_SUBCODES[sub] !== undefined) return 'ABS';
+        let v = String(cell.v || '').trim(); const si = v.indexOf('/'); if(si !== -1) v = v.slice(0, si).trim();
+        if(!v || v === '-') return '';
+        if(/^[mpr]$/.test(v)) return v;
+        let u = v.toUpperCase(); if(u === 'S') u = 'SM'; if(u === 'MN') u = 'M+N';
+        if(customCodes[u]) return customCodes[u].kind === 'abs' ? 'ABS' : u;
+        return u;
+    }
+    function draftPlan(monthIdx, opts) {
+        if(DRAFT_IS_AS && typeof draftPlanAutisti === 'function') return draftPlanAutisti(monthIdx, opts);   // autisti: bozza costruita dalle regole
+        const days = buildDaysIndex(), i0 = days.findIndex(dd => dd.monthIdx === monthIdx);
+        if(i0 < 0) return null;
+        const target = days.filter(dd => dd.monthIdx === monthIdx);
+        const H = 42, hist = days.slice(Math.max(0, i0 - H), i0), longHist = days.slice(Math.max(0, i0 - 91), i0);
+        const active = drivers.filter(d => !d.hidden);
+        const cur = {}, plan = {}, kind = {}, smCode = {}, noPattern = [];
+        active.forEach(d => {
+            const h = hist.map(dd => draftCode(dd.rowIdx, d.idx));
+            cur[d.idx] = target.map(dd => draftCode(dd.rowIdx, d.idx));
+            smCode[d.idx] = hist.some(dd => String((finalData[dd.rowIdx][d.idx] || {}).v || '').trim().toUpperCase() === 'S') ? 'S' : 'SM';
+            const known = h.filter(c => c && c !== 'ABS').length;
+            const isTurn = h.slice(-14).some(c => c === 'N' || c === 'SM' || c === 'M+N');
+            const out = [];
+            if(known < 5) { plan[d.idx] = target.map(() => ''); kind[d.idx] = 'none'; noPattern.push(d.name); return; }   // nessuno schema recente (es. assente a lungo)
+            if(isTurn) {
+                const votes = [0, 0, 0, 0, 0];
+                // contano soprattutto gli ultimi giorni: il ciclo ogni tanto salta e le settimane vecchie sarebbero fuori fase
+                h.forEach((c, j) => { const p = DRAFT_CYCLE.indexOf(c); if(p >= 0) votes[((p - j) % 5 + 5) % 5] += Math.pow(2, (j - h.length) / 3); });
+                const phase = votes.indexOf(Math.max(...votes));
+                target.forEach((dd, k) => out.push(DRAFT_CYCLE[(phase + h.length + k) % 5]));
+                kind[d.idx] = 'turn';
+            } else {
+                const score = p => { let ok = 0, tot = 0; for(let j = Math.max(p, h.length - 28); j < h.length; j++) { const a = h[j], b = h[j - p]; if(!a || a === 'ABS' || !b || b === 'ABS') continue; tot++; if(a === b) ok++; } return tot ? ok / tot : 0; };
+                const per = score(14) > score(7) + 0.1 ? 14 : 7;
+                target.forEach((dd, k) => {
+                    let j = h.length + k - per, c = '';
+                    while(j >= 0) { c = j < h.length ? h[j] : out[j - h.length]; if(c && c !== 'ABS') break; j -= per; }
+                    out.push(c && c !== 'ABS' ? c : (dd.date.getDay() === 0 ? 'r' : 'm'));
+                });
+                kind[d.idx] = 'diur';
+            }
+            plan[d.idx] = out;
+        });
+        const swaps = [];
+        // Autisti: il turnista esce il lunedì dopo 5 settimane dall'inizio del blocco (lunedì pomeriggio)
+        if(DRAFT_IS_AS && opts.blocks) {
+            const lastTurnDay = idx => { for(let j = longHist.length - 1; j >= 0; j--) { const c = draftCode(longHist[j].rowIdx, idx); if(c === 'N' || c === 'SM') return j; } return -1; };
+            active.filter(d => kind[d.idx] === 'turn').forEach(d => {
+                const h = longHist.map(dd => draftCode(dd.rowIdx, d.idx));
+                let start = -1;
+                for(let j = h.length - 1; j > 0; j--) {
+                    if(h[j] !== 'P' || longHist[j].date.getDay() !== 1) continue;
+                    let prev = ''; for(let q = j - 1; q >= Math.max(0, j - 3) && !prev; q--) prev = h[q] === 'ABS' ? '' : h[q];
+                    if(/^[mpr]$/.test(prev)) { start = j; break; }
+                }
+                if(start < 0) return;
+                const exit = new Date(longHist[start].date); exit.setDate(exit.getDate() + 35);   // lunedì dopo il venerdì notte della 5ª settimana
+                let k = target.findIndex(dd => dd.date >= exit && dd.date.getDay() === 1);
+                if(k < 0) return;
+                const cands = active.filter(x => kind[x.idx] === 'diur' && !swaps.some(s => s.inIdx === x.idx)).map(x => ({ x, last: lastTurnDay(x.idx) })).sort((a, b) => a.last - b.last);
+                if(!cands.length) return;
+                const E = cands[0].x;
+                const leaving = plan[d.idx].slice(k), entering = plan[E.idx].slice(k);
+                plan[E.idx].splice(k, leaving.length, ...leaving); plan[d.idx].splice(k, entering.length, ...entering);
+                swaps.push({ outIdx: d.idx, inIdx: E.idx, date: target[k].date });
+            });
+        }
+        // caselle da scrivere
+        const fin = {}, write = {};
+        active.forEach(d => {
+            fin[d.idx] = cur[d.idx].slice(); write[d.idx] = [];
+            target.forEach((dd, k) => {
+                const c = cur[d.idx][k];
+                if(c === 'ABS') return;
+                if(c && opts.onlyEmpty) return;
+                if(plan[d.idx][k] && plan[d.idx][k] !== c) { fin[d.idx][k] = plan[d.idx][k]; write[d.idx][k] = plan[d.idx][k]; }
+                else if(!c) write[d.idx][k] = undefined;
+            });
+        });
+        // copertura: mattina e pomeriggio richiamando chi è di riposo (solo caselle che la bozza può scrivere)
+        const count = (k, what) => active.reduce((a, d) => { const c = fin[d.idx][k]; return a + (what === 'M' ? (c === 'M' || c === 'm' || c === 'M+N') : what === 'P' ? (c === 'P' || c === 'p') : (c === 'N' || c === 'M+N')); }, 0);
+        const minRest = DRAFT_IS_AS ? 2 : 1, recalls = [];
+        const weekRests = (idx, k) => { const mon = new Date(target[k].date); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7)); let n = 0; target.forEach((dd, q) => { if(dd.date >= mon && (dd.date - mon) < 7 * 86400000 && /^[rR]$/.test(fin[idx][q])) n++; }); return n; };
+        if(opts.cover) target.forEach((dd, k) => {
+            ['M', 'P'].forEach(sh => {
+                while(count(k, sh) < coverageMin[sh]) {
+                    const cands = active.filter(d => {
+                        const c = fin[d.idx][k]; if(!/^[rR]$/.test(c)) return false;
+                        if(cur[d.idx][k] && (opts.onlyEmpty || cur[d.idx][k] === 'ABS')) return false;   // casella già scritta: non si tocca
+                        const prev = k > 0 ? fin[d.idx][k - 1] : ''; if(prev === 'N' || prev === 'M+N') return false;
+                        if(kind[d.idx] === 'turn') return false;   // il riposo del turnista fa parte del ciclo
+                        return weekRests(d.idx, k) > minRest;
+                    }).sort((a, b) => weekRests(b.idx, k) - weekRests(a.idx, k));
+                    if(!cands.length) break;
+                    const d = cands[0]; fin[d.idx][k] = sh === 'M' ? 'm' : 'p'; write[d.idx][k] = fin[d.idx][k];
+                    recalls.push({ date: dd.date, shift: sh, name: d.name });
+                }
+            });
+        });
+        const holes = [];
+        target.forEach((dd, k) => ['M', 'P', 'N'].forEach(sh => { const n = count(k, sh); if(n < coverageMin[sh]) holes.push({ date: dd.date, shift: sh, have: n, need: coverageMin[sh] }); }));
+        // modifiche finali
+        const changes = [];
+        active.forEach(d => target.forEach((dd, k) => {
+            let c = write[d.idx][k]; if(!c) return;
+            if(c === 'SM') c = smCode[d.idx];
+            changes.push({ row: dd.rowIdx, col: d.idx, v: c });
+        }));
+        return { changes, holes, recalls, swaps, target, noPattern };
+    }
+    function draftApply() {
+        if(isViewingArchive()) { ccToast('Anno archiviato: non si può modificare.', true); return; }
+        const mi = draftOpts.month;
+        const res = draftPlan(mi, draftOpts);
+        if(!res) { ccToast('Il mese scelto non è nel calendario.', true); return; }
+        if(!res.changes.length) { ccToast('Niente da riempire: il mese è già completo.', true); draftLast = res; renderCcDraft(); return; }
+        if(!coordEditModeActive) toggleCoordEditMode(true);
+        const entries = [], keys = [];
+        res.changes.forEach(ch => { const key = cellKey(ch.row, ch.col), next = { v: ch.v, subV: '' }; const prev = setOverride(key, next); entries.push({ key, prev, next }); keys.push(key); });
+        pushUndo({ entries }); afterCoordChange(keys);
+        draftLast = res; renderCcDraft();
+        ccToast(`Bozza pronta: ${res.changes.length} caselle. Controllala nel calendario, poi Salva o Annulla.`);
+    }
+    function draftMonthsOptions() {
+        const now = new Date(), out = [];
+        for(let k = 0; k < 3; k++) { const d = new Date(now.getFullYear(), now.getMonth() + k, 1); if(d.getFullYear() === SHIFT_YEAR) out.push(d.getMonth()); }
+        return out.length ? out : [11];
+    }
+    function renderCcDraft() {
+        const main = document.getElementById('cc-main'); if(!main) return;
+        const months = draftMonthsOptions(); if(draftOpts.month === null || !months.includes(draftOpts.month)) draftOpts.month = months[Math.min(1, months.length - 1)];
+        const mName = m => MONTH_NAMES_IT[m].charAt(0).toUpperCase() + MONTH_NAMES_IT[m].slice(1);
+        const fmt = d => d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+        const sw = (k, t, s) => `<div class="cc-setting"><div><b>${t}</b><small>${s}</small></div><label class="cc-switch"><input type="checkbox" ${draftOpts[k] ? 'checked' : ''} onchange="draftOpts.${k}=this.checked"><span></span></label></div>`;
+        const r = draftLast;
+        main.innerHTML = `
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Mese da preparare</h3></div><div class="cc-panel-body">
+                <div class="fr-chks">${months.map(m => `<label class="fr-chk"><input type="radio" name="draft-m" ${draftOpts.month === m ? 'checked' : ''} onchange="draftOpts.month=${m}">${mName(m)} ${SHIFT_YEAR}</label>`).join('')}</div>
+                <p class="cc-note" style="margin-top:12px">${DRAFT_IS_AS
+                    ? 'La bozza segue le regole degli autisti: i 5 turnisti proseguono il ciclo pomeriggio › mattina › notte › smonto › riposo (una persona per posizione), i diurnisti coprono la seconda ambulanza di mattina e di pomeriggio con 2 riposi a settimana. Ogni assenza già inserita resta com’è. Le reperibilità non vengono toccate.'
+                    : 'La bozza continua la rotazione di ognuno partendo dalle 6 settimane prima del mese, lascia com’è ogni assenza già inserita (ferie, permessi…) e prova a chiudere i buchi di mattina e pomeriggio. Le reperibilità non vengono toccate.'}</p>
+            </div></div>
+            <div class="cc-panel">
+                ${sw('onlyEmpty', 'Riempi solo le caselle vuote', 'Spento: riscrive anche i turni già messi nel mese (le assenze restano sempre).')}
+                ${sw('cover', 'Completa la copertura', 'Richiama i diurnisti di riposo dove mancano persone, senza scendere sotto ' + (DRAFT_IS_AS ? '2 riposi' : '1 riposo') + ' a settimana.')}
+                ${DRAFT_IS_AS ? sw('blocks', 'Blocchi da turnista di 5 settimane', 'Il lunedì dopo la 5ª settimana il turnista torna diurnista ed entra il diurnista che non fa turni da più tempo.') : ''}
+            </div>
+            <div class="fr-save"><button class="cc-btn primary" onclick="draftApply()"><span class="msym">edit_calendar</span>Crea la bozza di ${mName(draftOpts.month)}</button></div>
+            ${r ? `<div class="cc-panel"><div class="cc-panel-head"><h3>Risultato</h3><span class="cc-hint">${r.changes.length} caselle proposte</span><button class="cc-link" onclick="enterCoordEdit()">Vedi nel calendario</button></div><div class="cc-panel-body">
+                ${r.noPattern && r.noPattern.length ? `<p class="cc-note" style="margin-bottom:8px"><b>Lasciati vuoti (nessun turno nelle ultime settimane):</b> ${r.noPattern.map(esc).join(', ')}</p>` : ''}
+                ${r.swaps.length ? `<p class="cc-note" style="margin-bottom:8px"><b>Cambi di blocco:</b> ${r.swaps.map(s => `${esc(getDriverByIdx(s.outIdx).name)} esce e entra ${esc(getDriverByIdx(s.inIdx).name)} (${fmt(s.date)})`).join(' · ')}</p>` : ''}
+                ${r.recalls.length ? `<p class="cc-note" style="margin-bottom:8px"><b>Richiamati dal riposo:</b> ${r.recalls.slice(0, 20).map(x => `${esc(x.name)} ${fmt(x.date)} (${x.shift === 'M' ? 'mattina' : 'pomeriggio'})`).join(' · ')}${r.recalls.length > 20 ? ' …' : ''}</p>` : ''}
+                ${r.holes.length ? `<ul class="cc-list">${r.holes.slice(0, 40).map(h => `<li><span class="msym" style="color:var(--cc-neg)">warning</span><span class="cc-grow">${fmt(h.date)}<small>${{ M: 'mattina', P: 'pomeriggio', N: 'notte' }[h.shift]}: ${h.have} su ${h.need}</small></span></li>`).join('')}</ul>` : '<div class="cc-empty"><span class="msym">verified</span>Nessun buco di copertura nel mese.</div>'}
+                <p class="cc-note" style="margin-top:10px">La bozza non è ancora salvata: in Modifica turni puoi ritoccarla con la ruota, poi Salva. Con Annulla (o uscendo e scegliendo Scarta) torna tutto com’era.</p>
+            </div></div>` : ''}`;
     }
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
@@ -6694,6 +6986,7 @@
     const CC_SECTIONS = {
         panoramica:   { title:'Panoramica', sub:'Chi è in turno, ore da tenere d\u2019occhio e cose da fare.' },
         modifica:     { title:'Modifica turni', sub:'Modifica il calendario con la ruota strumenti.' },
+        bozza:        { title:'Bozza del mese', sub:'Prepara in automatico i turni di un mese seguendo la rotazione, da rivedere prima di salvare.' },
         operatori:    { title:'Operatori', sub:'Aggiungi, rimuovi, riordina le colonne o nascondi temporaneamente un operatore.' },
         ore:          { title:'Conteggio ore', sub:'Ore lavorate rispetto al contratto (6 giorni, 36 h), per settimana, mese e anno.' },
         reperibilita: { title:'Report reperibilità', sub:'Ore di reperibilità di ogni operatore, giorno per giorno, per l’ufficio personale.' },
@@ -6719,7 +7012,7 @@
     function ccRenderSection() {
         const main = document.getElementById('cc-main'); if(!main) return;
         if(!finalData.length) { main.innerHTML = `<div class="cc-empty"><span class="msym">hourglass_top</span>Sto caricando il file dei turni…</div>`; return; }
-        ({ panoramica:renderCcOverview, modifica:renderCcEdit, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, ferie:renderCcFerie, riportare:renderCcSync, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
+        ({ panoramica:renderCcOverview, modifica:renderCcEdit, bozza:renderCcDraft, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, ferie:renderCcFerie, riportare:renderCcSync, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
         ccUpdateNavCounts();
     }
     function ccRefreshIfOpen() {
@@ -9494,6 +9787,7 @@
         'admin-panel-modal': closeAdminPanel,
         'hours-modal': closeHoursModal,
         'me-modal': closeMyPage,
+        'eq-modal': closeEquity,
         'ov-view': () => { if(document.getElementById('ov-sheet').classList.contains('open')) { ovCloseSheet(); setTimeout(syncModalHistoryState, 0); } else setCalView('dettaglio'); },
         'abs-modal': () => { if(absDetailIdx !== null) { absCloseDetail(); setTimeout(syncModalHistoryState, 0); } else closeAbsModal(); },
         'rep-edit-popup': closeRepEditPopup,
