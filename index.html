@@ -928,6 +928,19 @@
         .ov-per small { font-size:0.68rem; font-weight:600; white-space:nowrap; }
         .ov-per.last { border-color:#fde68a; background:#fffbeb; color:#92400e; }
         .ov-none { font-size:0.75rem; color:var(--text-sec); padding-top:8px; }
+        .ov-periods { flex-wrap:wrap; max-height:30vh; overflow-y:auto; }
+        .ov-adv-seg { display:inline-flex; gap:3px; padding:3px; margin-top:8px; background:var(--bg); border:1px solid var(--border); border-radius:10px; }
+        .ov-adv-seg button { height:30px; padding:0 12px; border:none; border-radius:8px; background:transparent; color:var(--text-sec); font:700 12px 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .ov-adv-seg button.on { background:#16a34a; color:#fff; }
+        .ov-months { display:flex; gap:6px; overflow-x:auto; padding-top:8px; -webkit-overflow-scrolling:touch; }
+        .ov-months button { flex:none; display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 10px; border-radius:999px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font:700 12px 'Plus Jakarta Sans',sans-serif; text-transform:capitalize; cursor:pointer; }
+        .ov-months button b { min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:#dcfce7; color:#166534; font-size:10.5px; line-height:18px; text-align:center; }
+        .ov-months button.on { background:#16a34a; border-color:#16a34a; color:#fff; }
+        .ov-months button.on b { background:rgba(255,255,255,.25); color:#fff; }
+        .ov-sum-line { font-size:0.74rem; font-weight:600; color:var(--text-sec); margin-top:8px; }
+        .ov-sum-line b { color:var(--text-main); }
+        .ov-sum-line .g { color:#15803d; } .ov-sum-line .y { color:#b45309; } .ov-sum-line .r { color:#b91c1c; }
+        body.dark-mode .ov-sum-line .g { color:#86efac; } body.dark-mode .ov-sum-line .y { color:#fcd34d; } body.dark-mode .ov-sum-line .r { color:#fca5a5; }
         body.dark-mode .ov-per { background:rgba(22,163,74,.15); color:#86efac; border-color:rgba(22,163,74,.4); }
         body.dark-mode .ov-per.last { background:rgba(245,158,11,.15); color:#fcd34d; border-color:rgba(245,158,11,.4); }
         .ov-scroll { flex:1; overflow:auto; -webkit-overflow-scrolling:touch; padding:0 4px 40px; }
@@ -4779,12 +4792,44 @@
         const btn = document.getElementById('ov-adv-btn'); if(btn) btn.classList.toggle('on', ovAdvice);
         if(!ovAdvice) { el.innerHTML = ''; return; }
         const today = new Date(); today.setHours(0, 0, 0, 0);
-        const P = feriePeriods(ferieRules, today);
+        const card = p => `<button class="ov-per ${p.minFree <= 1 ? 'last' : ''}" onclick="ovScrollTo('ov-r-${p.row}')"><b>${p.label}</b><small>${p.n} giorni · ${p.minFree <= 1 ? '1 posto libero' : 'almeno ' + p.minFree + ' posti'}</small></button>`;
+        // mesi ancora utili: da quello corrente (se l'anno è questo) a dicembre
+        const first = SHIFT_YEAR === today.getFullYear() ? today.getMonth() : (SHIFT_YEAR > today.getFullYear() ? 0 : 12);
+        const months = []; for(let m = first; m < 12; m++) months.push(m);
+        // giorni liberi per mese (da oggi in poi), per il numerino sui mesi e per il riepilogo
+        const active = drivers.filter(d => !d.hidden), byMonth = {};
+        buildDaysIndex().forEach(dd => {
+            if(dd.date < today) return;
+            const st = (ovInfo[dd.rowIdx] || ferieDay(dd, active)).status;
+            const b = byMonth[dd.monthIdx] = byMonth[dd.monthIdx] || { ok:0, last:0, no:0, free:[] };
+            b[st]++; if(st !== 'no') b.free.push(dd);
+        });
+        if(ovAdvMonth === null || !months.includes(ovAdvMonth)) ovAdvMonth = months.find(x => byMonth[x] && byMonth[x].free.length) ?? (months.length ? months[0] : 0);
+        const dayBtn = dd => `<button class="ov-per ${ovInfo[dd.rowIdx] && ovInfo[dd.rowIdx].status === 'last' ? 'last' : ''}" onclick="ovScrollTo('ov-r-${dd.rowIdx}')"><b>${frShort(dd.date)}</b><small>${dd.date.toLocaleDateString('it-IT', { weekday:'long' })}</small></button>`;
+        let list;
+        if(ovAdvMode === 'mese') {
+            const m = ovAdvMonth, from = new Date(SHIFT_YEAR, m, 1), to = new Date(SHIFT_YEAR, m + 1, 0);
+            const P = feriePeriods(ferieRules, from < today ? today : from, to), b = byMonth[m] || { ok:0, last:0, no:0, free:[] };
+            const mName = MONTH_NAMES_IT[m].charAt(0).toUpperCase() + MONTH_NAMES_IT[m].slice(1);
+            list = `<div class="ov-months">${months.map(x => { const n = (byMonth[x] || { free:[] }).free.length; return `<button class="${x === m ? 'on' : ''}" onclick="ovAdvSetMonth(${x})">${MONTH_NAMES_IT[x].slice(0, 3)}<b>${n}</b></button>`; }).join('')}</div>
+                <div class="ov-sum-line"><b>${mName}:</b> <span class="g">${b.ok} consigliati</span> · <span class="y">${b.last} con un solo posto</span> · <span class="r">${b.no} sconsigliati</span></div>
+                ${P.length ? `<div class="ov-periods">${P.map(card).join('')}</div>${(() => { const single = b.free.filter(dd => !P.some(p => dd.date >= p.start && dd.date <= p.end)); return single.length ? `<div class="ov-none">Altri giorni liberi (singoli o brevi):</div><div class="ov-periods">${single.map(dayBtn).join('')}</div>` : ''; })()}`
+                    : (b.free.length ? `<div class="ov-none">Nessun periodo di almeno ${ferieRules.minDays} giorni di fila. Giorni singoli disponibili:</div><div class="ov-periods">${b.free.map(dayBtn).join('')}</div>`
+                    : `<div class="ov-none">In ${MONTH_NAMES_IT[m]} non ci sono giorni disponibili per le ferie.</div>`)}`;
+        } else {
+            const P = feriePeriods(ferieRules, today);
+            list = P.length ? `<div class="ov-sum-line">${P.length} ${P.length === 1 ? 'periodo disponibile' : 'periodi disponibili'} da oggi a fine anno (di almeno ${ferieRules.minDays} giorni)</div><div class="ov-periods">${P.map(card).join('')}</div>`
+                : `<div class="ov-none">Da oggi a fine anno non ci sono periodi di almeno ${ferieRules.minDays} giorni senza ostacoli.</div>`;
+        }
         el.innerHTML = `<div class="ov-legend"><span><i style="background:#22c55e"></i>Consigliato</span><span><i style="background:#f59e0b"></i>Un solo posto libero</span><span><i style="background:#ef4444"></i>Sconsigliato</span><span style="margin-left:auto">tocca un giorno per i dettagli</span></div>
             <div class="ov-rules">${esc(ferieRulesText(ferieRules))}</div>
-            ${P.length ? `<div class="ov-periods">${P.slice(0, 40).map(p => `<button class="ov-per ${p.minFree <= 1 ? 'last' : ''}" onclick="ovScrollTo('ov-r-${p.row}')"><b>${p.label}</b><small>${p.n} giorni · ${p.minFree <= 1 ? '1 posto libero' : 'almeno ' + p.minFree + ' posti'}</small></button>`).join('')}</div>`
-                : `<div class="ov-none">Da oggi a fine anno non ci sono periodi di almeno ${ferieRules.minDays} giorni senza ostacoli.</div>`}`;
+            <div class="ov-adv-seg"><button class="${ovAdvMode === 'tutti' ? 'on' : ''}" onclick="ovAdvSetMode('tutti')">Tutti i periodi</button><button class="${ovAdvMode === 'mese' ? 'on' : ''}" onclick="ovAdvSetMode('mese')">Per mese</button></div>
+            ${list}`;
     }
+    // Posti disponibili: tutti i periodi da oggi, oppure un mese alla volta.
+    var ovAdvMode = 'tutti', ovAdvMonth = null;
+    function ovAdvSetMode(m) { vibrate(); ovAdvMode = m; renderOvAdvice(); if(m === 'mese') ovScrollTo('ov-m-' + ovAdvMonth); }
+    function ovAdvSetMonth(m) { vibrate(); ovAdvMonth = m; renderOvAdvice(); ovScrollTo('ov-m-' + m); }
     function ovScrollTo(id) {
         const sc = document.getElementById('ov-scroll'), el = document.getElementById(id); if(!sc || !el) return;
         const headH = (document.querySelector('#ov-table thead') || { offsetHeight:0 }).offsetHeight;
