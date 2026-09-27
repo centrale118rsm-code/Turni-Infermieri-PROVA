@@ -1011,6 +1011,27 @@
         .fr-kpis .ok { background:#dcfce7; color:#166534; } .fr-kpis .last { background:#fef3c7; color:#92400e; } .fr-kpis .no { background:#fee2e2; color:#991b1b; }
         .fr-save { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; margin:4px 0 20px; }
         .ov-table tr.flash td.ov-d { box-shadow: inset 0 0 0 2px #16a34a; }
+        /* i consigli scorrono insieme al calendario (prima restavano fissi e al calendario restavano pochi cm) */
+        .ov-scroll .ov-advice { border-bottom:none; background:var(--bg-card); border-radius:0 0 14px 14px; margin:0 -4px 6px; box-shadow:0 6px 14px -12px rgba(0,0,0,.4); }
+        @media (max-width:560px) { .ov-periods { max-height:24vh; } }
+
+        /* ══ iPhone / iPad ══ Safari soffre le sfocature (vetro smerigliato) e le ombre sugli
+           elementi fissi durante lo scorrimento: lì si tolgono, l'aspetto resta quasi uguale. */
+        html.ios *, html.ios *::before, html.ios *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+        html.ios tr.month-header td { box-shadow: 0 2px 0 rgba(0,0,0,0.12); }
+        html.ios #main-table thead th:first-child, html.ios #main-table .td-date { box-shadow: 4px 0 0 var(--bg); }
+        html.ios .cell { box-shadow: none; transition: none; }
+        html.ios tbody td { transition: none; }
+        html.ios .live-clock, html.ios .month-label { text-shadow: none; }
+        html.ios .live-clock { box-shadow: none; background: rgba(255,255,255,0.18); }
+        /* Animazioni continue solo sulla riga di oggi: ripetute su centinaia di caselle (REPERIBILE,
+           contatori a 3, bambino) costringevano il telefono a ridisegnare di continuo il calendario. */
+        #main-table .rep-text { animation: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        #main-table #today-row .rep-text { animation: repBlink 1.2s infinite ease-in-out; }
+        #main-table .dsc-alert-3 { animation: none; }
+        #main-table #today-row .dsc-alert-3 { animation: dscBlink 1s infinite; }
+        #main-table .baby-face { animation: none; }
+        #main-table #today-row .baby-face { animation: babyFloat 2s ease-in-out infinite; }
         .hg-note { font-size:0.72rem; color:var(--text-sec); line-height:1.45; padding:4px 18px 18px; margin:0; }
         .hc-header-badge .header-text span { color:#94a3b8; }
         .hc-header-badge .btn-close-modal { background:#1e293b; color:#fff; }
@@ -2648,8 +2669,7 @@
         <div class="ov-title"><b>Vista d’insieme</b><small id="ov-sub">Tutto l’anno</small></div>
         <button class="ov-btn" id="ov-adv-btn" onclick="ovToggleAdvice()"><span class="material-icons-round">beach_access</span><span class="l-long">Ferie e permessi</span><span class="l-short">Ferie</span></button>
     </div>
-    <div class="ov-advice" id="ov-advice"></div>
-    <div class="ov-scroll" id="ov-scroll"><div id="ov-body"></div></div>
+    <div class="ov-scroll" id="ov-scroll"><div class="ov-advice" id="ov-advice"></div><div id="ov-body"></div></div>
 </div>
 <div id="ov-sheet" class="ov-sheet" onclick="ovCloseSheet(event)"><div class="ov-sheet-card" id="ov-sheet-card" onclick="event.stopPropagation()"></div></div>
 
@@ -3549,6 +3569,9 @@
     // Ogni operatore ha le sue scelte (tema, calendario, notifiche...): si salvano sul
     // dispositivo sotto il suo nome e anche su Firebase, così le ritrova su ogni telefono
     // in cui sceglie il proprio nome. Chi non ha ancora scelto il nome usa "OSPITE".
+    // iPhone/iPad (anche iPad che si presenta come Mac): stile alleggerito, vedi html.ios nel CSS
+    var IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if(IS_IOS) document.documentElement.classList.add('ios');
     var PREF_DEFAULTS = {
         theme:'light', startPage:'calendario', startToday:true,
         myColFirst:false, highlightMe:true, showTimes:true, showRepBars:true, filter:null,
@@ -4249,13 +4272,24 @@
         const b = document.getElementById('driver-filter-badge'); if(!b) return;
         if(selectedDrivers.size > 0) b.classList.add('visible'); else b.classList.remove('visible');
     }
+    // Orologio nelle barre dei mesi: la struttura si crea una volta sola e ogni secondo si cambia
+    // solo il testo; mentre si scorre non si tocca niente (su iPhone ogni ridisegno fa scattare).
+    let clockLastScroll = 0;
+    window.addEventListener('scroll', () => { clockLastScroll = Date.now(); }, { passive:true });
     function startLiveClock() {
         setInterval(() => {
+            if(document.hidden) return;
             const now = new Date();
             const dateShort = now.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
             const hh = String(now.getHours()).padStart(2,'0'), mm = String(now.getMinutes()).padStart(2,'0'), ss = String(now.getSeconds()).padStart(2,'0');
-            document.querySelectorAll('.live-clock').forEach(el => {
-                el.innerHTML = `<span class="material-icons-round">schedule</span><span class="lc-date">${dateShort}</span><span class="lc-time">${hh}:${mm}<span class="lc-sec">:${ss}</span></span>`;
+            if(Date.now() - clockLastScroll > 400) document.querySelectorAll('.live-clock').forEach(el => {
+                if(!el._lc) {
+                    el.innerHTML = '<span class="material-icons-round">schedule</span><span class="lc-date"></span><span class="lc-time"><span class="lc-hm"></span><span class="lc-sec"></span></span>';
+                    el._lc = { d: el.querySelector('.lc-date'), hm: el.querySelector('.lc-hm'), s: el.querySelector('.lc-sec') };
+                }
+                if(el._lc.d.textContent !== dateShort) el._lc.d.textContent = dateShort;
+                if(el._lc.hm.textContent !== hh + ':' + mm) el._lc.hm.textContent = hh + ':' + mm;
+                el._lc.s.textContent = ':' + ss;
             });
             const dateEl = document.getElementById('options-live-date');
             const hmEl = document.getElementById('options-live-hm');
@@ -4807,12 +4841,14 @@
         document.body.classList.toggle('cal-overview', on);
         document.body.classList.toggle('ov-adv', on && ovAdvice);
         document.getElementById('ov-view').classList.toggle('open', on);
-        if(on) { renderOverview(); setTimeout(ovScrollToday, 30); setCurrentView('Vista d’insieme'); }
+        if(on) { renderOverview(); setTimeout(ovScrollStart, 30); setCurrentView('Vista d’insieme'); }
         else { ovCloseSheet(); setCurrentView('Tabella Turni'); }
     }
     function toggleCalView() { vibrate(); setCalView(calOverview ? 'dettaglio' : 'insieme'); }
     function openFerieAdvice(kind) { vibrate(); setCalView('insieme', { advice:true, kind: kind || 'ferie' }); }
-    function ovToggleAdvice() { vibrate(); ovAdvice = !ovAdvice; document.body.classList.toggle('ov-adv', ovAdvice); renderOvAdvice(); }
+    function ovToggleAdvice() { vibrate(); ovAdvice = !ovAdvice; document.body.classList.toggle('ov-adv', ovAdvice); renderOverview(); setTimeout(ovScrollStart, 30); }
+    // con i consigli si parte dall'alto (consigli e subito sotto il mese corrente), senza si va a oggi
+    function ovScrollStart() { if(ovAdvice) { const sc = document.getElementById('ov-scroll'); if(sc) sc.scrollTop = 0; } else ovScrollToday(); }
     function ovAdvSetKind(k) { vibrate(); if(ovAdvKind === k) return; ovAdvKind = k; ovAdvMonth = null; renderOverview(true); }
     function renderOverviewSoon() { clearTimeout(ovRenderTimer); ovRenderTimer = setTimeout(() => { if(calOverview) renderOverview(true); }, 250); }
     function renderOverview(keepScroll) {
@@ -4825,7 +4861,10 @@
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const head = `<tr><th class="ov-d">Giorno</th>${active.map(d => `<th class="ov-op ${me && d.idx === me.idx ? 'me' : ''}" title="${esc(d.name)}"><span>${esc(d.name)}</span></th>`).join('')}<th class="ov-s" title="${perm ? 'Persone con permesso o recupero' : 'Persone in ferie'}">${perm ? 'Perm.' : 'Ferie'}</th></tr>`;
         let html = '', lastM = -1; ovInfo = {};
+        // con i consigli ferie/permessi i mesi passati non servono: si parte dal mese corrente
+        const fromDate = ovAdvice && SHIFT_YEAR === today.getFullYear() ? new Date(SHIFT_YEAR, today.getMonth(), 1) : null;
         buildDaysIndex().forEach(dd => {
+            if(fromDate && dd.date < fromDate) return;
             if(dd.monthIdx !== lastM) {
                 lastM = dd.monthIdx;
                 html += `<tr class="ov-mh" id="ov-m-${lastM}"><td colspan="${active.length + 2}">${MONTH_NAMES_IT[lastM]} ${SHIFT_YEAR}</td></tr>`;
