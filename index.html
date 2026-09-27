@@ -2034,7 +2034,7 @@
                 </div>
                 <div class="ab-kpis" id="ab-kpis"></div>
                 <div class="hg-wrap" id="ab-grid"></div>
-                <p class="hg-note">Ogni anno: 31 giorni di congedo ordinario, 6 permessi speciali e 2 permessi notte (un permesso notte usa anche un permesso speciale). Le assenze che cadono su un riposo non contano. Tocca un operatore per il dettaglio.</p>
+                <p class="hg-note">Ogni anno: 31 giorni di congedo ordinario, 6 permessi straordinari e 2 permessi notte (un permesso notte usa anche un permesso straordinario). Le assenze che cadono su un riposo non contano. Tocca un operatore per il dettaglio.</p>
             </div>
             <div id="ab-view-detail" style="display:none"></div>
         </div>
@@ -4252,12 +4252,12 @@
     }
     // ═══ CONTEGGIO ASSENZE ═══════════════════════════════════════════════
     // Giorni per tipo di assenza (codice sotto il turno) e giornate particolari lavorate.
-    // Spettanze annue: 31 giorni di C.O., 6 permessi speciali, 2 permessi notte; ogni
-    // permesso notte consuma anche un permesso speciale.
+    // Spettanze annue: 31 giorni di C.O., 6 permessi straordinari, 2 permessi notte; ogni
+    // permesso notte consuma anche un permesso straordinario.
     const ABS_ALLOW = { co:31, sp:6, pn:2 };
     const ABS_TYPES = {
         f:  { label:'Congedo ordinario', short:'C.O.',          color:'--bg-cong' },
-        p:  { label:'Permessi speciali', short:'Perm. speciali', color:'--bg-perm' },
+        p:  { label:'Permessi straordinari', short:'Perm. straord.', color:'--bg-perm' },
         pn: { label:'Permessi notte',    short:'Perm. notte',   color:'--bg-pn' },
         m:  { label:'Malattia',          short:'Malattia',      color:'--bg-mal' },
         r:  { label:'Recuperi',          short:'Recuperi',      color:'--bg-rec' },
@@ -4330,10 +4330,10 @@
         const rows = computeAbsences(), year = absPeriod === 'anno';
         const sum = k => rows.reduce((a, r) => a + (r.counts[k] || 0), 0);
         document.getElementById('ab-kpis').innerHTML = [
-            ['f', 'giorni di C.O.'], ['m', 'giorni di malattia'], ['p', 'permessi speciali'], ['dom', 'domeniche lavorate']
+            ['f', 'giorni di C.O.'], ['m', 'giorni di malattia'], ['p', 'permessi straordinari'], ['dom', 'domeniche lavorate']
         ].map(([k, l]) => `<div class="ab-kpi"><b>${sum(k)}</b><small><i style="background:${typeColor(k)}"></i>${l}</small></div>`).join('');
         const otherShown = rows.some(r => ABS_OTHER.some(k => r.counts[k]));
-        const head = `<tr><th class="ab-op">${year ? 'Anno ' + SHIFT_YEAR : mName}</th><th>C.O.</th><th>Perm. speciali</th><th>Perm. notte</th><th>Malattia</th><th>Recuperi</th><th>Ferie res.</th>${otherShown ? '<th>Altre</th>' : ''}<th>Totale</th><th class="ab-sep">Domeniche</th><th>Festivi</th><th>Notti</th></tr>`;
+        const head = `<tr><th class="ab-op">${year ? 'Anno ' + SHIFT_YEAR : mName}</th><th>C.O.</th><th>Perm. straord.</th><th>Perm. notte</th><th>Malattia</th><th>Recuperi</th><th>Ferie res.</th>${otherShown ? '<th>Altre</th>' : ''}<th>Totale</th><th class="ab-sep">Domeniche</th><th>Festivi</th><th>Notti</th></tr>`;
         const body = rows.map(r => {
             const c = k => r.counts[k] || 0, other = ABS_OTHER.reduce((a, k) => a + c(k), 0);
             return `<tr onclick="absOpenDetail(${r.d.idx})">
@@ -4389,7 +4389,7 @@
                 <span class="ab-av">${esc(absInitials(d.name))}</span><div><b>${esc(d.name)}</b><small>Anno ${SHIFT_YEAR} \u00b7 ${r.total} giorni di assenza</small></div></div>
             <div class="abd-counters">
                 ${counter('f', r.allow.co, ABS_ALLOW.co, 'Congedo ordinario')}
-                ${counter('p', r.allow.sp, ABS_ALLOW.sp, 'Permessi speciali', (r.counts.pn || 0) ? `di cui ${r.counts.pn} per permessi notte` : '')}
+                ${counter('p', r.allow.sp, ABS_ALLOW.sp, 'Permessi straordinari', (r.counts.pn || 0) ? `di cui ${r.counts.pn} per permessi notte` : '')}
                 ${counter('pn', r.allow.pn, ABS_ALLOW.pn, 'Permessi notte')}
             </div>
             <div class="abd-list">
