@@ -617,6 +617,34 @@
         #admin-panel-modal.open .modal-content { transform:translateY(0); }
 
         /* ── CONTEGGIO ORARIO ──────────────────────────────────────────────── */
+        #abs-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6200; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #abs-modal.open { opacity:1; }
+        #abs-modal .modal-content { max-width:860px; max-height:94vh; }
+        #abs-modal.open .modal-content { transform:translateY(0); }
+        .ab-period { display:flex; justify-content:center; gap:6px; padding:12px 16px 0; }
+        .ab-period button { height:34px; padding:0 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-sec); font-weight:700; font-size:0.8rem; cursor:pointer; font-family:inherit; }
+        .ab-period button.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+        .ab-table { width:100%; border-collapse:separate; border-spacing:0 5px; }
+        .ab-table thead th { position:static; background:none; height:auto; min-width:0; border:none; backdrop-filter:none; font-size:0.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.03em; color:var(--text-sec); padding:4px 4px 6px; text-align:center; white-space:normal; line-height:1.15; vertical-align:bottom; }
+        .ab-table thead th::before { display:none; }
+        .ab-table thead th i { display:block; width:18px; height:6px; border-radius:3px; margin:0 auto 4px; }
+        .ab-table thead th.ab-grp { border-left:2px solid var(--border); }
+        .ab-table tbody td, .ab-table tbody th { height:auto; border:none; padding:8px 4px; text-align:center; background:var(--bg-card); font-variant-numeric:tabular-nums; }
+        .ab-table tbody td { font-weight:800; font-size:0.9rem; color:var(--text-main); cursor:pointer; min-width:48px; }
+        .ab-table tbody td.zero { color:var(--border); font-weight:600; cursor:default; }
+        .ab-table tbody td.ab-grp { border-left:2px solid var(--border); }
+        .ab-table tbody td.ab-tot { color:var(--primary); font-size:1rem; }
+        .ab-table tbody td.sel { outline:2px solid var(--primary); outline-offset:-2px; }
+        .ab-table .ab-name { position:sticky; left:0; z-index:2; text-align:left; min-width:118px; border-radius:12px 0 0 12px; box-shadow:4px 0 8px -6px rgba(0,0,0,.25); cursor:default; }
+        .ab-table thead .ab-name { background:var(--bg-card); box-shadow:none; top:auto; }
+        .ab-table tbody .ab-name span { display:block; font-weight:800; font-size:0.82rem; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .ab-table tbody .ab-name em { font-style:normal; font-size:0.6rem; font-weight:800; background:var(--primary); color:#fff; border-radius:4px; padding:0 5px; }
+        .ab-table tbody tr td:last-child { border-radius:0 12px 12px 0; }
+        .ab-detail { margin:4px 14px 8px; padding:12px 14px; border-radius:14px; background:var(--bg); border:1px solid var(--border); display:none; }
+        .ab-detail.show { display:block; }
+        .ab-detail b { font-size:0.88rem; color:var(--text-main); }
+        .ab-detail .ab-days { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+        .ab-detail .ab-days span { font-size:0.74rem; font-weight:700; padding:3px 8px; border-radius:999px; background:var(--bg-card); border:1px solid var(--border); color:var(--text-main); }
         #hours-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:6200; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
         #hours-modal.open { opacity:1; }
         #hours-modal .modal-content { max-width:680px; max-height:94vh; }
@@ -678,7 +706,7 @@
         body.dark-mode .hg-table small.neg { color:#fca5a5; } body.dark-mode .hg-table small.pos { color:#86efac; }
         .hg-table td.fut b { opacity:.7; font-style:italic; }
         .hg-table .hg-name { position:sticky; left:0; z-index:2; text-align:left; background:var(--bg-card); min-width:118px; max-width:130px; cursor:pointer; border-radius:12px 0 0 12px; box-shadow:4px 0 8px -6px rgba(0,0,0,.25); }
-        .hg-table thead .hg-name { background:var(--bg-card); box-shadow:none; }
+        .hg-table thead .hg-name { background:var(--bg-card); box-shadow:none; top:auto; }
         .hg-table tbody .hg-name span { display:block; font-weight:800; font-size:0.82rem; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .hg-table tbody .hg-name small { display:block; font-size:0.66rem; color:var(--text-sec); font-weight:600; }
         .hg-table tbody .hg-name em { font-style:normal; font-size:0.6rem; font-weight:800; background:var(--primary); color:#fff; border-radius:4px; padding:0 5px; margin-left:4px; }
@@ -1909,6 +1937,33 @@
 </div>
 
 <div id="admin-save-toast" class="admin-save-toast"><span class="material-icons-round">check_circle</span> <span id="admin-save-toast-text">Salvato</span></div>
+
+<!-- ══════════════ CONTEGGIO ASSENZE ══════════════ -->
+<div id="abs-modal" onclick="closeAbsModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header hc-header-badge">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">event_busy</span> CONTEGGIO ASSENZE</h3>
+                <span>Congedi, permessi, malattie e giornate particolari</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeAbsModal()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="ab-period">
+                <button data-p="anno" onclick="absSetPeriod('anno')">Tutto l’anno</button>
+                <button data-p="mese" onclick="absSetPeriod('mese')">Un mese</button>
+            </div>
+            <div class="hg-nav" id="ab-nav">
+                <button class="hg-nav-btn" onclick="absNav(-1)" aria-label="Precedente"><span class="material-icons-round">chevron_left</span></button>
+                <div class="hg-month" id="ab-label"></div>
+                <button class="hg-nav-btn" onclick="absNav(1)" aria-label="Successivo"><span class="material-icons-round">chevron_right</span></button>
+            </div>
+            <div class="hg-wrap" id="ab-grid"></div>
+            <div class="ab-detail" id="ab-detail"></div>
+            <p class="hg-note">Giorni per tipo. Le assenze che cadono su un riposo (es. “C.O. + riposo”) non vengono contate. A destra: domeniche e festivi in cui si è lavorato e notti fatte. Tocca un numero per vedere i giorni.</p>
+        </div>
+    </div>
+</div>
 
 <!-- ══════════════ CONTEGGIO ORARIO ══════════════ -->
 <div id="hours-modal" onclick="closeHoursModal(event)">
@@ -3263,6 +3318,7 @@
                 hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Consulta gli anni archiviati (sola lettura)', color: MN_COLORS.cal, run: () => openYearPicker() } : null
             ] },
             { id:'ore', icon:'query_stats', label:'Conteggio orario', desc:'Ore lavorate e saldo rispetto al contratto', color: MN_COLORS.ore, run: () => openHoursModal() },
+            { id:'assenze', icon:'event_busy', label:'Conteggio assenze', desc:'C.O., permessi, malattia, domeniche e festivi lavorati', color:'#b45309', run: () => openAbsModal() },
             { group:'Squadra' },
             { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo e ruota della sfiga', color: MN_COLORS.svago, children: [
                 { id:'dinner', icon:'restaurant', label:'Organizza un\u2019uscita', desc:'Chi è libero per colazione, pranzo, cena…', color: MN_COLORS.svago, run: () => openDinnerModal() },
@@ -4089,8 +4145,17 @@
                 let key = overrideKey(origName, mName, dNum, shiftRowYear(r));
                 let ov = manualOverrides[key];
                 if(ov) row[i] = Object.assign({}, row[i], { v: ov.v, subV: ov.subV || "", overridden:true, customMinutes: ov.customMinutes });
+                row[i] = normalizeWrittenAbsence(row[i]);
             }
         }
+    }
+    // Assenze scritte per esteso nella casella (es. "gravidanza") invece del codice sotto il
+    // turno: vengono trattate come il codice corrispondente (colore, ore, conteggio assenze).
+    const WRITTEN_ABSENCES = { gravidanza:'gr', maternita:'gr', 'maternità':'gr', malattia:'m', ferie:'v', congedo:'f', 'congedo ordinario':'f', recupero:'r', permesso:'p' };
+    function normalizeWrittenAbsence(cell) {
+        if(!cell || (cell.subV || '').toString().trim()) return cell;
+        const code = WRITTEN_ABSENCES[(cell.v || '').toString().trim().toLowerCase()];
+        return code ? Object.assign({}, cell, { v:'', subV: code, writtenAs: cell.v }) : cell;
     }
 
     // ── Modale Conteggio Orario: elenco operatori ────────────────────────────
@@ -4109,6 +4174,93 @@
         setTimeout(()=>m.style.display='none',300);
         if(hoursChartInstance) { hoursChartInstance.destroy(); hoursChartInstance = null; }
     }
+    // ═══ CONTEGGIO ASSENZE ═══════════════════════════════════════════════
+    // Giorni per tipo di assenza (codice sotto il turno) e giornate particolari lavorate.
+    const ABS_COLS = [
+        { k:'f',  label:'C.O.',            color:'--bg-cong' },
+        { k:'v',  label:'Ferie residue',   color:'--bg-ferie' },
+        { k:'r',  label:'Recuperi',        color:'--bg-rec' },
+        { k:'p',  label:'Permessi',        color:'--bg-perm' },
+        { k:'c',  label:'Perm. studio',    color:'--bg-stu' },
+        { k:'pn', label:'Perm. notte',     color:'--bg-pn' },
+        { k:'m',  label:'Malattia',        color:'--bg-mal' },
+        { k:'gr', label:'Gravidanza',      color:null },
+        { k:'ng', label:'Festivi non goduti', color:'--bg-ng' },
+        { k:'nl', label:'Festivi non lavorati', color:'--bg-nl' },
+        { k:'z',  label:'Sostituz. coord.', color:'--bg-coord' }
+    ];
+    const ABS_ALWAYS = ['f', 'p', 'm'];
+    const WORK_COLS = [
+        { k:'dom',   label:'Domeniche lavorate' },
+        { k:'fest',  label:'Festivi lavorati' },
+        { k:'notti', label:'Notti' }
+    ];
+    let absPeriod = 'anno', absMonth = new Date().getMonth(), absSel = null;
+    function openAbsModal() {
+        closeMenu(); vibrate();
+        const now = new Date(); absMonth = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : 0; absSel = null;
+        renderAbsences();
+        const m = document.getElementById('abs-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+        setCurrentView('Conteggio assenze');
+    }
+    function closeAbsModal(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('abs-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+    }
+    function absSetPeriod(p) { vibrate(); absPeriod = p; absSel = null; renderAbsences(); }
+    function absNav(d) { vibrate(); absMonth = Math.min(11, Math.max(0, absMonth + d)); absSel = null; renderAbsences(); }
+    const WORK_SHIFTS = new Set(['M', 'P', 'N', 'M+N', 'm', 'p']);
+    function computeAbsences() {
+        const days = buildDaysIndex().filter(dd => absPeriod === 'anno' || dd.monthIdx === absMonth);
+        const me = userIdentity ? userIdentity.toUpperCase() : '';
+        return drivers.filter(d => !d.hidden).map(d => {
+            const counts = {}, dates = {};
+            const add = (k, dd) => { counts[k] = (counts[k] || 0) + 1; (dates[k] = dates[k] || []).push(dd.date); };
+            days.forEach(dd => {
+                const cell = finalData[dd.rowIdx][d.idx] || {};
+                const sub = (cell.subV || '').toString().trim().toLowerCase();
+                let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
+                const isRest = /^r(iposo)?$/i.test(v);
+                if(SPECIAL_SUBCODES[sub] !== undefined) { if(!isRest) add(sub, dd); return; }   // assenza su un riposo: non conta
+                const info = computeDayInfo(dd.rowIdx, d.idx);
+                if(!WORK_SHIFTS.has(info.code) || !info.minutes) return;
+                if(dd.date.getDay() === 0) add('dom', dd);
+                if(HOLIDAYS[`${dd.date.getMonth()}-${dd.date.getDate()}`]) add('fest', dd);
+                if(info.code === 'N' || info.code === 'M+N') add('notti', dd);
+            });
+            const totAbs = ABS_COLS.filter(c => c.k !== 'z').reduce((a, c) => a + (counts[c.k] || 0), 0);
+            return { d, counts, dates, totAbs, isMe: me && (d.name.toUpperCase() === me || (d.originalName || '').toUpperCase() === me) };
+        }).sort((a, b) => b.isMe - a.isMe);
+    }
+    function renderAbsences() {
+        document.querySelectorAll('#abs-modal .ab-period button').forEach(b => b.classList.toggle('active', b.dataset.p === absPeriod));
+        document.getElementById('ab-nav').style.display = absPeriod === 'mese' ? '' : 'none';
+        const mName = MONTH_NAMES_IT[absMonth].charAt(0).toUpperCase() + MONTH_NAMES_IT[absMonth].slice(1);
+        document.getElementById('ab-label').innerHTML = `${mName} <small>${SHIFT_YEAR}</small>`;
+        const rows = computeAbsences();
+        // colonne: quelle sempre utili più tutte quelle che nel periodo hanno almeno un giorno
+        const absCols = ABS_COLS.filter(c => ABS_ALWAYS.includes(c.k) || rows.some(r => r.counts[c.k]));
+        const head = `<tr><th class="ab-name">${absPeriod === 'anno' ? 'Anno ' + SHIFT_YEAR : mName}</th>${absCols.map((c, i) => `<th>${c.color ? `<i style="background:var(${c.color})"></i>` : '<i style="background:#f9a8d4"></i>'}${esc(c.label)}</th>`).join('')}<th>Totale assenze</th>${WORK_COLS.map((c, i) => `<th class="${i === 0 ? 'ab-grp' : ''}">${esc(c.label)}</th>`).join('')}</tr>`;
+        const cell = (r, k, extra) => { const n = r.counts[k] || 0; const sel = absSel && absSel.idx === r.d.idx && absSel.k === k; return `<td class="${n ? '' : 'zero'} ${extra || ''} ${sel ? 'sel' : ''}" ${n ? `onclick="absShow(${r.d.idx},'${k}')"` : ''}>${n || '\u00b7'}</td>`; };
+        const body = rows.map(r => `<tr><th class="ab-name"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</th>${absCols.map(c => cell(r, c.k)).join('')}<td class="ab-tot ${r.totAbs ? '' : 'zero'}">${r.totAbs || '\u00b7'}</td>${WORK_COLS.map((c, i) => cell(r, c.k, i === 0 ? 'ab-grp' : '')).join('')}</tr>`).join('');
+        document.getElementById('ab-grid').innerHTML = `<table class="ab-table"><thead>${head}</thead><tbody>${body}</tbody></table>`;
+        absRenderDetail(rows);
+    }
+    function absShow(idx, k) {
+        vibrate();
+        absSel = (absSel && absSel.idx === idx && absSel.k === k) ? null : { idx, k };
+        renderAbsences();
+        if(absSel) setTimeout(() => document.getElementById('ab-detail').scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+    }
+    function absRenderDetail(rows) {
+        const box = document.getElementById('ab-detail');
+        if(!absSel) { box.classList.remove('show'); box.innerHTML = ''; return; }
+        const r = rows.find(x => x.d.idx === absSel.idx); const list = r ? (r.dates[absSel.k] || []) : [];
+        const col = ABS_COLS.concat(WORK_COLS).find(c => c.k === absSel.k);
+        box.innerHTML = `<b>${esc(r ? r.d.name : '')} \u00b7 ${esc(col ? col.label : '')}: ${list.length} ${list.length === 1 ? 'giorno' : 'giorni'}</b><div class="ab-days">${list.map(dt => `<span>${dt.toLocaleDateString('it-IT', { weekday:'short', day:'numeric', month:'short' })}</span>`).join('')}</div>`;
+        box.classList.add('show');
+    }
+
     // ── Griglia mensile: righe = operatori, colonne = settimane del mese ──
     let hgMonth = new Date().getMonth();
     function hgNav(d) { vibrate(); hgMonth = Math.min(11, Math.max(0, hgMonth + d)); renderHoursGrid(); }
@@ -4836,7 +4988,7 @@
             const header = finalData[0];
             for(let r = 1; r < finalData.length; r++) {
                 const mName = finalData[r][0].v, dNum = finalData[r][1].v;
-                for(let i = 3; i < header.length; i++) { const ov = cells[overrideKey(header[i], mName, dNum)]; if(ov) finalData[r][i] = Object.assign({}, finalData[r][i], { v: ov.v || '', subV: ov.subV || '', customMinutes: ov.customMinutes }); }
+                for(let i = 3; i < header.length; i++) { const ov = cells[overrideKey(header[i], mName, dNum)]; if(ov) finalData[r][i] = normalizeWrittenAbsence(Object.assign({}, finalData[r][i], { v: ov.v || '', subV: ov.subV || '', customMinutes: ov.customMinutes })); }
             }
             drivers = baseNames.map((name, i) => ({ name: (m.nameOverrides || {})[name] || nameOverrides[name] || name, idx: i + 3, originalName: name, virtual:false, hidden:false }));
             operatorConfig = normalizeOperatorConfig({ contract: m.contract || {}, baseNames });
@@ -5832,7 +5984,7 @@
         const raw = rawFinalData[row][col];
         const base = raw ? JSON.parse(JSON.stringify(raw)) : { v:"", subV:"" };
         const ov = manualOverrides[key || cellKey(row, col)];
-        finalData[row][col] = ov ? Object.assign({}, base, { v: ov.v, subV: ov.subV || "", overridden:true, customMinutes: ov.customMinutes }) : base;
+        finalData[row][col] = normalizeWrittenAbsence(ov ? Object.assign({}, base, { v: ov.v, subV: ov.subV || "", overridden:true, customMinutes: ov.customMinutes }) : base);
         return true;
     }
     function coordKeyIndex() {
@@ -7809,6 +7961,7 @@
         'admin-login-modal': closeAdminLoginModal,
         'admin-panel-modal': closeAdminPanel,
         'hours-modal': closeHoursModal,
+        'abs-modal': closeAbsModal,
         'rep-edit-popup': closeRepEditPopup,
         'cc-dialog': closeCcDialog,
         'coord-console': closeCoordConsole,
