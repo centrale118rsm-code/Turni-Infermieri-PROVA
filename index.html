@@ -5864,7 +5864,7 @@
                     <div class="cc-wheel-preview" id="cc-wheel-preview"></div>
                     <div>
                         <ol>
-                            <li><b>Frecce sopra la ruota</b>: cambiano la ruota tra <b>Turni</b> (turni e assenze), <b>Sequenze</b> (+5, +10, +15, 5 cicli completi P\u00b7M\u00b7N\u00b7SM\u00b7R e +7 per i diurni) e <b>Reperibilit\u00e0</b> (aggiungi, sposta, fasce e cessioni, elimina). P, M e G cambiano la dimensione.</li>
+                            <li><b>Frecce sopra la ruota</b>: cambiano la ruota tra <b>Turni</b> (turni e assenze), <b>Sequenze</b> (+5, +10, +15, turno 5 settimane (7 cicli P\u00b7M\u00b7N\u00b7SM\u00b7R) e +7 per i diurni) e <b>Reperibilit\u00e0</b> (aggiungi, sposta, fasce e cessioni, elimina). P, M e G cambiano la dimensione.</li>
                             <li><b>Anello esterno</b>: scegli un turno, una sequenza o uno strumento di reperibilit\u00e0, poi tocca le celle del calendario (i turni si possono anche trascinare).</li>
                             <li><b>Anello interno</b>: Seleziona (apre l\u2019editor della cella; su computer puoi anche trascinare per scambiare o estendere), Scambia (tocca due celle), Gomma, Annulla, Ripeti, Salva, Scarta, Esci.</li>
                             <li><b>Centro</b>: toccalo per chiudere o riaprire la ruota, trascinalo per spostarla dove non ti copre il calendario.</li>
@@ -6839,7 +6839,7 @@
         { id:'c5',   short:'+5',  label:'+5 · un ciclo',            desc:'P › M › N › SM › R',   pattern:TURNISTI_CYCLE, len:5,  fill:'#0f766e', group:0 },
         { id:'c10',  short:'+10', label:'+10 · due cicli',          desc:'2 × P M N SM R',               pattern:TURNISTI_CYCLE, len:10, fill:'#0d6b62', group:0 },
         { id:'c15',  short:'+15', label:'+15 · tre cicli',          desc:'3 × P M N SM R',               pattern:TURNISTI_CYCLE, len:15, fill:'#0b5e56', group:0 },
-        { id:'c25',  short:'5×5', label:'5 turni completi',          desc:'5 cicli P M N SM R = 25 giorni',  pattern:TURNISTI_CYCLE, len:25, fill:'#08514a', group:0 },
+        { id:'w5',   short:'5 sett.', label:'Turno 5 settimane',      desc:'7 cicli P M N SM R = 35 giorni', pattern:TURNISTI_CYCLE, len:35, fill:'#08514a', group:0 },
         { id:'d7mp', short:'+7 m', label:'+7 diurno · mattina e pomeriggio alternati', desc:'m › p › m › p › m › p › m', pattern:['m','p'], len:7, fill:'#6d28d9', group:1, dashed:true },
         { id:'d7pm', short:'+7 p', label:'+7 diurno · pomeriggio e mattina alternati', desc:'p › m › p › m › p › m › p', pattern:['p','m'], len:7, fill:'#5b21b6', group:1, dashed:true }
     ];
@@ -7429,7 +7429,7 @@
         setTimeout(() => openRepEditPopup(x, x === c.date ? c.orig : null), 160);
     }
 
-    // ── Sequenze della ruota (+5, +10, +15, 5 cicli, +7 diurni) ────────────
+    // ── Sequenze della ruota (+5, +10, +15, 5 settimane, +7 diurni) ────────────
     function applyWheelSequence(row, col) {
         const s = WHEEL_SEQUENCES.find(x => x.id === coordSeqTool); if(!s) return;
         const entries = []; let last = row;
