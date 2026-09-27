@@ -123,6 +123,22 @@
             .app-actions { gap: 0; }
             .hdr-btn { min-width: 36px; padding: 0 7px; }
         }
+        /* "Esci da coordinatore": visibile solo con l'accesso coordinatore attivo */
+        .hdr-coord-exit {
+            display: none; align-items: center; gap: 5px; flex-shrink: 0; margin-left: 4px;
+            height: 30px; padding: 0 10px 0 8px; border-radius: 7px; cursor: pointer;
+            background: #dc2626; color: #fff; border: 1px solid rgba(255,255,255,0.35);
+            font: 800 11.5px/1.05 'Plus Jakarta Sans', sans-serif; letter-spacing: 0.01em; white-space: nowrap;
+            box-shadow: 0 4px 12px -4px rgba(220,38,38,0.7);
+        }
+        .hdr-coord-exit .material-icons-round { font-size: 16px; color: #fff; }
+        .hdr-coord-exit:hover { background: #b91c1c; }
+        .hdr-coord-exit:active { transform: scale(0.97); }
+        body.coord-session .hdr-coord-exit { display: inline-flex; }
+        @media (max-width: 560px) {
+            .hdr-coord-exit { height: auto; min-height: 30px; padding: 3px 7px 3px 5px; font-size: 10px; white-space: normal; max-width: 86px; text-align: left; }
+            .hdr-coord-exit .material-icons-round { font-size: 14px; }
+        }
         .badge-dot {
             position: absolute; top: 6px; right: 6px; width: 9px; height: 9px;
             background: #ef4444; border-radius: 50%; border: 2px solid var(--hdr-bg); display: none;
@@ -2182,7 +2198,7 @@
             </nav>
             <div class="cc-side-foot">
                 <button onclick="closeCoordConsole()"><span class="msym">calendar_month</span>Torna al calendario</button>
-                <button onclick="coordLogout()"><span class="msym">logout</span>Esci da questo dispositivo</button>
+                <button onclick="coordLogout()"><span class="msym">logout</span>Esci da coordinatore</button>
             </div>
         </aside>
         <section class="cc-body">
@@ -2463,6 +2479,9 @@
                 <span class="app-title-text">Turni Infermieri</span>
                 <span class="app-subtitle-text">Calendario 2026</span>
             </div>
+            <button id="hdr-coord-exit" class="hdr-coord-exit" onclick="coordExitFromHeader()" title="Chiude l’accesso coordinatore: per rientrare servirà la password">
+                <span class="material-icons-round">logout</span><span>Esci da coordinatore</span>
+            </button>
         </div>
         <div class="app-actions">
             <button class="hdr-btn" onclick="vibrate();scrollToToday()" title="Vai a oggi">
@@ -5529,7 +5548,26 @@
         return (signed && m > 0 ? '+' : '') + s;
     }
     function coordToken(s) { let h = 5381; for(let i=0;i<s.length;i++) h = ((h<<5) + h + s.charCodeAt(i)) >>> 0; return 'c' + h.toString(36); }
-    function isCoordLoggedIn() { return localStorage.getItem(COORD_SESSION_KEY) === coordToken(COORD_PASSWORD); }
+    // L'accesso coordinatore vale solo finché l'app resta aperta (sessionStorage):
+    // chiudendo e riaprendo l'app serve di nuovo la password.
+    try { localStorage.removeItem(COORD_SESSION_KEY); } catch(e) {}   // vecchio accesso "permanente"
+    function coordSessionSet(on) {
+        try { if(on) sessionStorage.setItem(COORD_SESSION_KEY, coordToken(COORD_PASSWORD)); else sessionStorage.removeItem(COORD_SESSION_KEY); } catch(e) {}
+        updateCoordExitBtn();
+    }
+    function isCoordLoggedIn() { try { return sessionStorage.getItem(COORD_SESSION_KEY) === coordToken(COORD_PASSWORD); } catch(e) { return false; } }
+    function updateCoordExitBtn() { document.body.classList.toggle('coord-session', isCoordLoggedIn()); }
+    document.addEventListener('DOMContentLoaded', updateCoordExitBtn);
+    // Pulsante rosso nella barra: esce subito (chiedendo prima delle modifiche non salvate).
+    async function coordExitFromHeader() {
+        vibrate();
+        if(coordEditModeActive) { if(!(await exitCoordEdit(true))) return; }
+        coordSessionSet(false);
+        const cc = document.getElementById('coord-console');
+        if(cc && cc.classList.contains('open')) closeCoordConsole();
+        showConsoleLogin();
+        ccToast('Sei uscito dall’area coordinatore');
+    }
 
     // ── Salvataggio su Firestore: update sostituisce la mappa intera (così le chiavi
     // cancellate spariscono davvero); se il documento non esiste ripiega su set/merge.
@@ -5657,7 +5695,7 @@
         if(e) e.preventDefault();
         const val = document.getElementById('cc-pw').value;
         if(val === COORD_PASSWORD) {
-            localStorage.setItem(COORD_SESSION_KEY, coordToken(COORD_PASSWORD));
+            coordSessionSet(true);
             vibrate(); showConsoleApp(ccPendingSection || 'panoramica'); ccPendingSection = null;
         } else {
             document.getElementById('cc-pw-error').textContent = 'Password non corretta.';
@@ -5667,10 +5705,10 @@
     // compatibilità con eventuali richiami del vecchio popup
     function checkCoordPassword() { coordLogin(); }
     async function coordLogout() {
-        const ok = await ccConfirm('Uscire da questo dispositivo?', 'Per rientrare nell\u2019area coordinatore servirà di nuovo la password.', 'Esci', 'solid-danger');
+        const ok = await ccConfirm('Uscire dall\u2019area coordinatore?', 'Per rientrare servirà di nuovo la password.', 'Esci', 'solid-danger');
         if(!ok) return;
         if(coordEditModeActive) { if(!(await exitCoordEdit(true))) return; }
-        localStorage.removeItem(COORD_SESSION_KEY);
+        coordSessionSet(false);
         showConsoleLogin();
     }
     const CC_SECTIONS = {
