@@ -13,8 +13,8 @@
     <meta name="apple-mobile-web-app-title" content="Infermieri 26">
     <meta name="description" content="Gestione Turni Infermieri 2026">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="logo.png">
-    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="icon-118-192.png">
     <title>INFERMIERI 2026</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -494,6 +494,9 @@
         .file-label:active { transform:scale(0.96); }
         input[type="file"] { display:none; }
         #splash-brand { display:flex; flex-direction:column; align-items:center; position:relative; z-index:1; }
+        .splash-logo { width:128px; height:128px; margin-bottom:22px; filter:drop-shadow(0 14px 28px rgba(15,42,99,0.35)); animation:splashPop 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+        .cust-preview { display:flex; }
+        .cust-preview .cell { font-size:0.75rem; }
         .splash-icon-ring {
             width:92px; height:92px; border-radius:28px; background:linear-gradient(135deg,#0f2a63,#1d4ed8,#3b82f6);
             display:flex; align-items:center; justify-content:center; margin-bottom:24px;
@@ -2013,7 +2016,7 @@
         <p style="color:var(--text-sec);font-size:0.85rem;margin-top:8px">Lettura Turni 2026</p>
     </div>
     <div id="splash-brand">
-        <div class="splash-icon-ring"><span class="material-icons-round">local_hospital</span></div>
+        <img class="splash-logo" src="icon-118.png" alt="118">
         <h1 class="splash-title" id="splash-welcome-title">TURNI INFERMIERI</h1>
         <span class="splash-sub" id="splash-welcome-sub">2026</span>
         <div class="splash-dots"><span></span><span></span><span></span></div>
@@ -3036,6 +3039,10 @@
                 renderCoordSyncList();
             }
             if(data.coverageMin) { coverageMin = Object.assign({}, COVERAGE_DEFAULT, data.coverageMin); dayChecksCache = null; }
+            if(data.customCodes !== undefined && JSON.stringify(data.customCodes || {}) !== JSON.stringify(customCodes)) {
+                customCodes = data.customCodes || {}; applyCustomCodes();
+                if(finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
+            }
             if(data.ferieRules) { ferieRules = Object.assign({}, FERIE_DEFAULT, data.ferieRules); if(calOverview) renderOverviewSoon(); }
             if(data.coordinatorName !== undefined) {
                 coordinatorName = data.coordinatorName || null;
@@ -3692,8 +3699,7 @@
                 hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Consulta gli anni archiviati (sola lettura)', color: MN_COLORS.cal, run: () => openYearPicker() } : null
             ] },
             { id:'view', icon: calOverview ? 'view_agenda' : 'grid_view', label: calOverview ? 'Vista dettagliata' : 'Vista d’insieme', desc: calOverview ? 'Torna al calendario giorno per giorno' : 'Tutto l’anno a colpo d’occhio', color: MN_COLORS.cal, run: () => toggleCalView() },
-            { id:'ferie', icon:'beach_access', label:'Quando prendere le ferie', desc:'Periodi e giorni consigliati', color:'#16a34a', run: () => openFerieAdvice('ferie') },
-            { id:'perm', icon:'event_available', label:'Quando prendere un permesso', desc:'Permessi straordinari e recuperi: giorni consigliati', color:'#0d9488', run: () => openFerieAdvice('perm') },
+            { id:'ferie', icon:'beach_access', label:'Ferie e permessi', desc:'Quando prenderli: giorni e periodi consigliati', color:'#16a34a', run: () => openFerieAdvice() },
             { id:'ore', icon:'query_stats', label:'Conteggio orario', desc:'Ore lavorate e saldo rispetto al contratto', color: MN_COLORS.ore, run: () => openHoursModal() },
             { id:'assenze', icon:'event_busy', label:'Conteggio assenze', desc:'C.O., permessi, malattia, domeniche e festivi lavorati', color:'#b45309', run: () => openAbsModal() },
             { group:'Squadra' },
@@ -4388,6 +4394,7 @@
             return { minutes: minutesFromRange(t), code: val.toLowerCase(), label: val.toUpperCase()+" (diurno)" };
         } else {
             let u = val.toUpperCase();
+            if(customCodes[u]) return customDayInfo(u, customCodes[u], rowIdx, colIdx);   // casella personalizzata
             let t = SCHEDULE[u];
             if(t === undefined) return { minutes:0, code:u, label:u, unrecognized:true };
             return { minutes: minutesFromRange(t), code:u, label:u };
@@ -4417,6 +4424,7 @@
         let v = raw; let si = v.indexOf('/'); if(si !== -1) v = v.substring(0,si).trim();
         if(!v || v === "-") return 0;
         let fc = v.charAt(0); let isD = fc>='a' && fc<='z';
+        if(!isD && customCodes[v.toUpperCase()]) { const cc = customCodes[v.toUpperCase()]; return cc.kind === 'abs' ? justifiedDayMinutes(rowIdx, colIdx) : customMinutes(cc); }
         let t = isD ? SCHEDULE_DIURNI[v.toLowerCase()] : SCHEDULE[v.toUpperCase()];
         if(t === undefined) return 0;
         return minutesFromRange(t);
@@ -4574,6 +4582,8 @@
     let coverageMin = Object.assign({}, COVERAGE_DEFAULT), dayChecksCache = null;
     const SHIFT_SPAN = { M:['06:30','13:15'], P:['12:45','20:10'], N:['19:45','24:00'], m:['06:30','13:42'], p:['13:15','20:27'] };
     function shiftSpan(code) {
+        const cc = customCodes[code];
+        if(cc) { if(cc.kind !== 'work' || !cc.from || !cc.to) return null; const t = x => { const [h, m] = x.split(':').map(Number); return h * 60 + (m || 0); }; let a = t(cc.from), b = t(cc.to); if(b <= a) b += 1440; return [a, b]; }
         const sched = /^[mp]$/.test(code) ? SCHEDULE_DIURNI[code] : SCHEDULE[code];
         let a, b;
         if(sched && sched.includes('-')) { [a, b] = sched.split('-').map(x => x.trim()); } else if(SHIFT_SPAN[code]) [a, b] = SHIFT_SPAN[code]; else return null;
@@ -4630,6 +4640,98 @@
         const list = items.length ? `<ul class="cc-list">${items.slice(0, 40).map(it => `<li><span class="msym" style="color:var(${it.err ? '--cc-neg' : '--cc-warn'})">warning</span><span class="cc-grow">${esc(it.lbl)}<small>${esc(it.m)}</small></span></li>`).join('')}${items.length > 40 ? `<li><span class="cc-grow"><small>\u2026 e altri ${items.length - 40}</small></span></li>` : ''}</ul>`
             : `<div class="cc-empty"><span class="msym">verified</span>Nessun problema di copertura o di regole nei prossimi 30 giorni.</div>`;
         return `<div class="cc-panel"><div class="cc-panel-head"><h3>Controlli dei prossimi 30 giorni</h3><span class="cc-hint">${items.length} ${items.length === 1 ? 'avviso' : 'avvisi'}</span><button class="cc-link" onclick="enterCoordEdit()">Vedi nel calendario</button></div>${list}</div>`;
+    }
+
+    // ═══ CASELLE PERSONALIZZATE ══════════════════════════════════════════
+    // Il coordinatore crea nuove caselle (Impostazioni › Caselle personalizzate): sigla, testo,
+    // colori e tipo. Si mettono nel calendario dalla ruota come un turno (la sigla va nel campo
+    // del turno, quindi si possono scrivere anche nell'Excel). Documento impostazioni:
+    // customCodes: { SIGLA: { label, bg, fg, kind: 'work' | 'abs' | 'off', from, to } }
+    var customCodes = {};
+    const CUSTOM_RESERVED = ['M','P','N','S','SM','R','MN','M+N','MAT','POM','NOTT','RIP','SMONTO','MATTINA','POMERIGGIO','NOTTE','RIPOSO','STR'];
+    function customSlug(code) { return String(code).toLowerCase().replace(/[^a-z0-9]/g, '_'); }
+    function customCode(v) {
+        const s = (v || '').toString().trim(); if(!s || (s.charAt(0) >= 'a' && s.charAt(0) <= 'z')) return null;
+        return customCodes[s.toUpperCase()] || null;
+    }
+    function customColors(code) { const k = customSlug(code); return { bg: `--cc-${k}-bg`, fg: `--cc-${k}-fg` }; }
+    function customMinutes(c) {
+        if(!c || c.kind !== 'work' || !c.from || !c.to) return 0;
+        const t = x => { const [h, m] = x.split(':').map(Number); return h * 60 + (m || 0); };
+        let a = t(c.from), b = t(c.to); if(b <= a) b += 1440; return b - a;
+    }
+    // Colori come variabili CSS, così calendario, vista d'insieme, ruota e PDF li trovano come gli altri.
+    function applyCustomCodes() {
+        let st = document.getElementById('custom-codes-style');
+        if(!st) { st = document.createElement('style'); st.id = 'custom-codes-style'; document.head.appendChild(st); }
+        st.textContent = ':root{' + Object.keys(customCodes).map(k => { const c = customCodes[k], s = customSlug(k); return `--cc-${s}-bg:${c.bg || '#64748b'};--cc-${s}-fg:${c.fg || '#ffffff'};`; }).join('') + '}';
+    }
+    function customCellHtml(code, c, repHtml) {
+        const label = esc(c.label || code).replace(/\|/g, '<br>');
+        const time = c.kind === 'work' && c.from && c.to ? `<div class="time-tag">${esc(c.from)}-${esc(c.to)}</div>` : '';
+        return `<div class="cell cc-custom" style="background:var(--cc-${customSlug(code)}-bg);color:var(--cc-${customSlug(code)}-fg);border:1px solid rgba(0,0,0,0.08)"><div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;"><div>${label}</div>${time}</div>${repHtml || ''}</div>`;
+    }
+    function customDayInfo(code, c, rowIdx, colIdx) {
+        if(c.kind === 'abs') return { minutes: justifiedDayMinutes(rowIdx, colIdx), code, label: c.label || code, justified: true, custom: true };
+        return { minutes: customMinutes(c), code, label: c.label || code, custom: true };
+    }
+    // ── Pannello nell'area coordinatore ──
+    function ccCustomCodesPanel() {
+        const keys = Object.keys(customCodes).sort();
+        const kindTxt = c => c.kind === 'work' ? `turno ${c.from || '?'}–${c.to || '?'}` : c.kind === 'abs' ? 'assenza giustificata' : 'solo scritta, non conta ore';
+        return `<div class="cc-panel"><div class="cc-panel-head"><h3>Caselle personalizzate</h3><span class="cc-hint">nuove caselle per il calendario</span></div><div class="cc-panel-body">
+            <p class="cc-note" style="margin-bottom:12px">Crea una casella con la sua sigla, il testo e i colori: compare nella ruota della modifica turni e si può scrivere anche nell’Excel con la stessa sigla. Nel testo, la barra verticale | manda a capo.</p>
+            ${keys.length ? `<ul class="cc-list">${keys.map(k => { const c = customCodes[k]; return `<li><span class="cc-code" style="--sw:var(--cc-${customSlug(k)}-bg);--sf:var(--cc-${customSlug(k)}-fg)">${esc(k)}</span><span class="cc-grow">${esc((c.label || k).replace(/\|/g, ' '))}<small>${esc(kindTxt(c))}</small></span><button class="cc-btn ghost" onclick="ccCustomEdit('${esc(k)}')" title="Modifica"><span class="msym">edit</span></button><button class="cc-btn ghost" onclick="ccCustomDelete('${esc(k)}')" title="Elimina"><span class="msym">delete</span></button></li>`; }).join('')}</ul>` : '<p class="cc-note">Nessuna casella personalizzata.</p>'}
+            <div class="cc-inline-form" style="margin-top:14px">
+                <label class="cc-field" style="max-width:110px">Sigla<input type="text" id="cust-code" class="cc-input" maxlength="6" placeholder="CORSO" oninput="this.value=this.value.toUpperCase();ccCustomPreview()"></label>
+                <label class="cc-field" style="flex:1;min-width:170px">Testo nella casella<input type="text" id="cust-label" class="cc-input" maxlength="30" placeholder="CORSO|AGGIORNAMENTO" oninput="ccCustomPreview()"></label>
+            </div>
+            <div class="cc-inline-form" style="margin-top:10px">
+                <label class="cc-field" style="max-width:120px">Sfondo<input type="color" id="cust-bg" class="cc-input" value="#7c3aed" oninput="ccCustomPreview()"></label>
+                <label class="cc-field" style="max-width:120px">Testo<input type="color" id="cust-fg" class="cc-input" value="#ffffff" oninput="ccCustomPreview()"></label>
+                <label class="cc-field" style="max-width:230px">Tipo<select id="cust-kind" class="cc-input" onchange="ccCustomPreview()"><option value="work">Turno di lavoro (conta le ore)</option><option value="abs">Assenza giustificata</option><option value="off">Solo scritta (non conta ore)</option></select></label>
+                <label class="cc-field" style="max-width:110px" id="cust-from-f">Dalle<input type="time" id="cust-from" class="cc-input" value="08:00" oninput="ccCustomPreview()"></label>
+                <label class="cc-field" style="max-width:110px" id="cust-to-f">Alle<input type="time" id="cust-to" class="cc-input" value="14:00" oninput="ccCustomPreview()"></label>
+            </div>
+            <div class="cc-inline-form" style="margin-top:12px;align-items:center">
+                <div id="cust-preview" class="cust-preview"></div>
+                <button class="cc-btn primary" onclick="ccCustomSave()" style="margin-left:auto"><span class="msym">save</span>Salva casella</button>
+            </div>
+        </div></div>`;
+    }
+    function ccCustomPreview() {
+        const g = id => document.getElementById(id); if(!g('cust-preview')) return;
+        const kind = g('cust-kind').value; ['cust-from-f', 'cust-to-f'].forEach(id => g(id).style.display = kind === 'work' ? '' : 'none');
+        const c = { label: g('cust-label').value || g('cust-code').value || 'Anteprima', kind, from: g('cust-from').value, to: g('cust-to').value };
+        g('cust-preview').innerHTML = `<div class="cell" style="background:${g('cust-bg').value};color:${g('cust-fg').value};width:120px;height:62px;border:1px solid rgba(0,0,0,0.08)"><div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;"><div>${esc(c.label).replace(/\|/g, '<br>')}</div>${kind === 'work' && c.from && c.to ? `<div class="time-tag">${esc(c.from)}-${esc(c.to)}</div>` : ''}</div></div>`;
+    }
+    function ccCustomEdit(k) {
+        const c = customCodes[k]; if(!c) return; const g = id => document.getElementById(id);
+        g('cust-code').value = k; g('cust-label').value = c.label || ''; g('cust-bg').value = c.bg || '#7c3aed'; g('cust-fg').value = c.fg || '#ffffff';
+        g('cust-kind').value = c.kind || 'work'; g('cust-from').value = c.from || '08:00'; g('cust-to').value = c.to || '14:00';
+        ccCustomPreview(); g('cust-code').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+    function ccCustomSave() {
+        const g = id => document.getElementById(id);
+        const code = g('cust-code').value.trim().toUpperCase(), label = g('cust-label').value.trim(), kind = g('cust-kind').value;
+        if(!/^[A-Z0-9+.]{1,6}$/.test(code)) { ccToast('Sigla: da 1 a 6 lettere o numeri.', true); return; }
+        if(CUSTOM_RESERVED.includes(code) || SCHEDULE[code] !== undefined) { ccToast(`La sigla ${code} è già usata dai turni normali: scegline un’altra.`, true); return; }
+        if(kind === 'work' && (!g('cust-from').value || !g('cust-to').value)) { ccToast('Indica l’orario del turno.', true); return; }
+        const obj = { label: label || code, bg: g('cust-bg').value, fg: g('cust-fg').value, kind };
+        if(kind === 'work') { obj.from = g('cust-from').value; obj.to = g('cust-to').value; }
+        if(!fbReady) { ccToast('Nessuna connessione: casella non salvata.', true); return; }
+        customCodes = Object.assign({}, customCodes, { [code]: obj }); applyCustomCodes();
+        cfgRef('settings').set({ customCodes: { [code]: obj } }, { merge: true })
+            .then(() => { ccToast(`Casella ${code} salvata`); if(finalData.length) renderTable(); renderCcSettings(); })
+            .catch(e => ccToast('Salvataggio non riuscito: ' + (e.code || e.message), true));
+    }
+    async function ccCustomDelete(k) {
+        const ok = await ccConfirm(`Eliminare la casella ${k}?`, 'Le caselle già messe nel calendario restano con la sigla ma senza colore e senza ore.', 'Elimina', 'solid-danger');
+        if(!ok || !fbReady) return;
+        const next = Object.assign({}, customCodes); delete next[k]; customCodes = next; applyCustomCodes();
+        cfgRef('settings').update(new firebase.firestore.FieldPath('customCodes', k), firebase.firestore.FieldValue.delete())
+            .then(() => { ccToast(`Casella ${k} eliminata`); if(finalData.length) renderTable(); renderCcSettings(); })
+            .catch(e => ccToast('Non eliminata: ' + (e.code || e.message), true));
     }
     function saveCoverageMin() {
         const v = k => Math.max(0, Math.min(15, parseInt(document.getElementById('cov-' + k).value) || 0));
@@ -5055,7 +5157,7 @@
                 <div class="fr-chks">${['f','v','p','pn','r','c','m','ng','nl','gr'].map(k => chk('totalCodes', k, lbl(k))).join('')}</div>
             </div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Persone in ferie nello stesso giorno</h3></div><div class="cc-panel-body">
-                <p class="cc-note" style="margin-bottom:12px">Gli operatori vedono in verde i giorni consigliati, in giallo quelli con un solo posto libero e in rosso quelli sconsigliati (Menu › Quando prendere le ferie).</p>
+                <p class="cc-note" style="margin-bottom:12px">Gli operatori vedono in verde i giorni consigliati, in giallo quelli con un solo posto libero e in rosso quelli sconsigliati (Menu › Ferie e permessi).</p>
                 <div class="cc-inline-form">
                     <label class="cc-field" style="max-width:190px">Massimo nello stesso giorno<input type="number" min="1" max="15" class="cc-input" value="${D.max}" onchange="frSet('max', this.value)"></label>
                     <label class="cc-field" style="max-width:230px">Periodi consigliati di almeno (giorni)<input type="number" min="1" max="31" class="cc-input" value="${D.minDays}" onchange="frSet('minDays', this.value)"></label>
@@ -5071,7 +5173,7 @@
             <div class="cc-panel"><div class="cc-setting"><div><b>Ferie: rispetta la copertura minima</b><small>Sconsiglia i giorni in cui mattina, pomeriggio o notte sono già sotto la copertura minima (${coverageMin.M} / ${coverageMin.P} / ${coverageMin.N}, in Impostazioni).</small></div>
                 <label class="cc-switch"><input type="checkbox" ${D.useCoverage ? 'checked' : ''} onchange="frSet('useCoverage', this.checked)"><span></span></label></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Permessi e recuperi (assenze di un giorno)</h3></div><div class="cc-panel-body">
-                <p class="cc-note" style="margin-bottom:12px">L’operatore vede i singoli giorni consigliati (Menu › Quando prendere un permesso). Se ha scelto il suo nome vede solo i giorni in cui lavora, e il giorno è sconsigliato se senza di lui il suo turno scende sotto la copertura minima.</p>
+                <p class="cc-note" style="margin-bottom:12px">L’operatore vede i singoli giorni consigliati (Menu › Ferie e permessi, scheda Permessi e recuperi). Se ha scelto il suo nome vede solo i giorni in cui lavora, e il giorno è sconsigliato se senza di lui il suo turno scende sotto la copertura minima.</p>
                 <div class="cc-inline-form">
                     <label class="cc-field" style="max-width:220px">Massimo nello stesso giorno<input type="number" min="1" max="10" class="cc-input" value="${PD.max}" onchange="frSetPerm('max', this.value)"></label>
                 </div>
@@ -6578,6 +6680,7 @@
     function ccCodeMeta(info) {
         const c = info.code || '';
         if(!c) return { short:'', kind:'empty' };
+        if(info.custom && customCodes[c]) return { short: c, kind: customCodes[c].kind === 'abs' ? 'abs' : 'shift', colors: customColors(c), label: (customCodes[c].label || c).replace(/\|/g, ' ') };
         if(SPECIAL_SUBCODES[c] !== undefined && info.label === SPECIAL_SUBCODES[c]) return { short: ABS_SHORT[c] || c.toUpperCase(), kind:'abs', colors: codeColors('abs', c), label: SPECIAL_SUBCODES[c] };
         if(info.unrecognized) return { short: c, kind:'unk', label:'Codice non riconosciuto' };
         if(c === 'STR') return { short:'STR', kind:'str', label:'Ore personalizzate' };
@@ -7175,6 +7278,7 @@
                     </div>
                 </div>
             </div>
+            ${ccCustomCodesPanel()}
             <div class="cc-panel">
                 <div class="cc-setting"><div><b>Consigli sulle ore nel calendario</b><small>Mostra un\u2019icona sopra gli operatori sotto di 2 h o sopra di 4 h rispetto al contratto, con un suggerimento.</small></div>
                     <label class="cc-switch"><input type="checkbox" ${aiAdviceEnabled?'checked':''} onchange="toggleAiAdvice(this.checked)"><span></span></label></div>
@@ -7586,7 +7690,8 @@
         document.getElementById('sep-grid').innerHTML =
             group('Turni', items.filter(i => i.group === 0)) +
             group('Diurni e combinati', items.filter(i => i.group === 1)) +
-            group('Assenze e permessi', items.filter(i => i.group === 2));
+            group('Assenze e permessi', items.filter(i => i.group === 2)) +
+            (items.some(i => i.group === 3) ? group('Caselle personalizzate', items.filter(i => i.group === 3)) : '');
         const m = document.getElementById('shift-edit-popup'); m.style.display = 'flex';
         requestAnimationFrame(() => m.classList.add('open'));
     }
@@ -7692,6 +7797,8 @@
         STANDARD_CODES.forEach(c => items.push({ v:c, subV:'', short:c, label:SHIFT_NAMES[c] || c, time:SCHEDULE[c] && SCHEDULE[c] !== 'RIPOSO' ? SCHEDULE[c] : '', colors:MAIN_CODE_COLORS[c], group:0 }));
         DIURNI_CODES.forEach(c => items.push({ v:c, subV:'', short:c, label:SHIFT_NAMES[c] || c, time:SCHEDULE_DIURNI[c] && SCHEDULE_DIURNI[c] !== 'RIPOSO' ? SCHEDULE_DIURNI[c] : '', colors:DIURNI_CODE_COLORS[c], group:1, dashed:true }));
         items.push({ v:'M+N', subV:'', short:'M+N', label:SHIFT_NAMES['M+N'], time:`${SCHEDULE.M} e ${SCHEDULE.N}`, colors:MAIN_CODE_COLORS.N, group:1 });
+        Object.keys(customCodes).sort().forEach(k => { const c = customCodes[k];
+            items.push({ v:k, subV:'', short:k.slice(0, 4), label:(c.label || k).replace(/\|/g, ' '), time: c.kind === 'work' ? `${c.from}-${c.to}` : (c.kind === 'abs' ? 'assenza' : ''), colors: customColors(k), group:3 }); });
         Object.keys(SPECIAL_SUBCODES).filter(k => k !== 'gr').forEach(k => {
             const lbl = SPECIAL_SUBCODES[k]; const nice = lbl.charAt(0) + lbl.slice(1).toLowerCase().replace('(c.o.)','(C.O.)').replace('coord.','coordinatore');
             items.push({ v:'', subV:k, short:ABS_SHORT[k], label:nice, colors:SUB_CODE_COLORS[k], group:2 });
@@ -8822,6 +8929,7 @@
             return `<div class="cell spec-stu"><div style="flex:1;display:flex;align-items:center;text-align:center;">PERMESSO<br>STUDIO</div>${repHtml}</div>`;
 
         if(!val || val === "-") return `<div class="cell empty">${val || "-"}${repHtml}</div>`;
+        { const cc = customCode(val); if(cc) return customCellHtml(val.toUpperCase(), cc, repHtml); }   // casella personalizzata
 
         // ── turni normali ─────────────────────────────────────────────────────
         let firstChar  = val.charAt(0);
