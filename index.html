@@ -579,6 +579,10 @@
         .month-btn.month-current .material-icons-round { color:var(--primary); }
         .modal-section-title { padding:16px 20px 8px 20px; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--text-sec); display:flex; align-items:center; gap:8px; background:var(--bg); position:sticky; top:0; z-index:5; border-bottom:1px solid var(--border); }
         .colleague-card { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--bg-card); border-bottom:1px solid var(--border); transition:background 0.2s; }
+        .ot-sec { display:flex; align-items:center; gap:8px; padding:12px 20px 8px; margin-top:6px; font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-sec); background:var(--bg); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+        .ot-sec .material-icons-round { font-size:18px; color:var(--primary); }
+        .ot-empty { padding:14px 20px; text-align:center; color:var(--text-sec); font-size:0.85rem; }
+        .ot-avatar { background:linear-gradient(135deg,#0f766e,#14b8a6) !important; color:#fff !important; }
         .colleague-card:last-child { border-bottom:none; }
         .colleague-card:active { background:var(--bg); }
         .col-avatar { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.1rem; margin-right:14px; flex-shrink:0; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
@@ -3935,6 +3939,7 @@
         initNotificationOptions(); loadNotificationHistory(); renderTable(); startLiveClock();
         setCurrentView("Tabella Turni");
         if(prefs.startToday !== false) setTimeout(scrollToToday, 600);
+        setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
         if(prefs.startPage === 'insieme') setTimeout(() => setCalView('insieme'), 350);
         setTimeout(async () => {
             if(!userIdentity && identityRecoveryPromise) { try { await identityRecoveryPromise; } catch(e) {} }
@@ -5238,6 +5243,103 @@
     }
     function frOpenOverview() { closeCoordConsole(); setTimeout(() => setCalView('insieme', { advice:true }), 200); }
 
+
+    // ═══ L'ALTRA SQUADRA IN TURNO ════════════════════════════════════════
+    // Nel riepilogo del turno (tocco su una casella) compaiono anche gli autisti in turno quel
+    // giorno, con le stesse schede dei colleghi. Si legge il file dell'app autisti in uso
+    // (solo lettura). Nell'app autisti lo script di conversione cambia OTHER_TEAM con gli infermieri.
+    var OTHER_TEAM = { title: 'Autisti in turno', icon: 'airport_shuttle', url: 'https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/turni.xlsx', parse: raw => parseAutistiLayout(raw) };
+    var otherTeam = null, otherTeamLoading = null;
+    // File autisti: riga 1 mesi ("GENNAIO . 1"), riga 2 giorni, per ogni autista riga turni + riga
+    // assenze sotto; righe 29-32 reperibilità, poi la legenda (esclusa dai nomi).
+    function parseAutistiLayout(raw) {
+        const skip = /CONGEDO|MALATTIA|RESIDUE|P\.S\.|RECUPERO|PERM\.|ASPETTATIVA|FEST\.|DISTACCO|1>7|P\/PN/;
+        const val = c => c && c.v !== undefined && c.v !== null ? c.v : '';
+        const header = ['MESE', 'GIORNO', 'NOME'], people = [];
+        for(let r = 3; r < raw.length; r++) {
+            if(!raw[r] || (r >= 29 && r <= 32)) continue;
+            const t = typeof val(raw[r][1]) === 'string' ? val(raw[r][1]).trim() : '';
+            if(t.length <= 2 || skip.test(t.toUpperCase())) continue;
+            const nx = raw[r + 1] && raw[r + 1][1];
+            people.push({ idx: r, sub: (!nx || String(val(nx)).trim() === '') ? r + 1 : null }); header.push(t.toUpperCase());
+        }
+        const out = [header], rowM = raw[1] || [], rowD = raw[2] || []; let month = '';
+        for(let c = 2; c < rowD.length; c++) {
+            const mt = val(rowM[c]); if(typeof mt === 'string' && mt.trim()) { const p = mt.split('.')[0].trim().toUpperCase(); if(MONTH_MAP[p] !== undefined) month = p; }
+            const dn = parseInt(val(rowD[c])); if(!month || isNaN(dn) || dn < 1) continue;
+            const line = [{ v: month }, { v: dn }, { v: '' }];
+            people.forEach(p => line.push({ v: val(raw[p.idx] && raw[p.idx][c]), subV: p.sub && raw[p.sub] ? val(raw[p.sub][c]) : '' }));
+            out.push(line);
+        }
+        return out;
+    }
+    function loadOtherTeam() {
+        if(otherTeamLoading) return otherTeamLoading;
+        otherTeamLoading = (async () => {
+            try {
+                const r = await fetch(OTHER_TEAM.url + '?v=' + Date.now()); if(!r.ok) return;
+                const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await r.arrayBuffer());
+                const ws = wb.getWorksheet('Foglio2') || wb.worksheets[0], raw = [];
+                ws.eachRow({ includeEmpty: true }, (row, rn) => { const rd = []; row.eachCell({ includeEmpty: true }, (cell, cn) => { let v = cell.value; if(typeof v === 'object' && v !== null) v = v.result || (v.richText && v.richText[0] && v.richText[0].text) || ''; rd[cn] = { v }; }); raw[rn] = rd; });
+                otherTeam = OTHER_TEAM.parse(raw);
+            } catch(e) { console.log('Turni dell’altra squadra non disponibili:', e.message); }
+        })();
+        return otherTeamLoading;
+    }
+    // Riga del giorno nel file dell'altra squadra (il file può arrivare a gennaio dell'anno dopo).
+    function otherRowFor(data, mese, giorno, year) {
+        let y = SHIFT_YEAR, last = -1;
+        for(let i = 1; i < data.length; i++) {
+            const mi = MONTH_MAP[data[i][0].v]; if(mi === undefined) continue;
+            if(mi < last) y++; last = mi;
+            if(data[i][0].v === mese && parseInt(data[i][1].v) === giorno && y === year) return data[i];
+        }
+        return null;
+    }
+    function otherTeamHtml(rowIndex, uShift) {
+        const row = finalData[rowIndex]; if(!row) return '';
+        const mese = row[0].v, giorno = parseInt(row[1].v), year = shiftRowYear(rowIndex);
+        const head = `<div class="ot-sec"><span class="material-icons-round">${OTHER_TEAM.icon}</span>${esc(OTHER_TEAM.title)}</div>`;
+        const box = inner => `<div id="ot-list" data-row="${rowIndex}" data-shift="${esc(uShift)}">${head}${inner}</div>`;
+        if(!otherTeam) {
+            if(!otherTeamLoading) loadOtherTeam();
+            otherTeamLoading.then(() => { const el = document.getElementById('ot-list'); if(el && +el.dataset.row === rowIndex && otherTeam) el.outerHTML = otherTeamHtml(rowIndex, uShift); });
+            return box('<div class="ot-empty">Caricamento…</div>');
+        }
+        const orow = otherRowFor(otherTeam, mese, giorno, year);
+        if(!orow) return box('<div class="ot-empty">Nessun dato per questo giorno</div>');
+        const H = otherTeam[0], cards = [];
+        for(let c = 3; c < H.length; c++) {
+            const cell = orow[c] || {}, sub = String(cell.subV || '').trim().toLowerCase();
+            if(SPECIAL_SUBCODES[sub] !== undefined) continue;   // assente quel giorno
+            let rawV = String(cell.v || '').trim(); const rep = /\/r$/i.test(rawV);
+            const si = rawV.indexOf('/'); if(si !== -1) rawV = rawV.substring(0, si).trim();
+            let uVal = rawV.toUpperCase(); if(uVal === 'S') uVal = 'SM';
+            const isD = rawV.length > 0 && rawV.charAt(0) >= 'a' && rawV.charAt(0) <= 'z';
+            const isWorking = ['M','P','N','SM'].includes(uVal) || isMN(rawV);
+            let isMatch = false;
+            if(['M','P','N','SM'].includes(uShift)) { if(uVal === uShift) isMatch = true; if(isMN(rawV) && (uShift === 'M' || uShift === 'N')) isMatch = true; }
+            else if(isWorking) isMatch = true;
+            if(!isMatch) continue;
+            let time = isD ? (SCHEDULE_DIURNI[rawV.toLowerCase()] || rawV) : (isMN(rawV) ? `M: ${SCHEDULE['M']} / N: ${SCHEDULE['N']}` : (SCHEDULE[uVal] || uVal));
+            if(rep) time += ` &nbsp;<span style="color:#ef4444;font-weight:900;font-size:0.75rem;">(REPERIBILE)</span>`;
+            let badge = 'background:#e2e8f0;color:#475569';
+            if(uVal === 'M') badge = 'background:#dbeafe;color:#1e40af';
+            if(uVal === 'P') badge = 'background:#ffedd5;color:#9a3412';
+            if(uVal === 'N') badge = 'background:#1e293b;color:#f8fafc';
+            const nm = String(H[c]);
+            cards.push(`<div class="colleague-card">
+                <div class="col-avatar ot-avatar">${esc(nm.substring(0, 2).toUpperCase())}</div>
+                <div class="col-info">
+                    <div class="col-name">${esc(nm)}</div>
+                    <div class="col-role" style="font-size:0.8rem;color:var(--primary)">${time}</div>
+                    <div class="col-role" style="font-size:0.65rem">${isD ? 'Diurnista' : 'Turnista'}</div>
+                </div>
+                <div class="col-badge" style="${badge}">${esc(uVal)}</div>
+            </div>`);
+        }
+        return box(cards.length ? cards.join('') : '<div class="ot-empty">Nessuno in questo turno</div>');
+    }
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
     // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
@@ -9038,6 +9140,7 @@
         } else {
             list.innerHTML += `<div style="padding:20px;text-align:center;color:#94a3b8;font-size:0.9rem">Nessun infermiere in questo turno.</div>`;
         }
+        list.innerHTML += otherTeamHtml(rowIndex, uShift);
         list.innerHTML += repDaySectionHtml(repRowDate(rowIndex));
         modal.style.display = 'flex'; setTimeout(() => modal.classList.add('open'), 10);
     }
