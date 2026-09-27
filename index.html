@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,balance,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,group,history,hourglass_top,ink_eraser,login,logout,open_with,person_add,person_remove,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,swap_horiz,sync,task_alt,today,tune,undo,upload,verified,visibility,visibility_off,warning&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,group,history,hourglass_top,ink_eraser,login,logout,open_with,person_add,person_remove,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,swap_horiz,sync,task_alt,today,tune,undo,upload,verified,visibility,visibility_off,warning&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -847,6 +847,152 @@
         .hg-table td.hg-tot div { display:flex; align-items:center; justify-content:flex-end; gap:8px; }
         .hg-table td.hg-tot b { font-size:1rem; }
         .hg-spark { color:var(--text-main); flex-shrink:0; }
+        /* ══ Griglie ore e assenze: colonna dei nomi separata (niente sovrapposizioni sul telefono) ══ */
+        #hg-grid, #ab-grid { overflow: visible; }
+        .xg-split { display:flex; align-items:flex-start; }
+        .xg-scroll { flex:1; min-width:0; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        table.xg-left { flex:none; width:auto !important; min-width:0 !important; }
+        table.xg-right { width:100%; }
+        .hg-table.xg-left thead tr, .hg-table.xg-right thead tr { height:42px; }
+        .hg-table.xg-left tbody tr, .hg-table.xg-right tbody tr { height:58px; }
+        .hg-table.xg-left .hg-name { position:static; width:118px; min-width:118px; max-width:118px; box-shadow:6px 0 8px -8px rgba(0,0,0,.35); }
+        .hg-table.xg-left thead .hg-name { box-shadow:none; }
+        .hg-table.xg-left tbody tr.me .hg-name { box-shadow:inset 3px 0 0 var(--primary), 6px 0 8px -8px rgba(0,0,0,.35); }
+        .ab2.xg-left thead tr, .ab2.xg-right thead tr { height:30px; }
+        .ab2.xg-left tbody tr, .ab2.xg-right tbody tr { height:54px; }
+        .ab2.xg-left .ab-op { position:static; width:150px; min-width:150px; max-width:150px; box-shadow:6px 0 8px -8px rgba(0,0,0,.35); }
+        .ab2.xg-left thead .ab-op { box-shadow:none; }
+        .ab2.xg-left tbody tr.me .ab-op { box-shadow:inset 3px 0 0 var(--primary), 6px 0 8px -8px rgba(0,0,0,.35); }
+        .ab2.xg-right tbody tr td:first-child { border-radius:0; }
+        @media (max-width:560px) {
+            .hg-table.xg-left .hg-name { width:92px; min-width:92px; max-width:92px; padding-left:8px; padding-right:4px; }
+            .hg-table.xg-left tbody .hg-name span { font-size:0.74rem; }
+            .hg-table.xg-left tbody .hg-name em { display:none; }
+            .ab2.xg-left .ab-op { width:90px; min-width:90px; max-width:90px; padding-left:8px; padding-right:4px; }
+            .ab2.xg-left .ab-who { gap:5px; }
+            .ab2.xg-left .ab-who .ab-av { display:none; }
+            .ab2.xg-left .ab-who span { font-size:0.72rem; max-width:78px; }
+            .ab2.xg-left .ab-who em { display:none; }
+        }
+
+        /* ══ Preferenze personali nel calendario ══ */
+        body.pref-hl-me #main-table td.me-col { background: rgba(37,99,235,.09); box-shadow: inset 2px 0 0 rgba(37,99,235,.55), inset -2px 0 0 rgba(37,99,235,.55); }
+        body.dark-mode.pref-hl-me #main-table td.me-col { background: rgba(96,165,250,.13); }
+        body.pref-hl-me #main-table thead th.me-col { color: var(--primary); box-shadow: inset 0 -3px 0 var(--primary); }
+        body.pref-no-times #main-table .time-tag { display:none; }
+        body.pref-no-repbar #main-table .rep-bar { display:none; }
+
+        /* ══ Opzioni dell'app ══ */
+        .opt-hero { display:flex; align-items:center; gap:12px; padding:14px 16px; margin:12px 14px 6px; border-radius:16px; color:#fff;
+            background: radial-gradient(120% 180% at 0% -60%, rgba(255,255,255,.2) 0%, rgba(255,255,255,0) 45%), linear-gradient(115deg,#0f2f75 0%,#1a47b8 60%,#2b5ce0 100%); box-shadow:0 10px 24px -14px rgba(15,47,117,.8); }
+        .opt-av { width:46px; height:46px; border-radius:50%; background:rgba(255,255,255,.18); border:2px solid rgba(255,255,255,.45); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1rem; flex-shrink:0; }
+        .opt-hero-txt { flex:1; min-width:0; }
+        .opt-hero-txt b { display:block; font-size:1.02rem; font-weight:800; }
+        .opt-hero-txt small { display:block; font-size:0.74rem; opacity:.88; line-height:1.35; margin-top:2px; }
+        .opt-hero button { flex-shrink:0; height:34px; padding:0 11px; border-radius:10px; border:1px solid rgba(255,255,255,.45); background:rgba(255,255,255,.14); color:#fff; font:700 12px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
+        .opt-hero button .material-icons-round { font-size:16px; }
+        .opt-txt { display:flex; flex-direction:column; min-width:0; flex:1; padding-right:12px; }
+        .opt-txt span { font-size:0.95rem; }
+        .opt-txt small { font-size:0.78rem; color:var(--text-sec); font-weight:400; line-height:1.35; margin-top:1px; }
+        .opt-block { padding:12px 20px 14px; border-bottom:1px solid var(--border); }
+        .opt-seg { display:flex; gap:4px; padding:3px; margin-top:9px; background:var(--bg); border:1px solid var(--border); border-radius:12px; }
+        .opt-seg button { flex:1; min-width:0; height:36px; border:none; border-radius:9px; background:transparent; color:var(--text-sec); font:700 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:5px; white-space:nowrap; }
+        .opt-seg button .material-icons-round { font-size:17px; }
+        .opt-seg button.on { background:var(--primary); color:#fff; box-shadow:0 2px 8px rgba(29,78,216,.3); }
+        @media (max-width:420px) { .opt-seg button { font-size:11.5px; gap:3px; } .opt-seg button .material-icons-round { display:none; } }
+        .opt-reset { display:flex; justify-content:center; padding:16px 20px 6px; }
+        .opt-reset button { height:38px; padding:0 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-sec); font:700 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+        .opt-reset button .material-icons-round { font-size:17px; }
+
+        /* ══ Vista d'insieme del calendario ══ */
+        #ov-view { position:fixed; top:var(--header-h); left:0; right:0; bottom:0; z-index:950; background:var(--bg); display:none; flex-direction:column; }
+        #ov-view.open { display:flex; }
+        body.cal-overview { overflow:hidden; }
+        .ov-bar { display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--border); background:var(--bg-card); flex-shrink:0; }
+        .ov-title { flex:1; min-width:0; text-align:center; }
+        .ov-title b { display:block; font-size:0.95rem; font-weight:800; color:var(--text-main); }
+        .ov-title small { display:block; font-size:0.7rem; color:var(--text-sec); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .ov-btn { display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 12px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font:700 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+        .ov-btn .material-icons-round { font-size:18px; }
+        .ov-btn.on { background:#16a34a; border-color:#16a34a; color:#fff; }
+        .ov-btn .l-short { display:none; }
+        @media (max-width:560px) { .ov-btn { padding:0 9px; } .ov-btn .l-long { display:none; } .ov-btn .l-short { display:inline; } }
+        .ov-advice { display:none; padding:8px 12px 10px; border-bottom:1px solid var(--border); background:var(--bg-card); flex-shrink:0; }
+        body.ov-adv .ov-advice { display:block; }
+        .ov-legend { display:flex; flex-wrap:wrap; gap:4px 12px; font-size:0.7rem; font-weight:700; color:var(--text-sec); align-items:center; }
+        .ov-legend i { display:inline-block; width:12px; height:12px; border-radius:4px; margin-right:4px; vertical-align:-2px; }
+        .ov-rules { font-size:0.7rem; color:var(--text-sec); margin-top:5px; line-height:1.4; }
+        .ov-periods { display:flex; gap:8px; overflow-x:auto; padding-top:8px; -webkit-overflow-scrolling:touch; }
+        .ov-per { flex:none; border:1px solid #bbf7d0; background:#f0fdf4; color:#166534; border-radius:12px; padding:7px 11px; cursor:pointer; text-align:left; font-family:inherit; }
+        .ov-per b { display:block; font-size:0.8rem; font-weight:800; white-space:nowrap; }
+        .ov-per small { font-size:0.68rem; font-weight:600; white-space:nowrap; }
+        .ov-per.last { border-color:#fde68a; background:#fffbeb; color:#92400e; }
+        .ov-none { font-size:0.75rem; color:var(--text-sec); padding-top:8px; }
+        body.dark-mode .ov-per { background:rgba(22,163,74,.15); color:#86efac; border-color:rgba(22,163,74,.4); }
+        body.dark-mode .ov-per.last { background:rgba(245,158,11,.15); color:#fcd34d; border-color:rgba(245,158,11,.4); }
+        .ov-scroll { flex:1; overflow:auto; -webkit-overflow-scrolling:touch; padding:0 4px 40px; }
+        table.ov-table { width:100%; table-layout:fixed; border-collapse:separate; border-spacing:1px; }
+        .ov-table thead th { position:sticky; top:0; z-index:5; min-width:0 !important; height:auto; padding:4px 0 3px; background:var(--bg); backdrop-filter:none; border:none; overflow:hidden; vertical-align:bottom; font-size:9px; letter-spacing:0; text-transform:uppercase; color:var(--text-sec); }
+        .ov-table thead th::before { display:none !important; }
+        .ov-table thead th.ov-d, .ov-table tbody td.ov-d { width:42px !important; min-width:42px !important; max-width:42px !important; }
+        .ov-table thead th.ov-s, .ov-table tbody td.ov-s { width:34px; }
+        .ov-table thead th.ov-op span { display:inline-block; writing-mode:vertical-rl; transform:rotate(180deg); white-space:nowrap; max-height:78px; overflow:hidden; text-overflow:ellipsis; font-weight:800; font-size:9px; }
+        .ov-table thead th.ov-op.me span { color:var(--primary); }
+        .ov-table thead th.ov-op.me { box-shadow:inset 0 -3px 0 var(--primary); }
+        .ov-table tbody td { height:18px; padding:0; border:none; text-align:center; font-size:8.5px; font-weight:800; line-height:18px; overflow:hidden; white-space:nowrap; transition:none; vertical-align:middle; }
+        .ov-table td.ov-c { background:var(--sw, transparent); color:var(--sf, var(--text-sec)); border-radius:3px; }
+        .ov-table td.ov-c.e { background:var(--bg-card); }
+        .ov-table.tiny td.ov-c { font-size:0; }
+        .ov-table td.ov-c.me { box-shadow:inset 0 0 0 1.5px var(--primary); }
+        .ov-table td.ov-d { font-size:9.5px; color:var(--text-main); background:var(--bg-card); border-radius:3px; text-align:left; padding-left:5px; }
+        .ov-table td.ov-d small { font-size:8px; color:var(--text-sec); margin-left:3px; font-weight:700; text-transform:uppercase; }
+        .ov-table td.ov-d.red, .ov-table td.ov-d.red small { color:#dc2626; }
+        .ov-table tr.ov-today td.ov-d { background:#f97316; color:#fff; }
+        .ov-table tr.ov-today td.ov-d small { color:#fff; }
+        .ov-table tr.ov-today td.ov-c { box-shadow:inset 0 2px 0 #f97316, inset 0 -2px 0 #f97316; }
+        .ov-table td.ov-s { font-size:9px; color:var(--text-sec); background:var(--bg-card); border-radius:3px; }
+        body.ov-adv .ov-table td.ov-s.ok, body.ov-adv .ov-table td.ov-d.ok { background:#dcfce7; color:#166534; }
+        body.ov-adv .ov-table td.ov-s.last, body.ov-adv .ov-table td.ov-d.last { background:#fef3c7; color:#92400e; }
+        body.ov-adv .ov-table td.ov-s.no, body.ov-adv .ov-table td.ov-d.no { background:#fee2e2; color:#991b1b; }
+        body.ov-adv .ov-table td.ov-d.ok small, body.ov-adv .ov-table td.ov-d.last small, body.ov-adv .ov-table td.ov-d.no small { color:inherit; }
+        body.dark-mode.ov-adv .ov-table td.ov-s.ok, body.dark-mode.ov-adv .ov-table td.ov-d.ok { background:rgba(22,163,74,.25); color:#86efac; }
+        body.dark-mode.ov-adv .ov-table td.ov-s.last, body.dark-mode.ov-adv .ov-table td.ov-d.last { background:rgba(245,158,11,.25); color:#fcd34d; }
+        body.dark-mode.ov-adv .ov-table td.ov-s.no, body.dark-mode.ov-adv .ov-table td.ov-d.no { background:rgba(220,38,38,.25); color:#fca5a5; }
+        body.ov-adv .ov-table tr.ov-today td.ov-d { background:#f97316; color:#fff; }
+        .ov-table tr.ov-mh td { height:auto; padding:12px 6px 4px; font-size:0.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--primary); text-align:left; background:none; line-height:1.2; }
+        .ov-table tbody tr.ov-row { cursor:pointer; }
+        .ov-table tbody tr.ov-row:hover td.ov-d { box-shadow:inset 0 0 0 2px var(--primary); }
+        @media (min-width:900px) { .ov-table tbody td { height:22px; line-height:22px; font-size:10px; } .ov-table thead th.ov-op span { font-size:10px; } }
+        .ov-sheet { position:fixed; inset:0; z-index:1200; background:rgba(15,23,42,.45); display:none; align-items:flex-end; justify-content:center; }
+        .ov-sheet.open { display:flex; }
+        .ov-sheet-card { width:100%; max-width:520px; max-height:82vh; overflow:auto; background:var(--bg-card); border-radius:18px 18px 0 0; padding:16px 16px calc(20px + env(safe-area-inset-bottom)); box-shadow:0 -10px 30px rgba(0,0,0,.25); }
+        @media (min-width:700px) { .ov-sheet { align-items:center; } .ov-sheet-card { border-radius:18px; } }
+        .ovs-head { display:flex; align-items:center; gap:10px; }
+        .ovs-head b { flex:1; font-size:1.05rem; font-weight:800; color:var(--text-main); }
+        .ovs-head button { width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .ovs-badge { border-radius:12px; padding:10px 12px; margin:12px 0 4px; font-size:0.82rem; font-weight:700; line-height:1.45; }
+        .ovs-badge.ok { background:#dcfce7; color:#166534; } .ovs-badge.last { background:#fef3c7; color:#92400e; } .ovs-badge.no { background:#fee2e2; color:#991b1b; }
+        body.dark-mode .ovs-badge.ok { background:rgba(22,163,74,.2); color:#86efac; } body.dark-mode .ovs-badge.last { background:rgba(245,158,11,.2); color:#fcd34d; } body.dark-mode .ovs-badge.no { background:rgba(220,38,38,.2); color:#fca5a5; }
+        .ovs-badge ul { margin:4px 0 0 18px; padding:0; font-weight:600; }
+        .ovs-sec { font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-sec); margin:14px 0 6px; }
+        .ovs-chips { display:flex; flex-wrap:wrap; gap:6px; }
+        .ovs-chip { padding:4px 9px; border-radius:8px; font-size:0.76rem; font-weight:700; background:var(--sw, var(--bg)); color:var(--sf, var(--text-main)); border:1px solid rgba(0,0,0,.05); }
+        .ovs-empty { font-size:0.8rem; color:var(--text-sec); }
+        .ovs-actions { display:flex; gap:8px; margin-top:18px; }
+        .ovs-actions button { flex:1; height:42px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:700 13px 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .ovs-actions button.pri { background:var(--primary); border-color:var(--primary); color:#fff; }
+
+        /* ══ Area coordinatore: regole ferie ══ */
+        .fr-chks { display:flex; flex-wrap:wrap; gap:8px; }
+        .fr-chk { display:inline-flex; align-items:center; gap:7px; padding:7px 12px; border:1px solid var(--cc-line); border-radius:999px; font:500 13px var(--cc-font); color:var(--cc-text); cursor:pointer; background:var(--cc-surface); }
+        .fr-chk input { accent-color:var(--cc-accent); width:15px; height:15px; margin:0; }
+        .fr-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+        .fr-kpis div { border-radius:12px; padding:10px 12px; }
+        .fr-kpis b { display:block; font:700 20px/1.1 var(--cc-font); }
+        .fr-kpis small { font:500 12px var(--cc-font); }
+        .fr-kpis .ok { background:#dcfce7; color:#166534; } .fr-kpis .last { background:#fef3c7; color:#92400e; } .fr-kpis .no { background:#fee2e2; color:#991b1b; }
+        .fr-save { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; margin:4px 0 20px; }
+        .ov-table tr.flash td.ov-d { box-shadow: inset 0 0 0 2px #16a34a; }
         .hg-note { font-size:0.72rem; color:var(--text-sec); line-height:1.45; padding:4px 18px 18px; margin:0; }
         .hc-header-badge .header-text span { color:#94a3b8; }
         .hc-header-badge .btn-close-modal { background:#1e293b; color:#fff; }
@@ -1851,77 +1997,12 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">settings</span> OPZIONI</h3>
-                <span>Impostazioni App</span>
+                <h3><span class="material-icons-round" style="margin-right:10px">tune</span> OPZIONI</h3>
+                <span id="opt-sub">Le tue preferenze</span>
             </div>
-            <button class="btn-close-modal" onclick="closeOptionsModal()">
-                <span class="material-icons-round">close</span>
-            </button>
+            <button class="btn-close-modal" onclick="closeOptionsModal()"><span class="material-icons-round">close</span></button>
         </div>
-        <div class="modal-body" style="padding:0">
-            <div class="option-category-header"><span class="material-icons-round">badge</span> Account</div>
-            <div class="option-identity-badge">
-                <div class="option-identity-avatar" id="options-identity-avatar">?</div>
-                <div style="flex:1;min-width:0;">
-                    <div style="font-weight:800;font-size:0.95rem;" id="options-identity-name">Non identificato</div>
-                    <div style="font-size:0.75rem;color:var(--text-sec);">Utente corrente</div>
-                </div>
-            </div>
-            <div class="option-item">
-                <div style="display:flex;flex-direction:column">
-                    <span style="font-size:1rem">Cambia Utente</span>
-                    <span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Non sei tu? Seleziona un altro nome</span>
-                </div>
-                <button class="btn-change-identity" onclick="closeOptionsModal();setTimeout(requestChangeIdentityDirect,220)">
-                    <span class="material-icons-round" style="font-size:16px">switch_account</span> CAMBIA
-                </button>
-            </div>
-
-            <div class="option-category-header"><span class="material-icons-round">palette</span> Aspetto</div>
-            <div class="option-item">
-                <div style="display:flex;flex-direction:column">
-                    <span style="font-size:1rem">Tema Scuro</span>
-                    <span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Riduci affaticamento occhi</span>
-                </div>
-                <label class="switch">
-                    <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="option-category-header"><span class="material-icons-round">apps</span> Applicazione</div>
-            <div class="option-item" id="install-container">
-                <div style="display:flex;flex-direction:column">
-                    <span style="font-size:1rem">Installa Applicazione</span>
-                    <span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Aggiungi a schermata Home</span>
-                </div>
-                <button class="btn-install" id="btn-install-pwa" onclick="installPWA()">
-                    <span class="material-icons-round">install_mobile</span> INSTALLA
-                </button>
-            </div>
-            <div class="option-item">
-                <div style="display:flex;flex-direction:column">
-                    <span style="font-size:1rem">Aggiorna Dati</span>
-                    <span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Ricarica l'ultima versione dei turni</span>
-                </div>
-                <button class="btn-change-identity" onclick="vibrate();location.reload()">
-                    <span class="material-icons-round" style="font-size:16px">refresh</span> RICARICA
-                </button>
-            </div>
-
-            <div class="option-category-header"><span class="material-icons-round">info</span> Info</div>
-            <div class="info-clock-card">
-                <div class="live-clock-date" id="options-live-date">—</div>
-                <div class="live-clock-time"><span id="options-live-hm">--:--</span><span class="clock-seconds" id="options-live-s">:--</span></div>
-            </div>
-            <div class="info-update-card">
-                <span class="material-icons-round">update</span>
-                <div>
-                    <div style="font-weight:800;font-size:0.85rem;color:var(--text-main);">Ultimo Aggiornamento App</div>
-                    <div style="font-size:0.78rem;color:var(--text-sec);" id="options-last-update">Caricamento...</div>
-                </div>
-            </div>
-        </div>
+        <div class="modal-body" id="opt-body" style="padding:0"></div>
     </div>
 </div>
 
@@ -2191,6 +2272,7 @@
                 <button data-sec="operatori" onclick="ccGo('operatori')"><span class="msym">group</span><span>Operatori</span></button>
                 <button data-sec="ore" onclick="ccGo('ore')"><span class="msym">schedule</span><span>Conteggio ore</span></button>
                 <button data-sec="reperibilita" onclick="ccGo('reperibilita')"><span class="msym">phone_in_talk</span><span>Report reperibilità</span></button>
+                <button data-sec="ferie" onclick="ccGo('ferie')"><span class="msym">beach_access</span><span>Regole ferie</span></button>
                 <div class="cc-nav-group">Sistema</div>
                 <button data-sec="riportare" onclick="ccGo('riportare')"><span class="msym">task_alt</span><span>Da riportare</span><span class="cc-count" id="cc-count-sync"></span></button>
                 <button data-sec="dati" onclick="ccGo('dati')"><span class="msym">shield</span><span>Dati e backup</span></button>
@@ -2542,6 +2624,17 @@
     <iframe id="richieste-iframe" title="Richieste"></iframe>
 </div>
 
+<div id="ov-view" aria-label="Vista d’insieme">
+    <div class="ov-bar">
+        <button class="ov-btn" onclick="toggleCalView()" title="Torna alla vista dettagliata"><span class="material-icons-round">view_agenda</span><span class="l-long">Vista dettagliata</span></button>
+        <div class="ov-title"><b>Vista d’insieme</b><small id="ov-sub">Tutto l’anno</small></div>
+        <button class="ov-btn" id="ov-adv-btn" onclick="ovToggleAdvice()"><span class="material-icons-round">beach_access</span><span class="l-long">Ferie consigliate</span><span class="l-short">Ferie</span></button>
+    </div>
+    <div class="ov-advice" id="ov-advice"></div>
+    <div class="ov-scroll" id="ov-scroll"><div id="ov-body"></div></div>
+</div>
+<div id="ov-sheet" class="ov-sheet" onclick="ovCloseSheet(event)"><div class="ov-sheet-card" id="ov-sheet-card" onclick="event.stopPropagation()"></div></div>
+
 <div class="container">
     <table id="main-table">
         <thead><tr id="table-head"></tr></thead>
@@ -2814,6 +2907,7 @@
         writeIdentityToSession();
         persistIdentityToUidBackup();
         checkIfIAmCoordinator();
+        prefsEnsureOwner(); prefsPullRemote();   // ogni operatore ritrova le sue preferenze
         let m = document.getElementById('identity-modal'); m.classList.remove('open');
         setTimeout(() => { m.style.display = 'none'; showStartupMessages(); }, 300);
     }
@@ -2891,6 +2985,7 @@
                 renderCoordSyncList();
             }
             if(data.coverageMin) { coverageMin = Object.assign({}, COVERAGE_DEFAULT, data.coverageMin); dayChecksCache = null; }
+            if(data.ferieRules) { ferieRules = Object.assign({}, FERIE_DEFAULT, data.ferieRules); if(calOverview) renderOverviewSoon(); }
             if(data.coordinatorName !== undefined) {
                 coordinatorName = data.coordinatorName || null;
                 checkIfIAmCoordinator();
@@ -3428,13 +3523,75 @@
         else { const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; if(isIOS) alert("Su iPhone: tocca 'Condividi' e 'Aggiungi alla schermata Home'."); else alert("Usa il menu del browser per installare l'app."); }
     }
 
-    if(localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark-mode');
-        document.querySelector('#theme-color-meta').setAttribute('content','#061331');
-        window.addEventListener('load', () => { if(document.getElementById('dark-mode-toggle')) document.getElementById('dark-mode-toggle').checked = true; });
+    // ═══ PREFERENZE PERSONALI ════════════════════════════════════════════
+    // Ogni operatore ha le sue scelte (tema, calendario, notifiche...): si salvano sul
+    // dispositivo sotto il suo nome e anche su Firebase, così le ritrova su ogni telefono
+    // in cui sceglie il proprio nome. Chi non ha ancora scelto il nome usa "OSPITE".
+    var PREF_DEFAULTS = {
+        theme:'light', startPage:'calendario', startToday:true,
+        myColFirst:false, highlightMe:true, showTimes:true, showRepBars:true, filter:null,
+        notifyChanges:true, notifyRep:true, notifyTomorrow:false, haptics:true
+    };
+    var prefs = null, prefsOwnerLoaded = null, prefsRemoteTimer = null;
+    function prefOwner() { return (userIdentity && userIdentity !== 'Ospite') ? String(userIdentity).toUpperCase() : 'OSPITE'; }
+    function loadPrefs() {
+        const owner = prefOwner(); prefsOwnerLoaded = owner;
+        let p = null; try { p = JSON.parse(localStorage.getItem('prefs_v1__' + owner) || 'null'); } catch(e) {}
+        if(!p) p = { theme: localStorage.getItem('theme') === 'dark' ? 'dark' : 'light' };   // primo avvio: si parte dal tema usato finora
+        return Object.assign({}, PREF_DEFAULTS, p);
     }
+    function savePrefsLocal() { try { localStorage.setItem('prefs_v1__' + prefsOwnerLoaded, JSON.stringify(prefs)); } catch(e) {} }
+    function prefsSaveRemoteSoon() {
+        if(prefsOwnerLoaded === 'OSPITE') return;
+        clearTimeout(prefsRemoteTimer);
+        prefsRemoteTimer = setTimeout(() => {
+            if(!fbReady || prefsOwnerLoaded === 'OSPITE') return;
+            cfgRef('prefs').set({ [prefsOwnerLoaded]: prefs }, { merge:true }).catch(e => console.warn('Preferenze non salvate online:', e));
+        }, 1500);
+    }
+    // Se su un altro dispositivo le preferenze sono più recenti, si usano quelle.
+    async function prefsPullRemote() {
+        if(!fbReady || prefsOwnerLoaded === 'OSPITE') return;
+        try {
+            const owner = prefsOwnerLoaded, snap = await cfgRef('prefs').get();
+            const r = snap.exists ? (snap.data() || {})[owner] : null;
+            if(owner !== prefsOwnerLoaded || !r || (r.updatedAt || 0) <= (prefs.updatedAt || 0)) return;
+            prefs = Object.assign({}, PREF_DEFAULTS, r); savePrefsLocal(); applyAllPrefs();
+            if(document.getElementById('options-modal').classList.contains('open')) renderOptions();
+        } catch(e) {}
+    }
+    function prefsEnsureOwner() { if(prefsOwnerLoaded !== prefOwner()) { prefs = loadPrefs(); applyAllPrefs(); } }
+    function applyTheme() {
+        const dark = prefs.theme === 'dark' || (prefs.theme === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.body.classList.toggle('dark-mode', dark);
+        const meta = document.querySelector('#theme-color-meta'); if(meta) meta.setAttribute('content', dark ? '#061331' : '#0b2257');
+        try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch(e) {}
+    }
+    function applyBodyPrefClasses() {
+        document.body.classList.toggle('pref-hl-me', !!prefs.highlightMe);
+        document.body.classList.toggle('pref-no-times', !prefs.showTimes);
+        document.body.classList.toggle('pref-no-repbar', !prefs.showRepBars);
+    }
+    function prefsApplyFilter() {
+        if(prefs.filter == null) {   // prima volta: si riprende il filtro che c'era su questo dispositivo
+            try { const arr = JSON.parse(localStorage.getItem('selected_nurses') || 'null'); if(Array.isArray(arr) && arr.length) { prefs.filter = drivers.filter(d => arr.includes(d.idx)).map(d => d.originalName || d.name); savePrefsLocal(); } } catch(e) {}
+        }
+        selectedDrivers = new Set(drivers.filter(d => (prefs.filter || []).includes(d.originalName || d.name)).map(d => d.idx));
+    }
+    function applyAllPrefs() {
+        applyTheme(); applyBodyPrefClasses();
+        if(finalData.length && drivers.length) { prefsApplyFilter(); renderDriverFilterDropdown(); updateDriverFilterBadge(); renderTable(); }
+    }
+    function setPref(k, v, noApply) {
+        prefs[k] = v; prefs.updatedAt = Date.now(); savePrefsLocal(); prefsSaveRemoteSoon();
+        if(noApply) return;
+        if(k === 'theme') applyTheme();
+        else if(['myColFirst','highlightMe','showTimes','showRepBars'].includes(k)) { applyBodyPrefClasses(); if(finalData.length) renderTable(); }
+    }
+    prefs = loadPrefs(); applyTheme(); applyBodyPrefClasses();
+    if(window.matchMedia) { try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if(prefs.theme === 'auto') applyTheme(); }); } catch(e) {} }
 
-    function vibrate() { if(navigator.vibrate) navigator.vibrate(10); }
+    function vibrate() { if(prefs && prefs.haptics === false) return; if(navigator.vibrate) navigator.vibrate(10); }
 
     function toggleMenu() {
         vibrate(); let m = document.getElementById('menu-dropdown');
@@ -3473,6 +3630,8 @@
                 { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
                 hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Consulta gli anni archiviati (sola lettura)', color: MN_COLORS.cal, run: () => openYearPicker() } : null
             ] },
+            { id:'view', icon: calOverview ? 'view_agenda' : 'grid_view', label: calOverview ? 'Vista dettagliata' : 'Vista d’insieme', desc: calOverview ? 'Torna al calendario giorno per giorno' : 'Tutto l’anno a colpo d’occhio', color: MN_COLORS.cal, run: () => toggleCalView() },
+            { id:'ferie', icon:'beach_access', label:'Quando prendere le ferie', desc:'Giorni e periodi consigliati', color:'#16a34a', run: () => openFerieAdvice() },
             { id:'ore', icon:'query_stats', label:'Conteggio orario', desc:'Ore lavorate e saldo rispetto al contratto', color: MN_COLORS.ore, run: () => openHoursModal() },
             { id:'assenze', icon:'event_busy', label:'Conteggio assenze', desc:'C.O., permessi, malattia, domeniche e festivi lavorati', color:'#b45309', run: () => openAbsModal() },
             { group:'Squadra' },
@@ -3490,7 +3649,7 @@
             { group:'App' },
             { id:'imp', icon:'tune', label:'Impostazioni', desc:'Tema, notifiche, utente, aggiornamento', color: MN_COLORS.imp, children: [
                 { id:'dark', icon: dark ? 'dark_mode' : 'light_mode', label:'Tema scuro', desc: dark ? 'Attivo' : 'Disattivato', color: MN_COLORS.imp, toggle: dark, stay:true, run: () => { toggleDarkMode(); renderMenu(); } },
-                { id:'opts', icon:'settings', label:'Opzioni dell\u2019app', desc:'Notifiche, installazione e altro', color: MN_COLORS.imp, run: () => openOptionsModal() },
+                { id:'opts', icon:'settings', label:'Opzioni dell\u2019app', desc:'Le tue preferenze: tema, calendario, notifiche', color: MN_COLORS.imp, run: () => openOptionsModal() },
                 { id:'user', icon:'switch_account', label:'Cambia utente', desc: userIdentity ? 'Ora sei ' + userIdentity : 'Scegli chi sei', color: MN_COLORS.imp, run: () => requestChangeIdentity() },
                 { id:'reload', icon:'refresh', label:'Aggiorna l\u2019app', desc:'Ricarica per avere l\u2019ultima versione', color: MN_COLORS.imp, run: () => { vibrate(); location.reload(); } }
             ] }
@@ -3537,22 +3696,14 @@
     function toggleActions() {}
 
     function openOptionsModal() {
-        closeMenu(); let m = document.getElementById('options-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
-        const tg = document.getElementById('dark-mode-toggle'); if(tg) tg.checked = document.body.classList.contains('dark-mode');
-        const nameEl = document.getElementById('options-identity-name'), avEl = document.getElementById('options-identity-avatar');
-        if(nameEl && avEl) {
-            if(userIdentity) { nameEl.innerText = userIdentity; avEl.innerText = userIdentity.substring(0,2).toUpperCase(); }
-            else { nameEl.innerText = "Non identificato"; avEl.innerText = "?"; }
-        }
+        closeMenu(); prefsEnsureOwner(); renderOptions();
+        let m = document.getElementById('options-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
         setCurrentView("Opzioni");
     }
     function closeOptionsModal(e) { if(e && e.target !== e.currentTarget) return; let m = document.getElementById('options-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 200); }
 
     function toggleDarkMode() {
-        vibrate(); document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        document.querySelector('#theme-color-meta').setAttribute('content', isDark ? '#061331' : '#0b2257');
+        vibrate(); setPref('theme', document.body.classList.contains('dark-mode') ? 'light' : 'dark');
     }
 
     function toggleMonthDropdown(e) {
@@ -3573,7 +3724,7 @@
             const niceName = m.name.charAt(0) + m.name.slice(1).toLowerCase();
             let btn = document.createElement('div'); btn.className = 'month-btn' + (isCurrent ? ' month-current' : '');
             btn.innerHTML = `<span class="material-icons-round">${isCurrent ? 'today' : 'event'}</span><span>${niceName}</span>`;
-            btn.onclick = () => { vibrate(); closeMonthDropdown(); const el = document.getElementById(m.id); if(el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 120, behavior:"smooth" }); };
+            btn.onclick = () => { vibrate(); closeMonthDropdown(); if(calOverview) { ovScrollTo('ov-m-' + MONTH_MAP[m.name]); return; } const el = document.getElementById(m.id); if(el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 120, behavior:"smooth" }); };
             grid.appendChild(btn);
         });
     }
@@ -3706,15 +3857,16 @@
         rebuildDrivers();                    // ordine, nascosti e rimossi decisi in Area Coordinatore
         updateYearUi();
         publishSaldiSoon();
-        let savedDr = localStorage.getItem("selected_nurses");
-        if(savedDr) { try { const arr = JSON.parse(savedDr); if(Array.isArray(arr)) selectedDrivers = new Set(arr); } catch(e) {} }
+        prefsApplyFilter();                  // colleghi visibili: preferenza dell'operatore
         renderDriverFilterDropdown(); updateDriverFilterBadge();
         initNotificationOptions(); loadNotificationHistory(); renderTable(); startLiveClock();
         setCurrentView("Tabella Turni");
-        setTimeout(scrollToToday, 600);
+        if(prefs.startToday !== false) setTimeout(scrollToToday, 600);
+        if(prefs.startPage === 'insieme') setTimeout(() => setCalView('insieme'), 350);
         setTimeout(async () => {
             if(!userIdentity && identityRecoveryPromise) { try { await identityRecoveryPromise; } catch(e) {} }
-            if(userIdentity) { writeIdentityToSession(); persistIdentityToUidBackup(); showStartupMessages(); }
+            prefsEnsureOwner(); prefsPullRemote();
+            if(userIdentity) { writeIdentityToSession(); persistIdentityToUidBackup(); showStartupMessages(); if(prefs.startPage === 'me') setTimeout(openMyPage, 400); }
             else showIdentityInfoPopup();
             checkForScheduleChanges();
         }, 2600);
@@ -3753,7 +3905,7 @@
         let oldJson = localStorage.getItem(snapKey);
         if(!oldJson && SHIFT_YEAR === 2026) oldJson = localStorage.getItem(legacyKey);
         const show = v => { const [code, sub] = v.split('|'); return sub ? (SPECIAL_SUBCODES[sub] || sub).toLowerCase().replace(/^./, c => c.toUpperCase()) : formatShiftLabel(code); };
-        if(oldJson) {
+        if(oldJson && prefs.notifyChanges !== false) {
             const old = JSON.parse(oldJson), added = [], changed = [], removed = [];
             Object.entries(current).forEach(([k, v]) => {
                 const o = old[k]; if(o === undefined || o === v) return;
@@ -3777,7 +3929,8 @@
             if(alerts.length) { saveNotifications(); updateBadge(); showChangeAlert(alerts); if(document.getElementById('notif-center-modal').classList.contains('open')) renderNotifList(); }
         }
         localStorage.setItem(snapKey, JSON.stringify(current));
-        checkReperibilitaReminder(myDriver);
+        if(prefs.notifyRep !== false) checkReperibilitaReminder(myDriver);
+        checkTomorrowReminder(myDriver);
     }
     // Ricontrollo quando arrivano modifiche mentre l'app è aperta (non solo all'avvio).
     let scheduleCheckTimer = null;
@@ -3870,6 +4023,7 @@
         modifiche:  { icon:'sync',            color:'#2563eb', title:'Turni modificati' },
         rimosso:    { icon:'event_busy',      color:'#dc2626', title:'Turno rimosso' },
         rep:        { icon:'phone_in_talk',   color:'#e11d48', title:'Reperibilit\u00e0' },
+        domani:     { icon:'event',           color:'#0891b2', title:'Turno di domani' },
         richiesta:  { icon:'assignment',      color:'#7c3aed', title:'Nuova richiesta' },
         altro:      { icon:'notifications',   color:'#64748b', title:'Avviso' }
     };
@@ -4026,6 +4180,7 @@
     }
 
     function scrollToToday() {
+        if(calOverview) { ovScrollToday(); return; }
         const el = document.getElementById('today-row');
         if(el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 240, behavior:"smooth" });
     }
@@ -4034,7 +4189,7 @@
         vibrate();
         if(val === 'all') selectedDrivers.clear();
         else { const intVal = parseInt(val); if(selectedDrivers.has(intVal)) selectedDrivers.delete(intVal); else selectedDrivers.add(intVal); }
-        localStorage.setItem("selected_nurses", JSON.stringify([...selectedDrivers])); renderTable();
+        setPref('filter', drivers.filter(d => selectedDrivers.has(d.idx)).map(d => d.originalName || d.name), true); renderTable();
         renderDriverFilterDropdown(); updateDriverFilterBadge();
         if(selectedDrivers.size === 0) setCurrentView("Tabella Turni (Tutti)");
         else setCurrentView("Filtro: " + drivers.filter(d => selectedDrivers.has(d.idx)).map(d => d.name).join(", "));
@@ -4403,6 +4558,345 @@
         if(fbReady) cfgRef('settings').set({ coverageMin }, { merge:true }).then(() => ccToast('Soglie salvate')).catch(() => ccToast('Salvataggio non riuscito.', true));
     }
 
+    // ═══ GRIGLIE CON COLONNA DEI NOMI SEPARATA ═══════════════════════════
+    // Due tabelle affiancate: i nomi restano fermi a sinistra e scorre solo la parte destra.
+    // Sul telefono è più affidabile della colonna "sticky" (che si sovrapponeva ai numeri).
+    function xgHtml(cls, headL, headR, items, minW) {
+        const t = side => `<table class="${cls} xg-${side}"${side === 'right' ? ` style="min-width:${minW}px"` : ''}><thead><tr>${side === 'left' ? headL : headR}</tr></thead><tbody>${items.map(it => `<tr ${it.attrs || ''}>${it[side]}</tr>`).join('')}</tbody></table>`;
+        return `<div class="xg-split">${t('left')}<div class="xg-scroll">${t('right')}</div></div>`;
+    }
+
+    // ═══ OPZIONI DELL'APP (per operatore) ════════════════════════════════
+    function prefMe() {
+        if(!userIdentity || userIdentity === 'Ospite') return null;
+        const u = String(userIdentity).toUpperCase();
+        return drivers.find(d => d.name.toUpperCase() === u || (d.originalName || '').toUpperCase() === u) || null;
+    }
+    function renderOptions() {
+        const body = document.getElementById('opt-body'); if(!body) return;
+        const named = !!(userIdentity && userIdentity !== 'Ospite');
+        const nm = named ? userIdentity : 'Ospite';
+        const seg = (key, opts) => `<div class="opt-seg">${opts.map(([v, l, ic]) => `<button class="${prefs[key] === v ? 'on' : ''}" onclick="optSet('${key}','${v}')">${ic ? `<span class="material-icons-round">${ic}</span>` : ''}${l}</button>`).join('')}</div>`;
+        const sw = (key, title, sub) => `<div class="option-item"><div class="opt-txt"><span>${title}</span><small>${sub}</small></div><label class="switch"><input type="checkbox" ${prefs[key] ? 'checked' : ''} onchange="optSet('${key}', this.checked)"><span class="slider"></span></label></div>`;
+        const nSel = selectedDrivers.size;
+        const lastUp = (() => { try { const d = new Date(document.lastModified); return d.toLocaleDateString('it-IT', { day:'2-digit', month:'short', year:'numeric' }) + ' - ' + d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }); } catch(e) { return ''; } })();
+        document.getElementById('opt-sub').textContent = named ? 'Le preferenze di ' + nm : 'Preferenze di questo dispositivo';
+        body.innerHTML = `
+            <div class="opt-hero">
+                <div class="opt-av">${esc(named ? nm.slice(0, 2).toUpperCase() : '?')}</div>
+                <div class="opt-hero-txt"><b>${esc(nm)}</b><small>${named ? 'Queste scelte valgono solo per te e le ritrovi su ogni dispositivo in cui scegli il tuo nome.' : 'Scegli chi sei per avere preferenze tutte tue, anche su altri dispositivi.'}</small></div>
+                <button onclick="closeOptionsModal();setTimeout(requestChangeIdentityDirect,220)"><span class="material-icons-round">switch_account</span>${named ? 'Cambia' : 'Scegli'}</button>
+            </div>
+
+            <div class="option-category-header"><span class="material-icons-round">palette</span> Aspetto</div>
+            <div class="opt-block"><div class="opt-txt"><span>Tema</span><small>Automatico segue l’impostazione del telefono.</small></div>
+                ${seg('theme', [['light', 'Chiaro', 'light_mode'], ['dark', 'Scuro', 'dark_mode'], ['auto', 'Automatico', 'brightness_auto']])}</div>
+
+            <div class="option-category-header"><span class="material-icons-round">calendar_month</span> Calendario</div>
+            <div class="opt-block"><div class="opt-txt"><span>All’apertura mostra</span><small>La schermata con cui parte l’app.</small></div>
+                ${seg('startPage', [['calendario', 'Calendario', 'view_agenda'], ['insieme', 'Vista d’insieme', 'grid_view'], ['me', 'La mia pagina', 'person']])}</div>
+            ${sw('startToday', 'Parti dal giorno di oggi', 'All’apertura il calendario scorre fino a oggi.')}
+            ${sw('myColFirst', 'La mia colonna per prima', named ? 'I tuoi turni sempre nella prima colonna, accanto alla data.' : 'Disponibile dopo aver scelto chi sei.')}
+            ${sw('highlightMe', 'Evidenzia la mia colonna', 'Colora leggermente la tua colonna per trovarla subito.')}
+            ${sw('showTimes', 'Orari dentro i turni', 'Spegnendoli le caselle diventano più piccole e ne vedi di più.')}
+            ${sw('showRepBars', 'Fasce di reperibilità', 'Le barre verdi e rosse delle fasce sotto i turni.')}
+            <div class="option-item"><div class="opt-txt"><span>Colleghi visibili</span><small>${nSel ? `Ne vedi ${nSel} su ${drivers.filter(d => !d.hidden).length}` : 'Vedi tutti i colleghi'}</small></div>
+                <button class="btn-change-identity" onclick="closeOptionsModal();setTimeout(() => toggleDriverFilterDropdown(), 240)"><span class="material-icons-round" style="font-size:16px">groups</span> SCEGLI</button></div>
+
+            <div class="option-category-header"><span class="material-icons-round">notifications</span> Notifiche</div>
+            ${sw('notifyChanges', 'Cambi ai miei turni', 'Avviso quando un tuo turno viene aggiunto, cambiato o tolto.')}
+            ${sw('notifyRep', 'Promemoria reperibilità', 'Il giorno prima, se sei reperibile o copri una fascia.')}
+            ${sw('notifyTomorrow', 'Il mio turno di domani', 'Dopo mezzogiorno, un promemoria con il turno del giorno dopo.')}
+
+            <div class="option-category-header"><span class="material-icons-round">apps</span> Applicazione</div>
+            ${sw('haptics', 'Vibrazione al tocco', 'Una breve vibrazione quando tocchi i pulsanti.')}
+            <div class="option-item" id="install-container"><div class="opt-txt"><span>Installa l’app</span><small>Aggiungila alla schermata Home</small></div>
+                <button class="btn-install" id="btn-install-pwa" onclick="installPWA()"><span class="material-icons-round">install_mobile</span> INSTALLA</button></div>
+            <div class="option-item"><div class="opt-txt"><span>Aggiorna</span><small>Ricarica l’ultima versione dei turni</small></div>
+                <button class="btn-change-identity" onclick="vibrate();location.reload()"><span class="material-icons-round" style="font-size:16px">refresh</span> RICARICA</button></div>
+            <div class="opt-reset"><button onclick="optReset()"><span class="material-icons-round">restart_alt</span>Ripristina le mie preferenze</button></div>
+
+            <div class="option-category-header"><span class="material-icons-round">info</span> Info</div>
+            <div class="info-clock-card">
+                <div class="live-clock-date" id="options-live-date">—</div>
+                <div class="live-clock-time"><span id="options-live-hm">--:--</span><span class="clock-seconds" id="options-live-s">:--</span></div>
+            </div>
+            <div class="info-update-card"><span class="material-icons-round">update</span>
+                <div><div style="font-weight:800;font-size:0.85rem;color:var(--text-main);">Ultimo aggiornamento dell’app</div>
+                <div style="font-size:0.78rem;color:var(--text-sec);" id="options-last-update">${esc(lastUp)}</div></div></div>`;
+    }
+    function optSet(k, v) {
+        vibrate();
+        if(k === 'myColFirst' && v && !prefMe()) { ccToast('Scegli prima chi sei', true); renderOptions(); return; }
+        setPref(k, v);
+        if(k === 'theme' || k === 'startPage') renderOptions();
+    }
+    async function optReset() {
+        const ok = await ccConfirm('Ripristinare le preferenze?', 'Tema, calendario, colleghi visibili e notifiche tornano come all’inizio.', 'Ripristina');
+        if(!ok) return;
+        prefs = Object.assign({}, PREF_DEFAULTS, { filter: [], updatedAt: Date.now() });
+        savePrefsLocal(); prefsSaveRemoteSoon(); applyAllPrefs(); renderOptions();
+        ccToast('Preferenze ripristinate');
+    }
+    // Promemoria del turno di domani (se attivato nelle opzioni), una volta al giorno.
+    function checkTomorrowReminder(md) {
+        if(!prefs.notifyTomorrow || !md) return;
+        const now = new Date(); if(now.getHours() < 12) return;
+        const t = new Date(now); t.setDate(t.getDate() + 1); t.setHours(0, 0, 0, 0);
+        const key = 'tomorrow_rem_' + (md.originalName || md.name) + '_' + ymd(t);
+        if(localStorage.getItem(key)) return;
+        const dd = buildDaysIndex().find(x => x.date.getTime() === t.getTime()); if(!dd) return;
+        const info = computeDayInfo(dd.rowIdx, md.idx); if(!info.code) return;
+        const lbl = info.justified ? ((ABS_TYPES[info.code] || {}).label || info.label) : (SHIFT_NAMES[info.code] || info.label);
+        const time = info.justified ? '' : ((/^[mpr]$/.test(info.code) ? SCHEDULE_DIURNI[info.code] : SCHEDULE[info.code]) || '');
+        const dateLabel = t.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' });
+        notifHistory.unshift({ id: Date.now() + Math.random(), ts: Date.now(), kind:'domani', title:'Il tuo turno di domani', detail:`${dateLabel}: ${lbl}${time ? ' ' + time : ''}`, text:`<b>Domani</b> — ${esc(lbl)}`, read:false, archived:false, date: new Date().toLocaleString(), type:'turno' });
+        saveNotifications(); updateBadge();
+        try { localStorage.setItem(key, '1'); } catch(e) {}
+    }
+
+    // ═══ FERIE: REGOLE E GIORNI CONSIGLIATI ══════════════════════════════
+    // Le regole le decide il coordinatore (Area coordinatore > Regole ferie).
+    var FERIE_DEFAULT = { max:3, ferieCodes:['f','v'], blockCodes:['p','pn'], maxOther:0, minDays:3, useCoverage:true, blocked:[] };
+    var ferieRules = JSON.parse(JSON.stringify(FERIE_DEFAULT));
+    const FR_SHIFT = { M:'mattina', P:'pomeriggio', N:'notte' };
+    function ferieDay(dd, active, rules) {
+        rules = rules || ferieRules;
+        const fer = [], oth = [], cnt = { M:0, P:0, N:0 };
+        active.forEach(d => {
+            const cell = finalData[dd.rowIdx][d.idx] || {};
+            const sub = (cell.subV || '').toString().trim().toLowerCase();
+            if(SPECIAL_SUBCODES[sub] !== undefined) {
+                if(rules.ferieCodes.includes(sub)) fer.push(d);
+                else if(rules.blockCodes.includes(sub)) oth.push({ d, sub });
+                return;
+            }
+            const c = workCode(dd.rowIdx, d.idx);
+            if(c === 'M' || c === 'm' || c === 'M+N') cnt.M++; if(c === 'P' || c === 'p') cnt.P++; if(c === 'N' || c === 'M+N') cnt.N++;
+        });
+        const iso = ymd(dd.date);
+        const bl = (rules.blocked || []).find(b => b.from && b.from <= iso && iso <= (b.to || b.from));
+        const low = rules.useCoverage && (cnt.M + cnt.P + cnt.N) > 0 ? ['M','P','N'].filter(k => cnt[k] < coverageMin[k]) : [];
+        const reasons = [];
+        if(bl) reasons.push('periodo bloccato dal coordinatore' + (bl.note ? ' (' + bl.note + ')' : ''));
+        if(fer.length >= rules.max) reasons.push(`già ${fer.length} ${fer.length === 1 ? 'persona' : 'persone'} in ferie (massimo ${rules.max})`);
+        if(oth.length > rules.maxOther) oth.forEach(o => reasons.push(`${SPECIAL_SUBCODES[o.sub].toLowerCase()} di ${o.d.name}`));
+        if(low.length) reasons.push('copertura già sotto il minimo: ' + low.map(k => FR_SHIFT[k]).join(', '));
+        const free = Math.max(0, rules.max - fer.length);
+        return { fer, oth, cnt, bl, reasons, free, status: reasons.length ? 'no' : (free <= 1 ? 'last' : 'ok') };
+    }
+    function frShort(a, b) {
+        const f = (d, m) => d.getDate() + (m ? ' ' + MONTH_NAMES_IT[d.getMonth()].slice(0, 3) : '');
+        if(!b || a.getTime() === b.getTime()) return f(a, true);
+        return a.getMonth() === b.getMonth() ? `${a.getDate()}–${f(b, true)}` : `${f(a, true)} – ${f(b, true)}`;
+    }
+    // Periodi consecutivi (da una data in poi) senza motivi contrari, lunghi almeno minDays.
+    function feriePeriods(rules, from, to) {
+        const active = drivers.filter(d => !d.hidden), out = [];
+        let cur = null;
+        const close = () => { if(cur && cur.n >= rules.minDays) out.push(cur); cur = null; };
+        buildDaysIndex().forEach(dd => {
+            if(dd.date < from || (to && dd.date > to)) return;
+            const f = ferieDay(dd, active, rules);
+            if(f.status === 'no') { close(); return; }
+            if(cur && (dd.date - cur.end) === 86400000) { cur.end = dd.date; cur.n++; cur.minFree = Math.min(cur.minFree, f.free); }
+            else { close(); cur = { start: dd.date, end: dd.date, n: 1, minFree: f.free, row: dd.rowIdx }; }
+        });
+        close();
+        out.forEach(p => p.label = frShort(p.start, p.end));
+        return out;
+    }
+    function ferieRulesText(r) {
+        const parts = [`massimo ${r.max} in ferie nello stesso giorno`];
+        if(r.blockCodes.length) parts.push(`${r.maxOther ? 'al massimo ' + r.maxOther : 'nessun'} ${r.maxOther ? 'tra ' : ''}${r.blockCodes.map(k => SPECIAL_SUBCODES[k].toLowerCase()).join(', ')} nello stesso giorno`);
+        if(r.useCoverage) parts.push('copertura minima rispettata');
+        if((r.blocked || []).length) parts.push(r.blocked.length === 1 ? '1 periodo bloccato' : r.blocked.length + ' periodi bloccati');
+        return 'Regole del coordinatore: ' + parts.join(' · ') + '.';
+    }
+
+    // ═══ VISTA D'INSIEME DEL CALENDARIO ═════════════════════════════════
+    // Tutto l'anno a colpo d'occhio: una riga per giorno, una colonnina per operatore,
+    // colori dei turni. Con "Ferie consigliate" i giorni si colorano secondo le regole.
+    var calOverview = false, ovAdvice = false, ovRenderTimer = null, ovInfo = {};
+    function setCalView(v, opts) {
+        const on = v === 'insieme';
+        if(on && coordEditModeActive) { ccToast('Chiudi prima la modifica dei turni', true); return; }
+        calOverview = on;
+        if(opts && opts.advice !== undefined) ovAdvice = !!opts.advice;
+        document.body.classList.toggle('cal-overview', on);
+        document.body.classList.toggle('ov-adv', on && ovAdvice);
+        document.getElementById('ov-view').classList.toggle('open', on);
+        if(on) { renderOverview(); setTimeout(ovScrollToday, 30); setCurrentView('Vista d’insieme'); }
+        else { ovCloseSheet(); setCurrentView('Tabella Turni'); }
+    }
+    function toggleCalView() { vibrate(); setCalView(calOverview ? 'dettaglio' : 'insieme'); }
+    function openFerieAdvice() { vibrate(); setCalView('insieme', { advice:true }); }
+    function ovToggleAdvice() { vibrate(); ovAdvice = !ovAdvice; document.body.classList.toggle('ov-adv', ovAdvice); renderOvAdvice(); }
+    function renderOverviewSoon() { clearTimeout(ovRenderTimer); ovRenderTimer = setTimeout(() => { if(calOverview) renderOverview(true); }, 250); }
+    function renderOverview(keepScroll) {
+        const box = document.getElementById('ov-body'); if(!box || !calOverview) return;
+        if(!finalData.length) { box.innerHTML = '<div class="coord-sync-empty">Sto caricando i turni…</div>'; return; }
+        const sc = document.getElementById('ov-scroll'), top = sc.scrollTop;
+        const me = prefMe();
+        let active = drivers.filter(d => !d.hidden);
+        if(me && prefs.myColFirst && active.includes(me)) active = [me].concat(active.filter(d => d !== me));
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const head = `<tr><th class="ov-d">Giorno</th>${active.map(d => `<th class="ov-op ${me && d.idx === me.idx ? 'me' : ''}" title="${esc(d.name)}"><span>${esc(d.name)}</span></th>`).join('')}<th class="ov-s" title="Persone in ferie">Ferie</th></tr>`;
+        let html = '', lastM = -1; ovInfo = {};
+        buildDaysIndex().forEach(dd => {
+            if(dd.monthIdx !== lastM) {
+                lastM = dd.monthIdx;
+                html += `<tr class="ov-mh" id="ov-m-${lastM}"><td colspan="${active.length + 2}">${MONTH_NAMES_IT[lastM]} ${SHIFT_YEAR}</td></tr>`;
+            }
+            const f = ferieDay(dd, active); ovInfo[dd.rowIdx] = f;
+            const red = dd.date.getDay() === 0 || dd.date.getDay() === 6 || HOLIDAYS[`${dd.monthIdx}-${dd.day}`];
+            const isToday = dd.date.getTime() === today.getTime();
+            const wd = dd.date.toLocaleDateString('it-IT', { weekday:'short' }).slice(0, 2);
+            let cells = '';
+            active.forEach(d => {
+                const info = computeDayInfo(dd.rowIdx, d.idx), meta = ccCodeMeta(info);
+                const mine = me && d.idx === me.idx ? ' me' : '';
+                if(meta.kind === 'empty') { cells += `<td class="ov-c e${mine}"></td>`; return; }
+                const col = meta.colors ? `--sw:var(${meta.colors.bg});--sf:var(${meta.colors.fg})` : (info.code === 'gr' ? '--sw:#ec4899;--sf:#fff' : '');
+                cells += `<td class="ov-c${mine}" style="${col}">${esc(meta.short)}</td>`;
+            });
+            html += `<tr class="ov-row${isToday ? ' ov-today' : ''}" id="ov-r-${dd.rowIdx}" onclick="ovDayTap(${dd.rowIdx})"><td class="ov-d ${red ? 'red' : ''} ${f.status}"><b>${dd.day}</b><small>${wd}</small></td>${cells}<td class="ov-s ${f.status}">${f.fer.length}<small style="opacity:.7">/${ferieRules.max}</small></td></tr>`;
+        });
+        box.innerHTML = `<table class="ov-table" id="ov-table"><thead>${head}</thead><tbody>${html}</tbody></table>`;
+        ovFitCells(active.length);
+        document.getElementById('ov-sub').textContent = `${active.length} operatori · anno ${SHIFT_YEAR}`;
+        renderOvAdvice();
+        if(keepScroll) sc.scrollTop = top;
+    }
+    function ovFitCells(n) {
+        const sc = document.getElementById('ov-scroll'), t = document.getElementById('ov-table'); if(!sc || !t) return;
+        n = n || drivers.filter(d => !d.hidden).length;
+        t.classList.toggle('tiny', (sc.clientWidth - 8 - 42 - 34) / Math.max(1, n) < 18);
+    }
+    window.addEventListener('resize', () => { if(calOverview) ovFitCells(); });
+    function renderOvAdvice() {
+        const el = document.getElementById('ov-advice'); if(!el) return;
+        const btn = document.getElementById('ov-adv-btn'); if(btn) btn.classList.toggle('on', ovAdvice);
+        if(!ovAdvice) { el.innerHTML = ''; return; }
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const P = feriePeriods(ferieRules, today);
+        el.innerHTML = `<div class="ov-legend"><span><i style="background:#22c55e"></i>Consigliato</span><span><i style="background:#f59e0b"></i>Un solo posto libero</span><span><i style="background:#ef4444"></i>Sconsigliato</span><span style="margin-left:auto">tocca un giorno per i dettagli</span></div>
+            <div class="ov-rules">${esc(ferieRulesText(ferieRules))}</div>
+            ${P.length ? `<div class="ov-periods">${P.slice(0, 40).map(p => `<button class="ov-per ${p.minFree <= 1 ? 'last' : ''}" onclick="ovScrollTo('ov-r-${p.row}')"><b>${p.label}</b><small>${p.n} giorni · ${p.minFree <= 1 ? '1 posto libero' : 'almeno ' + p.minFree + ' posti'}</small></button>`).join('')}</div>`
+                : `<div class="ov-none">Da oggi a fine anno non ci sono periodi di almeno ${ferieRules.minDays} giorni senza ostacoli.</div>`}`;
+    }
+    function ovScrollTo(id) {
+        const sc = document.getElementById('ov-scroll'), el = document.getElementById(id); if(!sc || !el) return;
+        const headH = (document.querySelector('#ov-table thead') || { offsetHeight:0 }).offsetHeight;
+        sc.scrollTo({ top: sc.scrollTop + el.getBoundingClientRect().top - sc.getBoundingClientRect().top - headH - 8, behavior:'smooth' });
+        el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1200);
+    }
+    function ovScrollToday() {
+        const el = document.querySelector('#ov-table tr.ov-today'); if(!el) return;
+        const sc = document.getElementById('ov-scroll'), headH = document.querySelector('#ov-table thead').offsetHeight;
+        sc.scrollTop += el.getBoundingClientRect().top - sc.getBoundingClientRect().top - headH - 60;
+    }
+    function ovDayTap(r) {
+        vibrate();
+        const dd = buildDaysIndex().find(x => x.rowIdx === r), f = ovInfo[r]; if(!dd || !f) return;
+        const active = drivers.filter(d => !d.hidden), me = prefMe();
+        const chip = (d, extra) => { const meta = ccCodeMeta(computeDayInfo(r, d.idx)); const st = meta.colors ? `--sw:var(${meta.colors.bg});--sf:var(${meta.colors.fg})` : ''; return `<span class="ovs-chip" style="${st}">${esc(d.name)}${extra ? ' · ' + esc(extra) : ''}</span>`; };
+        const groups = { M:[], P:[], N:[] };
+        active.forEach(d => { const c = workCode(r, d.idx); if(c === 'M' || c === 'm' || c === 'M+N') groups.M.push(d); if(c === 'P' || c === 'p') groups.P.push(d); if(c === 'N' || c === 'M+N') groups.N.push(d); });
+        const absent = active.filter(d => computeDayInfo(r, d.idx).justified);
+        const title = dd.date.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' });
+        const badge = f.status === 'no' ? `<b>Sconsigliato per le ferie</b><ul>${f.reasons.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`
+            : (f.status === 'last' ? `<b>Ultimo posto libero</b> — ${f.fer.length} in ferie su ${ferieRules.max}.` : `<b>Consigliato</b> — ${f.free} posti liberi su ${ferieRules.max}.`);
+        let mine = '';
+        if(me) { const info = computeDayInfo(r, me.idx); const meta = ccCodeMeta(info); mine = `<div class="ovs-sec">Tu</div><div class="ovs-chips">${chip(me, meta.kind === 'abs' ? meta.label.toLowerCase() : (SHIFT_NAMES[info.code] || info.label || 'libero'))}</div>`; }
+        document.getElementById('ov-sheet-card').innerHTML = `
+            <div class="ovs-head"><b>${esc(title.charAt(0).toUpperCase() + title.slice(1))}</b><button onclick="ovCloseSheet()" aria-label="Chiudi"><span class="material-icons-round">close</span></button></div>
+            <div class="ovs-badge ${f.status}">${badge}</div>
+            ${mine}
+            <div class="ovs-sec">In ferie (${f.fer.length})</div>${f.fer.length ? `<div class="ovs-chips">${f.fer.map(d => chip(d)).join('')}</div>` : '<div class="ovs-empty">Nessuno</div>'}
+            <div class="ovs-sec">Altre assenze</div>${absent.filter(d => !f.fer.includes(d)).length ? `<div class="ovs-chips">${absent.filter(d => !f.fer.includes(d)).map(d => chip(d, ccCodeMeta(computeDayInfo(r, d.idx)).label.toLowerCase())).join('')}</div>` : '<div class="ovs-empty">Nessuna</div>'}
+            ${['M','P','N'].map(k => `<div class="ovs-sec">${FR_SHIFT[k]} (${groups[k].length}${coverageMin[k] ? ' su ' + coverageMin[k] : ''})</div>${groups[k].length ? `<div class="ovs-chips">${groups[k].map(d => chip(d)).join('')}</div>` : '<div class="ovs-empty">Nessuno</div>'}`).join('')}
+            <div class="ovs-actions"><button onclick="ovCloseSheet()">Chiudi</button><button class="pri" onclick="ovGoToDay(${r})">Apri nel calendario</button></div>`;
+        document.getElementById('ov-sheet').classList.add('open');
+    }
+    function ovCloseSheet(e) { if(e && e.target !== e.currentTarget) return; const s = document.getElementById('ov-sheet'); if(s) s.classList.remove('open'); }
+    function ovGoToDay(r) {
+        setCalView('dettaglio');
+        setTimeout(() => { const tr = document.querySelector(`#table-body tr[data-row="${r}"]`); if(tr) window.scrollTo({ top: window.scrollY + tr.getBoundingClientRect().top - 200, behavior:'smooth' }); }, 120);
+    }
+
+    // ═══ AREA COORDINATORE: REGOLE FERIE ═════════════════════════════════
+    let frDraft = null;
+    function renderCcFerie() {
+        const main = document.getElementById('cc-main');
+        if(!frDraft) frDraft = JSON.parse(JSON.stringify(ferieRules));
+        const D = frDraft;
+        const chk = (list, k, label) => `<label class="fr-chk"><input type="checkbox" ${D[list].includes(k) ? 'checked' : ''} onchange="frToggle('${list}','${k}',this.checked)">${esc(label)}</label>`;
+        const lbl = k => (ABS_TYPES[k] || {}).label || SPECIAL_SUBCODES[k];
+        const today = new Date(); today.setHours(0, 0, 0, 0); const end = new Date(today); end.setDate(end.getDate() + 90);
+        const active = drivers.filter(d => !d.hidden), stat = { ok:0, last:0, no:0 };
+        buildDaysIndex().filter(dd => dd.date >= today && dd.date <= end).forEach(dd => stat[ferieDay(dd, active, D).status]++);
+        const P = feriePeriods(D, today, end);
+        const rng = b => { const a = new Date(b.from + 'T00:00'), z = new Date((b.to || b.from) + 'T00:00'); return frShort(a, z); };
+        main.innerHTML = `
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Persone in ferie nello stesso giorno</h3></div><div class="cc-panel-body">
+                <p class="cc-note" style="margin-bottom:12px">Gli operatori vedono in verde i giorni consigliati, in giallo quelli con un solo posto libero e in rosso quelli sconsigliati (Menu › Quando prendere le ferie).</p>
+                <div class="cc-inline-form">
+                    <label class="cc-field" style="max-width:190px">Massimo nello stesso giorno<input type="number" min="1" max="15" class="cc-input" value="${D.max}" onchange="frSet('max', this.value)"></label>
+                    <label class="cc-field" style="max-width:230px">Periodi consigliati di almeno (giorni)<input type="number" min="1" max="31" class="cc-input" value="${D.minDays}" onchange="frSet('minDays', this.value)"></label>
+                </div>
+                <p class="cc-note" style="margin:14px 0 8px">Cosa conta come ferie</p>
+                <div class="fr-chks">${chk('ferieCodes', 'f', 'Congedo ordinario (C.O.)')}${chk('ferieCodes', 'v', 'Ferie residue')}</div>
+            </div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Altre assenze nello stesso giorno</h3></div><div class="cc-panel-body">
+                <p class="cc-note" style="margin-bottom:12px">Se quel giorno c’è già una di queste assenze, il giorno diventa sconsigliato per le ferie.</p>
+                <div class="fr-chks">${['p','pn','r','m','c','gr','ng','nl','z'].map(k => chk('blockCodes', k, lbl(k))).join('')}</div>
+                <div class="cc-inline-form" style="margin-top:14px"><label class="cc-field" style="max-width:230px">Quante se ne tollerano<input type="number" min="0" max="10" class="cc-input" value="${D.maxOther}" onchange="frSet('maxOther', this.value)"></label></div>
+            </div></div>
+            <div class="cc-panel"><div class="cc-setting"><div><b>Rispetta la copertura minima</b><small>Sconsiglia i giorni in cui mattina, pomeriggio o notte sono già sotto la copertura minima (${coverageMin.M} / ${coverageMin.P} / ${coverageMin.N}, in Impostazioni).</small></div>
+                <label class="cc-switch"><input type="checkbox" ${D.useCoverage ? 'checked' : ''} onchange="frSet('useCoverage', this.checked)"><span></span></label></div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Periodi bloccati</h3><span class="cc-hint">ferie sconsigliate in queste date</span></div><div class="cc-panel-body">
+                ${D.blocked.length ? `<ul class="cc-list">${D.blocked.map((b, i) => `<li><span class="msym" style="color:var(--cc-neg)">event_busy</span><span class="cc-grow">${esc(rng(b))}<small>${esc(b.note || 'senza motivo indicato')}</small></span><button class="cc-btn ghost" onclick="frDelBlock(${i})" title="Togli"><span class="msym">delete</span></button></li>`).join('')}</ul>` : '<p class="cc-note">Nessun periodo bloccato.</p>'}
+                <div class="cc-inline-form" style="margin-top:14px">
+                    <label class="cc-field" style="max-width:170px">Dal<input type="date" id="fr-from" class="cc-input"></label>
+                    <label class="cc-field" style="max-width:170px">Al<input type="date" id="fr-to" class="cc-input"></label>
+                    <label class="cc-field" style="flex:1;min-width:170px">Motivo<input type="text" id="fr-note" class="cc-input" placeholder="es. corso aziendale"></label>
+                    <button class="cc-btn" onclick="frAddBlock()" style="align-self:flex-end"><span class="msym">add_circle</span>Aggiungi</button>
+                </div>
+            </div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Anteprima dei prossimi 90 giorni</h3><span class="cc-hint">con le regole qui sopra</span></div><div class="cc-panel-body">
+                <div class="fr-kpis"><div class="ok"><b>${stat.ok}</b><small>giorni consigliati</small></div><div class="last"><b>${stat.last}</b><small>con un solo posto</small></div><div class="no"><b>${stat.no}</b><small>sconsigliati</small></div></div>
+                <p class="cc-note" style="margin-top:12px">${P.length ? 'Periodi consigliati: ' + P.slice(0, 6).map(p => esc(p.label) + ' (' + p.n + ' gg)').join(' · ') : 'Nessun periodo consigliato con queste regole.'}</p>
+            </div></div>
+            <div class="fr-save"><button class="cc-btn ghost" onclick="frOpenOverview()"><span class="msym">visibility</span>Vedi nel calendario</button><button class="cc-btn primary" onclick="frSave()"><span class="msym">save</span>Salva le regole</button></div>`;
+    }
+    function frSet(k, v) {
+        if(k === 'useCoverage') frDraft[k] = !!v;
+        else frDraft[k] = Math.max(k === 'maxOther' ? 0 : 1, Math.min(k === 'minDays' ? 31 : 15, parseInt(v) || 0));
+        renderCcFerie();
+    }
+    function frToggle(list, k, on) {
+        const s = new Set(frDraft[list]); if(on) s.add(k); else s.delete(k);
+        frDraft[list] = [...s]; renderCcFerie();
+    }
+    function frAddBlock() {
+        const from = document.getElementById('fr-from').value, to = document.getElementById('fr-to').value || from;
+        const note = document.getElementById('fr-note').value.trim().slice(0, 80);
+        if(!from) { ccToast('Scegli almeno la data di inizio.', true); return; }
+        frDraft.blocked.push(to < from ? { from: to, to: from, note } : { from, to, note });
+        frDraft.blocked.sort((a, b) => a.from.localeCompare(b.from));
+        renderCcFerie();
+    }
+    function frDelBlock(i) { frDraft.blocked.splice(i, 1); renderCcFerie(); }
+    function frSave() {
+        if(!frDraft.ferieCodes.length) { ccToast('Scegli almeno un tipo di assenza che conta come ferie.', true); return; }
+        if(!fbReady) { ccToast('Nessuna connessione: regole non salvate, riprova tra poco.', true); return; }
+        ferieRules = JSON.parse(JSON.stringify(frDraft));
+        if(calOverview) renderOverview(true);
+        cfgRef('settings').set({ ferieRules }, { merge:true }).then(() => ccToast('Regole ferie salvate')).catch(() => ccToast('Salvataggio non riuscito.', true));
+    }
+    function frOpenOverview() { closeCoordConsole(); setTimeout(() => setCalView('insieme', { advice:true }), 200); }
+
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
     // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
@@ -4621,21 +5115,20 @@
             ['f', 'giorni di C.O.'], ['m', 'giorni di malattia'], ['p', 'permessi straordinari'], ['dom', 'domeniche lavorate']
         ].map(([k, l]) => `<div class="ab-kpi"><b>${sum(k)}</b><small><i style="background:${typeColor(k)}"></i>${l}</small></div>`).join('');
         const otherShown = rows.some(r => ABS_OTHER.some(k => r.counts[k]));
-        const head = `<tr><th class="ab-op">${year ? 'Anno ' + SHIFT_YEAR : mName}</th><th>C.O.</th><th>Perm. straord.</th><th>Perm. notte</th><th>Malattia</th><th>Recuperi</th><th>Ferie res.</th>${otherShown ? '<th>Altre</th>' : ''}<th>Totale</th><th class="ab-sep">Domeniche</th><th>Festivi</th><th>Notti</th></tr>`;
+        const headL = `<th class="ab-op">${year ? 'Anno ' + SHIFT_YEAR : mName}</th>`, head = `<th>C.O.</th><th>Perm. straord.</th><th>Perm. notte</th><th>Malattia</th><th>Recuperi</th><th>Ferie res.</th>${otherShown ? '<th>Altre</th>' : ''}<th>Totale</th><th class="ab-sep">Domeniche</th><th>Festivi</th><th>Notti</th>`;
         const body = rows.map(r => {
             const c = k => r.counts[k] || 0, other = ABS_OTHER.reduce((a, k) => a + c(k), 0);
-            return `<tr onclick="absOpenDetail(${r.d.idx})">
-                <th class="ab-op"><div class="ab-who"><span class="ab-av">${esc(absInitials(r.d.name))}</span><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</div></th>
-                <td>${year ? absMeter(r.allow.co, ABS_ALLOW.co, typeColor('f')) : absPill(c('f'), 'f')}</td>
+            return { attrs: `class="${r.isMe ? 'me' : ''}" onclick="absOpenDetail(${r.d.idx})"`,
+                left: `<th class="ab-op"><div class="ab-who"><span class="ab-av">${esc(absInitials(r.d.name))}</span><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</div></th>`,
+                right: `<td>${year ? absMeter(r.allow.co, ABS_ALLOW.co, typeColor('f')) : absPill(c('f'), 'f')}</td>
                 <td>${year ? absMeter(r.allow.sp, ABS_ALLOW.sp, typeColor('p')) : absPill(r.allow.sp, 'p')}</td>
                 <td>${year ? absMeter(r.allow.pn, ABS_ALLOW.pn, typeColor('pn')) : absPill(c('pn'), 'pn')}</td>
                 <td>${absPill(c('m'), 'm')}</td><td>${absPill(c('r'), 'r')}</td><td>${absPill(c('v'), 'v')}</td>
                 ${otherShown ? `<td>${other ? `<span class="ab-pill" style="--pc:#94a3b8">${other}</span>` : '<span class="ab-dot">\u00b7</span>'}</td>` : ''}
                 <td><span class="ab-tot">${r.total || '\u00b7'}</span></td>
-                <td class="ab-sep">${absPill(c('dom'), 'dom')}</td><td>${absPill(c('fest'), 'fest')}</td><td>${absPill(c('notti'), 'notti')}</td>
-            </tr>`;
-        }).join('');
-        document.getElementById('ab-grid').innerHTML = `<table class="ab2"><thead>${head}</thead><tbody>${body}</tbody></table>`;
+                <td class="ab-sep">${absPill(c('dom'), 'dom')}</td><td>${absPill(c('fest'), 'fest')}</td><td>${absPill(c('notti'), 'notti')}</td>` };
+        });
+        document.getElementById('ab-grid').innerHTML = xgHtml('ab2', headL, head, body, otherShown ? 640 : 590);
     }
     function absOpenDetail(idx, key) { vibrate(); absDetailIdx = idx; absOpenKey = key || null; renderAbsences(); document.querySelector('#abs-modal .modal-body').scrollTop = 0; }
     function absCloseDetail() { vibrate(); absDetailIdx = null; renderAbsences(); }
@@ -4729,7 +5222,7 @@
             return { d, ch, cells, tot, tgt, spark, isMe: me && (d.name.toUpperCase() === me || (d.originalName || '').toUpperCase() === me) };
         });
         rows.sort((a, b) => (b.isMe - a.isMe));
-        const head = `<tr><th class="hg-name">Operatore</th>${cols.map(c => `<th>${c.label}<small>${c.sub} ${MONTH_NAMES_IT[hgMonth].slice(0,3)}</small></th>`).join('')}<th class="hg-tot">Ore del mese</th></tr>`;
+        const headL = '<th class="hg-name">Operatore</th>', head = `${cols.map(c => `<th>${c.label}<small>${c.sub} ${MONTH_NAMES_IT[hgMonth].slice(0,3)}</small></th>`).join('')}<th class="hg-tot">Ore del mese</th>`;
         const body = rows.map(r => {
             const tints = r.cells.map(c => hgTint(c.delta));
             const tds = r.cells.map((c, i) => {
@@ -4739,9 +5232,9 @@
                 return `<td class="${c.future ? 'fut' : ''}" style="background:${bg}"><b>${fmtHM(c.w)}</b><small class="${cls}">${fmtHM(c.delta, true) || '0:00'}</small></td>`;
             }).join('');
             const dt = r.tot - r.tgt, dcls = Math.abs(dt) < 30 ? 'eq' : (dt < 0 ? 'neg' : 'pos');
-            return `<tr class="${r.isMe ? 'me' : ''}"><th class="hg-name" onclick="openHoursDetail(${r.d.idx}, ${hgMonth})"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}<small>${r.ch} h/sett.</small></th>${tds}<td class="hg-tot"><div><b>${fmtHM(r.tot)}</b>${hgSpark(r.spark)}</div><small class="${dcls}">${fmtHM(dt, true) || '0:00'} su ${fmtHM(r.tgt)}</small></td></tr>`;
-        }).join('');
-        el.innerHTML = rows.length ? `<table class="hg-table"><thead>${head}</thead><tbody>${body}</tbody></table>` : '<div class="coord-sync-empty">Nessun dato per questo mese</div>';
+            return { attrs: `class="${r.isMe ? 'me' : ''}"`, left: `<th class="hg-name" onclick="openHoursDetail(${r.d.idx}, ${hgMonth})"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}<small>${r.ch} h/sett.</small></th>`, right: `${tds}<td class="hg-tot"><div><b>${fmtHM(r.tot)}</b>${hgSpark(r.spark)}</div><small class="${dcls}">${fmtHM(dt, true) || '0:00'} su ${fmtHM(r.tgt)}</small></td>` };
+        });
+        el.innerHTML = rows.length ? xgHtml('hg-table', headL, head, body, cols.length * 82 + 150) : '<div class="coord-sync-empty">Nessun dato per questo mese</div>';
     }
     function renderHoursOperatorList() {
         const listEl = document.getElementById('hc-op-list'); if(!listEl) return;
@@ -5717,6 +6210,7 @@
         operatori:    { title:'Operatori', sub:'Aggiungi, rimuovi, riordina le colonne o nascondi temporaneamente un operatore.' },
         ore:          { title:'Conteggio ore', sub:'Ore lavorate rispetto al contratto (6 giorni, 36 h), per settimana, mese e anno.' },
         reperibilita: { title:'Report reperibilità', sub:'Ore di reperibilità di ogni operatore, giorno per giorno, per l’ufficio personale.' },
+        ferie:        { title:'Regole ferie', sub:'Quante persone in ferie insieme, assenze incompatibili e periodi bloccati: gli operatori vedono i periodi consigliati.' },
         riportare:    { title:'Da riportare su Excel', sub:'Modifiche fatte nell\u2019app che vanno inserite anche nel file infermieri.xlsx.' },
         dati:         { title:'Dati e backup', sub:'Protezione dei turni: backup, copie automatiche, storico delle modifiche, anni e origine dei dati.' },
         impostazioni: { title:'Impostazioni', sub:'Coordinatore designato, consigli sulle ore, ruota e sessione.' }
@@ -5725,6 +6219,7 @@
         if(!CC_SECTIONS[section]) section = 'panoramica';
         if(section === 'riportare' && dataSourceMode === 'firebase') section = 'panoramica';
         if(['modifica','operatori'].includes(section) && isViewingArchive()) section = 'panoramica';
+        if(section !== 'ferie') frDraft = null;
         ccSection = section;
         document.querySelectorAll('#cc-nav button').forEach(b => b.classList.toggle('active', b.dataset.sec === section));
         document.getElementById('cc-title').textContent = CC_SECTIONS[section].title;
@@ -5737,7 +6232,7 @@
     function ccRenderSection() {
         const main = document.getElementById('cc-main'); if(!main) return;
         if(!finalData.length) { main.innerHTML = `<div class="cc-empty"><span class="msym">hourglass_top</span>Sto caricando il file dei turni…</div>`; return; }
-        ({ panoramica:renderCcOverview, modifica:renderCcEdit, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, riportare:renderCcSync, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
+        ({ panoramica:renderCcOverview, modifica:renderCcEdit, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, ferie:renderCcFerie, riportare:renderCcSync, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
         ccUpdateNavCounts();
     }
     function ccRefreshIfOpen() {
@@ -6402,7 +6897,7 @@
                     <label class="cc-switch"><input type="checkbox" ${aiAdviceEnabled?'checked':''} onchange="toggleAiAdvice(this.checked)"><span></span></label></div>
             </div>
             <div class="cc-panel">
-                <div class="cc-setting"><div><b>Sessione su questo dispositivo</b><small>Hai fatto l\u2019accesso una volta e resta valido. Esci se il dispositivo è condiviso.</small></div>
+                <div class="cc-setting"><div><b>Sessione su questo dispositivo</b><small>L\u2019accesso vale finché l\u2019app resta aperta: chiudendola servirà di nuovo la password.</small></div>
                     <button class="cc-btn danger" onclick="coordLogout()"><span class="msym">logout</span>Esci</button></div>
             </div>`;
     }
@@ -6536,6 +7031,7 @@
         return true;
     }
     function toggleCoordEditMode(active) {
+        if(active && calOverview) setCalView('dettaglio');
         coordEditModeActive = active;
         document.body.classList.toggle('coord-edit-mode', active);
         document.getElementById('coord-edit-strip').classList.toggle('show', active);
@@ -7717,9 +8213,14 @@
     // dodici volte. Le modifiche del coordinatore ridisegnano solo le righe toccate.
     const RT_WEEKDAY_FMT = new Intl.DateTimeFormat('it-IT', { weekday:'short' });
     let rtCols = [];
+    let rtMeIdx = null;
     function rtVisibleCols() {
         const visibleDrivers = drivers.filter(d => !d.hidden);
-        return (selectedDrivers.size === 0) ? visibleDrivers : visibleDrivers.filter(d => selectedDrivers.has(d.idx));
+        let list = (selectedDrivers.size === 0) ? visibleDrivers : visibleDrivers.filter(d => selectedDrivers.has(d.idx));
+        const me = prefMe(); rtMeIdx = me ? me.idx : null;
+        // preferenza "la mia colonna per prima" (non in modifica turni: lì resta l'ordine vero)
+        if(me && prefs.myColFirst && !coordEditModeActive && list.includes(me)) list = [me].concat(list.filter(d => d !== me));
+        return list;
     }
     function renderTableHead() {
         const thead = document.getElementById('table-head'); if(!thead) return;
@@ -7734,7 +8235,7 @@
         } else thD.innerText = "DATA";
         frag.appendChild(thD);
         rtCols.forEach(d => {
-            let th = document.createElement('th'); th.innerText = d.name;
+            let th = document.createElement('th'); th.innerText = d.name; if(d.idx === rtMeIdx) th.classList.add('me-col');
             if(coordEditModeActive) {
                 let delta = thBalance(d.idx, periodDays);
                 let bEl = document.createElement('div');
@@ -7800,7 +8301,8 @@
             const orig = String(d.originalName || d.name).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const click = `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const sel = coordEditModeActive && coordSelectedCell && coordSelectedCell.row === i && coordSelectedCell.col === d.idx;
-            html += `<td${sel?' class="coord-selected"':''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
+            const tdCls = [sel ? 'coord-selected' : '', d.idx === rtMeIdx ? 'me-col' : ''].filter(Boolean).join(' ');
+            html += `<td${tdCls ? ` class="${tdCls}"` : ''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
         });
         tr.innerHTML = html;
         return tr;
@@ -7825,6 +8327,7 @@
         tbody.innerHTML = ""; tbody.appendChild(frag);
         updateRepNowPill();
         fitCalendarCells();
+        if(calOverview) renderOverviewSoon();
     }
     // Ridisegna soltanto i giorni indicati (e il giorno dopo ciascuno, perché
     // smonto/diurni dipendono dal giorno precedente). Le intestazioni col saldo ore
@@ -8423,6 +8926,7 @@
         'admin-panel-modal': closeAdminPanel,
         'hours-modal': closeHoursModal,
         'me-modal': closeMyPage,
+        'ov-view': () => { if(document.getElementById('ov-sheet').classList.contains('open')) { ovCloseSheet(); setTimeout(syncModalHistoryState, 0); } else setCalView('dettaglio'); },
         'abs-modal': () => { if(absDetailIdx !== null) { absCloseDetail(); setTimeout(syncModalHistoryState, 0); } else closeAbsModal(); },
         'rep-edit-popup': closeRepEditPopup,
         'cc-dialog': closeCcDialog,
