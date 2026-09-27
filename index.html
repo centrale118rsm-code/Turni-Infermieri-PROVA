@@ -1032,6 +1032,17 @@
         #main-table #today-row .dsc-alert-3 { animation: dscBlink 1s infinite; }
         #main-table .baby-face { animation: none; }
         #main-table #today-row .baby-face { animation: babyFloat 2s ease-in-out infinite; }
+
+        /* ══ Modalità leggera (Opzioni): pochi mesi alla volta e nessun effetto ══ */
+        body.lite *, body.lite *::before, body.lite *::after { animation: none !important; transition: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+        body.lite .cell { box-shadow: none !important; border-radius: 6px; }
+        body.lite #main-table thead th:first-child, body.lite #main-table .td-date { box-shadow: none !important; }
+        body.lite tr.month-header td, body.lite .live-clock, body.lite .rep-text { box-shadow: none !important; }
+        body.lite .live-clock, body.lite .month-label { text-shadow: none !important; }
+        #main-table tr.lite-more td { height: auto !important; padding: 0 !important; border: none !important; background: var(--bg); }
+        .lite-more-in { position: -webkit-sticky; position: sticky; left: 0; width: 100vw; max-width: 100%; padding: 14px 16px; box-sizing: border-box; }
+        .lite-more-in button { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 12px; border: 1px dashed var(--border); background: var(--bg-card); color: var(--primary); font: 800 13px 'Plus Jakarta Sans', sans-serif; text-transform: capitalize; cursor: pointer; }
+        .lite-more-in button .material-icons-round { font-size: 20px; }
         .hg-note { font-size:0.72rem; color:var(--text-sec); line-height:1.45; padding:4px 18px 18px; margin:0; }
         .hc-header-badge .header-text span { color:#94a3b8; }
         .hc-header-badge .btn-close-modal { background:#1e293b; color:#fff; }
@@ -3573,7 +3584,7 @@
     var IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     if(IS_IOS) document.documentElement.classList.add('ios');
     var PREF_DEFAULTS = {
-        theme:'light', startPage:'calendario', startToday:true,
+        theme:'light', startPage:'calendario', startToday:true, lite: IS_IOS,
         myColFirst:false, highlightMe:true, showTimes:true, showRepBars:true, filter:null,
         notifyChanges:true, notifyRep:true, notifyTomorrow:false, haptics:true
     };
@@ -3616,6 +3627,7 @@
         document.body.classList.toggle('pref-hl-me', !!prefs.highlightMe);
         document.body.classList.toggle('pref-no-times', !prefs.showTimes);
         document.body.classList.toggle('pref-no-repbar', !prefs.showRepBars);
+        document.body.classList.toggle('lite', !!prefs.lite);
     }
     function prefsApplyFilter() {
         if(prefs.filter == null) {   // prima volta: si riprende il filtro che c'era su questo dispositivo
@@ -3631,7 +3643,11 @@
         prefs[k] = v; prefs.updatedAt = Date.now(); savePrefsLocal(); prefsSaveRemoteSoon();
         if(noApply) return;
         if(k === 'theme') applyTheme();
-        else if(['myColFirst','highlightMe','showTimes','showRepBars'].includes(k)) { applyBodyPrefClasses(); if(finalData.length) renderTable(); }
+        else if(['myColFirst','highlightMe','showTimes','showRepBars','lite'].includes(k)) {
+            applyBodyPrefClasses();
+            if(k === 'lite') liteFrom = null;
+            if(finalData.length) { renderTable(); if(k === 'lite') setTimeout(scrollToToday, 60); }
+        }
     }
     prefs = loadPrefs(); applyTheme(); applyBodyPrefClasses();
     if(window.matchMedia) { try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if(prefs.theme === 'auto') applyTheme(); }); } catch(e) {} }
@@ -3771,7 +3787,7 @@
             const niceName = m.name.charAt(0) + m.name.slice(1).toLowerCase();
             let btn = document.createElement('div'); btn.className = 'month-btn' + (isCurrent ? ' month-current' : '');
             btn.innerHTML = `<span class="material-icons-round">${isCurrent ? 'today' : 'event'}</span><span>${niceName}</span>`;
-            btn.onclick = () => { vibrate(); closeMonthDropdown(); if(calOverview) { ovScrollTo('ov-m-' + MONTH_MAP[m.name]); return; } const el = document.getElementById(m.id); if(el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 120, behavior:"smooth" }); };
+            btn.onclick = () => { vibrate(); closeMonthDropdown(); if(calOverview) { ovScrollTo('ov-m-' + MONTH_MAP[m.name]); return; } if(liteOn()) liteShowRow(m.row); liteScrollTo(document.getElementById(m.id), 120); };
             grid.appendChild(btn);
         });
     }
@@ -4233,8 +4249,8 @@
 
     function scrollToToday() {
         if(calOverview) { ovScrollToday(); return; }
-        const el = document.getElementById('today-row');
-        if(el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 240, behavior:"smooth" });
+        if(liteOn()) liteShowRow(liteTodayRow());
+        liteScrollTo(document.getElementById('today-row'), 240);
     }
 
     function filterDriver(val) {
@@ -4655,6 +4671,9 @@
             <div class="opt-block"><div class="opt-txt"><span>Tema</span><small>Automatico segue l’impostazione del telefono.</small></div>
                 ${seg('theme', [['light', 'Chiaro', 'light_mode'], ['dark', 'Scuro', 'dark_mode'], ['auto', 'Automatico', 'brightness_auto']])}</div>
 
+            <div class="option-category-header"><span class="material-icons-round">speed</span> Velocità</div>
+            ${sw('lite', 'Modalità leggera' + (IS_IOS ? ' · consigliata su iPhone' : ''), 'Il calendario mostra due mesi alla volta (gli altri si caricano scorrendo) e toglie animazioni ed effetti: molto più fluido su iPhone e sui telefoni meno recenti.')}
+
             <div class="option-category-header"><span class="material-icons-round">calendar_month</span> Calendario</div>
             <div class="opt-block"><div class="opt-txt"><span>All’apertura mostra</span><small>La schermata con cui parte l’app.</small></div>
                 ${seg('startPage', [['calendario', 'Calendario', 'view_agenda'], ['insieme', 'Vista d’insieme', 'grid_view'], ['me', 'La mia pagina', 'person']])}</div>
@@ -4862,7 +4881,7 @@
         const head = `<tr><th class="ov-d">Giorno</th>${active.map(d => `<th class="ov-op ${me && d.idx === me.idx ? 'me' : ''}" title="${esc(d.name)}"><span>${esc(d.name)}</span></th>`).join('')}<th class="ov-s" title="${perm ? 'Persone con permesso o recupero' : 'Persone in ferie'}">${perm ? 'Perm.' : 'Ferie'}</th></tr>`;
         let html = '', lastM = -1; ovInfo = {};
         // con i consigli ferie/permessi i mesi passati non servono: si parte dal mese corrente
-        const fromDate = ovAdvice && SHIFT_YEAR === today.getFullYear() ? new Date(SHIFT_YEAR, today.getMonth(), 1) : null;
+        const fromDate = (ovAdvice || liteOn()) && SHIFT_YEAR === today.getFullYear() ? new Date(SHIFT_YEAR, today.getMonth(), 1) : null;
         buildDaysIndex().forEach(dd => {
             if(fromDate && dd.date < fromDate) return;
             if(dd.monthIdx !== lastM) {
@@ -4998,7 +5017,8 @@
     function ovCloseSheet(e) { if(e && e.target !== e.currentTarget) return; const s = document.getElementById('ov-sheet'); if(s) s.classList.remove('open'); }
     function ovGoToDay(r) {
         setCalView('dettaglio');
-        setTimeout(() => { const tr = document.querySelector(`#table-body tr[data-row="${r}"]`); if(tr) window.scrollTo({ top: window.scrollY + tr.getBoundingClientRect().top - 200, behavior:'smooth' }); }, 120);
+        liteShowRow(r);
+        setTimeout(() => liteScrollTo(document.querySelector(`#table-body tr[data-row="${r}"]`), 200), 120);
     }
 
     // ═══ CONDIVIDI L'APP SU WHATSAPP ════════════════════════════════════
@@ -8576,21 +8596,95 @@
         rtCols = rtVisibleCols();
         renderTableHead();
         const frag = document.createDocumentFragment();
-        let currentMonth = ""; globalMonthsList = []; const today = new Date();
-        for(let i = 1; i < finalData.length; i++) {
-            let mName = finalData[i][0].v;
-            if(mName && mName !== currentMonth) {
-                currentMonth = mName; let mId = "m-" + i; globalMonthsList.push({name:mName,id:mId});
-                let mh = document.createElement('tr'); mh.className = 'month-header'; mh.id = mId;
-                mh.innerHTML = `<td colspan="${rtCols.length+1}"><div class="sticky-month-text"><span class="month-label">${mName}</span><span class="live-clock"></span><span class="rep-now-pill"></span></div></td>`;
-                frag.appendChild(mh);
-            }
-            frag.appendChild(buildDayRow(i, today));
-        }
+        const today = new Date(), blocks = monthBlocks(), lite = liteOn();
+        if(lite) liteCheckRange();
+        globalMonthsList = blocks.map(b => ({ name: b.name, id: 'm-' + b.start, row: b.start }));
+        if(lite && liteFrom > 0) frag.appendChild(liteMoreRow(-1, blocks[liteFrom - 1].name));
+        blocks.forEach((b, bi) => {
+            if(lite && (bi < liteFrom || bi > liteTo)) return;   // modalità leggera: solo i mesi della finestra
+            let mh = document.createElement('tr'); mh.className = 'month-header'; mh.id = 'm-' + b.start;
+            mh.innerHTML = `<td colspan="${rtCols.length+1}"><div class="sticky-month-text"><span class="month-label">${b.name}</span><span class="live-clock"></span><span class="rep-now-pill"></span></div></td>`;
+            frag.appendChild(mh);
+            for(let i = b.start; i <= b.end; i++) frag.appendChild(buildDayRow(i, today));
+        });
+        if(lite && liteTo < blocks.length - 1) frag.appendChild(liteMoreRow(1, blocks[liteTo + 1].name));
         tbody.innerHTML = ""; tbody.appendChild(frag);
         updateRepNowPill();
         fitCalendarCells();
+        liteObserve();
         if(calOverview) renderOverviewSoon();
+    }
+    // ═══ MODALITÀ LEGGERA ════════════════════════════════════════════════
+    // Il calendario completo ha ~9.000 caselle: su iPhone Safari non fa in tempo a disegnarle
+    // mentre si scorre (si vede bianco). In modalità leggera si mostrano pochi mesi (al massimo 4)
+    // e il mese prima/dopo si aggiunge da solo quando ci si avvicina al bordo.
+    let liteFrom = null, liteTo = null, liteKey = '', liteObs = null, mbCache = null, mbFor = null, mbLen = 0;
+    function monthBlocks() {
+        if(mbFor === finalData && mbLen === finalData.length && mbCache) return mbCache;
+        const list = []; let cur = null;
+        for(let i = 1; i < finalData.length; i++) {
+            const n = finalData[i][0].v;
+            if(n && (!cur || n !== cur.name)) { cur = { name: n, start: i, end: i }; list.push(cur); }
+            else if(cur) cur.end = i;
+        }
+        mbCache = list; mbFor = finalData; mbLen = finalData.length; return list;
+    }
+    function liteOn() { return !!(prefs && prefs.lite); }
+    function liteBlockOf(r) { return monthBlocks().findIndex(b => r >= b.start && r <= b.end); }
+    function liteTodayRow() { const t = new Date(); t.setHours(0, 0, 0, 0); const d = buildDaysIndex().find(x => x.date.getTime() === t.getTime()); return d ? d.rowIdx : null; }
+    function liteCheckRange() {
+        const n = monthBlocks().length, key = SHIFT_YEAR + ':' + n;
+        if(liteFrom !== null && liteKey === key && liteTo < n) return;
+        liteKey = key;
+        const tr = liteTodayRow(); let b = tr ? liteBlockOf(tr) : 0; if(b < 0) b = 0;
+        liteFrom = b; liteTo = Math.min(n - 1, b + 1);
+    }
+    function liteRowShown(r) { const b = liteBlockOf(r); return liteFrom !== null && b >= liteFrom && b <= liteTo; }
+    // Porta nella finestra il mese della riga r (per "Oggi", scelta del mese, apri il giorno...).
+    function liteShowRow(r) {
+        if(!liteOn() || r == null || liteRowShown(r)) return;
+        const b = liteBlockOf(r); if(b < 0) return;
+        // si mostra anche il mese prima, così subito dopo il salto non serve aggiungere nulla
+        liteFrom = Math.max(0, b - 1); liteTo = Math.min(monthBlocks().length - 1, b + 1);
+        liteQuietUntil = Date.now() + 1500; renderTable();
+    }
+    // dopo un salto (oggi, un mese, un giorno) per un attimo non si aggiungono mesi:
+    // aggiungerli durante lo scorrimento farebbe finire nel punto sbagliato
+    let liteQuietUntil = 0;
+    function liteScrollTo(el, offset) {
+        if(!el) return;
+        liteQuietUntil = Date.now() + 1500;
+        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - offset, behavior: liteOn() ? 'auto' : 'smooth' });
+        if(liteOn()) setTimeout(liteObserve, 1600);
+    }
+    function liteMoreRow(dir, name) {
+        const tr = document.createElement('tr'); tr.className = 'lite-more'; tr.dataset.dir = dir;
+        tr.innerHTML = `<td colspan="${rtCols.length + 1}"><div class="lite-more-in"><button onclick="liteExtend(${dir})"><span class="material-icons-round">${dir < 0 ? 'expand_less' : 'expand_more'}</span>${esc(String(name).toLowerCase())}</button></div></td>`;
+        return tr;
+    }
+    function liteAnchor() {
+        const top = (document.querySelector('header') || { offsetHeight: 70 }).offsetHeight + 60;
+        for(const tr of document.querySelectorAll('#table-body tr[data-row]')) { const r = tr.getBoundingClientRect(); if(r.bottom > top) return { row: tr.dataset.row, top: r.top }; }
+        return null;
+    }
+    function liteExtend(dir) {
+        const n = monthBlocks().length, a = liteAnchor();
+        if(dir < 0 && liteFrom > 0) { liteFrom--; if(liteTo - liteFrom > 3) liteTo--; }
+        else if(dir > 0 && liteTo < n - 1) { liteTo++; if(liteTo - liteFrom > 3) liteFrom++; }
+        else return;
+        renderTable();
+        // il giorno che si stava guardando resta allo stesso posto sullo schermo
+        if(a) { const tr = document.querySelector(`#table-body tr[data-row="${a.row}"]`); if(tr) window.scrollBy(0, tr.getBoundingClientRect().top - a.top); }
+    }
+    function liteObserve() {
+        if(liteObs) { liteObs.disconnect(); liteObs = null; }
+        if(!liteOn() || !('IntersectionObserver' in window)) return;
+        liteObs = new IntersectionObserver(entries => {
+            const e = entries.find(x => x.isIntersecting); if(!e) return;
+            if(Date.now() < liteQuietUntil) return;   // si ricontrolla alla fine della pausa (liteScrollTo)
+            liteObs.disconnect(); setTimeout(() => liteExtend(+e.target.dataset.dir), 0);
+        }, { rootMargin: '600px 0px' });
+        document.querySelectorAll('#table-body tr.lite-more').forEach(el => liteObs.observe(el));
     }
     // Ridisegna soltanto i giorni indicati (e il giorno dopo ciascuno, perché
     // smonto/diurni dipendono dal giorno precedente). Le intestazioni col saldo ore
@@ -8633,7 +8727,7 @@
         const today = new Date(); const touched = [];
         for(const r of rows) {
             const old = tbody.querySelector(`tr[data-row="${r}"]`);
-            if(!old) { renderTable(); return; }
+            if(!old) { if(liteOn() && !liteRowShown(r)) continue; renderTable(); return; }   // mese non mostrato: niente da ridisegnare
             const fresh = buildDayRow(r, today);
             old.replaceWith(fresh); touched.push(fresh);
         }
