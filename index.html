@@ -621,6 +621,77 @@
         #abs-modal.open { opacity:1; }
         #abs-modal .modal-content { max-width:860px; max-height:94vh; }
         #abs-modal.open .modal-content { transform:translateY(0); }
+        .ab-toolbar { display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; padding:12px 16px 4px; }
+        .ab-monthnav { display:flex; align-items:center; gap:10px; }
+        .ab-monthnav .hg-month { min-width:120px; font-size:1rem; }
+        .ab-period { display:flex; gap:4px; padding:3px; background:var(--bg); border:1px solid var(--border); border-radius:12px; }
+        .ab-period button { height:30px !important; border:none !important; background:transparent !important; }
+        .ab-period button.active { background:var(--primary) !important; color:#fff !important; box-shadow:0 2px 8px rgba(29,78,216,.35); }
+        .ab-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:8px 14px 4px; }
+        .ab-kpi { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:10px 12px; }
+        .ab-kpi b { display:block; font-size:1.2rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
+        .ab-kpi small { font-size:0.68rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.04em; }
+        .ab-kpi i { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; }
+        @media (max-width:560px) { .ab-kpis { grid-template-columns:repeat(2,1fr); } }
+        .ab2 { width:100%; border-collapse:separate; border-spacing:0 6px; min-width:760px; }
+        .ab2 thead th { position:static; top:auto; background:none; height:auto; min-width:0; border:none; backdrop-filter:none; font-size:0.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--text-sec); padding:4px 6px; text-align:center; white-space:nowrap; }
+        .ab2 thead th::before { display:none; }
+        .ab2 thead th.ab-sep, .ab2 tbody td.ab-sep { border-left:2px dashed var(--border); }
+        .ab2 tbody tr { cursor:pointer; }
+        .ab2 tbody td, .ab2 tbody th { height:auto; border:none; background:var(--bg-card); padding:9px 6px; text-align:center; vertical-align:middle; transition:background .12s; }
+        .ab2 tbody tr:hover td, .ab2 tbody tr:hover th { background:var(--bg); }
+        .ab2 .ab-op { position:sticky; left:0; z-index:2; text-align:left; border-radius:14px 0 0 14px; min-width:150px; box-shadow:4px 0 8px -6px rgba(0,0,0,.2); }
+        .ab2 thead .ab-op { background:var(--bg-card); box-shadow:none; top:auto; border-radius:10px; }
+        .ab2 tbody tr td:last-child { border-radius:0 14px 14px 0; }
+        .ab-who { display:flex; align-items:center; gap:9px; }
+        .ab-av { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#1d4ed8,#7c3aed); color:#fff; font-size:0.72rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .ab-who span { font-weight:800; font-size:0.82rem; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100px; }
+        .ab-who em { font-style:normal; font-size:0.58rem; font-weight:800; background:var(--primary); color:#fff; border-radius:4px; padding:0 5px; margin-left:2px; }
+        .ab-pill { display:inline-flex; min-width:30px; height:26px; padding:0 8px; border-radius:999px; align-items:center; justify-content:center; font-weight:800; font-size:0.82rem; font-variant-numeric:tabular-nums; color:var(--text-main); background:color-mix(in srgb, var(--pc, #94a3b8) 22%, transparent); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--pc, #94a3b8) 45%, transparent); }
+        .ab-dot { color:var(--border); font-weight:700; }
+        .ab-tot { font-weight:800; font-size:0.95rem; color:var(--primary); }
+        .ab-meter { min-width:92px; }
+        .ab-meter b { font-size:0.82rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
+        .ab-meter b small { font-weight:600; color:var(--text-sec); }
+        .ab-meter .bar { height:6px; border-radius:3px; background:var(--bg); margin-top:4px; overflow:hidden; box-shadow:inset 0 0 0 1px var(--border); }
+        .ab-meter .bar i { display:block; height:100%; border-radius:3px; background:var(--pc); }
+        .ab-meter.over b { color:#dc2626; } .ab-meter.over .bar i { background:#dc2626; }
+        /* dettaglio operatore */
+        .abd-head { display:flex; align-items:center; gap:12px; padding:14px 16px 6px; }
+        .abd-back { width:38px; height:38px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+        .abd-head .ab-av { width:42px; height:42px; font-size:0.9rem; }
+        .abd-head b { display:block; font-size:1.1rem; font-weight:800; color:var(--text-main); }
+        .abd-head small { color:var(--text-sec); font-weight:600; font-size:0.78rem; }
+        .abd-counters { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:8px 16px 4px; }
+        .abd-c { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:12px; display:flex; align-items:center; gap:10px; cursor:pointer; }
+        .abd-c svg { flex-shrink:0; }
+        .abd-c b { display:block; font-size:1.25rem; font-weight:800; color:var(--text-main); line-height:1.1; font-variant-numeric:tabular-nums; }
+        .abd-c small { display:block; font-size:0.68rem; font-weight:700; color:var(--text-sec); text-transform:uppercase; letter-spacing:.03em; }
+        .abd-c em { display:block; font-style:normal; font-size:0.72rem; font-weight:700; margin-top:2px; }
+        .abd-c em.ok { color:#15803d; } .abd-c em.over { color:#dc2626; }
+        @media (max-width:560px) {
+            .abd-counters { gap:6px; padding:8px 10px 4px; }
+            .abd-c { flex-direction:column; text-align:center; gap:4px; padding:10px 4px; }
+            .abd-c svg { width:42px; height:42px; }
+            .abd-c b { font-size:1.05rem; }
+            .abd-c small { font-size:0.58rem; }
+        }
+        .abd-list { padding:6px 16px 18px; }
+        .abd-sec { font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--text-sec); margin:12px 2px 6px; }
+        .abd-item { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; margin-bottom:8px; overflow:hidden; }
+        .abd-row { display:flex; align-items:center; gap:12px; padding:11px 12px; cursor:pointer; }
+        .abd-row .sw { width:12px; height:34px; border-radius:6px; background:var(--pc, #94a3b8); flex-shrink:0; }
+        .abd-row .t { flex:1; min-width:0; }
+        .abd-row .t b { display:block; font-size:0.9rem; color:var(--text-main); }
+        .abd-row .t small { display:block; font-size:0.74rem; color:var(--text-sec); }
+        .abd-row .n { font-size:1.15rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
+        .abd-row .material-icons-round { color:var(--text-sec); transition:transform .15s; }
+        .abd-item.open .abd-row .material-icons-round { transform:rotate(180deg); }
+        .abd-dates { display:none; padding:0 12px 12px 36px; }
+        .abd-item.open .abd-dates { display:block; }
+        .abd-dates div { display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-top:1px dashed var(--border); font-size:0.82rem; color:var(--text-main); }
+        .abd-dates div span:last-child { color:var(--text-sec); font-weight:700; white-space:nowrap; }
+        .abd-item.empty .abd-row { cursor:default; opacity:.55; }
         .ab-period { display:flex; justify-content:center; gap:6px; padding:12px 16px 0; }
         .ab-period button { height:34px; padding:0 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-sec); font-weight:700; font-size:0.8rem; cursor:pointer; font-family:inherit; }
         .ab-period button.active { background:var(--primary); border-color:var(--primary); color:#fff; }
@@ -1949,18 +2020,23 @@
             <button class="btn-close-modal" onclick="closeAbsModal()"><span class="material-icons-round">close</span></button>
         </div>
         <div class="modal-body">
-            <div class="ab-period">
-                <button data-p="anno" onclick="absSetPeriod('anno')">Tutto l’anno</button>
-                <button data-p="mese" onclick="absSetPeriod('mese')">Un mese</button>
+            <div id="ab-view-grid">
+                <div class="ab-toolbar">
+                    <div class="ab-period">
+                        <button data-p="anno" onclick="absSetPeriod('anno')">Anno</button>
+                        <button data-p="mese" onclick="absSetPeriod('mese')">Mese</button>
+                    </div>
+                    <div class="ab-monthnav" id="ab-nav">
+                        <button class="hg-nav-btn" onclick="absNav(-1)" aria-label="Mese precedente"><span class="material-icons-round">chevron_left</span></button>
+                        <div class="hg-month" id="ab-label"></div>
+                        <button class="hg-nav-btn" onclick="absNav(1)" aria-label="Mese successivo"><span class="material-icons-round">chevron_right</span></button>
+                    </div>
+                </div>
+                <div class="ab-kpis" id="ab-kpis"></div>
+                <div class="hg-wrap" id="ab-grid"></div>
+                <p class="hg-note">Ogni anno: 31 giorni di congedo ordinario, 6 permessi speciali e 2 permessi notte (un permesso notte usa anche un permesso speciale). Le assenze che cadono su un riposo non contano. Tocca un operatore per il dettaglio.</p>
             </div>
-            <div class="hg-nav" id="ab-nav">
-                <button class="hg-nav-btn" onclick="absNav(-1)" aria-label="Precedente"><span class="material-icons-round">chevron_left</span></button>
-                <div class="hg-month" id="ab-label"></div>
-                <button class="hg-nav-btn" onclick="absNav(1)" aria-label="Successivo"><span class="material-icons-round">chevron_right</span></button>
-            </div>
-            <div class="hg-wrap" id="ab-grid"></div>
-            <div class="ab-detail" id="ab-detail"></div>
-            <p class="hg-note">Giorni per tipo. Le assenze che cadono su un riposo (es. “C.O. + riposo”) non vengono contate. A destra: domeniche e festivi in cui si è lavorato e notti fatte. Tocca un numero per vedere i giorni.</p>
+            <div id="ab-view-detail" style="display:none"></div>
         </div>
     </div>
 </div>
@@ -4176,29 +4252,32 @@
     }
     // ═══ CONTEGGIO ASSENZE ═══════════════════════════════════════════════
     // Giorni per tipo di assenza (codice sotto il turno) e giornate particolari lavorate.
-    const ABS_COLS = [
-        { k:'f',  label:'C.O.',            color:'--bg-cong' },
-        { k:'v',  label:'Ferie residue',   color:'--bg-ferie' },
-        { k:'r',  label:'Recuperi',        color:'--bg-rec' },
-        { k:'p',  label:'Permessi',        color:'--bg-perm' },
-        { k:'c',  label:'Perm. studio',    color:'--bg-stu' },
-        { k:'pn', label:'Perm. notte',     color:'--bg-pn' },
-        { k:'m',  label:'Malattia',        color:'--bg-mal' },
-        { k:'gr', label:'Gravidanza',      color:null },
-        { k:'ng', label:'Festivi non goduti', color:'--bg-ng' },
-        { k:'nl', label:'Festivi non lavorati', color:'--bg-nl' },
-        { k:'z',  label:'Sostituz. coord.', color:'--bg-coord' }
-    ];
-    const ABS_ALWAYS = ['f', 'p', 'm'];
-    const WORK_COLS = [
-        { k:'dom',   label:'Domeniche lavorate' },
-        { k:'fest',  label:'Festivi lavorati' },
-        { k:'notti', label:'Notti' }
-    ];
-    let absPeriod = 'anno', absMonth = new Date().getMonth(), absSel = null;
+    // Spettanze annue: 31 giorni di C.O., 6 permessi speciali, 2 permessi notte; ogni
+    // permesso notte consuma anche un permesso speciale.
+    const ABS_ALLOW = { co:31, sp:6, pn:2 };
+    const ABS_TYPES = {
+        f:  { label:'Congedo ordinario', short:'C.O.',          color:'--bg-cong' },
+        p:  { label:'Permessi speciali', short:'Perm. speciali', color:'--bg-perm' },
+        pn: { label:'Permessi notte',    short:'Perm. notte',   color:'--bg-pn' },
+        m:  { label:'Malattia',          short:'Malattia',      color:'--bg-mal' },
+        r:  { label:'Recuperi',          short:'Recuperi',      color:'--bg-rec' },
+        v:  { label:'Ferie residue (anno prima)', short:'Ferie res.', color:'--bg-ferie' },
+        c:  { label:'Permessi studio',   short:'Studio',        color:'--bg-stu' },
+        gr: { label:'Gravidanza / maternit\u00e0', short:'Gravidanza', color:null, hex:'#ec4899' },
+        ng: { label:'Festivi non goduti', short:'Fest. non god.', color:'--bg-ng' },
+        nl: { label:'Festivi non lavorati', short:'Fest. non lav.', color:'--bg-nl' },
+        z:  { label:'Sostituzione coordinatore', short:'Sost. coord.', color:'--bg-coord', hex:'#dc2626', work:true },
+        dom:   { label:'Domeniche lavorate', short:'Domeniche', hex:'#0ea5e9', work:true },
+        fest:  { label:'Festivi lavorati',   short:'Festivi',   hex:'#f59e0b', work:true },
+        notti: { label:'Notti',              short:'Notti',     hex:'#1e3a8a', work:true }
+    };
+    const ABS_OTHER = ['c', 'gr', 'ng', 'nl'];
+    const ABS_COUNTED = ['f', 'v', 'r', 'p', 'c', 'pn', 'm', 'gr', 'ng', 'nl'];
+    const typeColor = k => ABS_TYPES[k].color ? `var(${ABS_TYPES[k].color})` : ABS_TYPES[k].hex;
+    let absPeriod = 'anno', absMonth = new Date().getMonth(), absDetailIdx = null, absOpenKey = null;
     function openAbsModal() {
         closeMenu(); vibrate();
-        const now = new Date(); absMonth = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : 0; absSel = null;
+        const now = new Date(); absMonth = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : 0; absDetailIdx = null;
         renderAbsences();
         const m = document.getElementById('abs-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
         setCurrentView('Conteggio assenze');
@@ -4207,58 +4286,117 @@
         if(e && e.target !== e.currentTarget) return;
         const m = document.getElementById('abs-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
     }
-    function absSetPeriod(p) { vibrate(); absPeriod = p; absSel = null; renderAbsences(); }
-    function absNav(d) { vibrate(); absMonth = Math.min(11, Math.max(0, absMonth + d)); absSel = null; renderAbsences(); }
+    function absSetPeriod(p) { vibrate(); absPeriod = p; renderAbsences(); }
+    function absNav(d) { vibrate(); absMonth = Math.min(11, Math.max(0, absMonth + d)); renderAbsences(); }
     const WORK_SHIFTS = new Set(['M', 'P', 'N', 'M+N', 'm', 'p']);
-    function computeAbsences() {
-        const days = buildDaysIndex().filter(dd => absPeriod === 'anno' || dd.monthIdx === absMonth);
-        const me = userIdentity ? userIdentity.toUpperCase() : '';
-        return drivers.filter(d => !d.hidden).map(d => {
-            const counts = {}, dates = {};
-            const add = (k, dd) => { counts[k] = (counts[k] || 0) + 1; (dates[k] = dates[k] || []).push(dd.date); };
-            days.forEach(dd => {
-                const cell = finalData[dd.rowIdx][d.idx] || {};
-                const sub = (cell.subV || '').toString().trim().toLowerCase();
-                let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-                const isRest = /^r(iposo)?$/i.test(v);
-                if(SPECIAL_SUBCODES[sub] !== undefined) { if(!isRest) add(sub, dd); return; }   // assenza su un riposo: non conta
-                const info = computeDayInfo(dd.rowIdx, d.idx);
-                if(!WORK_SHIFTS.has(info.code) || !info.minutes) return;
-                if(dd.date.getDay() === 0) add('dom', dd);
-                if(HOLIDAYS[`${dd.date.getMonth()}-${dd.date.getDate()}`]) add('fest', dd);
-                if(info.code === 'N' || info.code === 'M+N') add('notti', dd);
-            });
-            const totAbs = ABS_COLS.filter(c => c.k !== 'z').reduce((a, c) => a + (counts[c.k] || 0), 0);
-            return { d, counts, dates, totAbs, isMe: me && (d.name.toUpperCase() === me || (d.originalName || '').toUpperCase() === me) };
-        }).sort((a, b) => b.isMe - a.isMe);
+    function absCountFor(d, days) {
+        const counts = {}, dates = {};
+        const add = (k, dd) => { counts[k] = (counts[k] || 0) + 1; (dates[k] = dates[k] || []).push(dd.date); };
+        days.forEach(dd => {
+            const cell = finalData[dd.rowIdx][d.idx] || {};
+            const sub = (cell.subV || '').toString().trim().toLowerCase();
+            let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
+            if(SPECIAL_SUBCODES[sub] !== undefined) { if(!/^r(iposo)?$/i.test(v)) add(sub, dd); return; }   // assenza su un riposo: non conta
+            const info = computeDayInfo(dd.rowIdx, d.idx);
+            if(!WORK_SHIFTS.has(info.code) || !info.minutes) return;
+            if(dd.date.getDay() === 0) add('dom', dd);
+            if(HOLIDAYS[`${dd.date.getMonth()}-${dd.date.getDate()}`]) add('fest', dd);
+            if(info.code === 'N' || info.code === 'M+N') add('notti', dd);
+        });
+        const n = k => counts[k] || 0;
+        return { counts, dates, total: ABS_COUNTED.reduce((a, k) => a + n(k), 0),
+                 allow: { co: n('f'), sp: n('p') + n('pn'), pn: n('pn') } };
     }
+    function computeAbsences() {
+        const all = buildDaysIndex(), days = absPeriod === 'anno' ? all : all.filter(dd => dd.monthIdx === absMonth);
+        const me = userIdentity ? userIdentity.toUpperCase() : '';
+        return drivers.filter(d => !d.hidden).map(d => Object.assign({ d, isMe: !!me && (d.name.toUpperCase() === me || (d.originalName || '').toUpperCase() === me) }, absCountFor(d, days)))
+            .sort((a, b) => b.isMe - a.isMe);
+    }
+    function absInitials(name) { const w = name.trim().split(/\s+/); return (w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 2)).toUpperCase(); }
+    function absMeter(used, max, col) {
+        const pct = Math.min(100, used / max * 100);
+        return `<div class="ab-meter ${used > max ? 'over' : ''}" style="--pc:${col}"><b>${used}<small> / ${max}</small></b><div class="bar"><i style="width:${pct.toFixed(0)}%"></i></div></div>`;
+    }
+    function absPill(n, k) { return n ? `<span class="ab-pill" style="--pc:${typeColor(k)}">${n}</span>` : '<span class="ab-dot">\u00b7</span>'; }
     function renderAbsences() {
+        const grid = document.getElementById('ab-view-grid'), det = document.getElementById('ab-view-detail');
+        if(absDetailIdx !== null) { grid.style.display = 'none'; det.style.display = ''; renderAbsDetail(); return; }
+        grid.style.display = ''; det.style.display = 'none';
         document.querySelectorAll('#abs-modal .ab-period button').forEach(b => b.classList.toggle('active', b.dataset.p === absPeriod));
         document.getElementById('ab-nav').style.display = absPeriod === 'mese' ? '' : 'none';
         const mName = MONTH_NAMES_IT[absMonth].charAt(0).toUpperCase() + MONTH_NAMES_IT[absMonth].slice(1);
         document.getElementById('ab-label').innerHTML = `${mName} <small>${SHIFT_YEAR}</small>`;
-        const rows = computeAbsences();
-        // colonne: quelle sempre utili più tutte quelle che nel periodo hanno almeno un giorno
-        const absCols = ABS_COLS.filter(c => ABS_ALWAYS.includes(c.k) || rows.some(r => r.counts[c.k]));
-        const head = `<tr><th class="ab-name">${absPeriod === 'anno' ? 'Anno ' + SHIFT_YEAR : mName}</th>${absCols.map((c, i) => `<th>${c.color ? `<i style="background:var(${c.color})"></i>` : '<i style="background:#f9a8d4"></i>'}${esc(c.label)}</th>`).join('')}<th>Totale assenze</th>${WORK_COLS.map((c, i) => `<th class="${i === 0 ? 'ab-grp' : ''}">${esc(c.label)}</th>`).join('')}</tr>`;
-        const cell = (r, k, extra) => { const n = r.counts[k] || 0; const sel = absSel && absSel.idx === r.d.idx && absSel.k === k; return `<td class="${n ? '' : 'zero'} ${extra || ''} ${sel ? 'sel' : ''}" ${n ? `onclick="absShow(${r.d.idx},'${k}')"` : ''}>${n || '\u00b7'}</td>`; };
-        const body = rows.map(r => `<tr><th class="ab-name"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</th>${absCols.map(c => cell(r, c.k)).join('')}<td class="ab-tot ${r.totAbs ? '' : 'zero'}">${r.totAbs || '\u00b7'}</td>${WORK_COLS.map((c, i) => cell(r, c.k, i === 0 ? 'ab-grp' : '')).join('')}</tr>`).join('');
-        document.getElementById('ab-grid').innerHTML = `<table class="ab-table"><thead>${head}</thead><tbody>${body}</tbody></table>`;
-        absRenderDetail(rows);
+        const rows = computeAbsences(), year = absPeriod === 'anno';
+        const sum = k => rows.reduce((a, r) => a + (r.counts[k] || 0), 0);
+        document.getElementById('ab-kpis').innerHTML = [
+            ['f', 'giorni di C.O.'], ['m', 'giorni di malattia'], ['p', 'permessi speciali'], ['dom', 'domeniche lavorate']
+        ].map(([k, l]) => `<div class="ab-kpi"><b>${sum(k)}</b><small><i style="background:${typeColor(k)}"></i>${l}</small></div>`).join('');
+        const otherShown = rows.some(r => ABS_OTHER.some(k => r.counts[k]));
+        const head = `<tr><th class="ab-op">${year ? 'Anno ' + SHIFT_YEAR : mName}</th><th>C.O.</th><th>Perm. speciali</th><th>Perm. notte</th><th>Malattia</th><th>Recuperi</th><th>Ferie res.</th>${otherShown ? '<th>Altre</th>' : ''}<th>Totale</th><th class="ab-sep">Domeniche</th><th>Festivi</th><th>Notti</th></tr>`;
+        const body = rows.map(r => {
+            const c = k => r.counts[k] || 0, other = ABS_OTHER.reduce((a, k) => a + c(k), 0);
+            return `<tr onclick="absOpenDetail(${r.d.idx})">
+                <th class="ab-op"><div class="ab-who"><span class="ab-av">${esc(absInitials(r.d.name))}</span><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</div></th>
+                <td>${year ? absMeter(r.allow.co, ABS_ALLOW.co, typeColor('f')) : absPill(c('f'), 'f')}</td>
+                <td>${year ? absMeter(r.allow.sp, ABS_ALLOW.sp, typeColor('p')) : absPill(r.allow.sp, 'p')}</td>
+                <td>${year ? absMeter(r.allow.pn, ABS_ALLOW.pn, typeColor('pn')) : absPill(c('pn'), 'pn')}</td>
+                <td>${absPill(c('m'), 'm')}</td><td>${absPill(c('r'), 'r')}</td><td>${absPill(c('v'), 'v')}</td>
+                ${otherShown ? `<td>${other ? `<span class="ab-pill" style="--pc:#94a3b8">${other}</span>` : '<span class="ab-dot">\u00b7</span>'}</td>` : ''}
+                <td><span class="ab-tot">${r.total || '\u00b7'}</span></td>
+                <td class="ab-sep">${absPill(c('dom'), 'dom')}</td><td>${absPill(c('fest'), 'fest')}</td><td>${absPill(c('notti'), 'notti')}</td>
+            </tr>`;
+        }).join('');
+        document.getElementById('ab-grid').innerHTML = `<table class="ab2"><thead>${head}</thead><tbody>${body}</tbody></table>`;
     }
-    function absShow(idx, k) {
-        vibrate();
-        absSel = (absSel && absSel.idx === idx && absSel.k === k) ? null : { idx, k };
-        renderAbsences();
-        if(absSel) setTimeout(() => document.getElementById('ab-detail').scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+    function absOpenDetail(idx, key) { vibrate(); absDetailIdx = idx; absOpenKey = key || null; renderAbsences(); document.querySelector('#abs-modal .modal-body').scrollTop = 0; }
+    function absCloseDetail() { vibrate(); absDetailIdx = null; renderAbsences(); }
+    function absToggle(k) { vibrate(); absOpenKey = absOpenKey === k ? null : k; renderAbsDetail(); }
+    // giorni consecutivi raggruppati: "3–7 agosto (5 giorni)"
+    function absRanges(dates) {
+        const out = []; let start = null, prev = null;
+        const flush = () => { if(!start) return; const n = Math.round((prev - start) / 86400000) + 1;
+            const f = dt => dt.toLocaleDateString('it-IT', { weekday:'short', day:'numeric', month:'long' });
+            const wd = dt => dt.toLocaleDateString('it-IT', { weekday:'short' });
+            const from = start.getMonth() === prev.getMonth() ? `${wd(start)} ${start.getDate()}` : start.toLocaleDateString('it-IT', { weekday:'short', day:'numeric', month:'long' });
+            out.push([n === 1 ? f(start) : `${from} \u2013 ${f(prev)}`, n === 1 ? '1 giorno' : n + ' giorni']); };
+        dates.slice().sort((a, b) => a - b).forEach(dt => { if(prev && (dt - prev) === 86400000) prev = dt; else { flush(); start = dt; prev = dt; } });
+        flush(); return out;
     }
-    function absRenderDetail(rows) {
-        const box = document.getElementById('ab-detail');
-        if(!absSel) { box.classList.remove('show'); box.innerHTML = ''; return; }
-        const r = rows.find(x => x.d.idx === absSel.idx); const list = r ? (r.dates[absSel.k] || []) : [];
-        const col = ABS_COLS.concat(WORK_COLS).find(c => c.k === absSel.k);
-        box.innerHTML = `<b>${esc(r ? r.d.name : '')} \u00b7 ${esc(col ? col.label : '')}: ${list.length} ${list.length === 1 ? 'giorno' : 'giorni'}</b><div class="ab-days">${list.map(dt => `<span>${dt.toLocaleDateString('it-IT', { weekday:'short', day:'numeric', month:'short' })}</span>`).join('')}</div>`;
-        box.classList.add('show');
+    function absRing(used, max, col) {
+        const R = 20, C = 2 * Math.PI * R, pct = Math.min(1, used / max);
+        return `<svg width="50" height="50" viewBox="0 0 50 50"><circle cx="25" cy="25" r="${R}" fill="none" stroke="var(--border)" stroke-width="6"/><circle cx="25" cy="25" r="${R}" fill="none" stroke="${used > max ? '#dc2626' : col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(C * pct).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 25 25)"/></svg>`;
+    }
+    function renderAbsDetail() {
+        const det = document.getElementById('ab-view-detail');
+        const d = drivers.find(x => x.idx === absDetailIdx); if(!d) { absDetailIdx = null; renderAbsences(); return; }
+        const r = absCountFor(d, buildDaysIndex());   // il dettaglio è sempre sull'anno intero
+        const counter = (key, used, max, label, note) => {
+            const left = max - used;
+            return `<div class="abd-c" onclick="absToggle('${key}')">${absRing(used, max, typeColor(key))}<div><small>${label}</small><b>${used} / ${max}</b><em class="${left < 0 ? 'over' : 'ok'}">${left < 0 ? 'oltre di ' + (-left) : 'restano ' + left}</em>${note ? `<small style="text-transform:none;letter-spacing:0;font-weight:600;margin-top:2px">${note}</small>` : ''}</div></div>`;
+        };
+        const item = k => {
+            const T = ABS_TYPES[k], list = r.dates[k] || [], n = list.length;
+            const sub = k === 'p' && (r.counts.pn || 0) ? `+ ${r.counts.pn} usati dai permessi notte` : (n ? absRanges(list).length + (absRanges(list).length === 1 ? ' periodo' : ' periodi') : 'nessuno');
+            return `<div class="abd-item ${absOpenKey === k ? 'open' : ''} ${n ? '' : 'empty'}" id="abd-${k}">
+                <div class="abd-row" ${n ? `onclick="absToggle('${k}')"` : ''} style="--pc:${typeColor(k)}"><span class="sw"></span><span class="t"><b>${T.label}</b><small>${sub}</small></span><span class="n">${n}</span>${n ? '<span class="material-icons-round">expand_more</span>' : ''}</div>
+                <div class="abd-dates">${absRanges(list).map(([a, b]) => `<div><span>${a}</span><span>${b}</span></div>`).join('')}</div>
+            </div>`;
+        };
+        const absKeys = ['f', 'p', 'pn', 'm', 'r', 'v', 'c', 'gr', 'ng', 'nl'], workKeys = ['z', 'dom', 'fest', 'notti'];
+        det.innerHTML = `
+            <div class="abd-head"><button class="abd-back" onclick="absCloseDetail()" aria-label="Indietro"><span class="material-icons-round">arrow_back</span></button>
+                <span class="ab-av">${esc(absInitials(d.name))}</span><div><b>${esc(d.name)}</b><small>Anno ${SHIFT_YEAR} \u00b7 ${r.total} giorni di assenza</small></div></div>
+            <div class="abd-counters">
+                ${counter('f', r.allow.co, ABS_ALLOW.co, 'Congedo ordinario')}
+                ${counter('p', r.allow.sp, ABS_ALLOW.sp, 'Permessi speciali', (r.counts.pn || 0) ? `di cui ${r.counts.pn} per permessi notte` : '')}
+                ${counter('pn', r.allow.pn, ABS_ALLOW.pn, 'Permessi notte')}
+            </div>
+            <div class="abd-list">
+                <div class="abd-sec">Assenze</div>${absKeys.map(item).join('')}
+                <div class="abd-sec">Giornate lavorate particolari</div>${workKeys.map(item).join('')}
+            </div>`;
+        if(absOpenKey) setTimeout(() => { const el = document.getElementById('abd-' + absOpenKey); if(el) el.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 60);
     }
 
     // ── Griglia mensile: righe = operatori, colonne = settimane del mese ──
@@ -7961,7 +8099,7 @@
         'admin-login-modal': closeAdminLoginModal,
         'admin-panel-modal': closeAdminPanel,
         'hours-modal': closeHoursModal,
-        'abs-modal': closeAbsModal,
+        'abs-modal': () => { if(absDetailIdx !== null) { absCloseDetail(); setTimeout(syncModalHistoryState, 0); } else closeAbsModal(); },
         'rep-edit-popup': closeRepEditPopup,
         'cc-dialog': closeCcDialog,
         'coord-console': closeCoordConsole,
