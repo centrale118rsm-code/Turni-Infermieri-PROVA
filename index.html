@@ -931,6 +931,10 @@
         .opt-txt span { font-size:0.95rem; }
         .opt-txt small { font-size:0.78rem; color:var(--text-sec); font-weight:400; line-height:1.35; margin-top:1px; }
         .opt-block { padding:12px 20px 14px; border-bottom:1px solid var(--border); }
+        .cal-btns { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 8px; }
+        .cal-btn { flex:1 1 30%; min-width:120px; height:40px; border-radius:12px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font:700 0.78rem inherit; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; text-decoration:none; }
+        .cal-btn .material-icons-round { font-size:18px; color:var(--primary); }
+        .cal-help { display:block; font-size:0.72rem; line-height:1.45; color:var(--text-sec); }
         .opt-seg { display:flex; gap:4px; padding:3px; margin-top:9px; background:var(--bg); border:1px solid var(--border); border-radius:12px; }
         .opt-seg button { flex:1; min-width:0; height:36px; border:none; border-radius:9px; background:transparent; color:var(--text-sec); font:700 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:5px; white-space:nowrap; }
         .opt-seg button .material-icons-round { font-size:17px; }
@@ -2846,7 +2850,9 @@
 
     // ── Identità utente ("Chi sei?") ─────────────────────────────────────────
     const IDENTITY_EXTRA_OPTIONS = ["Frisoni", "Ospite"];
-    let userIdentity = localStorage.getItem('infermieri_identity_name') || null;
+    // ?server=1: l'app viene aperta dal motore su GitHub solo per leggere i turni (niente sessioni, popup o scritture).
+    const SERVER_MODE = new URLSearchParams(location.search).has('server');
+    let userIdentity = SERVER_MODE ? null : (localStorage.getItem('infermieri_identity_name') || null);
     console.log('[Identità] Letta da localStorage all\'avvio:', userIdentity || '(nessuna)');
     let identityRecoveryPromise = null;
 
@@ -2884,6 +2890,7 @@
     async function initFirebaseTracking() {
         if(!fbReady) return;
         try { await fbAuth.signInAnonymously(); } catch(e) { console.error("Auth anonima fallita:", e); }
+        if(SERVER_MODE) return;
         identityRecoveryPromise = tryRecoverIdentityFromUid();
         try {
             await db.collection('infermieri26_accessi').doc(sessionId).set({
@@ -3014,6 +3021,7 @@
         persistIdentityToUidBackup();
         checkIfIAmCoordinator();
         prefsEnsureOwner(); prefsPullRemote();   // ogni operatore ritrova le sue preferenze
+        pushSyncOwner();
         let m = document.getElementById('identity-modal'); m.classList.remove('open');
         setTimeout(() => { m.style.display = 'none'; showStartupMessages(); }, 300);
     }
@@ -3660,7 +3668,7 @@
     }
     function savePrefsLocal() { try { localStorage.setItem('prefs_v1__' + prefsOwnerLoaded, JSON.stringify(prefs)); } catch(e) {} }
     function prefsSaveRemoteSoon() {
-        if(prefsOwnerLoaded === 'OSPITE') return;
+        if(SERVER_MODE || prefsOwnerLoaded === 'OSPITE') return;
         clearTimeout(prefsRemoteTimer);
         prefsRemoteTimer = setTimeout(() => {
             if(!fbReady || prefsOwnerLoaded === 'OSPITE') return;
@@ -3863,6 +3871,7 @@
         if(md.classList.contains('open') && !md.contains(event.target)) closeMonthDropdown();
     });
 
+    if('serviceWorker' in navigator && !SERVER_MODE) navigator.serviceWorker.register('sw.js').catch(() => {});
     window.onload = async () => {
         initFirebaseTracking();
         try {
@@ -3994,6 +4003,7 @@
         setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
         if(prefs.startPage === 'insieme') setTimeout(() => setCalView('insieme'), 350);
         setTimeout(async () => {
+            if(SERVER_MODE) return;
             if(!userIdentity && identityRecoveryPromise) { try { await identityRecoveryPromise; } catch(e) {} }
             prefsEnsureOwner(); prefsPullRemote();
             if(userIdentity) { writeIdentityToSession(); persistIdentityToUidBackup(); showStartupMessages(); if(prefs.startPage === 'me') setTimeout(openMyPage, 400); }
@@ -4845,9 +4855,13 @@
                 <button class="btn-change-identity" onclick="closeOptionsModal();setTimeout(() => toggleDriverFilterDropdown(), 240)"><span class="material-icons-round" style="font-size:16px">groups</span> SCEGLI</button></div>
 
             <div class="option-category-header"><span class="material-icons-round">notifications</span> Notifiche</div>
+            ${pushOptionsHtml()}
             ${sw('notifyChanges', 'Cambi ai miei turni', 'Avviso quando un tuo turno viene aggiunto, cambiato o tolto.')}
             ${sw('notifyRep', 'Promemoria reperibilità', 'Il giorno prima, se sei reperibile o copri una fascia.')}
             ${sw('notifyTomorrow', 'Il mio turno di domani', 'Dopo mezzogiorno, un promemoria con il turno del giorno dopo.')}
+
+            <div class="option-category-header" id="opt-cal"><span class="material-icons-round">calendar_month</span> Calendario del telefono</div>
+            ${calOptionsHtml()}
 
             <div class="option-category-header"><span class="material-icons-round">apps</span> Applicazione</div>
             ${sw('haptics', 'Vibrazione al tocco', 'Una breve vibrazione quando tocchi i pulsanti.')}
@@ -5632,6 +5646,175 @@
                 <p class="cc-note" style="margin-top:10px">La bozza non è ancora salvata: in Modifica turni puoi ritoccarla con la ruota, poi Salva. Con Annulla (o uscendo e scegliendo Scarta) torna tutto com’era.</p>
             </div></div>` : ''}`;
     }
+
+    // ═══ NOTIFICHE SUL TELEFONO E CALENDARIO PERSONALE ═══════════════════
+    // Il "motore" su GitHub Actions (.github/motore del repository) ogni 15 minuti apre questa
+    // app in un browser invisibile con ?server=1, prende serverExport() e:
+    //  • scrive i calendari personali cal/<nome>.ics (link da aggiungere al telefono);
+    //  • manda le notifiche Web Push a chi le ha attivate (documento "push").
+    const VAPID_PUBLIC = 'BC1Dmgpc5zuCuMFLkCEq5c7eoLPyP7tVulYg2Wzo5M-1zpuuT50eqMWgqIcT3JXwz0ceBY9ZC1yGNRC0gOZuc3Q';
+    function calSlug(orig) { return String(orig || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+    function appBaseUrl() { return location.origin + location.pathname.replace(/[^/]*$/, ''); }
+    function calUrl(orig) { return appBaseUrl() + 'cal/' + calSlug(orig) + '.ics'; }
+    function hmRange(s) { const m = String(s || '').match(/(\d{1,2})[:.](\d{2})\D+(\d{1,2})[:.](\d{2})/); return m ? [m[1].padStart(2, '0') + ':' + m[2], m[3].padStart(2, '0') + ':' + m[4]] : null; }
+    // Eventi di una persona in un giorno: turni con orario, assenze a giornata intera.
+    function dayEvents(rowIdx, d) {
+        const info = computeDayInfo(rowIdx, d.idx), c = info.code; if(!c || c === 'STR') return [];
+        if(info.justified) {
+            const lbl = info.custom ? (customCodes[c].label || c).replace(/\|/g, ' ') : ((ABS_TYPES[c] && ABS_TYPES[c].label) || SPECIAL_SUBCODES[c] || c);
+            return [{ kind: 'abs', code: c, label: lbl.charAt(0) + lbl.slice(1).toLowerCase() }];
+        }
+        if(c === 'R' || c === 'r') return [{ kind: 'rest', code: c, label: 'Riposo' }];
+        if(c === 'M+N') return [Object.assign({ kind: 'work', code: 'M', label: 'Mattina' }, { t: hmRange(SCHEDULE.M) }), Object.assign({ kind: 'work', code: 'N', label: 'Notte' }, { t: hmRange(SCHEDULE.N) })];
+        if(info.custom) { const cc = customCodes[c]; return [{ kind: cc.kind === 'work' ? 'work' : 'note', code: c, label: (cc.label || c).replace(/\|/g, ' '), t: cc.kind === 'work' ? [cc.from, cc.to] : null }]; }
+        const t = hmRange(/^[mpr]$/.test(c) ? SCHEDULE_DIURNI[c] : SCHEDULE[c]);
+        return [{ kind: 'work', code: c, label: SHIFT_NAMES[c === 'S' ? 'SM' : c] || info.label || c, t }];
+    }
+    function icsEsc(s) { return String(s).replace(/[\\;,]/g, m => '\\' + m).replace(/\n/g, '\\n'); }
+    // Calendario .ics di una persona (dal giorno "from" in poi).
+    function icsFor(d, fromIso) {
+        const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Turni 118 San Marino//IT', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+            'X-WR-CALNAME:' + icsEsc('Turni ' + d.name), 'X-WR-TIMEZONE:Europe/Rome', 'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H'];
+        const stamp = 'DTSTAMP:20260101T000000Z', slug = calSlug(d.originalName);
+        const dt = (iso, hm) => iso.replace(/-/g, '') + 'T' + hm.replace(':', '') + '00';
+        const add = (uid, s, e, summary, allDay) => L.push('BEGIN:VEVENT', 'UID:' + uid + '-' + slug + '@turni118', stamp, (allDay ? 'DTSTART;VALUE=DATE:' : 'DTSTART:') + s, (allDay ? 'DTEND;VALUE=DATE:' : 'DTEND:') + e, 'SUMMARY:' + icsEsc(summary), 'END:VEVENT');
+        const rows = []; for(let r = 1; r < finalData.length; r++) { const iso = repRowDate(r); if(iso && iso >= fromIso) rows.push({ r, iso }); }
+        rows.forEach(({ r, iso }, i) => {
+            dayEvents(r, d).forEach(ev => {
+                if(ev.kind === 'rest') return;
+                if(ev.kind === 'abs' || ev.kind === 'note' || !ev.t) { add(iso + '-' + ev.code, iso.replace(/-/g, ''), repDateAdd(iso, 1).replace(/-/g, ''), ev.label, true); return; }
+                if(ev.code === 'SM' || ev.code === 'S') { const prev = rows[i - 1] && dayEvents(rows[i - 1].r, d).some(x => x.code === 'N'); if(prev) return; }   // lo smonto è già nella notte
+                let [s, e] = ev.t, endIso = iso;
+                if(ev.code === 'N') { const nx = rows[i + 1] && dayEvents(rows[i + 1].r, d).find(x => x.code === 'SM' || x.code === 'S'); endIso = repDateAdd(iso, 1); if(nx && nx.t) e = nx.t[1]; }
+                else if(e <= s) endIso = repDateAdd(iso, 1);
+                add(iso + '-' + ev.code, dt(iso, s), dt(endIso, e), ev.label + (ev.code === 'N' ? ' (con smonto)' : ''), false);
+            });
+        });
+        // reperibilità: fasce della persona, unite quando sono di seguito
+        const R = repData(), SL = [['00:00', '07:00'], ['07:00', '13:00'], ['13:00', '20:00'], ['20:00', '24:00']], spans = [];
+        rows.forEach(({ iso }) => (R.days[iso] || []).forEach((who, s) => {
+            if(who !== d.originalName) return;
+            const a = dt(iso, SL[s][0]), b = SL[s][1] === '24:00' ? dt(repDateAdd(iso, 1), '00:00') : dt(iso, SL[s][1]);
+            const last = spans[spans.length - 1]; if(last && last.e === a) last.e = b; else spans.push({ s: a, e: b });
+        }));
+        spans.forEach(sp => add('rep-' + sp.s, sp.s, sp.e, 'Reperibilità', false));
+        return L.join('\r\n') + '\r\nEND:VCALENDAR\r\n';
+    }
+    function downloadMyIcs() {
+        const me = prefMe(); if(!me) { ccToast('Scegli prima chi sei.', true); return; }
+        const from = new Date(); from.setDate(from.getDate() - 7);
+        const blob = new Blob([icsFor(me, ymd(from))], { type: 'text/calendar' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'turni-' + calSlug(me.originalName) + '.ics';
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    }
+    function copyMyCalLink() {
+        const me = prefMe(); if(!me) return;
+        const url = calUrl(me.originalName);
+        (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => ccToast('Link del calendario copiato')).catch(() => ccDialog('Link del calendario', url, [{ label: 'Ok', kind: 'primary', value: true }]));
+    }
+    function calOptionsHtml() {
+        const me = prefMe();
+        if(!me) return `<div class="option-item"><div class="opt-txt"><span>Turni nel calendario del telefono</span><small>Scegli prima chi sei: il calendario è personale.</small></div></div>`;
+        const url = calUrl(me.originalName), webcal = url.replace(/^https?:/, 'webcal:');
+        return `<div class="opt-block"><div class="opt-txt"><span>Turni nel calendario del telefono</span><small>Un calendario con i tuoi turni, le assenze e le reperibilità che si aggiorna da solo (di solito entro un’ora; Google a volte ci mette di più).</small></div>
+            <div class="cal-btns">
+                <a class="cal-btn" href="${esc(webcal)}"><span class="material-icons-round">phone_iphone</span>iPhone / iPad</a>
+                <button class="cal-btn" onclick="copyMyCalLink()"><span class="material-icons-round">content_copy</span>Copia il link</button>
+                <button class="cal-btn" onclick="downloadMyIcs()"><span class="material-icons-round">download</span>Scarica ora</button>
+            </div>
+            <small class="cal-help"><b>Google Calendar</b>: dal computer apri calendar.google.com › Altri calendari › + › Da URL e incolla il link copiato. <b>iPhone</b>: tocca il pulsante e conferma “Iscriviti”. “Scarica ora” importa una copia che non si aggiorna.</small></div>`;
+    }
+
+    function openOptionsCal() { openOptionsModal(); setTimeout(() => { const el = document.getElementById('opt-cal'); if(el) el.scrollIntoView({ block:'start' }); }, 350); }
+
+    // ── Notifiche Web Push ──
+    function b64uToBytes(s) { const p = '='.repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...b].map(c => c.charCodeAt(0))); }
+    function pushIdOf(endpoint) { let h = 5381; for(let i = 0; i < endpoint.length; i++) h = ((h << 5) + h + endpoint.charCodeAt(i)) >>> 0; return 'p' + h.toString(16) + endpoint.length.toString(16); }
+    function pushSupported() { return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
+    async function pushCurrent() { if(!pushSupported()) return null; const reg = await navigator.serviceWorker.getRegistration(); return reg ? reg.pushManager.getSubscription() : null; }
+    async function pushEnable() {
+        vibrate();
+        if(!pushSupported()) {
+            const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            ccDialog('Notifiche non disponibili qui', ios ? 'Su iPhone le notifiche funzionano solo con l’app installata: Condividi › Aggiungi alla schermata Home, poi aprila dall’icona e riprova.' : 'Questo browser non supporta le notifiche. Prova con Chrome.', [{ label: 'Ok', kind: 'primary', value: true }]);
+            return;
+        }
+        if(!pushMeOrNull()) { ccToast('Scegli prima chi sei.', true); return; }
+        const perm = await Notification.requestPermission();
+        if(perm !== 'granted') { ccToast('Permesso negato: si può riattivare dalle impostazioni del browser.', true); return; }
+        try {
+            const reg = await navigator.serviceWorker.register('sw.js'); await navigator.serviceWorker.ready;
+            const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uToBytes(VAPID_PUBLIC) });
+            const id = pushIdOf(sub.endpoint), json = sub.toJSON();
+            await cfgRef('push').set({ subs: { [id]: { owner: prefOwner(), sub: { endpoint: json.endpoint, keys: json.keys }, ua: navigator.userAgent.slice(0, 120), createdAt: new Date().toISOString() } } }, { merge: true });
+            try { localStorage.setItem('push_id', id); } catch(e) {}
+            reg.showNotification('Notifiche attive', { body: 'Riceverai qui gli avvisi sui tuoi turni, anche ad app chiusa.', icon: 'icon-118-192.png', tag: 'push-ok' });
+            ccToast('Notifiche attivate'); renderOptions();
+        } catch(e) { console.error(e); ccToast('Attivazione non riuscita: ' + (e.message || e), true); }
+    }
+    async function pushDisable() {
+        vibrate();
+        try { const sub = await pushCurrent(); if(sub) { const id = pushIdOf(sub.endpoint); await sub.unsubscribe(); await cfgRef('push').update({ ['subs.' + id]: firebase.firestore.FieldValue.delete() }).catch(() => {}); } } catch(e) {}
+        try { localStorage.removeItem('push_id'); } catch(e) {}
+        ccToast('Notifiche disattivate'); renderOptions();
+    }
+    // Se cambia chi usa il telefono, la sottoscrizione passa al nuovo nome.
+    async function pushSyncOwner() {
+        try { const sub = await pushCurrent(); if(!sub || !fbReady) return; const id = pushIdOf(sub.endpoint); await cfgRef('push').set({ subs: { [id]: { owner: prefOwner() } } }, { merge: true }); } catch(e) {}
+    }
+    function pushMeOrNull() { return (userIdentity && userIdentity !== 'Ospite') ? userIdentity : null; }
+    function pushOptionsHtml() {
+        setTimeout(async () => {
+            const el = document.getElementById('push-state'), btn = document.getElementById('push-btn'); if(!el || !btn) return;
+            if(!pushSupported()) { el.textContent = /iPad|iPhone|iPod/.test(navigator.userAgent) ? 'Su iPhone serve l’app installata sulla schermata Home.' : 'Non supportate da questo browser.'; btn.textContent = 'Come fare'; return; }
+            const sub = await pushCurrent();
+            el.textContent = sub && Notification.permission === 'granted' ? 'Attive su questo telefono.' : 'Spente: ricevi gli avvisi solo aprendo l’app.';
+            btn.textContent = sub ? 'Disattiva' : 'Attiva'; btn.onclick = sub ? pushDisable : pushEnable;
+        }, 0);
+        return `<div class="option-item"><div class="opt-txt"><span>Notifiche sul telefono</span><small id="push-state">…</small><small>Cambi ai turni, reperibilità di domani e richieste arrivano anche ad app chiusa (con qualche minuto di ritardo). Usano le scelte qui sotto.</small></div>
+            <button class="btn-change-identity" id="push-btn" onclick="pushEnable()">Attiva</button></div>`;
+    }
+
+    // ── Modalità server (usata dal motore su GitHub) ──
+    function serverReady() { return appBooted && finalData.length > 1 && (dataSourceMode !== 'firebase' || fbMonthsReady()); }
+    async function serverExport() {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const from = new Date(today); from.setDate(from.getDate() - 35);
+        const fromIso = ymd(from), todayIso = ymd(today), horizon = repDateAdd(todayIso, 70);
+        const R = repData(), people = drivers.filter(d => !d.hidden);
+        const ics = {}, schedule = {}, labels = {}, repTomorrow = {}, tomorrow = repDateAdd(todayIso, 1);
+        people.forEach(d => {
+            ics[calSlug(d.originalName)] = icsFor(d, fromIso);
+            const sc = schedule[d.originalName] = {};
+            for(let r = 1; r < finalData.length; r++) {
+                const iso = repRowDate(r); if(!iso || iso < todayIso || iso > horizon) continue;
+                const ev = dayEvents(r, d), key = x => (x.kind === 'abs' ? 'A-' : '') + x.code;   // A-: assenza (p = permesso, non pomeriggio diurno)
+                sc[iso] = ev.map(key).join('+'); ev.forEach(x => { labels[key(x)] = x.t ? `${x.label} ${x.t[0]}–${x.t[1]}` : x.label; });
+            }
+        });
+        const slotName = ['00–07', '07–13', '13–20', '20–24'];
+        people.forEach(d => {
+            const mine = []; (R.days[tomorrow] || []).forEach((w, s) => { if(w === d.originalName && s >= 2) mine.push(slotName[s]); });
+            (R.days[repDateAdd(tomorrow, 1)] || []).forEach((w, s) => { if(w === d.originalName && s < 2) mine.push(slotName[s] + ' del giorno dopo'); });
+            if(R.tit[tomorrow] === d.originalName) repTomorrow[d.originalName] = 'reperibile dalle 13:00 di domani per 24 ore';
+            else if(mine.length) repTomorrow[d.originalName] = 'reperibile domani nelle fasce ' + mine.join(', ');
+        });
+        let prefsDoc = {}, subs = {}, requests = [];
+        try { const p = await cfgRef('prefs').get(); prefsDoc = p.exists ? p.data() : {}; } catch(e) {}
+        try { const p = await cfgRef('push').get(); subs = p.exists ? (p.data().subs || {}) : {}; } catch(e) {}
+        try {
+            const q = await db.collection('richieste_infermieri').orderBy('timestamp', 'desc').limit(80).get();
+            requests = q.docs.map(x => { const r = x.data(); return { id: x.id, name: r.name || '', type: (RICHIESTE_TYPE_LABELS && RICHIESTE_TYPE_LABELS[r.type]) || String(r.type || '').replace(/_/g, ' '), dateFrom: r.dateFrom || '', dateTo: r.dateTo || '', inserted: !!r.insertedInShifts }; });
+        } catch(e) {}
+        const coordinators = [coordinatorName].concat(typeof AS_OPERATORI !== 'undefined' ? AS_OPERATORI : []).filter(Boolean).map(x => String(x).toUpperCase());
+        return { team: document.title, url: appBaseUrl(), today: todayIso, tomorrow, people: people.map(d => ({ orig: d.originalName, name: d.name, slug: calSlug(d.originalName) })),
+            ics, schedule, labels, repTomorrow, prefs: prefsDoc, subs, requests, coordinators };
+    }
+    async function serverRemoveSubs(ids) {
+        if(!ids || !ids.length) return 0;
+        const upd = {}; ids.forEach(id => upd['subs.' + id] = firebase.firestore.FieldValue.delete());
+        await cfgRef('push').update(upd).catch(() => {}); return ids.length;
+    }
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
     // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
@@ -5641,7 +5824,7 @@
     // JSON con le chiavi in ordine: Firestore restituisce le mappe in un ordine diverso
     function stableJson(o) { return JSON.stringify(o, (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((a, x) => (a[x] = v[x], a), {}) : v); }
     function publishSaldi() {
-        if(!fbReady || !appBooted || isViewingArchive() || !finalData.length || !fbMonthsReady()) return;
+        if(SERVER_MODE || !fbReady || !appBooted || isViewingArchive() || !finalData.length || !fbMonthsReady()) return;
         const all = buildDaysIndex(), operatori = {};
         drivers.forEach(d => {
             const a = absCountFor(d, all);
@@ -5716,6 +5899,9 @@
             <div class="me-btns">
                 <button onclick="closeMyPage();setTimeout(() => { openHoursModal(); setTimeout(() => openHoursDetail(${d.idx}, ${mi}), 350); }, 250)"><span class="material-icons-round">query_stats</span>Le mie ore</button>
                 <button onclick="closeMyPage();setTimeout(() => { openAbsModal(); setTimeout(() => absOpenDetail(${d.idx}), 350); }, 250)"><span class="material-icons-round">event_busy</span>Le mie assenze</button>
+            </div>
+            <div class="me-btns" style="margin-top:-8px">
+                <button onclick="closeMyPage();setTimeout(openOptionsCal, 250)"><span class="material-icons-round">calendar_month</span>Turni nel calendario del telefono</button>
             </div>`;
     }
 
