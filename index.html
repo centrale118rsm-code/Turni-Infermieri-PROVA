@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,group,history,hourglass_top,ink_eraser,login,logout,open_with,person_add,person_remove,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,swap_horiz,sync,task_alt,today,tune,undo,upload,verified,visibility,visibility_off,warning&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,group,history,hourglass_top,ink_eraser,login,logout,move_down,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,swap_horiz,sync,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -1042,6 +1042,17 @@
 
         /* ══ Area coordinatore: regole ferie ══ */
         .fr-chks { display:flex; flex-wrap:wrap; gap:8px; }
+        .imp-table td { vertical-align:middle; }
+        .imp-table td small { color:var(--cc-muted); }
+        .imp-table tr.imp-same td { color:var(--cc-muted); }
+        .imp-table input[type=checkbox] { width:18px; height:18px; accent-color:var(--cc-accent, #2563eb); }
+        .imp-det { margin-top:10px; border:1px solid var(--cc-line); border-radius:10px; padding:8px 12px; background:var(--cc-surface); }
+        .imp-det summary { cursor:pointer; font:600 13px var(--cc-font); color:var(--cc-text); }
+        .imp-det ul { list-style:none; margin:8px 0 2px; padding:0; max-height:320px; overflow:auto; font-size:13px; color:var(--cc-text); }
+        .imp-det li { padding:4px 0; border-bottom:1px solid var(--cc-line); }
+        .imp-det li span { display:inline-block; min-width:92px; color:var(--cc-muted); }
+        .imp-steps { margin:0 0 10px 18px; padding:0; font-size:13.5px; line-height:1.5; color:var(--cc-text); }
+        .imp-steps li { margin-bottom:6px; }
         .fr-chk { display:inline-flex; align-items:center; gap:7px; padding:7px 12px; border:1px solid var(--cc-line); border-radius:999px; font:500 13px var(--cc-font); color:var(--cc-text); cursor:pointer; background:var(--cc-surface); }
         .fr-chk input { accent-color:var(--cc-accent); width:15px; height:15px; margin:0; }
         .fr-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
@@ -1529,6 +1540,21 @@
         .tw-sat .msym { font-size:18px; }
         .tw-sat:disabled { opacity:.35; cursor:default; }
         #tool-wheel.collapsed .tw-sat { display:flex; }
+        .tw-sat.tw-sat-view { margin-left:28px; }
+        .tw-sat.on, .tw-bar-btn.tw-view.on { background:var(--cc-accent); border-color:var(--cc-accent); }
+        /* vista compatta del calendario (Modifica turni) */
+        .cell.mini { justify-content:center; gap:2px; padding:3px 4px; min-width:26px; border-radius:6px; font-size:0.8rem; line-height:1; }
+        .cell.mini b { font-weight:900; letter-spacing:0; text-transform:none; white-space:nowrap; }
+        .cell.mini .mini-rep { font-size:0.5rem; font-weight:900; letter-spacing:.3px; color:#fff; background:#dc2626; border-radius:3px; padding:1px 3px; line-height:1.2; }
+        .cell.mini .baby-face { display:none; }
+        body.cal-compact #main-table tbody td { padding:1px; }
+        body.cal-compact #main-table .td-date { font-size:0.82rem; line-height:1.05; padding:1px 2px; }
+        body.cal-compact #main-table .td-date small { display:inline; font-size:0.55rem; margin:0 0 0 2px; }
+        body.cal-compact #main-table .td-date .holiday-name { display:none; }
+        body.cal-compact #main-table .day-staff-counts { margin-top:1px; }
+        body.cal-compact #main-table .day-staff-counts span { font-size:0.42rem; padding:0 2px; }
+        body.cal-compact #main-table .day-staff-counts span b { font-size:0.52rem; }
+        body.cal-compact .cell.mini { padding:2px 3px; }
         .tw-caption { position:absolute; left:50%; top:calc(100% + 6px); transform:translateX(-50%); background:var(--cc-ink); color:#fff; font:500 12.5px/1.2 var(--cc-font); padding:7px 11px; border-radius:4px; white-space:nowrap; pointer-events:none; box-shadow:0 4px 12px rgba(12,18,26,.25); }
         #tool-wheel.caption-top .tw-caption { top:auto; bottom:calc(100% + 6px); }
         #tool-wheel.collapsed .tw-caption { display:none; }
@@ -2380,6 +2406,7 @@
                 <button data-sec="panoramica" onclick="ccGo('panoramica')"><span class="msym">space_dashboard</span><span>Panoramica</span></button>
                 <button data-sec="modifica" onclick="ccGo('modifica')"><span class="msym">edit_calendar</span><span>Modifica turni</span><span class="cc-count" id="cc-count-pending"></span></button>
                 <button data-sec="bozza" onclick="ccGo('bozza')"><span class="msym">event_upcoming</span><span>Bozza del mese</span></button>
+                <button data-sec="importa" onclick="ccGo('importa')"><span class="msym">upload_file</span><span>Importa da Excel</span></button>
                 <div class="cc-nav-group">Personale</div>
                 <button data-sec="operatori" onclick="ccGo('operatori')"><span class="msym">group</span><span>Operatori</span></button>
                 <button data-sec="ore" onclick="ccGo('ore')"><span class="msym">schedule</span><span>Conteggio ore</span></button>
@@ -2423,6 +2450,7 @@
         <span class="tw-hub-grip">trascina</span>
     </button>
     <button class="tw-sat" id="tw-sat-undo" onclick="coordUndo()" title="Annulla" aria-label="Annulla"><span class="msym">undo</span></button>
+    <button class="tw-sat tw-sat-view" id="tw-sat-view" onclick="calToggleCompact()" title="Vista compatta: solo turni e REP" aria-label="Cambia vista del calendario"><span class="msym">view_compact</span></button>
     <span class="tw-badge" id="tw-badge"></span>
     <div class="tw-caption" id="tw-caption"></div>
     <div class="tw-bar" id="tw-bar">
@@ -2435,6 +2463,8 @@
             <button data-size="M" onclick="twSetSize('M')" title="Ruota media">M</button>
             <button data-size="G" onclick="twSetSize('G')" title="Ruota grande">G</button>
         </span>
+        <span class="tw-bar-sep"></span>
+        <button class="tw-bar-btn tw-view" id="tw-view-btn" onclick="calToggleCompact()" title="Vista compatta: solo turni e REP" aria-label="Cambia vista del calendario"><span class="msym">view_compact</span></button>
     </div>
 </div>
 
@@ -5815,6 +5845,208 @@
         const upd = {}; ids.forEach(id => upd['subs.' + id] = firebase.firestore.FieldValue.delete());
         await cfgRef('push').update(upd).catch(() => {}); return ids.length;
     }
+
+    // ═══ IMPORTA DA EXCEL (periodo di passaggio) ═══════════════════════════
+    // Finché il coordinatore prepara i turni su Excel: il file si confronta con i turni dell'app
+    // e le differenze diventano modifiche in sospeso nel calendario (da controllare, poi Salva).
+    // Le persone dell'app che mancano nel file e gli straordinari inseriti nell'app non si toccano.
+    const IMPORT_OFFICIAL = { label: 'infermieri.xlsx dell’app ufficiale', url: 'https://centrale118rsm-code.github.io/Turni-Infermieri-2026/' + 'infermieri.xlsx' };
+    let importLast = null, importSel = {};
+    function importReadRaw(ws) {
+        const raw = [];
+        ws.eachRow({ includeEmpty: true }, (row, rn) => {
+            const line = [];
+            row.eachCell({ includeEmpty: true }, (cell, cn) => { let v = cell.value; if(typeof v === 'object' && v !== null) v = v.result || v.richText?.[0]?.text || ''; line[cn] = { v }; });
+            raw[rn] = line;
+        });
+        return raw;
+    }
+    // Righe del file nel formato del calendario + anno del primo mese + titolari di reperibilità.
+    function importParseRaw(raw) {
+        const rows = parseHorizontalLayout(raw), yearTxt = (raw[1] || []).map(c => String((c && c.v) || '')).join(' ').match(/\b(20\d\d)\b/);
+        const baseYear = yearTxt ? +yearTxt[1] : activeYear, header = rows[0], rep = {};
+        let year = baseYear, last = -1;
+        rows.slice(1).forEach(row => {
+            const mi = MONTH_MAP[row[0].v]; if(mi === undefined) return;
+            if(mi < last) year++; last = mi; row.year = year;
+            for(let c = 3; c < row.length; c++) { const x = row[c] || {}; if([x.v, x.subV, x.supV].some(v => isRepStr((v || '').toString()))) { rep[ymd(new Date(year, mi, parseInt(row[1].v)))] = header[c]; break; } }
+        });
+        return { rows, rep };
+    }
+    function importCellVal(x) {
+        let v = (x && x.v !== undefined && x.v !== null ? x.v : '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
+        const subV = (x && x.subV !== undefined && x.subV !== null ? x.subV : '').toString().trim();
+        return { v, subV };
+    }
+    function importAnalyze(parsed, fileName) {
+        const { rows, rep } = parsed, header = rows[0].slice(3);
+        const byNorm = {}; drivers.forEach(d => { byNorm[normalizeNameForMatch(d.originalName)] = d; byNorm[normalizeNameForMatch(d.name)] = d; });
+        const map = header.map(n => byNorm[normalizeNameForMatch(n)] || null);
+        const unknown = header.filter((n, i) => !map[i]);
+        const missing = drivers.filter(d => !d.hidden && !map.includes(d)).map(d => d.name);
+        const months = {}, otherYears = new Set(), today = ymd(new Date());
+        const M = mi => months[mi] = months[mi] || { mi, cells: [], rep: [], people: new Set(), days: 0 };
+        rows.slice(1).forEach(row => {
+            const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v); if(mi === undefined || isNaN(dn)) return;
+            if(row.year !== activeYear) { otherYears.add(MONTH_NAMES_IT[mi] + ' ' + row.year); return; }
+            M(mi).days++;
+            map.forEach((d, i) => {
+                if(!d) return;
+                const key = overrideKey(d.originalName, row[0].v, dn), cur = manualOverrides[key] || null, x = importCellVal(row[i + 3]);
+                const cv = cur ? (cur.v || '').toString().trim() : '', cs = cur ? (cur.subV || '').toString().trim() : '';
+                if(cv === x.v && cs === x.subV) return;
+                const hasMin = cur && cur.customMinutes !== undefined && cur.customMinutes !== null && cur.customMinutes !== '';
+                let next = (x.v || x.subV) ? { v: x.v, subV: x.subV } : null;
+                if(hasMin) next = Object.assign(next || { v: '', subV: '' }, { customMinutes: cur.customMinutes });   // lo straordinario resta
+                months[mi].cells.push({ key, next, prev: cur, name: d.name, dn, iso: ymd(new Date(activeYear, mi, dn)) });
+                months[mi].people.add(d.name);
+            });
+        });
+        const R = repData();
+        Object.keys(rep).forEach(iso => {
+            const [y, m] = iso.split('-').map(Number); if(y !== activeYear) return;
+            const d = byNorm[normalizeNameForMatch(rep[iso])]; if(!d) return;
+            if((R.tit[iso] || '') === d.originalName) return;
+            M(m - 1).rep.push({ iso, orig: d.originalName, name: d.name, prev: R.tit[iso] ? (drivers.find(x => x.originalName === R.tit[iso]) || { name: R.tit[iso] }).name : '' });
+        });
+        const curMonth = today.startsWith(activeYear + '-') ? new Date().getMonth() : (activeYear > new Date().getFullYear() ? -1 : 12);
+        importSel = {};
+        Object.values(months).forEach(m => { importSel[m.mi] = (m.cells.length + m.rep.length) > 0 && m.mi >= curMonth; });
+        importLast = { fileName, at: new Date(), months, unknown, missing, otherYears: [...otherYears], hasRep: Object.keys(rep).length > 0 };
+    }
+    async function importLoadBuffer(buf, fileName) {
+        const el = document.getElementById('imp-status'); if(el) el.innerHTML = '<p class="cc-note">Leggo il file…</p>';
+        try {
+            const wb = new ExcelJS.Workbook(); await wb.xlsx.load(buf);
+            importAnalyze(importParseRaw(importReadRaw(wb.worksheets[0])), fileName);
+        } catch(e) { console.error(e); importLast = null; ccToast('File non leggibile: ' + (e.message || e), true); }
+        renderCcImport();
+    }
+    function importPickFile() {
+        const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.xlsx';
+        inp.onchange = () => { const f = inp.files[0]; if(!f) return; const r = new FileReader(); r.onload = () => importLoadBuffer(r.result, f.name); r.readAsArrayBuffer(f); };
+        inp.click();
+    }
+    async function importFromOfficial() {
+        try {
+            const r = await fetch(IMPORT_OFFICIAL.url + '?t=' + Date.now(), { cache: 'no-store' }); if(!r.ok) throw new Error('HTTP ' + r.status);
+            const lm = r.headers.get('last-modified');
+            await importLoadBuffer(await r.arrayBuffer(), IMPORT_OFFICIAL.label + (lm ? ' (caricato il ' + new Date(lm).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ')' : ''));
+        } catch(e) { ccToast('Non riesco a scaricare il file: ' + (e.message || e), true); }
+    }
+    function importApply() {
+        if(!importLast) return;
+        if(isViewingArchive()) { ccToast('Anno archiviato: non si può modificare.', true); return; }
+        if(pendingChangesCount()) { ccToast('Prima salva o annulla le modifiche in sospeso.', true); return; }
+        const ms = Object.values(importLast.months).filter(m => importSel[m.mi]);
+        const cells = ms.flatMap(m => m.cells), reps = ms.flatMap(m => m.rep);
+        if(!cells.length && !reps.length) { ccToast('Nessun mese scelto con differenze.', true); return; }
+        if(!coordEditModeActive) toggleCoordEditMode(true);
+        const entries = [], keys = [], repDates = [];
+        cells.forEach(c => { const prev = setOverride(c.key, c.next); entries.push({ key: c.key, prev, next: c.next }); keys.push(c.key); });
+        reps.forEach(r => { const en = repChange('rep', r.iso, r.orig); entries.push(en); repDates.push(...repDatesOfKey('rep', r.iso)); });
+        pushUndo({ entries }); afterCoordChange(keys, repDates);
+        const n = cells.length + reps.length;
+        importLast = null; closeCoordConsole();
+        ccToast(`Dal file Excel: ${cells.length} caselle${reps.length ? ` e ${reps.length} reperibilità` : ''} nel calendario. Controlla (sono evidenziate), poi Salva o Annulla.`);
+        return n;
+    }
+    function renderCcImport() {
+        const main = document.getElementById('cc-main'); if(!main) return;
+        const mName = m => MONTH_NAMES_IT[m].charAt(0).toUpperCase() + MONTH_NAMES_IT[m].slice(1);
+        if(dataSourceMode !== 'firebase') {
+            main.innerHTML = `<div class="cc-panel"><div class="cc-panel-body"><p class="cc-note">L’app legge ancora i turni direttamente da ${esc(FILE_NAME)}: basta aggiornare quel file. L’importazione serve dopo il passaggio a Firebase (Dati e backup).</p></div></div>`;
+            return;
+        }
+        const L = importLast;
+        let body = '';
+        if(L) {
+            const list = Object.values(L.months).sort((a, b) => a.mi - b.mi);
+            const tot = list.reduce((a, m) => a + (importSel[m.mi] ? m.cells.length + m.rep.length : 0), 0);
+            const fmtD = iso => new Date(iso + 'T12:00').toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+            const cellTxt = x => x ? [x.v, x.subV ? '(' + x.subV + ')' : ''].filter(Boolean).join(' ') || '—' : '—';
+            const warn = [];
+            if(L.unknown.length) warn.push(`<li><span class="msym" style="color:var(--cc-warn)">person_off</span><span class="cc-grow"><b style="font-weight:600">Nel file ma non nell’app: ${esc(L.unknown.join(', '))}</b><small>Queste righe non vengono importate. Se è un nuovo collega aggiungilo prima in Operatori.</small></span></li>`);
+            if(L.missing.length) warn.push(`<li><span class="msym" style="color:var(--cc-muted)">person_search</span><span class="cc-grow"><b style="font-weight:600">Nell’app ma non nel file: ${esc(L.missing.join(', '))}</b><small>I loro turni nell’app restano come sono.</small></span></li>`);
+            if(L.otherYears.length) warn.push(`<li><span class="msym" style="color:var(--cc-muted)">event_busy</span><span class="cc-grow"><b style="font-weight:600">Mesi di un altro anno: ${esc(L.otherYears.join(', '))}</b><small>Non importati: l’anno attivo è il ${activeYear}. Si importano dopo aver aperto il nuovo anno.</small></span></li>`);
+            body = `
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Cosa cambia</h3><span class="cc-hint">${esc(L.fileName)}</span></div><div class="cc-panel-body">
+                ${list.length ? `<div class="cc-table-wrap"><table class="cc-table imp-table"><thead><tr><th></th><th>Mese</th><th>Caselle diverse</th><th>Persone</th>${L.hasRep ? '<th>Reperibilità</th>' : ''}</tr></thead><tbody>
+                ${list.map(m => { const n = m.cells.length + m.rep.length; return `<tr class="${n ? '' : 'imp-same'}"><td><input type="checkbox" ${importSel[m.mi] ? 'checked' : ''} ${n ? '' : 'disabled'} onchange="importSel[${m.mi}]=this.checked;renderCcImport()"></td>
+                    <td><b>${mName(m.mi)}</b>${m.mi < new Date().getMonth() && activeYear === new Date().getFullYear() ? ' <small>passato</small>' : ''}</td>
+                    <td>${m.cells.length || '<small>uguale</small>'}</td><td>${m.people.size ? `<small>${esc([...m.people].slice(0, 6).join(', '))}${m.people.size > 6 ? ` e altri ${m.people.size - 6}` : ''}</small>` : ''}</td>${L.hasRep ? `<td>${m.rep.length || '<small>uguale</small>'}</td>` : ''}</tr>`; }).join('')}
+                </tbody></table></div>` : '<p class="cc-note">Nel file non ci sono giorni del ' + activeYear + '.</p>'}
+                ${list.filter(m => importSel[m.mi] && (m.cells.length || m.rep.length)).map(m => `<details class="imp-det"><summary>Dettaglio di ${MONTH_NAMES_IT[m.mi]} (${m.cells.length + m.rep.length})</summary><ul>
+                    ${m.cells.slice().sort((a, b) => a.dn - b.dn || a.name.localeCompare(b.name)).slice(0, 150).map(c => `<li><span>${fmtD(c.iso)}</span> <b>${esc(c.name)}</b> ${esc(cellTxt(c.prev))} → <b>${esc(cellTxt(c.next))}</b></li>`).join('')}
+                    ${m.cells.length > 150 ? `<li><small>… e altre ${m.cells.length - 150}</small></li>` : ''}
+                    ${m.rep.map(r => `<li><span>${fmtD(r.iso)}</span> reperibile: ${esc(r.prev || '—')} → <b>${esc(r.name)}</b></li>`).join('')}
+                </ul></details>`).join('')}
+                ${warn.length ? `<ul class="cc-list" style="margin-top:12px">${warn.join('')}</ul>` : ''}
+                <div class="cc-inline-form" style="margin-top:14px">
+                    <button class="cc-btn primary" ${tot ? '' : 'disabled'} onclick="importApply()"><span class="msym">move_down</span>Porta nel calendario (${tot})</button>
+                    <button class="cc-btn" onclick="importLast=null;renderCcImport()">Chiudi</button>
+                </div>
+                <p class="cc-note" style="margin-top:10px">Le differenze diventano modifiche in sospeso, evidenziate nel calendario: controlli, correggi se serve e poi <b>Salva</b> (oppure Annulla). Prima del salvataggio non cambia niente per nessuno.</p>
+            </div></div>`;
+        }
+        main.innerHTML = `
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Carica il file</h3></div><div class="cc-panel-body">
+                <p class="cc-note" style="margin-bottom:12px">Finché prepari i turni su Excel, caricalo qui ogni volta che lo aggiorni: l’app lo confronta con i turni che ha e ti mostra mese per mese cosa cambia, prima di salvare.</p>
+                <div class="cc-inline-form">
+                    <button class="cc-btn primary" onclick="importPickFile()"><span class="msym">upload_file</span>Scegli il file Excel…</button>
+                    <button class="cc-btn" onclick="importFromOfficial()"><span class="msym">cloud_download</span>Prendi ${esc(IMPORT_OFFICIAL.label)}</button>
+                </div>
+                <div id="imp-status"></div>
+            </div></div>
+            ${body}
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Per lasciare Excel</h3></div><div class="cc-panel-body">
+                <ol class="imp-steps">
+                    <li>Per qualche settimana prepara i turni come sempre su Excel e importali qui dopo ogni modifica: tutti li vedono nell’app.</li>
+                    <li>Le piccole correzioni (cambi, assenze, reperibilità) falle direttamente in <b>Modifica turni</b>, senza passare dall’Excel.</li>
+                    <li>Il mese nuovo preparalo con <b>Bozza del mese</b>, poi sistemalo in Modifica turni.</li>
+                    <li>Quando il mese dopo lo prepari tutto qui, l’Excel non serve più: per la bacheca c’è la stampa PDF del mese.</li>
+                </ol>
+                <p class="cc-note">Attenzione: importando un mese, le modifiche fatte nell’app su quel mese vengono riportate a com’è il file (le vedi nel dettaglio prima). Per questo, nel mese in cui passi all’app, non importare più quel mese.</p>
+            </div></div>`;
+    }
+
+    // ═══ VISTA COMPATTA (solo in Modifica turni) ═══════════════════════════
+    // Caselle piccole con il colore e la sigla del turno e la sola scritta REP (niente orari né
+    // fasce), per vedere più giorni e più colleghi insieme. Si accende dalla ruota strumenti.
+    let calCompact = (() => { try { return localStorage.getItem('cal_compact_v1') === '1'; } catch(e) { return false; } })();
+    function calCompactOn() { return coordEditModeActive && calCompact && !calOverview; }
+    const MINI_SHORT = { 't-M':'M', 't-P':'P', 't-N':'N', 't-S':'S', 't-SM':'S', 't-R':'R', 'd-M':'m', 'd-P':'p', 'd-R':'r',
+        'spec-cong':'C.O.', 'spec-mal':'MAL', 'spec-gr':'GR', 'spec-ferie':'F.R.', 'spec-rec':'REC', 'spec-coord':'Z', 'spec-perm':'PERM',
+        'spec-pn':'PN', 'spec-mn':'M+N', 'spec-nl':'NL', 'spec-ng':'NG', 'spec-stu':'STU' };
+    function miniCellHtml(html) {
+        const m = html.match(/^\s*<div class="cell ([^"]*)"((?:\s+style="[^"]*")?)/); if(!m) return html;
+        const cls = m[1].split(/\s+/), style = m[2] || '';
+        const text = () => html.replace(/<div class="(time-tag|rep-text|rep-bar)[\s\S]*$/, '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        let short = '';
+        for(const c of cls) if(MINI_SHORT[c]) { short = MINI_SHORT[c]; break; }
+        if(!short && !cls.includes('empty')) {
+            const words = text().split(' ').filter(w => /\w/.test(w));
+            short = words.length > 1 ? words.slice(0, 3).map(w => w.charAt(0)).join('') : (words[0] || '').slice(0, 4);
+        }
+        const rep = html.includes('class="rep-text"') ? '<span class="mini-rep">REP</span>' : '';
+        return `<div class="cell ${m[1]} mini"${style}><b>${esc(short)}</b>${rep}</div>`;
+    }
+    function calToggleCompact() {
+        vibrate(); calCompact = !calCompact;
+        try { localStorage.setItem('cal_compact_v1', calCompact ? '1' : '0'); } catch(e) {}
+        calCompactUi();
+        if(finalData.length) renderTable();
+        ccToast(calCompact ? 'Vista compatta: solo turni e REP' : 'Vista completa');
+    }
+    function calCompactUi() {
+        document.body.classList.toggle('cal-compact', calCompactOn());
+        ['tw-view-btn', 'tw-sat-view'].forEach(id => {
+            const b = document.getElementById(id); if(!b) return;
+            b.classList.toggle('on', calCompact);
+            b.title = calCompact ? 'Torna alla vista completa' : 'Vista compatta: solo turni e REP';
+            const ic = b.querySelector('.msym'); if(ic) ic.textContent = calCompact ? 'view_agenda' : 'view_compact';
+        });
+    }
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
     // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
@@ -7173,6 +7405,7 @@
         panoramica:   { title:'Panoramica', sub:'Chi è in turno, ore da tenere d\u2019occhio e cose da fare.' },
         modifica:     { title:'Modifica turni', sub:'Modifica il calendario con la ruota strumenti.' },
         bozza:        { title:'Bozza del mese', sub:'Prepara in automatico i turni di un mese seguendo la rotazione, da rivedere prima di salvare.' },
+        importa:      { title:'Importa da Excel', sub:'Porta nell’app i turni aggiornati dal file Excel, controllando prima cosa cambia.' },
         operatori:    { title:'Operatori', sub:'Aggiungi, rimuovi, riordina le colonne o nascondi temporaneamente un operatore.' },
         ore:          { title:'Conteggio ore', sub:'Ore lavorate rispetto al contratto (6 giorni, 36 h), per settimana, mese e anno.' },
         reperibilita: { title:'Report reperibilità', sub:'Ore di reperibilità di ogni operatore, giorno per giorno, per l’ufficio personale.' },
@@ -7198,7 +7431,7 @@
     function ccRenderSection() {
         const main = document.getElementById('cc-main'); if(!main) return;
         if(!finalData.length) { main.innerHTML = `<div class="cc-empty"><span class="msym">hourglass_top</span>Sto caricando il file dei turni…</div>`; return; }
-        ({ panoramica:renderCcOverview, modifica:renderCcEdit, bozza:renderCcDraft, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, ferie:renderCcFerie, riportare:renderCcSync, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
+        ({ panoramica:renderCcOverview, modifica:renderCcEdit, bozza:renderCcDraft, importa:renderCcImport, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, ferie:renderCcFerie, riportare:renderCcSync, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
         ccUpdateNavCounts();
     }
     function ccRefreshIfOpen() {
@@ -8001,6 +8234,7 @@
     function toggleCoordEditMode(active) {
         if(active && calOverview) setCalView('dettaglio');
         coordEditModeActive = active;
+        calCompactUi();
         document.body.classList.toggle('coord-edit-mode', active);
         document.getElementById('coord-edit-strip').classList.toggle('show', active);
         document.getElementById('tool-wheel').classList.toggle('show', active);
@@ -9273,7 +9507,7 @@
             const click = `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const sel = coordEditModeActive && coordSelectedCell && coordSelectedCell.row === i && coordSelectedCell.col === d.idx;
             const tdCls = [sel ? 'coord-selected' : '', d.idx === rtMeIdx ? 'me-col' : ''].filter(Boolean).join(' ');
-            html += `<td${tdCls ? ` class="${tdCls}"` : ''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
+            html += `<td${tdCls ? ` class="${tdCls}"` : ''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${calCompactOn() ? miniCellHtml(formatCell(cellInfo, prevCellInfo, false, repCellHtml(d.originalName || d.name, isoDate))) : formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
         });
         tr.innerHTML = html;
         return tr;
