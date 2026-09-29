@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,group,history,hourglass_top,ink_eraser,login,logout,move_down,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,swap_horiz,sync,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,group,history,hourglass_top,ink_eraser,login,logout,move_down,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,summarize,swap_horiz,sync,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -1526,6 +1526,27 @@
         #coord-edit-strip .cc-btn.primary { background:var(--cc-accent); border-color:var(--cc-accent); }
         #coord-edit-strip .cc-btn:disabled { opacity:.4; }
         @media (max-width:640px) { .ces-mode span:last-child { display:none; } .ces-in { gap:10px; } .ces-tool { font-size:12.5px; } }
+        #coord-edit-strip .cc-btn.on { background:var(--cc-ink-2); border-color:#fff; }
+        @media (max-width:640px) { #ces-sum .ces-sum-l { display:none; } #ces-sum { padding:0 8px; } }
+        .th-sum { display:grid; grid-template-columns:1fr 1fr; gap:1px 2px; margin:3px 1px 0; font-size:0.55rem; font-weight:800; line-height:1.3; text-transform:none; letter-spacing:0; color:var(--text-main); }
+        .th-sum span { display:flex; justify-content:space-between; gap:2px; padding:0 3px; border-radius:4px; background:rgba(148,163,184,.16); white-space:nowrap; overflow:hidden; font-variant-numeric:tabular-nums; }
+        .th-sum span i { font-style:normal; font-weight:700; color:var(--text-sec); }
+        .th-sum span.neg { background:#fee2e2; color:#b91c1c; }
+        body.cal-compact .th-sum { grid-template-columns:1fr; font-size:0.48rem; gap:1px; margin:2px 0 0; line-height:1.2; }
+        body.cal-compact .th-sum span { padding:0 1px; }
+        .ov-adv-mini { display:none; flex-shrink:0; align-items:center; gap:6px; padding:5px 8px; background:var(--bg-card); border-bottom:1px solid var(--border); box-shadow:0 6px 12px -10px rgba(0,0,0,.45); position:relative; z-index:6; }
+        #ov-view.mini-on .ov-adv-mini { display:flex; }
+        .ov-mini-kind { display:flex; gap:2px; padding:2px; background:var(--bg); border:1px solid var(--border); border-radius:8px; flex:none; }
+        .ov-mini-kind button { height:26px; padding:0 8px; border:none; border-radius:6px; background:transparent; color:var(--text-sec); font:700 11px 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .ov-mini-kind button.on { background:var(--primary); color:#fff; }
+        .ov-mini-chips { flex:1; min-width:0; display:flex; gap:5px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+        .ov-mini-chips::-webkit-scrollbar { display:none; }
+        .ov-mini-chips .ov-per { padding:3px 8px; border-radius:8px; }
+        .ov-mini-chips .ov-per b { font-size:0.72rem; }
+        .ov-mini-chips .ov-per small { display:none; }
+        .ov-mini-chips .ov-none { padding:0; font-size:0.72rem; white-space:nowrap; align-self:center; }
+        .ov-mini-up { flex:none; width:30px; height:30px; border-radius:8px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer; }
+        .ov-mini-up .material-icons-round { font-size:20px; transform:rotate(180deg); }
 
         /* ══ Ruota strumenti ════════════════════════════════════════════════ */
         #tool-wheel { position:fixed; left:0; top:0; width:300px; height:300px; z-index:3000; pointer-events:none; display:none; touch-action:none; }
@@ -2498,6 +2519,7 @@
         <div class="ces-mode"><span class="msym">edit_calendar</span><span>Modifica turni</span></div>
         <div class="ces-tool" id="ces-tool"></div>
         <div class="ces-pending" id="ces-pending"></div>
+        <button class="cc-btn" id="ces-sum" onclick="edSumToggle()" title="Resoconto di ferie, permessi e reperibilità per persona"><span class="msym">summarize</span><span class="ces-sum-l">Resoconto</span></button>
         <button class="cc-btn primary" id="ces-save" onclick="coordConfirmChanges()"><span class="msym">save</span>Salva</button>
         <button class="cc-btn" onclick="exitCoordEdit()">Esci</button>
     </div>
@@ -2798,6 +2820,7 @@
         <div class="ov-title"><b>Vista d’insieme</b><small id="ov-sub">Tutto l’anno</small></div>
         <button class="ov-btn" id="ov-adv-btn" onclick="ovToggleAdvice()"><span class="material-icons-round">beach_access</span><span class="l-long">Ferie e permessi</span><span class="l-short">Ferie</span></button>
     </div>
+    <div class="ov-adv-mini" id="ov-adv-mini"></div>
     <div class="ov-scroll" id="ov-scroll"><div class="ov-advice" id="ov-advice"></div><div id="ov-body"></div></div>
 </div>
 <div id="ov-sheet" class="ov-sheet" onclick="ovCloseSheet(event)"><div class="ov-sheet-card" id="ov-sheet-card" onclick="event.stopPropagation()"></div></div>
@@ -5150,7 +5173,7 @@
     function renderOvAdvice() {
         const el = document.getElementById('ov-advice'); if(!el) return;
         const btn = document.getElementById('ov-adv-btn'); if(btn) btn.classList.toggle('on', ovAdvice);
-        if(!ovAdvice) { el.innerHTML = ''; return; }
+        if(!ovAdvice) { el.innerHTML = ''; ovMiniRender(); return; }
         const perm = ovAdvKind === 'perm', me = prefMe();
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const card = p => `<button class="ov-per ${p.minFree <= 1 ? 'last' : ''}" onclick="ovScrollTo('ov-r-${p.row}')"><b>${p.label}</b><small>${p.n} giorni · ${p.minFree <= 1 ? '1 posto libero' : 'almeno ' + p.minFree + ' posti'}</small></button>`;
@@ -5197,6 +5220,7 @@
             <div class="ov-rules">${esc(perm ? permRulesText(ferieRules) : ferieRulesText(ferieRules))}</div>
             <div class="ov-adv-seg"><button class="${ovAdvMode === 'tutti' ? 'on' : ''}" onclick="ovAdvSetMode('tutti')">${perm ? 'Tutti i giorni' : 'Tutti i periodi'}</button><button class="${ovAdvMode === 'mese' ? 'on' : ''}" onclick="ovAdvSetMode('mese')">Per mese</button></div>
             ${list}`;
+        ovMiniRender();
     }
     // Posti disponibili: tutti da oggi, oppure un mese alla volta.
     var ovAdvMode = 'tutti', ovAdvMonth = null;
@@ -6083,7 +6107,7 @@
     // A ore dentro un turno: il turno resta com'è e la casella porta perm = { k, h }; le ore di
     // permesso sono retribuite, quindi il saldo delle ore non cambia: scalano solo dal monte ore.
     const PERM_HOURLY = {
-        pl: { label: 'Permesso legge', short: 'PL', max: 14 },
+        pl: { label: 'Permesso legge', short: 'PL', max: 14, dayH: 7 },   // un giorno intero conta 7 ore
         ps: { label: 'Permesso sindacale', short: 'PS', max: null }
     };
     function permHFmt(h) { const m = Math.round((Number(h) || 0) * 60); return Math.floor(m / 60) + 'h' + (m % 60 ? String(m % 60).padStart(2, '0') : ''); }
@@ -6099,7 +6123,7 @@
         if(PERM_HOURLY[sub]) {
             let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
             if(/^r(iposo)?$/i.test(v)) return null;   // su un riposo non conta
-            return { k: sub, h: h || permDayHours(rowIdx, col), full: true };
+            return { k: sub, h: h || PERM_HOURLY[sub].dayH || permDayHours(rowIdx, col), full: true };
         }
         if(cell.perm && PERM_HOURLY[cell.perm.k] && h) return { k: cell.perm.k, h, full: false };
         return null;
@@ -6127,7 +6151,7 @@
                 <div class="sep-perm-kinds">${Object.keys(PERM_HOURLY).map(k => `<button class="${sepPermKind === k ? 'on' : ''}" onclick="sepPermKind='${k}';this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this));document.getElementById('sep-perm-left').style.visibility='${k === 'pl' ? 'visible' : 'hidden'}'"><span class="cc-code" style="${swatchStyle(SUB_CODE_COLORS[k])}">${PERM_HOURLY[k].short}</span>${PERM_HOURLY[k].label}</button>`).join('')}</div>
                 <div class="sep-perm-row">
                     <label>Ore <input type="number" id="sep-perm-h" min="0.25" max="24" step="0.25" value="${hVal}" inputmode="decimal"></label>
-                    <small id="sep-perm-left" style="visibility:${sepPermKind === 'pl' ? 'visible' : 'hidden'}">Permesso legge: usate ${permHFmt(used)} su 14h · ${left >= 0 ? 'restano ' + permHFmt(left) : 'oltre di ' + permHFmt(-left)}</small>
+                    <small id="sep-perm-left" style="visibility:${sepPermKind === 'pl' ? 'visible' : 'hidden'}">Permesso legge: usate ${permHFmt(used)} su 14h (giornata intera = 7h) · ${left >= 0 ? 'restano ' + permHFmt(left) : 'oltre di ' + permHFmt(-left)}</small>
                 </div>
                 <div class="sep-perm-row">
                     <button class="cc-btn primary" ${onShift ? '' : 'disabled title="Nella casella non c’è un turno"'} onclick="sepPermApply(false)"><span class="msym">schedule</span>Ore dentro il turno</button>
@@ -6142,7 +6166,7 @@
         let h = parseFloat(String(document.getElementById('sep-perm-h').value).replace(',', '.'));
         if(!full && !(h > 0)) { ccToast('Scrivi quante ore.', true); return; }
         let next;
-        if(full) next = { v: '', subV: sepPermKind, perm: { k: sepPermKind, h: h > 0 ? h : permDayHours(row, col) } };
+        if(full) next = { v: '', subV: sepPermKind, perm: { k: sepPermKind, h: PERM_HOURLY[sepPermKind].dayH || (h > 0 ? h : permDayHours(row, col)) } };
         else {
             const sub = (cell.subV || '').toString().trim().toLowerCase();
             next = { v: (cell.v || '').toString(), subV: PERM_HOURLY[sub] ? '' : (cell.subV || ''), perm: { k: sepPermKind, h } };
@@ -6220,6 +6244,55 @@
             order.map((x, n) => ({ label: `${names[TURNISTI_CYCLE[x]]}${n === 0 && pi >= 0 ? ' (continua)' : ''}`, kind: n === 0 ? 'primary' : '', value: String(x) })).concat([{ label: 'Annulla', kind: 'ghost', value: null }]));
         return res === null || res === undefined ? null : +res;
     }
+
+    // ═══ RESOCONTO PER PERSONA (solo in Modifica turni) ══════════════════════
+    // Sotto il nome di ognuno, se aperto: ferie e permessi che restano nell'anno, ore di
+    // permesso legge rimaste, reperibilità fatte fino a oggi, loro ore e quante di domenica o
+    // festivo. Si apre e si chiude dal pulsante "Resoconto" nella barra di Modifica turni.
+    let edSumOpen = (() => { try { return localStorage.getItem('ed_sum_v1') === '1'; } catch(e) { return false; } })();
+    function edSumToggle() {
+        vibrate(); edSumOpen = !edSumOpen;
+        try { localStorage.setItem('ed_sum_v1', edSumOpen ? '1' : '0'); } catch(e) {}
+        edSumUi(); renderTableHead();
+        if(edSumOpen) ccToast('Resoconto: CO ferie, P permessi straord., PN perm. notte, PL ore perm. legge (rimasti) · REP reperibilità fatte, h loro ore, DOM di domenica/festivo');
+    }
+    function edSumUi() { const b = document.getElementById('ces-sum'); if(b) { b.classList.toggle('on', edSumOpen); b.title = edSumOpen ? 'Chiudi il resoconto' : 'Resoconto di ferie, permessi e reperibilità per persona'; } }
+    function edSumCtx() { return { days: buildDaysIndex(), R: repData(), today: ymd(new Date()), y: SHIFT_YEAR + '-' }; }
+    function edSumHtml(d, ctx) {
+        const a = absCountFor(d, ctx.days), o = d.originalName;
+        const co = ABS_ALLOW.co - a.allow.co, sp = ABS_ALLOW.sp - a.allow.sp, pn = ABS_ALLOW.pn - a.allow.pn;
+        const pl = Math.round((PERM_HOURLY.pl.max - a.hours.pl) * 100) / 100;
+        let rep = 0, repAll = 0, dom = 0, min = 0, minAll = 0;
+        Object.keys(ctx.R.tit).forEach(dt => { if(ctx.R.tit[dt] !== o || !dt.startsWith(ctx.y)) return; repAll++; if(dt <= ctx.today) { rep++; if(repIsFestive(dt)) dom++; } });
+        Object.keys(ctx.R.days).forEach(dt => { if(!dt.startsWith(ctx.y)) return; ctx.R.days[dt].forEach((w, s) => { if(w !== o) return; minAll += REP_SLOTS[s].minutes; if(dt <= ctx.today) min += REP_SLOTS[s].minutes; }); });
+        const t = (lbl, val, tip, neg) => `<span class="${neg ? 'neg' : ''}" title="${esc(tip)}"><i>${lbl}</i>${val}</span>`;
+        return `<div class="th-sum">
+            ${t('CO', co, `Congedo ordinario: restano ${co} giorni su ${ABS_ALLOW.co}`, co < 0)}${t('P', sp, `Permessi straordinari: restano ${sp} su ${ABS_ALLOW.sp}`, sp < 0)}
+            ${t('PN', pn, `Permessi notte: restano ${pn} su ${ABS_ALLOW.pn}`, pn < 0)}${t('PL', permHFmt(Math.max(0, pl)), `Permesso legge: restano ${permHFmt(Math.max(0, pl))} su 14h${pl < 0 ? ' (oltre di ' + permHFmt(-pl) + ')' : ''}`, pl < 0)}
+            ${t('REP', rep, `Reperibilità fatte fino a oggi: ${rep} (in calendario nell'anno: ${repAll})`)}${t('h', Math.round(min / 60), `Ore di reperibilità fatte fino a oggi: ${repHours(min)} (nell'anno: ${repHours(minAll)})`)}
+            ${t('DOM', dom, `Reperibilità di domenica o festivo fatte fino a oggi: ${dom}`)}
+        </div>`;
+    }
+
+    // ═══ VISTA D'INSIEME › FERIE E PERMESSI: barra compatta fissa ═══════════
+    // I consigli completi scorrono con il calendario (così resta spazio sul telefono); appena
+    // escono dallo schermo compare in alto una barra sottile con Ferie/Permessi e i giorni consigliati.
+    function ovMiniRender() {
+        const mini = document.getElementById('ov-adv-mini'), el = document.getElementById('ov-advice'); if(!mini || !el) return;
+        if(!ovAdvice) { mini.innerHTML = ''; ovMiniCheck(); return; }
+        const perm = ovAdvKind === 'perm';
+        const chips = [...el.querySelectorAll('.ov-periods .ov-per')].map(b => b.outerHTML).join('');
+        mini.innerHTML = `<div class="ov-mini-kind"><button class="${perm ? '' : 'on'}" onclick="ovAdvSetKind('ferie')">Ferie</button><button class="${perm ? 'on' : ''}" onclick="ovAdvSetKind('perm')">Permessi</button></div>
+            <div class="ov-mini-chips">${chips || `<span class="ov-none">${perm ? 'Nessun giorno consigliato' : 'Nessun periodo consigliato'}</span>`}</div>
+            <button class="ov-mini-up" onclick="ovMiniUp()" title="Mostra i consigli completi" aria-label="Mostra i consigli completi"><span class="material-icons-round">expand_more</span></button>`;
+        ovMiniCheck();
+    }
+    function ovMiniUp() { vibrate(); const sc = document.getElementById('ov-scroll'); if(sc) sc.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function ovMiniCheck() {
+        const v = document.getElementById('ov-view'), sc = document.getElementById('ov-scroll'), el = document.getElementById('ov-advice'); if(!v || !sc || !el) return;
+        v.classList.toggle('mini-on', !!ovAdvice && el.offsetHeight > 0 && sc.scrollTop > el.offsetTop + el.offsetHeight - 8);
+    }
+    document.addEventListener('scroll', e => { if(e.target && e.target.id === 'ov-scroll') ovMiniCheck(); }, true);
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
     // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
@@ -8417,7 +8490,7 @@
     function toggleCoordEditMode(active) {
         if(active && calOverview) setCalView('dettaglio');
         coordEditModeActive = active;
-        calCompactUi();
+        calCompactUi(); edSumUi();
         document.body.classList.toggle('coord-edit-mode', active);
         document.getElementById('coord-edit-strip').classList.toggle('show', active);
         document.getElementById('tool-wheel').classList.toggle('show', active);
@@ -9619,6 +9692,7 @@
         const frag = document.createDocumentFragment();
         let thD = document.createElement('th');
         const periodDays = coordEditModeActive ? thPeriodDays() : null;
+        const sumCtx = coordEditModeActive && edSumOpen ? edSumCtx() : null;   // resoconto per persona
         if(coordEditModeActive) {
             const P = TH_PERIODS[thBalPeriod];
             thD.className = 'th-period-cell';
@@ -9635,6 +9709,7 @@
                 bEl.innerText = (delta>=0?'+':'') + formatHM(delta);
                 bEl.title = `${TH_PERIODS[thBalPeriod].label}: ore lavorate meno ore da contratto`;
                 th.appendChild(bEl);
+                if(sumCtx) th.insertAdjacentHTML('beforeend', edSumHtml(d, sumCtx));
             }
             if(aiAdviceEnabled) {
                 let advice = getAdviceForDriver(d.idx);
