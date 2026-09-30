@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,group,history,hourglass_top,ink_eraser,login,logout,move_down,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,summarize,swap_horiz,sync,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,badge,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,expand_less,expand_more,filter_list,group,history,hourglass_top,ink_eraser,login,logout,manage_accounts,move_down,notifications_active,notifications_off,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,summarize,swap_horiz,sync,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -450,7 +450,7 @@
         /* copertura turnisti in Modifica turni: 1-2 = bordo arancio, 4+ = lampeggio rosso */
         body.coord-edit-mode td.cov-lo > .cell { outline:3px solid #f97316; outline-offset:-3px; }
         body.coord-edit-mode td.cov-hi > .cell { outline:3px solid #dc2626; outline-offset:-3px; animation:covBlink 0.9s steps(1, end) infinite; }
-        @keyframes covBlink { 0%, 49% { outline-color:#dc2626; box-shadow:0 0 12px rgba(220,38,38,0.75); filter:none; } 50%, 100% { outline-color:#fecaca; box-shadow:none; filter:brightness(1.25) saturate(0.6); } }
+        @keyframes covBlink { 0%, 49% { outline-color:#dc2626; box-shadow:0 0 0 2px #dc2626, 0 0 14px rgba(220,38,38,0.85); filter:none; } 50%, 100% { outline-color:#ef4444; box-shadow:none; filter:brightness(1.35) saturate(0.55); } }
         .ab-pill.wide { min-width:44px; padding:0 7px; }
         #ab-view-detail .abd-counters { grid-template-columns:repeat(4,1fr); }
         @media (max-width:560px) { #ab-view-detail .abd-counters { grid-template-columns:repeat(2,1fr); } }
@@ -1528,7 +1528,86 @@
         @media (max-width:640px) { .ces-mode span:last-child { display:none; } .ces-in { gap:10px; } .ces-tool { font-size:12.5px; } }
         #coord-edit-strip .cc-btn.on { background:var(--cc-ink-2); border-color:#fff; }
         @media (max-width:640px) { #ces-sum .ces-sum-l { display:none; } #ces-sum { padding:0 8px; } }
-        .th-sum { display:grid; grid-template-columns:1fr 1fr; gap:1px 2px; margin:3px 1px 0; font-size:0.55rem; font-weight:800; line-height:1.3; text-transform:none; letter-spacing:0; color:var(--text-main); }
+        .th-sum { display:flex; flex-direction:column; gap:3px; margin:4px 1px 0; font-size:0.55rem; font-weight:800; line-height:1.3; text-transform:none; letter-spacing:0; color:var(--text-main); }
+        .th-sum-abs, .th-sum-rep { display:grid; grid-template-columns:1fr 1fr; gap:2px; }
+        .th-sum-rep { padding:2px; border-radius:6px; background:rgba(220,38,38,.07); border:1px dashed rgba(220,38,38,.35); }
+        .th-sum-rep span { background:#fee2e2 !important; color:#991b1b !important; }
+        body.dark-mode .th-sum-rep span { background:rgba(220,38,38,.22) !important; color:#fecaca !important; }
+        .th-sum span i { opacity:.8; color:inherit !important; }
+        .th-sum span.neg { box-shadow:0 0 0 1.5px #dc2626; }
+        body.cal-compact .th-sum-abs, body.cal-compact .th-sum-rep { grid-template-columns:1fr; gap:1px; }
+        .ces-btns { display:flex; align-items:center; gap:6px; }
+        #coord-edit-strip .cc-btn.ces-ico { width:34px; padding:0; justify-content:center; }
+        #coord-edit-strip .cc-btn.ces-ico .msym { margin:0; }
+        body.ed-no-hdr header { display:none !important; }
+        body.ed-no-hdr { --header-h: var(--safe-top) !important; }
+        @media (max-width:640px) { .ces-tool { display:none; } .ces-btns { gap:4px; } #coord-edit-strip .cc-btn.ces-ico { width:32px; } }
+        .ed-pop { position:fixed; right:12px; bottom:calc(58px + env(safe-area-inset-bottom,0px)); z-index:3200; width:min(300px, calc(100vw - 24px)); background:var(--cc-surface); color:var(--cc-text); border:1px solid var(--cc-line); border-radius:14px; box-shadow:0 18px 40px -12px rgba(15,23,42,.45); padding:12px 14px; font-size:13px; }
+        .ed-pop b { display:block; font-weight:700; margin-bottom:4px; }
+        .ed-pop-sec { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--cc-muted); margin:10px 0 4px; }
+        .ed-pop label { display:flex; align-items:center; gap:9px; padding:5px 2px; cursor:pointer; }
+        .ed-pop input { width:17px; height:17px; accent-color:var(--cc-accent); margin:0; }
+        .ed-pop-sw { min-width:34px; text-align:center; font-weight:800; font-size:11px; border-radius:5px; padding:2px 4px; }
+        .ed-pop-sw.rep { background:#fee2e2; color:#991b1b; }
+        .ed-pop-foot { display:flex; gap:6px; justify-content:flex-end; margin-top:10px; }
+        #ed-alert { position:fixed; right:14px; bottom:calc(62px + env(safe-area-inset-bottom,0px)); z-index:3100; width:min(340px, calc(100vw - 28px)); background:var(--cc-surface); color:var(--cc-text); border:1px solid var(--cc-line); border-radius:14px; box-shadow:0 18px 40px -12px rgba(15,23,42,.5); overflow:hidden; transform:translateY(14px); opacity:0; pointer-events:none; transition:transform .2s ease, opacity .2s ease; }
+        #ed-alert.show { transform:none; opacity:1; pointer-events:auto; }
+        .ed-al-head { display:flex; align-items:center; gap:8px; padding:9px 10px 9px 14px; background:#fff7ed; color:#9a3412; border-bottom:1px solid #fed7aa; }
+        .ed-al-head.err { background:#fef2f2; color:#b91c1c; border-bottom-color:#fecaca; }
+        body.dark-mode .ed-al-head { background:#3b2412; color:#fdba74; border-bottom-color:#5b3417; }
+        body.dark-mode .ed-al-head.err { background:#3a1616; color:#fca5a5; border-bottom-color:#5b2020; }
+        .ed-al-head b { flex:1; font-size:13.5px; }
+        .ed-al-head button { width:28px; height:28px; border:none; background:transparent; color:inherit; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .ed-al-head button:hover { background:rgba(0,0,0,.06); }
+        #ed-alert ul { list-style:none; margin:0; padding:4px 0; max-height:260px; overflow:auto; }
+        #ed-alert li { padding:7px 14px 7px 30px; font-size:12.5px; line-height:1.35; position:relative; cursor:pointer; }
+        #ed-alert li:hover { background:var(--cc-surface-2); }
+        #ed-alert li::before { content:''; position:absolute; left:14px; top:12px; width:7px; height:7px; border-radius:50%; background:#f59e0b; }
+        #ed-alert li.err::before { background:#dc2626; }
+        #ed-alert li.more { color:var(--cc-muted); cursor:default; }
+        #ed-alert li.more::before { display:none; }
+
+        /* ══ Area coordinatore: aspetto rinnovato ══════════════════════════ */
+        .cc-scope { --cc-font:'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; --cc-font-c:'Plus Jakarta Sans', system-ui, sans-serif;
+            --cc-r:14px; --cc-accent:#1d4ed8; --cc-accent-hover:#1e40af; --cc-accent-soft:#e8efff; --cc-bg:#f2f5fa; --cc-line:#dfe5ee; --cc-line-2:#edf1f6; }
+        body.dark-mode .cc-scope { --cc-accent:#6f9bff; --cc-accent-hover:#8fb2ff; --cc-accent-soft:#18264a; }
+        #coord-console { background:radial-gradient(1100px 520px at 105% -12%, rgba(59,130,246,.16), transparent 62%), var(--cc-bg); }
+        body.dark-mode #coord-console { background:radial-gradient(1100px 520px at 105% -12%, rgba(59,130,246,.12), transparent 62%), var(--cc-bg); }
+        #coord-console .cc-side { background:linear-gradient(185deg, #0b1f4d 0%, #0f2a63 45%, #173a8a 100%); color:#fff; border-right:none; box-shadow:4px 0 24px -12px rgba(15,23,42,.5); }
+        #coord-console .cc-brand { border-bottom:1px solid rgba(255,255,255,.1); }
+        #coord-console .cc-brand b { color:#fff; font-weight:800; }
+        #coord-console .cc-brand small { color:rgba(255,255,255,.62); }
+        .cc-scope .cc-brand-mark { background:url('icon-118-192.png') center/cover no-repeat !important; color:transparent !important; font-size:0 !important; border-radius:11px; box-shadow:0 6px 16px -4px rgba(0,0,0,.45); }
+        #coord-console .cc-nav-group { color:rgba(255,255,255,.5); }
+        #coord-console .cc-nav button { color:rgba(255,255,255,.88); }
+        #coord-console .cc-nav button .msym { background:rgba(255,255,255,.1); border:none; color:#fff; }
+        #coord-console .cc-nav button:hover { background:rgba(255,255,255,.08); }
+        #coord-console .cc-nav button.active { background:#fff; color:#0f2a63; box-shadow:0 8px 20px -10px rgba(0,0,0,.55); }
+        #coord-console .cc-nav button.active .msym { background:linear-gradient(135deg, #2563eb, #1d4ed8); color:#fff; }
+        #coord-console .cc-nav .cc-count { background:#f59e0b; color:#fff; }
+        #coord-console .cc-side-foot { border-top:1px solid rgba(255,255,255,.1); }
+        #coord-console .cc-side-foot button { color:rgba(255,255,255,.72); }
+        #coord-console .cc-side-foot button:hover { background:rgba(255,255,255,.08); color:#fff; }
+        #coord-console .cc-top { background:rgba(255,255,255,.78); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-bottom:1px solid var(--cc-line-2); }
+        body.dark-mode #coord-console .cc-top { background:rgba(22,30,40,.8); }
+        #coord-console .cc-top-text > :first-child { font-size:22px; font-weight:800; letter-spacing:-.02em; }
+        #coord-console .cc-panel { border:1px solid var(--cc-line-2); border-radius:16px; box-shadow:0 1px 2px rgba(15,23,42,.04), 0 12px 32px -20px rgba(15,23,42,.3); }
+        #coord-console .cc-panel-head { padding:14px 18px; }
+        #coord-console .cc-panel-head h3 { font-size:15px; font-weight:700; letter-spacing:-.01em; }
+        .cc-scope .cc-btn { border-radius:10px; font-weight:600; }
+        .cc-scope .cc-btn.primary { box-shadow:0 8px 18px -10px rgba(29,78,216,.8); }
+        .cc-scope .cc-input { border-radius:10px; }
+        .cc-scope .cc-icon-btn { border-radius:10px; }
+        #coord-console .cc-table-wrap { border-radius:14px; border-color:var(--cc-line-2); }
+        .cc-login { background:linear-gradient(135deg, #0b1f4d 0%, #173a8a 55%, var(--cc-bg) 55.1%) !important; }
+        .cc-login-panel { border-radius:18px !important; box-shadow:0 30px 60px -30px rgba(15,23,42,.6); }
+        @media (max-width:760px) {
+            #coord-console .cc-side { box-shadow:0 6px 18px -12px rgba(15,23,42,.6); }
+            #coord-console .cc-brand { border-right:1px solid rgba(255,255,255,.12); }
+            #coord-console .cc-nav button { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); }
+            #coord-console .cc-nav button.active { background:#fff; border-color:#fff; }
+            .cc-login { background:linear-gradient(180deg, #0b1f4d 0%, #173a8a 40%, var(--cc-bg) 40.1%) !important; }
+        }
         .th-sum span { display:flex; justify-content:space-between; gap:2px; padding:0 3px; border-radius:4px; background:rgba(148,163,184,.16); white-space:nowrap; overflow:hidden; font-variant-numeric:tabular-nums; }
         .th-sum span i { font-style:normal; font-weight:700; color:var(--text-sec); }
         .th-sum span.neg { background:#fee2e2; color:#b91c1c; }
@@ -2519,7 +2598,12 @@
         <div class="ces-mode"><span class="msym">edit_calendar</span><span>Modifica turni</span></div>
         <div class="ces-tool" id="ces-tool"></div>
         <div class="ces-pending" id="ces-pending"></div>
-        <button class="cc-btn" id="ces-sum" onclick="edSumToggle()" title="Resoconto di ferie, permessi e reperibilità per persona"><span class="msym">summarize</span><span class="ces-sum-l">Resoconto</span></button>
+        <div class="ces-btns">
+            <button class="cc-btn" id="ces-sum" onclick="edSumToggle()" title="Resoconto di ferie, permessi e reperibilità per persona"><span class="msym">summarize</span><span class="ces-sum-l">Resoconto</span></button>
+            <button class="cc-btn ces-ico" id="ces-sumf" onclick="edSumMenu(event)" title="Scegli cosa mostrare nel resoconto" aria-label="Filtro del resoconto"><span class="msym">filter_list</span></button>
+            <button class="cc-btn ces-ico" id="ces-alert" onclick="edAlertsToggle()" title="Avvisi" aria-label="Avvisi"><span class="msym">notifications_active</span></button>
+            <button class="cc-btn ces-ico" id="ces-hdr" onclick="edHdrToggle()" title="Nascondi la barra in alto" aria-label="Nascondi o mostra la barra in alto"><span class="msym">expand_less</span></button>
+        </div>
         <button class="cc-btn primary" id="ces-save" onclick="coordConfirmChanges()"><span class="msym">save</span>Salva</button>
         <button class="cc-btn" onclick="exitCoordEdit()">Esci</button>
     </div>
@@ -6256,9 +6340,9 @@
         edSumUi(); renderTableHead();
         if(edSumOpen) ccToast('Resoconto: CO ferie, P permessi straord., PN perm. notte, PL ore perm. legge (rimasti) · REP reperibilità fatte, h loro ore, DOM di domenica/festivo');
     }
-    function edSumUi() { const b = document.getElementById('ces-sum'); if(b) { b.classList.toggle('on', edSumOpen); b.title = edSumOpen ? 'Chiudi il resoconto' : 'Resoconto di ferie, permessi e reperibilità per persona'; } }
+    function edSumUi() { const b = document.getElementById('ces-sum'); if(b) { b.classList.toggle('on', edSumOpen); b.title = edSumOpen ? 'Chiudi il resoconto' : 'Resoconto di ferie, permessi e reperibilità per persona'; } const f = document.getElementById('ces-sumf'); if(f) f.style.display = edSumOpen ? '' : 'none'; }
     function edSumCtx() { return { days: buildDaysIndex(), R: repData(), today: ymd(new Date()), y: SHIFT_YEAR + '-' }; }
-    function edSumHtml(d, ctx) {
+    function edSumHtmlOld(d, ctx) {
         const a = absCountFor(d, ctx.days), o = d.originalName;
         const co = ABS_ALLOW.co - a.allow.co, sp = ABS_ALLOW.sp - a.allow.sp, pn = ABS_ALLOW.pn - a.allow.pn;
         const pl = Math.round((PERM_HOURLY.pl.max - a.hours.pl) * 100) / 100;
@@ -6293,6 +6377,200 @@
         v.classList.toggle('mini-on', !!ovAdvice && el.offsetHeight > 0 && sc.scrollTop > el.offsetTop + el.offsetHeight - 8);
     }
     document.addEventListener('scroll', e => { if(e.target && e.target.id === 'ov-scroll') ovMiniCheck(); }, true);
+
+    // ═══ RESOCONTO COLORATO, CON FILTRO ══════════════════════════════════════
+    // Ogni voce ha il colore della sua assenza (ferie gialle, permessi verdi…); le
+    // reperibilità stanno in un riquadro separato. Il filtro sceglie quali voci vedere.
+    const EDSUM_ITEMS = [
+        { id: 'co',  lbl: 'CO',  name: 'Ferie (congedo ordinario) rimaste', grp: 'abs', bg: '--bg-cong', fg: '--t-cong' },
+        { id: 'p',   lbl: 'P',   name: 'Permessi straordinari rimasti', grp: 'abs', bg: '--bg-perm', fg: '--t-perm' },
+        { id: 'pn',  lbl: 'PN',  name: 'Permessi notte rimasti', grp: 'abs', bg: '--bg-pn', fg: '--t-pn' },
+        { id: 'pl',  lbl: 'PL',  name: 'Ore di permesso legge rimaste', grp: 'abs', bg: '--bg-pl', fg: '--t-pl' },
+        { id: 'rep', lbl: 'REP', name: 'Reperibilità fatte fino a oggi', grp: 'rep' },
+        { id: 'h',   lbl: 'h',   name: 'Ore di reperibilità fatte', grp: 'rep' },
+        { id: 'dom', lbl: 'DOM', name: 'Reperibilità di domenica o festivo', grp: 'rep' }
+    ];
+    let edSumShow = (() => { try { const a = JSON.parse(localStorage.getItem('ed_sum_items_v1') || 'null'); if(Array.isArray(a)) return new Set(a); } catch(e) {} return new Set(EDSUM_ITEMS.map(x => x.id)); })();
+    function edSumHtml(d, ctx) {
+        const a = absCountFor(d, ctx.days), o = d.originalName;
+        const pl = Math.round((PERM_HOURLY.pl.max - a.hours.pl) * 100) / 100;
+        let rep = 0, repAll = 0, dom = 0, min = 0, minAll = 0;
+        Object.keys(ctx.R.tit).forEach(dt => { if(ctx.R.tit[dt] !== o || !dt.startsWith(ctx.y)) return; repAll++; if(dt <= ctx.today) { rep++; if(repIsFestive(dt)) dom++; } });
+        Object.keys(ctx.R.days).forEach(dt => { if(!dt.startsWith(ctx.y)) return; ctx.R.days[dt].forEach((w, s) => { if(w !== o) return; minAll += REP_SLOTS[s].minutes; if(dt <= ctx.today) min += REP_SLOTS[s].minutes; }); });
+        const val = {
+            co: [ABS_ALLOW.co - a.allow.co, `Congedo ordinario: restano ${ABS_ALLOW.co - a.allow.co} giorni su ${ABS_ALLOW.co}`],
+            p: [ABS_ALLOW.sp - a.allow.sp, `Permessi straordinari: restano ${ABS_ALLOW.sp - a.allow.sp} su ${ABS_ALLOW.sp}`],
+            pn: [ABS_ALLOW.pn - a.allow.pn, `Permessi notte: restano ${ABS_ALLOW.pn - a.allow.pn} su ${ABS_ALLOW.pn}`],
+            pl: [pl, `Permesso legge: restano ${permHFmt(Math.max(0, pl))} su 14h${pl < 0 ? ' (oltre di ' + permHFmt(-pl) + ')' : ''}`],
+            rep: [rep, `Reperibilità fatte fino a oggi: ${rep} (in calendario nell'anno: ${repAll})`],
+            h: [Math.round(min / 60), `Ore di reperibilità fatte fino a oggi: ${repHours(min)} (nell'anno: ${repHours(minAll)})`],
+            dom: [dom, `Reperibilità di domenica o festivo fatte fino a oggi: ${dom}`]
+        };
+        const cell = it => { const [v, tip] = val[it.id], neg = it.grp === 'abs' && v < 0;
+            const txt = it.id === 'pl' ? permHFmt(Math.max(0, v)) : v;
+            return `<span class="${neg ? 'neg' : ''}" title="${esc(tip)}"${it.bg ? ` style="background:var(${it.bg});color:var(${it.fg})"` : ''}><i>${it.lbl}</i>${txt}</span>`; };
+        const shown = g => EDSUM_ITEMS.filter(it => it.grp === g && edSumShow.has(it.id));
+        const A = shown('abs'), Rp = shown('rep');
+        if(!A.length && !Rp.length) return '';
+        return `<div class="th-sum">${A.length ? `<div class="th-sum-abs">${A.map(cell).join('')}</div>` : ''}${Rp.length ? `<div class="th-sum-rep">${Rp.map(cell).join('')}</div>` : ''}</div>`;
+    }
+    function edSumMenu(ev) {
+        if(ev) ev.stopPropagation();
+        let m = document.getElementById('ed-sum-menu');
+        if(m) { m.remove(); return; }
+        m = document.createElement('div'); m.id = 'ed-sum-menu'; m.className = 'cc-scope ed-pop';
+        const row = it => `<label><input type="checkbox" ${edSumShow.has(it.id) ? 'checked' : ''} onchange="edSumSet('${it.id}',this.checked)"><span class="ed-pop-sw ${it.grp}"${it.bg ? ` style="background:var(${it.bg});color:var(${it.fg})"` : ''}>${it.lbl}</span>${esc(it.name)}</label>`;
+        m.innerHTML = `<b>Cosa mostrare nel resoconto</b>
+            <div class="ed-pop-sec">Assenze</div>${EDSUM_ITEMS.filter(x => x.grp === 'abs').map(row).join('')}
+            <div class="ed-pop-sec">Reperibilità</div>${EDSUM_ITEMS.filter(x => x.grp === 'rep').map(row).join('')}
+            <div class="ed-pop-foot"><button class="cc-btn sm" onclick="edSumAll(true)">Tutte</button><button class="cc-btn sm" onclick="edSumAll(false)">Nessuna</button><button class="cc-btn sm primary" onclick="document.getElementById('ed-sum-menu').remove()">Fatto</button></div>`;
+        m.onclick = e => e.stopPropagation();
+        document.body.appendChild(m);
+        setTimeout(() => document.addEventListener('click', function off() { const x = document.getElementById('ed-sum-menu'); if(x) x.remove(); document.removeEventListener('click', off); }), 0);
+    }
+    function edSumSave() { try { localStorage.setItem('ed_sum_items_v1', JSON.stringify([...edSumShow])); } catch(e) {} renderTableHead(); }
+    function edSumSet(id, on) { if(on) edSumShow.add(id); else edSumShow.delete(id); edSumSave(); }
+    function edSumAll(on) { edSumShow = new Set(on ? EDSUM_ITEMS.map(x => x.id) : []); edSumSave(); const m = document.getElementById('ed-sum-menu'); if(m) { m.remove(); edSumMenu(); } }
+    // l'intestazione dei nomi cambia altezza (saldo, resoconto): la barra del mese resta attaccata sotto
+    function thFitHeight() {
+        const thead = document.getElementById('table-head'); if(!thead) return;
+        const root = document.documentElement.style; root.setProperty('--th-h', '40px');
+        const h = Math.ceil(thead.getBoundingClientRect().height);
+        if(h > 41) root.setProperty('--th-h', h + 'px');
+    }
+
+    // ═══ BARRA IN ALTO NASCOSTA DURANTE LA MODIFICA ══════════════════════════
+    let edHdrHidden = (() => { try { return localStorage.getItem('ed_hdr_v1') === '1'; } catch(e) { return false; } })();
+    function edHdrToggle() { vibrate(); edHdrHidden = !edHdrHidden; try { localStorage.setItem('ed_hdr_v1', edHdrHidden ? '1' : '0'); } catch(e) {} edHdrUi(); }
+    function edHdrUi() {
+        document.body.classList.toggle('ed-no-hdr', coordEditModeActive && edHdrHidden);
+        const b = document.getElementById('ces-hdr'); if(!b) return;
+        b.classList.toggle('on', edHdrHidden); b.title = edHdrHidden ? 'Mostra la barra in alto' : 'Nascondi la barra in alto';
+        b.querySelector('.msym').textContent = edHdrHidden ? 'expand_more' : 'expand_less';
+    }
+
+    // ═══ VIGNETTA DEGLI AVVISI ═══════════════════════════════════════════════
+    // Dopo ogni modifica controlla i giorni toccati: turnisti diversi da 3, caselle rimaste
+    // vuote, smonto mancante, riposi troppo corti, reperibilità scoperte… e li mostra in basso a destra.
+    let edAlertsOn = (() => { try { return localStorage.getItem('ed_alerts_v1') !== '0'; } catch(e) { return true; } })();
+    let edAlertTimer = null, edAlertHideTimer = null;
+    function edAlertsToggle() {
+        vibrate(); edAlertsOn = !edAlertsOn; try { localStorage.setItem('ed_alerts_v1', edAlertsOn ? '1' : '0'); } catch(e) {}
+        edAlertsUi(); if(!edAlertsOn) edAlertHide(); ccToast(edAlertsOn ? 'Avvisi attivi' : 'Avvisi spenti');
+    }
+    function edAlertsUi() {
+        const b = document.getElementById('ces-alert'); if(!b) return;
+        b.classList.toggle('on', edAlertsOn); b.title = edAlertsOn ? 'Avvisi attivi: tocca per spegnerli' : 'Avvisi spenti: tocca per accenderli';
+        b.querySelector('.msym').textContent = edAlertsOn ? 'notifications_active' : 'notifications_off';
+    }
+    function edRowsOf(keys, repDates) {
+        const rows = new Set(), byKey = {}, byIso = {};
+        for(let r = 1; r < finalData.length; r++) { if(shiftRowYear(r) !== SHIFT_YEAR) continue; byKey[finalData[r][0].v + '-' + parseInt(finalData[r][1].v)] = r; const iso = repRowDate(r); if(iso) byIso[iso] = r; }
+        (keys || []).forEach(k => { const i = k.indexOf('__'); if(i < 0 || k.includes('@')) return; const r = byKey[k.slice(i + 2)]; if(r) { rows.add(r); if(finalData[r + 1]) rows.add(r + 1); } });
+        (repDates || []).forEach(iso => { if(byIso[iso]) rows.add(byIso[iso]); });
+        return [...rows].sort((a, b) => a - b);
+    }
+    function edAlertCollect(rows) {
+        const out = [], names = { M: 'mattina', P: 'pomeriggio', N: 'notte' }, chk = dayChecks();
+        const active = drivers.filter(d => !d.hidden);
+        rows.forEach(r => {
+            const iso = repRowDate(r); if(!iso) return;
+            const when = repDateLabel(iso), cov = dayTurnistiCover(r), any = cov.cnt.M + cov.cnt.P + cov.cnt.N > 0;
+            ['M', 'P', 'N'].forEach(s => {
+                const n = cov.cnt[s];
+                if(n > TURNISTI_PER_TURNO) out.push({ r, err: true, t: `${when}: ${n} turnisti di ${names[s]}, devono essere ${TURNISTI_PER_TURNO}` });
+                else if(n < TURNISTI_PER_TURNO && (n > 0 || any)) out.push({ r, err: n === 0, t: `${when}: ${n ? 'solo ' + n : 'nessun'} turnist${n === 1 ? 'a' : 'i'} di ${names[s]}` });
+            });
+            const c = chk.rows[r];
+            if(c) {
+                c.day.filter(m => !/^(mattina|pomeriggio|notte):/.test(m)).forEach(m => out.push({ r, err: false, t: `${when}: ${m}` }));
+                Object.keys(c.cells).forEach(idx => { const d = getDriverByIdx(+idx); c.cells[idx].msgs.forEach(m => out.push({ r, err: c.cells[idx].err, t: `${when} · ${d ? d.name : ''}: ${m}` })); });
+            }
+            // casella vuota: solo per chi nei 7 giorni prima e dopo ha dei turni (chi non è in servizio non conta)
+            const busyNear = d => { for(let q = Math.max(1, r - 7); q <= Math.min(finalData.length - 1, r + 7); q++) { if(q !== r && computeDayInfo(q, d.idx).code) return true; } return false; };
+            if(any) { const empty = active.filter(d => !computeDayInfo(r, d.idx).code && busyNear(d)).map(d => d.name); if(empty.length) out.push({ r, err: false, t: `${when}: casella vuota per ${empty.slice(0, 4).join(', ')}${empty.length > 4 ? ` e altri ${empty.length - 4}` : ''}` }); }
+        });
+        const seen = new Set(); return out.filter(x => !seen.has(x.t) && seen.add(x.t)).sort((a, b) => b.err - a.err);
+    }
+    function edAlertCheck(keys, repDates) {
+        if(!edAlertsOn || !coordEditModeActive) return;
+        clearTimeout(edAlertTimer);
+        edAlertTimer = setTimeout(() => {
+            const rows = edRowsOf(keys, repDates); if(!rows.length) return;
+            const items = edAlertCollect(rows);
+            if(items.length) edAlertShow(items); else edAlertHide();
+        }, 160);
+    }
+    function edAlertShow(items) {
+        let v = document.getElementById('ed-alert');
+        if(!v) { v = document.createElement('div'); v.id = 'ed-alert'; v.className = 'cc-scope'; document.body.appendChild(v);
+            v.addEventListener('pointerenter', () => clearTimeout(edAlertHideTimer)); v.addEventListener('pointerleave', () => { edAlertHideTimer = setTimeout(edAlertHide, 6000); }); }
+        const nErr = items.filter(x => x.err).length;
+        v.innerHTML = `<div class="ed-al-head ${nErr ? 'err' : ''}"><span class="msym">${nErr ? 'error' : 'warning'}</span><b>${items.length === 1 ? '1 avviso' : items.length + ' avvisi'}</b><button onclick="edAlertHide()" aria-label="Chiudi"><span class="msym">close</span></button></div>
+            <ul>${items.slice(0, 6).map(x => `<li class="${x.err ? 'err' : ''}" onclick="edAlertGo(${x.r})">${esc(x.t)}</li>`).join('')}${items.length > 6 ? `<li class="more">e altri ${items.length - 6}</li>` : ''}</ul>`;
+        // se la ruota è in basso a destra, la vignetta si mette alla sua sinistra
+        v.style.right = '';
+        const tw = document.getElementById('tool-wheel');
+        if(tw && tw.classList.contains('show')) {
+            const w = tw.getBoundingClientRect(), vw = window.innerWidth, room = w.left - 24;
+            if(w.right > vw - 360 && w.bottom > window.innerHeight - 320 && room >= 280) v.style.right = (vw - w.left + 10) + 'px';
+        }
+        v.classList.add('show');
+        clearTimeout(edAlertHideTimer); edAlertHideTimer = setTimeout(edAlertHide, 12000);
+    }
+    function edAlertHide() { const v = document.getElementById('ed-alert'); if(v) v.classList.remove('show'); }
+    function edAlertGo(r) { const tr = document.querySelector(`#table-body tr[data-row="${r}"]`); if(tr) tr.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+
+    // ═══ RUOTA A QUATTRO FACCE ═══════════════════════════════════════════════
+    // Turni (turni singoli + sequenze), Assenze, Reperibilità, Operatori (nomi e colonne).
+    const WHEEL_OP_TOOLS = [
+        { id: 'rename',  short: 'NOME',     icon: 'badge',           label: 'Cambia nome',              hint: 'tocca una casella della persona da rinominare', fill: '#2563eb' },
+        { id: 'hide',    short: 'NASCONDI', icon: 'visibility_off',  label: 'Nascondi colonna',         hint: 'tocca una casella: la colonna sparisce solo su questo dispositivo', fill: '#475569' },
+        { id: 'showall', short: 'TUTTI',    icon: 'visibility',      label: 'Mostra tutte le colonne',  hint: 'rimette le colonne nascoste', fill: '#16a34a' },
+        { id: 'manage',  short: 'GESTISCI', icon: 'manage_accounts', label: 'Gestione operatori',       hint: 'ordine, contratto, aggiungi o togli', fill: '#7c3aed' }
+    ];
+    let coordOpTool = null;
+    function wheelRingItems() {
+        if(twMode === 'rep') return WHEEL_REP_TOOLS.map(r => ({ kind: 'rep', id: r.id, short: r.short, label: r.label, time: r.hint, fill: r.fill, fg: '#fff', group: 0, icon: r.icon }));
+        if(twMode === 'operatori') return WHEEL_OP_TOOLS.map(o => ({ kind: 'op', id: o.id, short: o.short, label: o.label, time: o.hint, fill: o.fill, fg: '#fff', group: 0, icon: o.icon }));
+        const pal = wheelPaletteItems().map((it, i) => Object.assign({ kind: 'pal', i }, it));
+        const isAbsCustom = it => it.group === 3 && (customCodes[it.v] || {}).kind === 'abs';
+        if(twMode === 'assenze') return pal.filter(it => it.group === 2 || isAbsCustom(it));
+        return pal.filter(it => it.group === 0 || it.group === 1 || (it.group === 3 && !isAbsCustom(it)))
+            .concat(WHEEL_SEQUENCES.map(s => ({ kind: 'seq', id: s.id, short: s.short, label: s.label, time: s.desc, fill: s.fill, fg: '#fff', group: 4 + s.group, dashed: s.dashed })));
+    }
+    async function edPrompt(title, text, value) {
+        const p = ccDialog(title, text, [{ label: 'Annulla', kind: 'ghost', value: null }, { label: 'Salva', kind: 'primary', value: 'ok' }]);
+        const box = document.getElementById('cc-dialog-text'), inp = document.createElement('input');
+        inp.className = 'cc-input'; inp.value = value || ''; inp.maxLength = 40; inp.style.marginTop = '12px'; inp.style.display = 'block';
+        box.appendChild(inp); setTimeout(() => { inp.focus(); inp.select(); }, 60);
+        inp.addEventListener('keydown', e => { if(e.key === 'Enter') { e.preventDefault(); ccDialogResolve('ok'); } });
+        const r = await p; return r === 'ok' ? inp.value : null;
+    }
+    async function applyOpTool(col) {
+        const d = getDriverByIdx(col); if(!d) return;
+        if(coordOpTool === 'rename') {
+            const orig = d.originalName;
+            const nm = await edPrompt('Nome della colonna', `Nome mostrato nel calendario per ${orig}. Vuoto = nome originale.`, nameOverrides[orig] || orig);
+            if(nm === null) return;
+            const v = nm.trim().toUpperCase().replace(/\s+/g, ' ');
+            if(!v || v === orig) delete nameOverrides[orig]; else nameOverrides[orig] = v;
+            saveSettingsFields({ nameOverrides }).then(() => ccToast('Nome aggiornato')).catch(() => ccToast('Salvataggio non riuscito.', true));
+            applyNameOverrides(); refreshAfterOperatorChange();
+        } else if(coordOpTool === 'hide') {
+            if(!selectedDrivers.size) selectedDrivers = new Set(drivers.filter(x => !x.hidden).map(x => x.idx));
+            selectedDrivers.delete(col);
+            if(!selectedDrivers.size) { ccToast('Deve restare almeno una colonna.', true); selectedDrivers.add(col); return; }
+            setPref('filter', drivers.filter(x => selectedDrivers.has(x.idx)).map(x => x.originalName || x.name), true);
+            renderTable(); renderDriverFilterDropdown(); updateDriverFilterBadge(); vibrate();
+            ccToast(`${d.name} nascosto su questo dispositivo · “Tutti” nella ruota Operatori per rimostrarlo`);
+        }
+    }
+    function twOpClick(id) {
+        if(id === 'showall') { filterDriver('all'); ccToast('Tutte le colonne di nuovo visibili'); return; }
+        if(id === 'manage') { openCoordConsole('operatori'); return; }
+        setCoordTool('op', id);
+    }
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
     // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
@@ -7816,7 +8094,7 @@
         const hiddenOps = drivers.filter(d => d.hidden);
         const todo = [];
         if(pending) todo.push(`<li><span class="msym" style="color:var(--cc-warn)">edit_note</span><span class="cc-grow">${pending} ${pending===1?'modifica non salvata':'modifiche non salvate'}<small>Visibili solo su questo dispositivo finché non salvi.</small></span><button class="cc-btn sm primary" onclick="coordConfirmChanges()">Salva</button></li>`);
-        if(toSync) todo.push(`<li><span class="msym" style="color:var(--cc-accent)">task_alt</span><span class="cc-grow">${toSync} ${toSync===1?'modifica da riportare':'modifiche da riportare'} su Excel</span><button class="cc-link" onclick="ccGo('riportare')">Apri elenco</button></li>`);
+        if(toSync && dataSourceMode !== 'firebase') todo.push(`<li><span class="msym" style="color:var(--cc-accent)">task_alt</span><span class="cc-grow">${toSync} ${toSync===1?'modifica da riportare':'modifiche da riportare'} su Excel</span><button class="cc-link" onclick="ccGo('riportare')">Apri elenco</button></li>`);
         hiddenOps.forEach(d => {
             const h = operatorConfig.hidden[d.originalName] || {};
             const until = h.until ? `fino al ${new Date(h.until+'T00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long'})}` : 'senza scadenza';
@@ -8405,6 +8683,7 @@
     // keys = celle di manualOverrides toccate; repDates = giorni (YYYY-MM-DD) le cui
     // reperibilità sono cambiate: si ridisegnano solo quelle righe (e il giorno dopo).
     function afterCoordChange(keys, repDates) {
+        edAlertCheck(keys, repDates);   // vignetta degli avvisi
         let done = false;
         if(repDates && repDates.length) repInvalidate();
         if(((keys && keys.length) || (repDates && repDates.length)) && finalData.length === rawFinalData.length) {
@@ -8490,7 +8769,7 @@
     function toggleCoordEditMode(active) {
         if(active && calOverview) setCalView('dettaglio');
         coordEditModeActive = active;
-        calCompactUi(); edSumUi();
+        calCompactUi(); edSumUi(); edHdrUi(); edAlertsUi(); if(!active) { edAlertHide(); const m = document.getElementById('ed-sum-menu'); if(m) m.remove(); }
         document.body.classList.toggle('coord-edit-mode', active);
         document.getElementById('coord-edit-strip').classList.toggle('show', active);
         document.getElementById('tool-wheel').classList.toggle('show', active);
@@ -8525,23 +8804,25 @@
             const r = WHEEL_REP_TOOLS.find(x => x.id === coordRepTool);
             if(r) return { key:'rep', rep:r, name:r.label, hint: (r.id === 'move' && coordRepMoveFirst) ? 'ora tocca la cella di destinazione' : r.hint };
         }
+        if(coordOpTool) { const o = WHEEL_OP_TOOLS.find(x => x.id === coordOpTool); if(o) return { key:'op', name:o.label, hint:o.hint }; }
         return { key:'select', name:'Seleziona', hint:'tocca una cella per modificarla' };
     }
     function setCoordTool(kind, v, subV, silent) {
         coordSwapMode = kind === 'swap'; coordSwapFirst = null;
         coordSeqTool = kind === 'seq' ? v : null;
         coordRepTool = kind === 'rep' ? v : null;
+        coordOpTool = kind === 'op' ? v : null;
         coordRepMoveFirst = null;
         if(kind === 'paint') coordPaintTool = { v: v || '', subV: subV || '' };
         else if(kind === 'erase') coordPaintTool = { clear:true };
         else coordPaintTool = null;
         clearSelectedCellVisual(); coordSelectedCell = null;
         document.body.classList.toggle('paint-active', !!coordPaintTool);
-        document.body.classList.toggle('swap-active', coordSwapMode || kind === 'seq' || kind === 'rep');
+        document.body.classList.toggle('swap-active', coordSwapMode || kind === 'seq' || kind === 'rep' || kind === 'op');
         document.body.classList.toggle('select-active', kind === 'select');
         applyEditModeDraggable();
         if(!silent) vibrate();
-        if((kind === 'paint' || kind === 'erase' || kind === 'seq' || kind === 'rep') && !silent && localStorage.getItem(WHEEL_AUTOCLOSE_KEY) !== '0') twExpanded = false;
+        if((kind === 'paint' || kind === 'erase' || kind === 'seq' || kind === 'rep' || kind === 'op') && !silent && localStorage.getItem(WHEEL_AUTOCLOSE_KEY) !== '0') twExpanded = false;
         twRender(); twPlace(); updateCoordToolbarState();
     }
     function updateCoordToolbarState() {
@@ -8734,6 +9015,7 @@
             }
             if(coordSeqTool) { applyWheelSequence(rowIndex, colIdx); return; }
             if(coordRepTool) { repToolTap(rowIndex, colIdx); return; }
+            if(coordOpTool) { applyOpTool(colIdx); return; }
             markSelectedCell(rowIndex, colIdx); openShiftEditPopup(colIdx, rowIndex); return;
         }
         let hasSub = (finalData[rowIndex] && finalData[rowIndex][colIdx] && finalData[rowIndex][colIdx].subV) ? finalData[rowIndex][colIdx].subV.toString().trim() : "";
@@ -8824,9 +9106,10 @@
     // Tipologie di ruota: si cambiano con le frecce della barra sopra la ruota.
     // L'anello interno (strumenti) è lo stesso per tutte, cambia l'anello esterno.
     const WHEEL_MODES = [
-        { id:'turni',    label:'Turni',        sub:'turni e assenze' },
-        { id:'sequenze', label:'Sequenze',     sub:'+5 · +10 · +15 · +7' },
-        { id:'rep',      label:'Reperibilità', sub:'aggiungi, sposta, fasce' }
+        { id:'turni',     label:'Turni',        sub:'turni e sequenze' },
+        { id:'assenze',   label:'Assenze',      sub:'ferie, permessi, malattia' },
+        { id:'rep',       label:'Reperibilità', sub:'aggiungi, sposta, fasce' },
+        { id:'operatori', label:'Operatori',    sub:'nomi e colonne' }
     ];
     // Sequenze: toccando un giorno si inseriscono i turni da quel giorno in avanti.
     const TURNISTI_CYCLE = ['P','M','N','SM','R'];   // pomeriggio, mattina, notte, smonto, riposo
@@ -8860,7 +9143,7 @@
         if(ccSection === 'modifica') { const prev = document.getElementById('cc-wheel-preview'); if(prev) prev.innerHTML = buildWheelMarkup(260, true); }
     }
     // Elementi dell'anello esterno per la ruota attiva.
-    function wheelRingItems() {
+    function wheelRingItemsOld() {
         if(twMode === 'sequenze') return WHEEL_SEQUENCES.map(s => ({ kind:'seq', id:s.id, short:s.short, label:s.label, time:s.desc, fill:s.fill, fg:'#fff', group:s.group, dashed:s.dashed }));
         if(twMode === 'rep') return WHEEL_REP_TOOLS.map(r => ({ kind:'rep', id:r.id, short:r.short, label:r.label, time:r.hint, fill:r.fill, fg:'#fff', group:0, icon:r.icon }));
         return wheelPaletteItems().map((it, i) => Object.assign({ kind:'pal', i }, it));
@@ -8919,6 +9202,7 @@
                     if(it.kind === 'pal') sel = !!(coordPaintTool && !coordPaintTool.clear && coordPaintTool.v === it.v && coordPaintTool.subV === it.subV);
                     else if(it.kind === 'seq') sel = coordSeqTool === it.id;
                     else if(it.kind === 'rep') sel = coordRepTool === it.id;
+                    else if(it.kind === 'op') sel = coordOpTool === it.id;
                 }
                 const fill = it.fill || (it.colors ? `var(${it.colors.bg})` : '#999');
                 const idx = items.indexOf(it);
@@ -8977,6 +9261,7 @@
     function twOnSegmentClick(e) {
         const p = e.currentTarget;
         if(p.dataset.kind === 'pal') { const it = wheelRingItems()[+p.dataset.i]; twHover = null; setCoordTool('paint', it.v, it.subV); return; }
+        if(p.dataset.kind === 'op') { twHover = null; twOpClick(p.dataset.id); return; }
         if(p.dataset.kind === 'seq' || p.dataset.kind === 'rep') { twHover = null; setCoordTool(p.dataset.kind, p.dataset.id); return; }
         const id = p.dataset.id;
         if(id === 'select' || id === 'swap' || id === 'erase') { twHover = null; setCoordTool(id); }
@@ -9725,6 +10010,7 @@
             frag.appendChild(th);
         });
         thead.innerHTML = ""; thead.appendChild(frag);
+        thFitHeight();
     }
     function buildDayRow(i, today) {
         const year = shiftRowYear(i);
