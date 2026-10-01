@@ -367,6 +367,8 @@
         .day-staff-counts span b { font-size:0.6rem; }
         .dsc-m { background:#dbeafe; color:#1e40af; }
         .dsc-p { background:#e0e7ff; color:#3730a3; }
+        .dsc-n { background:#fee2e2; color:#b91c1c; box-shadow:inset 0 0 0 1px #fca5a5; }
+        body.dark-mode .dsc-n { background:rgba(220,38,38,.25); color:#fecaca; box-shadow:none; }
         .dsc-alert-3 { background:#450a0a !important; color:#fff !important; animation:dscBlink 1s infinite; }
         @keyframes dscBlink { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
         .th-balance { font-size:0.6rem; font-weight:800; margin:3px auto 0; padding:1px 6px; border-radius:6px; display:table; line-height:1.35; }   /* sotto il nome: in linea finiva fuori dalla colonna */
@@ -6343,6 +6345,7 @@
     // Mattina, pomeriggio e notte devono avere sempre 3 turnisti: con 1 o 2 le loro caselle
     // hanno il bordo arancio, con 4 o più lampeggiano in rosso (solo in Modifica turni).
     const TURNISTI_PER_TURNO = 3;
+    const NIGHT_STAFF_MIN = 3;   // sotto questo numero la colonna data mostra quanti sono di notte
     function dayTurnistiCover(i) {
         const cnt = { M: 0, P: 0, N: 0 }, who = {};
         // M+N: la notte conta sempre; la mattina può essere da diurnista. Se i turnisti di mattina
@@ -10100,7 +10103,7 @@
         if(mIdx === today.getMonth() && dNum === today.getDate() && today.getFullYear() === year) { tr.className = "today"; tr.id = "today-row"; }
 
         // conta M e P per il riepilogo giornaliero (sempre visibile) e per "Graziella"
-        let countM = 0, countP = 0;
+        let countM = 0, countP = 0, countN = 0;
         drivers.forEach(d => {
             let v = (row[d.idx]?.v || "").toString().trim();
             if(isRepStr(v)) { let si = v.indexOf('/'); if(si !== -1) v = v.substring(0, si).trim(); }
@@ -10108,6 +10111,11 @@
             if(u === "M" || u === "M+N" || u === "MN") countM++;
             if(u === "P") countP++;
         });
+        // notte contata sul turno effettivo: chi ha la notte con un'assenza sotto (es. permesso) non c'è
+        drivers.forEach(d => { if(d.hidden) return; const c = computeDayInfo(i, d.idx).code; if(c === 'N' || c === 'M+N') countN++; });
+        // notte: il numero compare solo quando ne manca qualcuno (es. N2 = 2 infermieri su 3)
+        const nightBadge = countN < NIGHT_STAFF_MIN && (countM + countP + countN) > 0
+            ? `<span class="dsc-n" title="Infermieri di notte: ${countN} su ${NIGHT_STAFF_MIN}">N<b>${countN}</b></span>` : '';
         let hasGraziellaM = countM === 3, hasGraziellaP = countP === 3;
         const cover = coordEditModeActive ? dayTurnistiCover(i) : null;   // 3 turnisti per turno: bordo arancio o lampeggio rosso
 
@@ -10117,7 +10125,7 @@
         const pClass = countP === 3 ? 'dsc-p dsc-alert-3' : 'dsc-p';
         const chk = coordEditModeActive ? dayChecks().rows[i] : null;
         if(chk && chk.day.length) dateClass += ' chk-warn';
-        let html = `<td class="${dateClass}"${chk && chk.day.length ? ` title="${esc(chk.day.join(' \u00b7 '))}"` : ''}>${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="${mClass}" title="Operatori mattina">M<b>${countM}</b></span><span class="${pClass}" title="Operatori pomeriggio">P<b>${countP}</b></span></div></td>`;
+        let html = `<td class="${dateClass}"${chk && chk.day.length ? ` title="${esc(chk.day.join(' \u00b7 '))}"` : ''}>${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="${mClass}" title="Operatori mattina">M<b>${countM}</b></span><span class="${pClass}" title="Operatori pomeriggio">P<b>${countP}</b></span>${nightBadge}</div></td>`;
 
         let prevRow = finalData[i-1];
         const isoDate = ymd(dateObj);
