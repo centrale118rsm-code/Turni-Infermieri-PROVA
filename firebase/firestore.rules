@@ -1,0 +1,62 @@
+rules_version = '2';
+
+// Regole del progetto creazione-turni-118 (app Turni Infermieri ufficiale e PROVA,
+// portale Richieste-INF.-118). Tutte le app entrano con l'accesso anonimo di Firebase.
+// Senza un login vero non si può distinguere il coordinatore da un collega: queste regole
+// evitano soprattutto i danni irreparabili (cancellazioni, svuotamenti, documenti estranei).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+
+    // ── Configurazione e turni ───────────────────────────────────────────
+    // Documenti ammessi (con o senza il prefisso "prova_" dell'app di prova):
+    // settings, reperibilita, saldi, prefs, push, snapindex, turni_AAAA-MM, anno_AAAA,
+    // log_AAAA-MM-GG, snap_… (copie automatiche). "zztest_…" solo per le prove tecniche.
+    function knownConfigDoc(id) {
+      return id.matches('^(prova_)?(settings|reperibilita|saldi|prefs|push|snapindex|turni_[0-9]{4}-[0-9]{2}|anno_[0-9]{4}|log_[0-9]{4}-[0-9]{2}-[0-9]{2}|snap_[A-Za-z0-9_-]+)$')
+          || id.matches('^zztest_[A-Za-z0-9_-]+$');
+    }
+    // un mese dei turni deve sempre avere la mappa delle caselle (niente svuotamenti per errore)
+    function validMonth(id) {
+      return !id.matches('^(prova_)?turni_[0-9]{4}-[0-9]{2}$') || request.resource.data.cells is map;
+    }
+    match /infermieri26_config/{docId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && knownConfigDoc(docId) && validMonth(docId);
+      // si cancellano solo le copie automatiche vecchie (e i documenti di prova tecnica)
+      allow delete: if signedIn() && (docId.matches('^(prova_)?snap_[A-Za-z0-9_-]+$') || docId.matches('^zztest_[A-Za-z0-9_-]+$'));
+    }
+
+    // ── Sessioni (pannello accessi) ───────────────────────────────────────
+    match /infermieri26_accessi/{sessionId} {
+      allow read, create, update: if signedIn();
+      allow delete: if false;
+    }
+
+    // ── "Chi sei?": ogni telefono scrive solo il proprio documento ─────────
+    match /infermieri26_identities/{uid} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.auth.uid == uid;
+      allow delete: if false;
+    }
+
+    // ── Portale Richieste ─────────────────────────────────────────────────
+    match /richieste_infermieri/{docId} {
+      allow read, create, update, delete: if signedIn();
+    }
+    match /note_migliorative/{docId} {
+      allow read, create, update, delete: if signedIn();
+    }
+    // configurazione "Bibbia" del portale: si legge e si modifica, non si cancella
+    match /admin_config/{docId} {
+      allow read, create, update: if signedIn();
+      allow delete: if false;
+    }
+
+    // ── Tutto il resto è chiuso ────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

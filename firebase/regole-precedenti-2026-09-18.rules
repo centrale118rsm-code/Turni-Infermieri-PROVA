@@ -1,0 +1,57 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Log accessi: chiunque sia autenticato (anche anonimo) può scrivere
+    // la propria sessione e leggere l'elenco (serve al pannello Admin)
+    match /infermieri26_accessi/{sessionId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    // Config globale (colori, nomi operatori, orari turni, avvisi, coordinatore)
+    // Lettura per tutti gli utenti autenticati, scrittura pure
+    // (il controllo password admin è già lato app)
+    match /infermieri26_config/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Prenotazione permanente del nome operatore + backup di riserva
+    // per UID anonimo: usata sia per il recupero identità sia per il
+    // controllo "nome già in uso" nel selettore "Chi sei?"
+    match /infermieri26_identities/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Portale Richieste Infermieri (Richieste-INF.-118): richieste di
+    // ferie/permessi/cambio turno/cessione reperibilità, lette da qui in
+    // infermieri.html per notificare il coordinatore
+    match /richieste_infermieri/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Note migliorative inviate dal portale Richieste Infermieri
+    match /note_migliorative/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Configurazione "Bibbia" del portale Richieste (tipi di richiesta
+    // attivi/disattivi, automazioni)
+    match /admin_config/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Blocca tutto il resto per sicurezza
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
