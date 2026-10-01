@@ -61,6 +61,10 @@
             --bg-coord: #ffffff; --t-coord: #dc0000; --b-coord: #dc0000;
             --bg-pl: #0f766e; --t-pl: #ffffff; --b-pl: #115e59;
             --bg-ps: #9a3412; --t-ps: #ffffff; --b-ps: #7c2d12;
+            --bg-ds: #7c3aed; --t-ds: #ffffff; --b-ds: #6d28d9;
+            --bg-sport: #2bc4c4; --t-sport: #063b3b; --b-sport: #14a3a3;
+            --bg-lutto: #111827; --t-lutto: #ffffff; --b-lutto: #000000;
+            --bg-matr: #fbcfe8; --t-matr: #831843; --b-matr: #f9a8d4;
             --month-bar-bg: linear-gradient(135deg, #0f2a63 0%, #1d4ed8 100%);
             --shadow-soft: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
         }
@@ -441,6 +445,10 @@
         .spec-perm   { background: var(--bg-perm);   color: var(--t-perm);   border: 1px solid var(--b-perm);   font-size: 0.75rem; }
         .spec-ng     { background: var(--bg-ng);     color: var(--t-ng);     border: 1px solid var(--b-ng);     font-size: 0.75rem; }
         .spec-stu    { background: var(--bg-stu);    color: var(--t-stu);    border: 1px solid var(--b-stu);    font-size: 0.75rem; }
+        .spec-xk     { background: var(--bg-ds);     color: var(--t-ds);     border: 1px solid var(--b-ds);     font-size: 0.68rem; }
+        .spec-xs     { background: var(--bg-sport);  color: var(--t-sport);  border: 1px solid var(--b-sport);  font-size: 0.7rem; }
+        .spec-xl     { background: var(--bg-lutto);  color: var(--t-lutto);  border: 1px solid var(--b-lutto);  font-size: 0.72rem; }
+        .spec-xa     { background: var(--bg-matr);   color: var(--t-matr);   border: 1px solid var(--b-matr);   font-size: 0.66rem; }
         .spec-pl     { background: var(--bg-pl);     color: var(--t-pl);     border: 1px solid var(--b-pl);     font-size: 0.72rem; }
         .spec-ps     { background: var(--bg-ps);     color: var(--t-ps);     border: 1px solid var(--b-ps);     font-size: 0.68rem; }
         .cell .perm-h { text-transform:none; }
@@ -3789,6 +3797,11 @@
         nl: "FESTIVO NON LAVORATO", z: "SOSTITUZIONE COORD.", gr: "GRAVIDANZA",
         pl: "PERMESSO LEGGE", ps: "PERMESSO SINDACALE"
     };
+    // Altri codici della legenda del file Excel (riga sotto il turno): K distacco speciale,
+    // S permesso sportivo, L permesso lutto, A permesso matrimonio.
+    const EXTRA_SUB_INF = { k: "DISTACCO SPECIALE", s: "PERMESSO SPORTIVO", l: "PERMESSO LUTTO", a: "PERMESSO MATRIMONIO" };
+    const EXTRA_INF_KEYS = Object.keys(EXTRA_SUB_INF);
+    Object.assign(SPECIAL_SUBCODES, EXTRA_SUB_INF);
     const STANDARD_CODES = ["M","P","N","SM","R"];
     const DIURNI_CODES = ["m","p","r"];
     // Colori riusati dalle stesse variabili CSS del calendario, per coerenza visiva
@@ -3800,6 +3813,7 @@
         pn:{bg:'--bg-pn',fg:'--t-pn'}, ng:{bg:'--bg-ng',fg:'--t-ng'}, nl:{bg:'--bg-nl',fg:'--t-nl'}, z:{bg:'--bg-coord',fg:'--t-coord'},
         pl:{bg:'--bg-pl',fg:'--t-pl'}, ps:{bg:'--bg-ps',fg:'--t-ps'}
     };
+    Object.assign(SUB_CODE_COLORS, { k:{bg:'--bg-ds',fg:'--t-ds'}, s:{bg:'--bg-sport',fg:'--t-sport'}, l:{bg:'--bg-lutto',fg:'--t-lutto'}, a:{bg:'--bg-matr',fg:'--t-matr'} });
     let coordPaintTool = null;             // {v,subV} oppure {clear:true}: pennello attualmente selezionato
     let coordPainting = false;             // true mentre l'utente sta trascinando per dipingere
     let coordPaintBatchEntries = [];       // modifiche accumulate durante il gesto di pittura corrente
@@ -6167,7 +6181,7 @@
     function calCompactOn() { return coordEditModeActive && calCompact && !calOverview; }
     const MINI_SHORT = { 't-M':'M', 't-P':'P', 't-N':'N', 't-S':'S', 't-SM':'S', 't-R':'R', 'd-M':'m', 'd-P':'p', 'd-R':'r',
         'spec-cong':'C.O.', 'spec-mal':'MAL', 'spec-gr':'GR', 'spec-ferie':'F.R.', 'spec-rec':'REC', 'spec-coord':'Z', 'spec-perm':'PERM',
-        'spec-pn':'PN', 'spec-mn':'M+N', 'spec-nl':'NL', 'spec-ng':'NG', 'spec-stu':'STU', 'spec-pl':'PL', 'spec-ps':'PS' };
+        'spec-pn':'PN', 'spec-mn':'M+N', 'spec-nl':'NL', 'spec-ng':'NG', 'spec-stu':'STU', 'spec-pl':'PL', 'spec-ps':'PS', 'spec-xk':'DS', 'spec-xs':'SPO', 'spec-xl':'LUT', 'spec-xa':'MAT' };
     function miniCellHtml(html) {
         const m = html.match(/^\s*<div class="cell ([^"]*)"((?:\s+style="[^"]*")?)/); if(!m) return html;
         const cls = m[1].split(/\s+/), style = m[2] || '';
@@ -6740,6 +6754,10 @@
         ng: { label:'Festivi non goduti', short:'Fest. non god.', color:'--bg-ng' },
         nl: { label:'Festivi non lavorati', short:'Fest. non lav.', color:'--bg-nl' },
         pl: { label:'Permesso legge (14 h l’anno)', short:'Perm. legge', color:'--bg-pl' },
+        k:  { label:'Distacco speciale', short:'Distacco', color:'--bg-ds' },
+        s:  { label:'Permessi sportivi', short:'Sport', color:'--bg-sport' },
+        l:  { label:'Permessi lutto', short:'Lutto', color:'--bg-lutto' },
+        a:  { label:'Permesso matrimonio', short:'Matrimonio', color:'--bg-matr' },
         ps: { label:'Permesso sindacale', short:'Sindacale', color:'--bg-ps' },
         z:  { label:'Sostituzione coordinatore', short:'Sost. coord.', color:'--bg-coord', hex:'#dc2626', work:true },
         dom:   { label:'Domeniche lavorate', short:'Domeniche', hex:'#0ea5e9', work:true },
@@ -6748,6 +6766,7 @@
     };
     const ABS_OTHER = ['c', 'gr', 'ng', 'nl'];
     const ABS_COUNTED = ['f', 'v', 'r', 'p', 'c', 'pn', 'm', 'gr', 'ng', 'nl', 'pl', 'ps'];
+    ABS_OTHER.push(...EXTRA_INF_KEYS); ABS_COUNTED.push(...EXTRA_INF_KEYS);   // nella colonna "Altre" del conteggio
     const typeColor = k => ABS_TYPES[k].color ? `var(${ABS_TYPES[k].color})` : ABS_TYPES[k].hex;
     let absPeriod = 'anno', absMonth = new Date().getMonth(), absDetailIdx = null, absOpenKey = null;
     function openAbsModal() {
@@ -6862,6 +6881,7 @@
             </div>`;
         };
         const absKeys = ['f', 'p', 'pn', 'm', 'r', 'v', 'c', 'gr', 'ng', 'nl'], workKeys = ['z', 'dom', 'fest', 'notti'];
+        absKeys.push(...EXTRA_INF_KEYS);
         det.innerHTML = `
             <div class="abd-head"><button class="abd-back" onclick="absCloseDetail()" aria-label="Indietro"><span class="material-icons-round">arrow_back</span></button>
                 <span class="ab-av">${esc(absInitials(d.name))}</span><div><b>${esc(d.name)}</b><small>Anno ${SHIFT_YEAR} \u00b7 ${r.total} giorni di assenza</small></div></div>
@@ -7770,6 +7790,7 @@
     let ccSyncCache = [];                        // ultima lista mostrata in "Da riportare"
 
     const ABS_SHORT = { v:'FER', r:'REC', f:'CO', m:'MAL', p:'PER', c:'STU', pn:'PN', ng:'NG', nl:'NL', z:'SC', gr:'GR', pl:'PL', ps:'PS' };
+    Object.assign(ABS_SHORT, { k:'DS', s:'SPO', l:'LUT', a:'MAT' });
     const SHIFT_NAMES = { M:'Mattina', P:'Pomeriggio', N:'Notte', SM:'Smonto', R:'Riposo', m:'Mattina diurno', p:'Pomeriggio diurno', r:'Riposo diurno', 'M+N':'Mattina + notte' };
     const MONTH_NAMES_IT = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
 
@@ -10273,6 +10294,7 @@
         }
 
         // ── altri speciali ────────────────────────────────────────────────────
+        if(EXTRA_SUB_INF[subVal]) return `<div class="cell spec-x${subVal}"><div style="flex:1;display:flex;align-items:center;text-align:center;">${EXTRA_SUB_INF[subVal].replace(' ', '<br>')}</div>${repHtml}</div>`;
         if(subVal === "pl" || subVal === "ps") {
             const ph = info.perm && Number(info.perm.h) > 0 ? `<div class="time-tag perm-h">${permHFmt(info.perm.h)}</div>` : '';
             return `<div class="cell spec-${subVal}"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">PERMESSO<br>${subVal === 'pl' ? 'LEGGE' : 'SINDACALE'}${ph}</div>${repHtml}</div>`;
