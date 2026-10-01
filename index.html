@@ -56,7 +56,7 @@
             --bg-nl: #cceef2; --t-nl: #004147; --b-nl: #b2ebf2;
             --bg-perm: #00c440; --t-perm: #00250e; --b-perm: #004e1c;
             --bg-ng: #009fd6; --t-ng: #ffffff; --b-ng: #0099cc;
-            --bg-stu: #2f6fe0; --t-stu: #ffffff; --b-stu: #1d4ed8;
+            --bg-stu: #ffffff; --t-stu: #dc2626; --b-stu: #dc2626;
             --bg-pn: #0f3d21; --t-pn: #ffffff; --b-pn: #052e16;
             --bg-coord: #ffffff; --t-coord: #dc0000; --b-coord: #dc0000;
             --bg-pl: #0f766e; --t-pl: #ffffff; --b-pl: #115e59;
@@ -444,7 +444,8 @@
         .spec-nl     { background: var(--bg-nl);     color: var(--t-nl);     border: 1px solid var(--b-nl);     font-size: 0.7rem;  }
         .spec-perm   { background: var(--bg-perm);   color: var(--t-perm);   border: 1px solid var(--b-perm);   font-size: 0.75rem; }
         .spec-ng     { background: var(--bg-ng);     color: var(--t-ng);     border: 1px solid var(--b-ng);     font-size: 0.75rem; }
-        .spec-stu    { background: var(--bg-stu);    color: var(--t-stu);    border: 1px solid var(--b-stu);    font-size: 0.75rem; }
+        .spec-stu    { background: var(--bg-stu);    color: var(--t-stu);    border: 2px solid var(--b-stu);    font-size: 0.75rem; font-weight: 900;
+                       background-image: repeating-linear-gradient(135deg, rgba(220,38,38,0.14) 0 6px, transparent 6px 12px); }
         .spec-xk     { background: var(--bg-ds);     color: var(--t-ds);     border: 1px solid var(--b-ds);     font-size: 0.68rem; }
         .spec-xs     { background: var(--bg-sport);  color: var(--t-sport);  border: 1px solid var(--b-sport);  font-size: 0.7rem; }
         .spec-xl     { background: var(--bg-lutto);  color: var(--t-lutto);  border: 1px solid var(--b-lutto);  font-size: 0.72rem; }
@@ -2998,7 +2999,7 @@
     const DEFAULT_COLORS = {
         "--primary":"#1d4ed8","--c-M":"#0257d5","--c-P":"#3f7fe0","--c-N":"#002a66","--c-R":"#ecfdf5","--c-SM":"#0b0038",
         "--bg-ferie":"#e2670f","--bg-rec":"#b3005f","--bg-cong":"#e0c700","--bg-mal":"#dc2626","--bg-nl":"#cceef2",
-        "--bg-perm":"#00c440","--bg-ng":"#009fd6","--bg-stu":"#2f6fe0","--bg-pn":"#0f3d21","--bg-coord":"#ffffff"
+        "--bg-perm":"#00c440","--bg-ng":"#009fd6","--bg-stu":"#ffffff","--bg-pn":"#0f3d21","--bg-coord":"#ffffff"
     };
     let nameOverrides = Object.assign({}, DEFAULT_NAME_OVERRIDES_BAKED);
     let colorOverrides = Object.assign({}, DEFAULT_COLORS_BAKED);
@@ -6344,12 +6345,19 @@
     const TURNISTI_PER_TURNO = 3;
     function dayTurnistiCover(i) {
         const cnt = { M: 0, P: 0, N: 0 }, who = {};
+        // M+N: la notte conta sempre; la mattina può essere da diurnista. Se i turnisti di mattina
+        // sono già 3 la sua mattina non conta (niente lampeggio rosso); se mancano, la completa.
+        const mn = [];
         drivers.forEach(d => {
             if(d.hidden) return;
             const c = computeDayInfo(i, d.idx).code;
-            const sh = c === 'M+N' ? ['M', 'N'] : (['M', 'P', 'N'].includes(c) ? [c] : []);
-            if(sh.length) { who[d.idx] = sh; sh.forEach(s => cnt[s]++); }
+            if(c === 'M+N') { mn.push(d.idx); who[d.idx] = ['N']; cnt.N++; return; }
+            if(['M', 'P', 'N'].includes(c)) { who[d.idx] = [c]; cnt[c]++; }
         });
+        if(mn.length) {
+            const need = Math.max(0, TURNISTI_PER_TURNO - cnt.M);
+            mn.forEach((idx, k) => { if(k < need) { who[idx].push('M'); cnt.M++; } });
+        }
         const cls = {};
         Object.keys(who).forEach(idx => {
             const st = who[idx].map(s => cnt[s] >= TURNISTI_PER_TURNO + 1 ? 'hi' : (cnt[s] < TURNISTI_PER_TURNO ? 'lo' : ''));
@@ -6768,7 +6776,7 @@
         m:  { label:'Malattia',          short:'Malattia',      color:'--bg-mal' },
         r:  { label:'Recuperi',          short:'Recuperi',      color:'--bg-rec' },
         v:  { label:'Ferie residue (anno prima)', short:'Ferie res.', color:'--bg-ferie' },
-        c:  { label:'Permessi studio',   short:'Studio',        color:'--bg-stu' },
+        c:  { label:'Permessi studio',   short:'Studio',        color:null, hex:'#dc2626' },
         gr: { label:'Gravidanza / maternit\u00e0', short:'Gravidanza', color:null, hex:'#ec4899' },
         ng: { label:'Festivi non goduti', short:'Fest. non god.', color:'--bg-ng' },
         nl: { label:'Festivi non lavorati', short:'Fest. non lav.', color:'--bg-nl' },
