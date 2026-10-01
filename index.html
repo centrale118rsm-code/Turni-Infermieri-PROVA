@@ -464,6 +464,10 @@
         @media (max-width:560px) { #ab-view-detail .abd-counters { grid-template-columns:repeat(2,1fr); } }
         .cc-dialog-actions { flex-wrap:wrap; }
         .sep-perm { display:flex; flex-direction:column; gap:10px; }
+        .cps { display:flex; gap:10px; align-items:flex-start; margin-top:12px; padding:10px 12px; border-radius:12px; font-size:13px; line-height:1.45; }
+        .cps .msym { font-size:20px; flex:none; }
+        .cps.ok { background:var(--cc-pos-soft); color:var(--cc-pos); }
+        .cps.warn { background:var(--cc-warn-soft); color:var(--cc-warn); }
         .sep-perm-kinds { display:flex; flex-wrap:wrap; gap:6px; }
         .sep-perm-kinds button { display:flex; align-items:center; gap:8px; min-height:38px; padding:5px 10px; border:1px solid var(--cc-line); border-radius:4px; background:var(--cc-surface); color:var(--cc-text); font:500 13px var(--cc-font); cursor:pointer; }
         .sep-perm-kinds button.on { border-color:var(--cc-accent); box-shadow:inset 0 0 0 1px var(--cc-accent); background:var(--cc-accent-soft); }
@@ -5063,6 +5067,7 @@
             ${sw('notifyChanges', 'Cambi ai miei turni', 'Avviso quando un tuo turno viene aggiunto, cambiato o tolto.')}
             ${sw('notifyRep', 'Promemoria reperibilità', 'Il giorno prima, se sei reperibile o copri una fascia.')}
             ${sw('notifyTomorrow', 'Il mio turno di domani', 'Dopo mezzogiorno, un promemoria con il turno del giorno dopo.')}
+            ${isCoordinator ? `<div class="option-item"><div class="opt-txt"><span>Richieste dal portale</span><small>Sei il coordinatore: con le notifiche sul telefono attive ricevi anche ogni nuova richiesta.</small></div></div>` : ''}
 
             <div class="option-category-header" id="opt-cal"><span class="material-icons-round">calendar_month</span> Calendario del telefono</div>
             ${calOptionsHtml()}
@@ -6009,9 +6014,11 @@
         try { const p = await cfgRef('push').get(); subs = p.exists ? (p.data().subs || {}) : {}; } catch(e) {}
         try {
             const q = await db.collection('richieste_infermieri').orderBy('timestamp', 'desc').limit(80).get();
-            requests = q.docs.map(x => { const r = x.data(); return { id: x.id, name: r.name || '', type: (RICHIESTE_TYPE_LABELS && RICHIESTE_TYPE_LABELS[r.type]) || String(r.type || '').replace(/_/g, ' '), dateFrom: r.dateFrom || '', dateTo: r.dateTo || '', inserted: !!r.insertedInShifts }; });
+            requests = q.docs.map(x => { const r = x.data(); return { id: x.id, name: r.name || '', type: (RICHIESTE_TYPE_LABELS && RICHIESTE_TYPE_LABELS[r.type]) || String(r.type || '').replace(/_/g, ' '), dateFrom: r.dateFrom || '', dateTo: r.dateTo || '', swapWith: r.swapWith || '', inserted: !!r.insertedInShifts }; });
         } catch(e) {}
-        const coordinators = [coordinatorName].concat(typeof AS_OPERATORI !== 'undefined' ? AS_OPERATORI : []).filter(Boolean).map(x => String(x).toUpperCase());
+        // il coordinatore con tutti i nomi con cui può aver scelto "chi sei" (nome mostrato e nome originale)
+        const cd = coordinatorName ? drivers.find(d => normalizeNameForMatch(d.name) === normalizeNameForMatch(coordinatorName) || normalizeNameForMatch(d.originalName) === normalizeNameForMatch(coordinatorName)) : null;
+        const coordinators = [coordinatorName, cd && cd.name, cd && cd.originalName].concat(typeof AS_OPERATORI !== 'undefined' ? AS_OPERATORI : []).filter(Boolean).map(x => String(x).toUpperCase());
         return { team: document.title, url: appBaseUrl(), today: todayIso, tomorrow, people: people.map(d => ({ orig: d.originalName, name: d.name, slug: calSlug(d.originalName) })),
             ics, schedule, labels, repTomorrow, prefs: prefsDoc, subs, requests, coordinators };
     }
@@ -8650,12 +8657,13 @@
             <div class="cc-panel">
                 <div class="cc-panel-head"><h3>Coordinatore designato</h3></div>
                 <div class="cc-panel-body">
-                    <p class="cc-note" style="margin-bottom:12px">Riceve una notifica per ogni richiesta inviata dal portale Richieste, quando usa l\u2019app con il proprio nome.</p>
+                    <p class="cc-note" style="margin-bottom:12px">Riceve sul telefono una notifica per ogni richiesta inviata dal portale Richieste, anche ad app chiusa (entro circa 15 minuti), e un avviso immediato quando ha l\u2019app aperta. Cambiando nome qui, le notifiche passano subito al nuovo coordinatore.</p>
                     <div class="cc-inline-form">
                         <select id="coord-select-name" class="cc-input"><option value="" ${coordinatorName?'':'selected'} disabled>Scegli operatore</option>${opts}</select>
                         <button class="cc-btn primary" id="btn-save-coordinatore" onclick="saveCoordinatorName()">Salva</button>
                     </div>
                     <p class="cc-note" id="coord-current-label" style="margin-top:10px">${coordinatorName ? 'Attuale: ' + esc(coordinatorName) : 'Nessun coordinatore impostato.'}</p>
+                    <div id="coord-push-status"></div>
                 </div>
             </div>
             <div class="cc-panel">
@@ -8679,17 +8687,31 @@
                 <div class="cc-setting"><div><b>Sessione su questo dispositivo</b><small>L\u2019accesso vale finché l\u2019app resta aperta: chiudendola servirà di nuovo la password.</small></div>
                     <button class="cc-btn danger" onclick="coordLogout()"><span class="msym">logout</span>Esci</button></div>
             </div>`;
+        coordPushStatus();
     }
     function renderCoordinatorTab() {
         const lbl = document.getElementById('coord-current-label');
         if(lbl) lbl.textContent = coordinatorName ? ('Attuale: ' + coordinatorName) : 'Nessun coordinatore impostato.';
+        coordPushStatus();
+    }
+    // Quanti telefoni del coordinatore hanno attivato le notifiche: le richieste arrivano solo lì.
+    async function coordPushStatus() {
+        const el = document.getElementById('coord-push-status'); if(!el) return;
+        if(!coordinatorName) { el.innerHTML = ''; return; }
+        let n = 0;
+        try { const d = (await cfgRef('push').get()).data() || {}; n = Object.values(d.subs || {}).filter(s => normalizeNameForMatch(s.owner || '') === normalizeNameForMatch(coordinatorName)).length; } catch(e) { el.innerHTML = ''; return; }
+        let here = null; try { here = await pushCurrent(); } catch(e) {}
+        el.innerHTML = n
+            ? `<div class="cps ok"><span class="msym">notifications_active</span><span>Notifiche delle richieste attive su <b>${n} ${n === 1 ? 'telefono' : 'telefoni'}</b> di ${esc(coordinatorName)}.</span></div>`
+            : `<div class="cps warn"><span class="msym">notifications_off</span><span><b>${esc(coordinatorName)} non ha ancora attivato le notifiche sul telefono</b>: finché non lo fa, le richieste le vede solo aprendo l\u2019app. Sul suo telefono: app con “chi sei” = ${esc(coordinatorName)} › Opzioni › Notifiche sul telefono › Attiva (su iPhone serve l\u2019app installata sulla schermata Home).</span></div>`;
+        if(isCoordinator && !here) el.innerHTML += `<button class="cc-btn primary sm" style="margin-top:8px" onclick="pushEnable().then(coordPushStatus)"><span class="msym">notifications_active</span>Attiva su questo telefono</button>`;
     }
     function saveCoordinatorName() {
         const sel = document.getElementById('coord-select-name');
         if(!sel || !sel.value) { ccToast('Scegli un operatore prima di salvare.', true); return; }
         if(!fbReady) return;
         cfgRef('settings').set({ coordinatorName: sel.value }, { merge:true })
-            .then(() => { coordinatorName = sel.value; checkIfIAmCoordinator(); renderCoordinatorTab(); ccToast('Coordinatore aggiornato'); vibrate(); })
+            .then(() => { coordinatorName = sel.value; checkIfIAmCoordinator(); renderCoordinatorTab(); ccToast('Coordinatore aggiornato: le notifiche delle richieste vanno ora a ' + sel.value); vibrate(); })
             .catch(e => { console.error('Errore salvataggio coordinatore:', e); ccToast('Salvataggio non riuscito.', true); });
     }
 

@@ -101,7 +101,7 @@ function buildMessages(X, old) {
     const seen = new Set(old.reqIds);
     for (const r of X.requests.filter(r => !seen.has(r.id)).reverse()) {
       const when = r.dateFrom ? ' dal ' + dayLabel(r.dateFrom) + (r.dateTo && r.dateTo !== r.dateFrom ? ' al ' + dayLabel(r.dateTo) : '') : '';
-      out.push({ owner: '*coord*', title: 'Nuova richiesta', body: `${r.name || '—'}: ${r.type}${when}`, tag: 'req-' + r.id });
+      out.push({ owner: '*coord*', title: 'Nuova richiesta dal portale', body: `${r.name || '—'}: ${r.type}${r.swapWith ? ' con ' + r.swapWith : ''}${when}`, tag: 'req-' + r.id });
     }
   }
   return out;
