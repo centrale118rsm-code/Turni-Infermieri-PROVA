@@ -786,6 +786,89 @@
         .ab-dot { color:var(--border); font-weight:700; }
         .ab-tot { font-weight:800; font-size:0.95rem; color:var(--primary); }
         .ab-meter { min-width:92px; }
+        .hc-header-badge .header-text h3 { color:#fff; }
+        /* conteggio assenze v2 */
+        #abs-modal .modal-content, #eq-modal .modal-content { max-width:1040px; }
+        #ab-kpis.ab-kpis { grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:10px; padding:10px 14px 6px; }
+        .ab-kpi2 { position:relative; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:11px 13px 10px; overflow:hidden; box-shadow:0 8px 22px -18px rgba(15,23,42,.5); }
+        .ab-kpi2::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--pc, #64748b); }
+        .ab-kpi2 small { display:block; font-size:0.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-sec); }
+        .ab-kpi2 b { display:block; font-size:1.45rem; font-weight:800; color:var(--text-main); margin:2px 0 4px; font-variant-numeric:tabular-nums; }
+        .ab-kpi2 b span { font-size:0.72rem; font-weight:700; color:var(--text-sec); }
+        .ab-kpi2 em { display:block; font-style:normal; font-size:0.7rem; font-weight:600; color:var(--text-sec); margin-top:5px; line-height:1.3; }
+        .ab-kpi2.today { --pc:#f97316; }
+        .ab3 { min-width:110px; text-align:left; }
+        .ab3-top { display:flex; align-items:baseline; gap:2px; font-variant-numeric:tabular-nums; }
+        .ab3-top b { font-size:0.95rem; font-weight:800; color:var(--text-main); }
+        .ab3-top small { font-size:0.68rem; font-weight:700; color:var(--text-sec); }
+        .ab3-top em { margin-left:auto; padding-left:6px; font-style:normal; font-size:0.66rem; font-weight:800; color:#15803d; white-space:nowrap; }
+        .ab3.over .ab3-top em { color:#dc2626; }
+        .ab3-bar { display:flex; height:7px; border-radius:99px; background:color-mix(in srgb, var(--pc, #94a3b8) 13%, var(--border)); overflow:hidden; margin-top:4px; }
+        .ab3-bar i { display:block; height:100%; }
+        .ab3-bar i.done { background:var(--pc, #64748b); }
+        .ab3-bar i.plan { background:repeating-linear-gradient(135deg, var(--pc, #64748b) 0 3px, color-mix(in srgb, var(--pc, #64748b) 40%, transparent) 3px 6px); }
+        .ab3.over .ab3-bar { box-shadow:0 0 0 1.5px #dc2626; }
+        .ab-leg { display:inline-flex; align-items:center; gap:5px; margin-right:14px; font-weight:700; }
+        .ab-leg i { width:18px; height:8px; border-radius:4px; display:inline-block; }
+        .ab-leg i.done { background:#64748b; } .ab-leg i.plan { background:repeating-linear-gradient(135deg, #64748b 0 3px, #cbd5e1 3px 6px); } .ab-leg i.free { background:var(--border); }
+        .abd-counters2 { display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; padding:8px 16px 4px; }
+        @media (min-width:760px) { .abd-counters2 { grid-template-columns:repeat(4, 1fr); } }
+        .abd-c2 { display:flex; align-items:center; gap:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:10px 12px; cursor:pointer; box-shadow:0 8px 22px -18px rgba(15,23,42,.5); }
+        .abd-c2 svg { flex:none; }
+        .abd-c2-t { min-width:0; display:flex; flex-direction:column; gap:1px; }
+        .abd-c2-t > small { font-size:0.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--text-sec); }
+        .abd-c2-t > b { font-size:1.05rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
+        .abd-c2-s { font-size:0.64rem; font-weight:600; color:var(--text-sec); display:flex; align-items:center; gap:3px; flex-wrap:wrap; }
+        .abd-c2-s i { width:8px; height:8px; border-radius:2px; display:inline-block; background:#64748b; }
+        .abd-c2-s i.plan { background:repeating-linear-gradient(135deg, #64748b 0 2px, #cbd5e1 2px 4px); margin-left:4px; }
+        .abd-c2-t em { font-style:normal; font-size:0.72rem; font-weight:800; }
+        .abd-c2-t em.ok { color:#15803d; } .abd-c2-t em.over { color:#dc2626; }
+        .abd-c2-n { font-size:0.6rem; color:var(--text-sec); text-transform:none !important; letter-spacing:0 !important; font-weight:600 !important; }
+        @media (max-width:420px) { .abd-c2 { flex-direction:column; text-align:center; } .abd-c2-s { justify-content:center; } }
+        .abm { margin:10px 16px 4px; padding:12px 14px 8px; background:var(--bg-card); border:1px solid var(--border); border-radius:16px; }
+        .abm-head { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin-bottom:8px; }
+        .abm-head b { font-size:0.85rem; font-weight:800; color:var(--text-main); margin-right:auto; }
+        .abm-head > span { display:flex; flex-wrap:wrap; gap:4px 10px; font-size:0.66rem; font-weight:700; color:var(--text-sec); }
+        .abm-head > span i { display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:4px; vertical-align:-1px; }
+        .abm-chart { display:grid; grid-template-columns:repeat(12, 1fr); gap:4px; height:120px; align-items:end; }
+        .abm-col { height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:2px; }
+        .abm-n { font-size:0.62rem; font-weight:800; color:var(--text-main); min-height:12px; }
+        .abm-stack { width:70%; max-width:26px; display:flex; flex-direction:column-reverse; border-radius:5px 5px 2px 2px; overflow:hidden; min-height:0; }
+        .abm-stack i { display:block; min-height:2px; }
+        .abm-col small { font-size:0.58rem; font-weight:700; color:var(--text-sec); text-transform:capitalize; }
+        .abm-col.now small { color:var(--primary); font-weight:900; }
+        /* equità v2 */
+        .eq-sum { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px; padding:4px 0 10px; }
+        .eq-sum-c { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:9px 11px; cursor:pointer; display:flex; flex-direction:column; gap:2px; box-shadow:0 8px 22px -18px rgba(15,23,42,.5); }
+        .eq-sum-c.on { border-color:var(--primary); box-shadow:inset 0 0 0 1px var(--primary); }
+        .eq-sum-c small { font-size:0.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--text-sec); }
+        .eq-sum-c b { font-size:1.15rem; font-weight:800; color:var(--text-main); }
+        .eq-sum-c b span { font-size:0.66rem; color:var(--text-sec); font-weight:700; }
+        .eq-x { font-size:0.66rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .eq-x.hi { color:#c2410c; } .eq-x.lo { color:#1d4ed8; }
+        .eq-c sup { font-size:0.6rem; font-weight:800; margin-left:2px; color:var(--text-sec); position:relative; z-index:1; }
+        .eq-c.hi sup { color:#c2410c; } .eq-c.lo sup { color:#1d4ed8; }
+        .eq-cards { display:none; }
+        @media (max-width:600px) {
+            .eq-wide { display:none; }
+            .eq-cards { display:flex; flex-direction:column; gap:10px; }
+            .eq-sum { grid-template-columns:repeat(2, 1fr); }
+        }
+        .eq-card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:10px 12px; box-shadow:0 8px 22px -18px rgba(15,23,42,.5); }
+        .eq-card.me { box-shadow:inset 3px 0 0 var(--primary), 0 8px 22px -18px rgba(15,23,42,.5); }
+        .eq-card-h { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+        .eq-card-h b { font-size:0.9rem; font-weight:800; color:var(--text-main); }
+        .eq-card-h em { font-style:normal; font-size:0.6rem; font-weight:800; background:var(--primary); color:#fff; border-radius:4px; padding:0 5px; }
+        .eq-card-g { display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; }
+        .eq-m { position:relative; background:var(--bg); border-radius:10px; padding:6px 8px 8px; overflow:hidden; }
+        .eq-m small { display:block; font-size:0.58rem; font-weight:800; text-transform:uppercase; color:var(--text-sec); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .eq-m b { font-size:0.95rem; font-weight:800; color:var(--text-main); }
+        .eq-m b sup { font-size:0.58rem; color:var(--text-sec); margin-left:2px; }
+        .eq-m i { position:absolute; left:8px; bottom:4px; height:3px; border-radius:2px; background:var(--border); max-width:calc(100% - 16px); }
+        .eq-m.hi { background:#fff1e6; } .eq-m.hi b, .eq-m.hi b sup { color:#c2410c; } .eq-m.hi i { background:#fb923c; }
+        .eq-m.lo { background:#e8f4ff; } .eq-m.lo b, .eq-m.lo b sup { color:#1d4ed8; } .eq-m.lo i { background:#60a5fa; }
+        .eq-m.pos b { color:#15803d; } .eq-m.neg b { color:#b91c1c; }
+        body.dark-mode .eq-m.hi { background:rgba(251,146,60,.15); } body.dark-mode .eq-m.lo { background:rgba(96,165,250,.15); }
         .ab-meter b { font-size:0.82rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
         .ab-meter b small { font-weight:600; color:var(--text-sec); }
         .ab-meter .bar { height:6px; border-radius:3px; background:var(--bg); margin-top:4px; overflow:hidden; box-shadow:inset 0 0 0 1px var(--border); }
@@ -5642,7 +5725,7 @@
     function closeEquity(e) { if(e && e.target !== e.currentTarget) return; const m = document.getElementById('eq-modal'); m.classList.remove('open'); setTimeout(() => { if(!m.classList.contains('open')) m.style.display = 'none'; }, 300); }
     function eqSetPeriod(p) { vibrate(); eqPeriod = p; renderEquity(); }
     function eqSortBy(k) { vibrate(); eqSort = eqSort === k ? null : k; renderEquity(); }
-    function computeEquity() {
+    function computeEquityOld() {
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const all = buildDaysIndex(), days = eqPeriod === 'oggi' ? all.filter(dd => dd.date <= today) : all;
         const R = repData(), me = prefMe();
@@ -5669,7 +5752,7 @@
         EQ_COLS.forEach(c => { const set = c.onlyDoers ? rows.filter(r => r[c.k] > 0) : rows; avg[c.k] = set.length ? set.reduce((a, r) => a + r[c.k], 0) / set.length : 0; });
         return { rows, avg, days };
     }
-    function renderEquity() {
+    function renderEquityOld() {
         const { rows, avg, days } = computeEquity();
         document.querySelectorAll('#eq-modal .ab-period button').forEach(b => b.classList.toggle('active', b.dataset.p === eqPeriod));
         let list = rows.slice();
@@ -6627,6 +6710,174 @@
         if(id === 'manage') { openCoordConsole('operatori'); return; }
         setCoordTool('op', id);
     }
+
+    // ═══ CONTEGGIO ASSENZE (versione 2) ══════════════════════════════════
+    // Per ferie, permessi straordinari, permessi notte e permesso legge: quanti già fatti
+    // fino a oggi, quanti in programma più avanti e quanti restano sul totale dell'anno.
+    function absTodayDate() { const t = new Date(); t.setHours(0, 0, 0, 0); return t; }
+    function absQuota(r) {
+        const t = absTodayDate(), past = arr => (arr || []).filter(dt => dt <= t).length;
+        return {
+            co: { used: r.allow.co, done: past(r.dates.f), max: ABS_ALLOW.co, k: 'f', label: 'Ferie (C.O.)', unit: '' },
+            sp: { used: r.allow.sp, done: past(r.dates.p) + past(r.dates.pn), max: ABS_ALLOW.sp, k: 'p', label: 'Permessi straord.', unit: '' },
+            pn: { used: r.allow.pn, done: past(r.dates.pn), max: ABS_ALLOW.pn, k: 'pn', label: 'Permessi notte', unit: '' },
+            pl: { used: r.hours.pl, done: Math.round((r.hdates.pl || []).filter(x => x.date <= t).reduce((a, x) => a + x.h, 0) * 100) / 100, max: PERM_HOURLY.pl.max, k: 'pl', label: 'Permesso legge', unit: 'h' }
+        };
+    }
+    const absFmtQ = (v, unit) => unit === 'h' ? permHFmt(v) : String(v);
+    function absMeter3(q) {
+        const left = Math.round((q.max - q.used) * 100) / 100, plan = Math.max(0, q.used - q.done);
+        const w = v => Math.max(0, Math.min(100, v / q.max * 100)).toFixed(1);
+        return `<div class="ab3 ${left < 0 ? 'over' : ''}" style="--pc:${typeColor(q.k)}" title="${esc(q.label)}: ${absFmtQ(q.done, q.unit)} fatti, ${absFmtQ(plan, q.unit)} in programma, ${left >= 0 ? 'restano ' + absFmtQ(left, q.unit) : 'oltre di ' + absFmtQ(-left, q.unit)}">
+            <div class="ab3-top"><b>${absFmtQ(q.used, q.unit)}</b><small>/${q.max}${q.unit}</small><em>${left >= 0 ? 'restano ' + absFmtQ(left, q.unit) : 'oltre ' + absFmtQ(-left, q.unit)}</em></div>
+            <div class="ab3-bar"><i class="done" style="width:${w(q.done)}%"></i><i class="plan" style="width:${w(plan)}%"></i></div>
+        </div>`;
+    }
+    function absPillN(n, k, unit) { return n ? `<span class="ab-pill ${unit ? 'wide' : ''}" style="--pc:${typeColor(k)}">${unit ? permHFmt(n) : n}</span>` : '<span class="ab-dot">·</span>'; }
+    function renderAbsences() {
+        const grid = document.getElementById('ab-view-grid'), det = document.getElementById('ab-view-detail');
+        if(absDetailIdx !== null) { grid.style.display = 'none'; det.style.display = ''; renderAbsDetail(); return; }
+        grid.style.display = ''; det.style.display = 'none';
+        document.querySelectorAll('#abs-modal .ab-period button').forEach(b => b.classList.toggle('active', b.dataset.p === absPeriod));
+        document.getElementById('ab-nav').style.display = absPeriod === 'mese' ? '' : 'none';
+        const mName = MONTH_NAMES_IT[absMonth].charAt(0).toUpperCase() + MONTH_NAMES_IT[absMonth].slice(1);
+        document.getElementById('ab-label').innerHTML = `${mName} <small>${SHIFT_YEAR}</small>`;
+        const rows = computeAbsences(), year = absPeriod === 'anno';
+        // per i saldi dell'anno serve sempre l'anno intero, anche nella vista del mese
+        const inService = d => serviceSpan(d.idx).first.getFullYear() < 3000;   // chi non ha mai turni (es. operatore di prova) non conta nei totali
+        const yearRows = (year ? rows : drivers.filter(d => !d.hidden).map(d => Object.assign({ d }, absCountFor(d, buildDaysIndex())))).filter(r => inService(r.d));
+        const Q = yearRows.map(absQuota), sumQ = (k, f) => Q.reduce((a, q) => a + q[k][f], 0);
+        const sum = k => rows.reduce((a, r) => a + (r.counts[k] || 0), 0);
+        const t = absTodayDate(), todayRow = buildDaysIndex().find(dd => dd.date.getTime() === t.getTime());
+        const absentToday = todayRow ? drivers.filter(d => !d.hidden && computeDayInfo(todayRow.rowIdx, d.idx).justified).map(d => d.name) : [];
+        const kq = (k, label, unit) => { const used = sumQ(k, 'used'), max = Q.length * Q[0][k].max, left = Math.round((max - used) * 100) / 100, done = sumQ(k, 'done');
+            return `<div class="ab-kpi2" style="--pc:${typeColor(Q[0][k].k)}"><small>${label}</small><b>${absFmtQ(Math.round(used * 100) / 100, unit)}<span> usati</span></b>
+                <div class="ab3-bar"><i class="done" style="width:${(done / max * 100).toFixed(1)}%"></i><i class="plan" style="width:${(Math.max(0, used - done) / max * 100).toFixed(1)}%"></i></div>
+                <em>restano ${absFmtQ(left, unit)} su ${absFmtQ(max, unit)} · ${absFmtQ(Math.round(done * 100) / 100, unit)} già fatti</em></div>`; };
+        const kc = (k, label, n, sub) => `<div class="ab-kpi2" style="--pc:${typeColor(k)}"><small>${label}</small><b>${n}<span> ${sub}</span></b><em>${year ? 'nell’anno' : 'in ' + MONTH_NAMES_IT[absMonth]}</em></div>`;
+        document.getElementById('ab-kpis').innerHTML = (Q.length ? kq('co', 'Ferie (C.O.)', '') + kq('sp', 'Permessi straordinari', '') + kq('pl', 'Permesso legge', 'h') : '')
+            + kc('m', 'Malattia', sum('m'), 'giorni') + kc('r', 'Recuperi', sum('r'), 'giorni')
+            + `<div class="ab-kpi2 today"><small>Assenti oggi</small><b>${absentToday.length}<span> ${absentToday.length === 1 ? 'persona' : 'persone'}</span></b><em>${esc(absentToday.slice(0, 4).join(', ') || 'nessuno')}${absentToday.length > 4 ? '…' : ''}</em></div>`;
+        const otherKeys = ABS_OTHER, otherShown = rows.some(r => otherKeys.some(k => r.counts[k])), psShown = rows.some(r => r.hours.ps > 0);
+        const headL = `<th class="ab-op">${year ? 'Anno ' + SHIFT_YEAR : mName}</th>`;
+        const head = `<th>Ferie (C.O.)</th><th>Perm. straord.</th><th>Perm. notte</th><th>Perm. legge</th>${psShown ? '<th>Sindacale</th>' : ''}<th>Malattia</th><th>Recuperi</th><th>Ferie res.</th>${otherShown ? '<th>Altre</th>' : ''}<th>Totale</th>`;
+        const body = rows.map((r, i) => {
+            const c = k => r.counts[k] || 0, other = otherKeys.reduce((a, k) => a + c(k), 0), q = year ? absQuota(r) : null;
+            return { attrs: `class="${r.isMe ? 'me' : ''}" onclick="absOpenDetail(${r.d.idx})"`,
+                left: `<th class="ab-op"><div class="ab-who"><span class="ab-av">${esc(absInitials(r.d.name))}</span><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</div></th>`,
+                right: `<td>${year ? absMeter3(q.co) : absPillN(c('f'), 'f')}</td>
+                    <td>${year ? absMeter3(q.sp) : absPillN(r.allow.sp, 'p')}</td>
+                    <td>${year ? absMeter3(q.pn) : absPillN(c('pn'), 'pn')}</td>
+                    <td>${year ? absMeter3(q.pl) : absPillN(r.hours.pl, 'pl', 'h')}</td>
+                    ${psShown ? `<td>${absPillN(r.hours.ps, 'ps', 'h')}</td>` : ''}
+                    <td>${absPillN(c('m'), 'm')}</td><td>${absPillN(c('r'), 'r')}</td><td>${absPillN(c('v'), 'v')}</td>
+                    ${otherShown ? `<td>${other ? `<span class="ab-pill" style="--pc:#94a3b8" title="${esc(otherKeys.filter(k => c(k)).map(k => ABS_TYPES[k].label + ' ' + c(k)).join(', '))}">${other}</span>` : '<span class="ab-dot">·</span>'}</td>` : ''}
+                    <td><span class="ab-tot">${r.total || '·'}</span></td>` };
+        });
+        document.getElementById('ab-grid').innerHTML = xgHtml('ab2', headL, head, body, year ? 860 + (psShown ? 70 : 0) + (otherShown ? 60 : 0) : 640);
+        const note = document.querySelector('#ab-view-grid .hg-note');
+        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge. Le assenze che cadono su un riposo non contano. Tocca un nome per il dettaglio.`;
+    }
+    // dettaglio della persona: contatori con fatti/in programma/restano e grafico mese per mese
+    function renderAbsDetail() {
+        renderAbsDetailOld();
+        const det = document.getElementById('ab-view-detail'), d = drivers.find(x => x.idx === absDetailIdx); if(!d) return;
+        const r = absCountFor(d, buildDaysIndex()), Q = absQuota(r);
+        const ring = q => {
+            const R = 22, C = 2 * Math.PI * R, done = Math.min(1, q.done / q.max), all = Math.min(1, q.used / q.max), col = typeColor(q.k);
+            return `<svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="${R}" fill="none" stroke="var(--border)" stroke-width="7"/>
+                <circle cx="28" cy="28" r="${R}" fill="none" stroke="${col}" stroke-opacity=".38" stroke-width="7" stroke-dasharray="${(all * C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 28 28)"/>
+                <circle cx="28" cy="28" r="${R}" fill="none" stroke="${q.used > q.max ? '#dc2626' : col}" stroke-width="7" stroke-dasharray="${(done * C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 28 28)" stroke-linecap="round"/></svg>`;
+        };
+        const card = (q, note) => { const left = Math.round((q.max - q.used) * 100) / 100, plan = Math.round(Math.max(0, q.used - q.done) * 100) / 100;
+            return `<div class="abd-c2" onclick="absToggle('${q.k}')">${ring(q)}<div class="abd-c2-t"><small>${q.label}</small><b>${absFmtQ(q.used, q.unit)} / ${q.max}${q.unit}</b>
+                <span class="abd-c2-s"><i class="done"></i>${absFmtQ(q.done, q.unit)} fatti <i class="plan"></i>${absFmtQ(plan, q.unit)} in programma</span>
+                <em class="${left < 0 ? 'over' : 'ok'}">${left < 0 ? 'oltre di ' + absFmtQ(-left, q.unit) : 'restano ' + absFmtQ(left, q.unit)}</em>${note ? `<small class="abd-c2-n">${note}</small>` : ''}</div></div>`; };
+        const counters = det.querySelector('.abd-counters');
+        if(counters) counters.outerHTML = `<div class="abd-counters2">${card(Q.co)}${card(Q.sp, (r.counts.pn || 0) ? `di cui ${r.counts.pn} per permessi notte` : '')}${card(Q.pn)}${card(Q.pl)}</div>${absMonthChart(r)}`;
+    }
+    // grafico mese per mese: colonne impilate per tipo di assenza
+    function absMonthChart(r) {
+        const groups = [ { ks: ['f'], label: 'Ferie', col: typeColor('f') }, { ks: ['p', 'pn'], label: 'Permessi', col: typeColor('p') }, { ks: ['m'], label: 'Malattia', col: typeColor('m') },
+            { ks: ['r'], label: 'Recuperi', col: typeColor('r') }, { ks: ['v'], label: 'Ferie res.', col: typeColor('v') }, { ks: ABS_OTHER.concat(['pl', 'ps']), label: 'Altre', col: '#94a3b8' } ];
+        const m = Array.from({ length: 12 }, () => groups.map(() => 0));
+        groups.forEach((g, gi) => g.ks.forEach(k => (r.dates[k] || []).forEach(dt => { if(dt.getFullYear() === SHIFT_YEAR) m[dt.getMonth()][gi]++; })));
+        const tot = m.map(a => a.reduce((x, y) => x + y, 0)), max = Math.max(4, ...tot), now = absTodayDate();
+        if(!tot.some(Boolean)) return '';
+        const bars = m.map((a, mi) => `<div class="abm-col ${now.getFullYear() === SHIFT_YEAR && mi === now.getMonth() ? 'now' : ''}" title="${MONTH_NAMES_IT[mi]}: ${tot[mi]} giorni${tot[mi] ? ' (' + groups.map((g, gi) => a[gi] ? g.label.toLowerCase() + ' ' + a[gi] : '').filter(Boolean).join(', ') + ')' : ''}">
+            <span class="abm-n">${tot[mi] || ''}</span><div class="abm-stack" style="height:${(tot[mi] / max * 100).toFixed(1)}%">${a.map((v, gi) => v ? `<i style="flex:${v};background:${groups[gi].col}"></i>` : '').join('')}</div><small>${MONTH_NAMES_IT[mi].slice(0, 3)}</small></div>`).join('');
+        return `<div class="abm"><div class="abm-head"><b>Mese per mese</b><span>${groups.filter((g, gi) => m.some(a => a[gi])).map(g => `<span><i style="background:${g.col}"></i>${g.label}</span>`).join('')}</span></div><div class="abm-chart">${bars}</div></div>`;
+    }
+
+    // ═══ EQUITÀ DELL'ANNO (versione 2) ═══════════════════════════════════
+    // Ogni numero con lo scarto dalla media della squadra; in alto media, chi ne ha di più e
+    // chi di meno; reperibilità di domenica o festivo. Sul telefono una scheda per persona.
+    EQ_COLS.splice(5, 0, { k: 'repF', label: 'Rep. festive', sub: 'dom. e festivi' });
+    EQ_COLS.splice(3, 0, { k: 'we', label: 'Weekend', sub: 'sab. + dom.' });
+    function computeEquity() {
+        const today = absTodayDate();
+        const all = buildDaysIndex(), days = eqPeriod === 'oggi' ? all.filter(dd => dd.date <= today) : all;
+        const R = repData(), me = prefMe();
+        const rows = drivers.filter(d => !d.hidden).map(d => {
+            const r = { d, isMe: !!me && me.idx === d.idx, notti: 0, dom: 0, sab: 0, we: 0, fest: 0, repT: 0, repF: 0, repH: 0, worked: 0, active: false };
+            days.forEach(dd => {
+                const info = computeDayInfo(dd.rowIdx, d.idx); r.worked += info.minutes || 0; if(info.code) r.active = true;
+                const c = info.justified ? '' : info.code;
+                const works = ['M', 'P', 'N', 'M+N', 'm', 'p'].includes(c) || (info.custom && customCodes[c] && customCodes[c].kind === 'work');
+                if(works) {
+                    const g = dd.date.getDay();
+                    if(g === 0) r.dom++; if(g === 6) r.sab++;
+                    if(HOLIDAYS[`${dd.monthIdx}-${dd.day}`]) r.fest++;
+                    if(c === 'N' || c === 'M+N') r.notti++;
+                }
+                const iso = ymd(dd.date);
+                if(R.tit[iso] === d.originalName) { r.repT++; if(repIsFestive(iso)) r.repF++; }
+                (R.days[iso] || []).forEach((who, s) => { if(who === d.originalName) r.repH += REP_SLOTS[s].minutes; });
+            });
+            r.we = r.sab + r.dom;
+            r.saldo = r.worked - contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date), d.idx);
+            return r;
+        }).filter(r => r.active);   // chi nel periodo non ha niente in calendario non entra nelle medie
+        const avg = {};
+        EQ_COLS.forEach(c => { const set = c.onlyDoers ? rows.filter(r => r[c.k] > 0) : rows; avg[c.k] = set.length ? set.reduce((a, r) => a + r[c.k], 0) / set.length : 0; });
+        return { rows, avg, days };
+    }
+    function eqDev(c, r, avg) {
+        if(c.signed || (c.onlyDoers && r[c.k] === 0) || !(avg[c.k] > 0)) return { cls: '', d: '' };
+        const v = c.fmt ? c.fmt(r[c.k]) : r[c.k], a = c.fmt ? c.fmt(avg[c.k]) : avg[c.k], diff = Math.round((v - a) * 10) / 10, q = r[c.k] / avg[c.k];
+        return { cls: q >= 1.2 ? 'hi' : (q <= 0.8 ? 'lo' : ''), d: diff === 0 ? '=' : (diff > 0 ? '+' : '−') + Math.abs(diff).toString().replace('.', ',') };
+    }
+    function renderEquity() {
+        const { rows, avg, days } = computeEquity();
+        document.querySelectorAll('#eq-modal .ab-period button').forEach(b => b.classList.toggle('active', b.dataset.p === eqPeriod));
+        let list = rows.slice();
+        if(eqSort) list.sort((a, b) => b[eqSort] - a[eqSort]); else list.sort((a, b) => b.isMe - a.isMe);
+        const max = {}; EQ_COLS.forEach(c => max[c.k] = Math.max(1, ...rows.map(r => Math.abs(r[c.k]))));
+        const txt = (c, v) => c.fmt ? c.fmt(v) : v;
+        // riepilogo in alto: media, il più alto e il più basso per ogni voce
+        const sumCols = EQ_COLS.filter(c => !c.signed);
+        const extreme = (c, hi) => { const set = c.onlyDoers ? rows.filter(r => r[c.k] > 0) : rows; if(!set.length) return null; return set.reduce((b, r) => (hi ? r[c.k] > b[c.k] : r[c.k] < b[c.k]) ? r : b); };
+        const summary = `<div class="eq-sum">${sumCols.map(c => { const H = extreme(c, true), L = extreme(c, false);
+            return `<div class="eq-sum-c ${eqSort === c.k ? 'on' : ''}" onclick="eqSortBy('${c.k}')"><small>${c.label}</small><b>${c.fmt ? c.fmt(avg[c.k]) : (Math.round(avg[c.k] * 10) / 10).toString().replace('.', ',')}<span> media</span></b>
+                ${H ? `<span class="eq-x hi">▲ ${esc(H.d.name)} ${txt(c, H[c.k])}</span>` : ''}${L ? `<span class="eq-x lo">▼ ${esc(L.d.name)} ${txt(c, L[c.k])}</span>` : ''}</div>`; }).join('')}</div>`;
+        const cell = (c, r) => {
+            const v = r[c.k];
+            if(c.signed) return `<td class="eq-c ${Math.abs(v) < 30 ? '' : (v < 0 ? 'neg' : 'pos')}"><b>${txt(c, v)}</b></td>`;
+            const dv = eqDev(c, r, avg);
+            return `<td class="eq-c ${dv.cls}"><b>${txt(c, v)}</b>${dv.d && dv.d !== '=' ? `<sup>${dv.d}</sup>` : ''}<i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></td>`;
+        };
+        const headL = `<th class="eq-name">${eqPeriod === 'oggi' ? 'Fino a oggi' : 'Anno ' + SHIFT_YEAR}</th>`;
+        const headR = EQ_COLS.map(c => `<th onclick="eqSortBy('${c.k}')" class="${eqSort === c.k ? 'on' : ''}">${c.label}${c.sub ? `<small>${c.sub}</small>` : ''}${eqSort === c.k ? ' ▼' : ''}</th>`).join('');
+        const items = list.map(r => ({ attrs: `class="${r.isMe ? 'me' : ''}"`, left: `<th class="eq-name"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</th>`, right: EQ_COLS.map(c => cell(c, r)).join('') }));
+        items.push({ attrs: 'class="eq-avg"', left: '<th class="eq-name"><span>Media</span></th>', right: EQ_COLS.map(c => `<td class="eq-c"><b>${c.signed ? '' : (c.fmt ? c.fmt(avg[c.k]) : avg[c.k].toFixed(1).replace('.', ','))}</b></td>`).join('') });
+        // telefono: una scheda per persona
+        const cards = list.map(r => `<div class="eq-card ${r.isMe ? 'me' : ''}"><div class="eq-card-h"><span class="ab-av">${esc(absInitials(r.d.name))}</span><b>${esc(r.d.name)}</b>${r.isMe ? '<em>tu</em>' : ''}</div>
+            <div class="eq-card-g">${EQ_COLS.map(c => { const v = r[c.k], dv = eqDev(c, r, avg);
+                if(c.signed) return `<div class="eq-m ${Math.abs(v) < 30 ? '' : (v < 0 ? 'neg' : 'pos')}"><small>${c.label}</small><b>${txt(c, v)}</b></div>`;
+                return `<div class="eq-m ${dv.cls}"><small>${c.label}</small><b>${txt(c, v)}${dv.d && dv.d !== '=' ? `<sup>${dv.d}</sup>` : ''}</b><i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></div>`; }).join('')}</div></div>`).join('');
+        document.getElementById('eq-grid').innerHTML = summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, 860)}</div><div class="eq-cards">${cards}</div>`;
+        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti la media conta solo chi ne fa. Tocca un titolo o un riquadro in alto per ordinare.`;
+    }
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
     // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
@@ -6845,7 +7096,7 @@
         return `<div class="ab-meter ${used > max ? 'over' : ''}" style="--pc:${col}"><b>${used}<small> / ${max}</small></b><div class="bar"><i style="width:${pct.toFixed(0)}%"></i></div></div>`;
     }
     function absPill(n, k) { return n ? `<span class="ab-pill" style="--pc:${typeColor(k)}">${n}</span>` : '<span class="ab-dot">\u00b7</span>'; }
-    function renderAbsences() {
+    function renderAbsencesOld() {
         const grid = document.getElementById('ab-view-grid'), det = document.getElementById('ab-view-detail');
         if(absDetailIdx !== null) { grid.style.display = 'none'; det.style.display = ''; renderAbsDetail(); return; }
         grid.style.display = ''; det.style.display = 'none';
@@ -6894,7 +7145,7 @@
         const R = 20, C = 2 * Math.PI * R, pct = Math.min(1, used / max);
         return `<svg width="50" height="50" viewBox="0 0 50 50"><circle cx="25" cy="25" r="${R}" fill="none" stroke="var(--border)" stroke-width="6"/><circle cx="25" cy="25" r="${R}" fill="none" stroke="${used > max ? '#dc2626' : col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(C * pct).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 25 25)"/></svg>`;
     }
-    function renderAbsDetail() {
+    function renderAbsDetailOld() {
         const det = document.getElementById('ab-view-detail');
         const d = drivers.find(x => x.idx === absDetailIdx); if(!d) { absDetailIdx = null; renderAbsences(); return; }
         const r = absCountFor(d, buildDaysIndex());   // il dettaglio è sempre sull'anno intero
