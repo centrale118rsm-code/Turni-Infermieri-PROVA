@@ -4785,7 +4785,19 @@
     // turno: vengono trattate come il codice corrispondente (colore, ore, conteggio assenze).
     const WRITTEN_ABSENCES = { gravidanza:'gr', maternita:'gr', 'maternità':'gr', malattia:'m', ferie:'v', congedo:'f', 'congedo ordinario':'f', recupero:'r', permesso:'p' };
     function normalizeWrittenAbsence(cell) {
-        if(!cell || (cell.subV || '').toString().trim()) return cell;
+        if(!cell) return cell;
+        // file Excel: un numero nella riga sotto il turno (es. 7, sfondo azzurro) = ore di permesso legge.
+        // Con "-" o vuoto sopra è a giornata intera, con un turno sopra sono ore dentro quel turno.
+        const subRaw = (cell.subV === undefined || cell.subV === null ? '' : cell.subV).toString().trim();
+        if(/^\d+([.,]\d+)?$/.test(subRaw) && !(cell.perm && cell.perm.k)) {
+            const h = parseFloat(subRaw.replace(',', '.'));
+            if(h > 0 && h <= 24) {
+                let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
+                const onShift = v && v !== '-' && !/^r(iposo)?$/i.test(v);
+                return Object.assign({}, cell, onShift ? { subV: '', perm: { k: 'pl', h } } : { subV: 'pl', perm: { k: 'pl', h } }, { writtenAs: subRaw });
+            }
+        }
+        if((cell.subV || '').toString().trim()) return cell;
         const code = WRITTEN_ABSENCES[(cell.v || '').toString().trim().toLowerCase()];
         return code ? Object.assign({}, cell, { v:'', subV: code, writtenAs: cell.v }) : cell;
     }
