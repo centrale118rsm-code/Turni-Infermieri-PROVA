@@ -4715,8 +4715,20 @@
     // contratto da 36 h ogni giorno lun–sab matura 6 h; la domenica non matura ore.
     const CONTRACT_WORKDAYS = 6;
     function isContractDay(date) { return date.getDay() !== 0; }
-    function contractMinutesFor(weeklyHours, dates) {
-        return dates.filter(isContractDay).length * weeklyHours / CONTRACT_WORKDAYS * 60;
+    // Il contratto conta solo nel periodo in servizio: dal primo all'ultimo giorno dell'anno in cui la
+    // persona ha qualcosa in calendario (turno, riposo o assenza). Chi è entrato ad aprile non è "in
+    // debito" per gennaio-marzo, e chi non ha più turni dopo una certa data smette di accumulare debito.
+    function contractMinutesFor(weeklyHours, dates, driverIdx) {
+        const sp = driverIdx === undefined ? null : serviceSpan(driverIdx);
+        return dates.filter(dt => isContractDay(dt) && (!sp || (dt >= sp.first && dt <= sp.last))).length * weeklyHours / CONTRACT_WORKDAYS * 60;
+    }
+    let serviceSpanCache = { data: null, ver: -1, map: {} }, serviceSpanVer = 0;
+    function serviceSpan(driverIdx) {
+        if(serviceSpanCache.data !== finalData || serviceSpanCache.ver !== serviceSpanVer) serviceSpanCache = { data: finalData, ver: serviceSpanVer, map: {} };
+        if(serviceSpanCache.map[driverIdx]) return serviceSpanCache.map[driverIdx];
+        let first = null, last = null;
+        buildDaysIndex().forEach(dd => { if(computeDayInfo(dd.rowIdx, driverIdx).code) { if(!first) first = dd.date; last = dd.date; } });
+        return serviceSpanCache.map[driverIdx] = first ? { first, last } : { first: new Date(8640000000000000), last: new Date(-8640000000000000) };
     }
     function formatHM(totalMinutes) {
         let neg = totalMinutes < 0; let m = Math.round(Math.abs(totalMinutes));
@@ -4740,7 +4752,7 @@
         }
         if(!elapsed.length) return 0;
         let worked = elapsed.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
-        let target = contractMinutesFor(getContractHours(driverIdx), elapsed.map(dd => dd.date));
+        let target = contractMinutesFor(getContractHours(driverIdx), elapsed.map(dd => dd.date), driverIdx);
         return worked - target;
     }
 
@@ -5642,7 +5654,7 @@
                 if(R.tit[iso] === d.originalName) r.repT++;
                 (R.days[iso] || []).forEach((who, s) => { if(who === d.originalName) r.repH += REP_SLOTS[s].minutes; });
             });
-            r.saldo = r.worked - contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date));
+            r.saldo = r.worked - contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date), d.idx);
             return r;
         });
         const avg = {};
@@ -6652,7 +6664,7 @@
         // ore del mese
         const mi = today.getFullYear() === SHIFT_YEAR ? today.getMonth() : 0, mdays = all.filter(dd => dd.monthIdx === mi);
         const worked = mdays.reduce((a, dd) => a + computeDayInfo(dd.rowIdx, d.idx).minutes, 0);
-        const target = contractMinutesFor(getContractHours(d.idx), mdays.map(dd => dd.date));
+        const target = contractMinutesFor(getContractHours(d.idx), mdays.map(dd => dd.date), d.idx);
         const soFar = mdays.filter(dd => dd.date <= today), workedSoFar = soFar.reduce((a, dd) => a + computeDayInfo(dd.rowIdx, d.idx).minutes, 0);
         const bal = computeDriverBalance(d.idx);
         // assenze
@@ -6934,7 +6946,7 @@
             let run = 0, tot = 0, tgt = 0; const spark = [0];
             const cells = cols.map(c => {
                 const w = c.days.reduce((a, dd) => a + computeDayInfo(dd.rowIdx, d.idx).minutes, 0);
-                const t = contractMinutesFor(ch, c.days.map(dd => dd.date));
+                const t = contractMinutesFor(ch, c.days.map(dd => dd.date), d.idx);
                 tot += w; tgt += t; run += w - t; spark.push(run);
                 return { w, t, delta: w - t, future: c.days[0].date > today };
             });
@@ -7006,7 +7018,7 @@
         let statusEl = document.getElementById('hc-today-status');
         if(!elapsed.length) { statusEl.innerHTML = ""; document.getElementById('hc-projection').innerHTML = ""; return; }
         let workedSoFar = elapsed.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
-        let targetSoFar = contractMinutesFor(getContractHours(driverIdx), elapsed.map(dd => dd.date));
+        let targetSoFar = contractMinutesFor(getContractHours(driverIdx), elapsed.map(dd => dd.date), driverIdx);
         let delta = workedSoFar - targetSoFar;
         let cls = delta>=0 ? 'ok' : 'low';
         let msg = delta>=0 ? `IN CREDITO ${formatHM(delta)}` : `IN DEBITO ${formatHM(Math.abs(delta))}`;
@@ -7025,7 +7037,7 @@
         let rows = weekKeys.map(wk => {
             let group = weeksMap[wk];
             let tot = group.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,driverIdx).minutes,0);
-            let d2 = tot - contractMinutesFor(getContractHours(driverIdx), group.map(dd => dd.date));
+            let d2 = tot - contractMinutesFor(getContractHours(driverIdx), group.map(dd => dd.date), driverIdx);
             let startLbl = group[0].date.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'});
             let cls2 = d2>=0?'pos':'neg';
             return `<div class="hc-bd-row"><div><div class="hc-bd-main">Settimana dal ${startLbl}</div><div class="hc-bd-sub">${group.length} giorni già pianificati</div></div><div style="text-align:right"><div class="hc-bd-hours">${formatHM(tot)}</div><div class="hc-bd-delta ${cls2}">${d2>=0?'+':''}${formatHM(d2)}</div></div></div>`;
@@ -7090,11 +7102,11 @@
             let weeksMap = {};
             periodDays.forEach(dd => { let wk = getISOWeek(dd.date); (weeksMap[wk] = weeksMap[wk]||[]).push(dd); });
             let weekKeys = Object.keys(weeksMap).sort((a,b)=>a-b);
-            targetHoursTotal = contractMinutesFor(CH, periodDays.map(dd => dd.date)) / 60;
+            targetHoursTotal = contractMinutesFor(CH, periodDays.map(dd => dd.date), hoursSelectedDriver) / 60;
             weekKeys.forEach((wk,i) => {
                 let tot = weeksMap[wk].reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,hoursSelectedDriver).minutes,0);
                 chartLabels.push("Sett. "+(i+1)); chartData.push(+(tot/60).toFixed(2));
-                breakdownRows.push({ main:"Settimana "+(i+1), sub: weeksMap[wk].length+" giorni nel mese", minutes: tot, delta: tot - contractMinutesFor(CH, weeksMap[wk].map(dd => dd.date)) });
+                breakdownRows.push({ main:"Settimana "+(i+1), sub: weeksMap[wk].length+" giorni nel mese", minutes: tot, delta: tot - contractMinutesFor(CH, weeksMap[wk].map(dd => dd.date), hoursSelectedDriver) });
             });
             chartTargetLine = CH;
         } else { // anno
@@ -7105,7 +7117,7 @@
             monthsPresent.forEach(mi => {
                 let dGroup = periodDays.filter(dd=>dd.monthIdx===mi);
                 let tot = dGroup.reduce((s,dd)=>s+computeDayInfo(dd.rowIdx,hoursSelectedDriver).minutes,0);
-                let targetM = contractMinutesFor(CH, dGroup.map(dd => dd.date));
+                let targetM = contractMinutesFor(CH, dGroup.map(dd => dd.date), hoursSelectedDriver);
                 chartLabels.push(monthNamesArr[mi].slice(0,3));
                 chartData.push(+(tot/60).toFixed(2));
                 breakdownRows.push({ main: monthNamesArr[mi].charAt(0)+monthNamesArr[mi].slice(1).toLowerCase(), sub: dGroup.length+" giorni", minutes: tot, delta: tot-targetM });
@@ -7206,6 +7218,7 @@
     }
     let remoteRefreshTimer = null;
     function refreshAfterRemoteOverrides() {
+        serviceSpanVer++;
         clearTimeout(remoteRefreshTimer);
         remoteRefreshTimer = setTimeout(() => {
             if(isViewingArchive()) return;
@@ -8442,10 +8455,10 @@
                     if(!first) first = meta;
                 });
                 total += min;
-                const target = contractMinutesFor(ch, u.days.filter(counts).map(dd => dd.date));
+                const target = contractMinutesFor(ch, u.days.filter(counts).map(dd => dd.date), d.idx);
                 return { min, meta:first, target, empty: !u.days.length };
             });
-            const target = contractMinutesFor(ch, periodDays.filter(counts).map(dd => dd.date));
+            const target = contractMinutesFor(ch, periodDays.filter(counts).map(dd => dd.date), d.idx);
             return { d, order, ch, cells, total, target, diff: total - target, balance: computeDriverBalance(d.idx), absDays };
         });
         return { units, rows, label, discrepancy, unknown, dayCount: periodDays.length };
@@ -8717,6 +8730,7 @@
     // reperibilità sono cambiate: si ridisegnano solo quelle righe (e il giorno dopo).
     function afterCoordChange(keys, repDates) {
         edAlertCheck(keys, repDates);   // vignetta degli avvisi
+        serviceSpanVer++;
         let done = false;
         if(repDates && repDates.length) repInvalidate();
         if(((keys && keys.length) || (repDates && repDates.length)) && finalData.length === rawFinalData.length) {
@@ -9950,7 +9964,7 @@
     function thBalance(driverIdx, periodDays) {
         if(!periodDays) return computeDriverBalance(driverIdx);
         const worked = periodDays.reduce((s, dd) => s + computeDayInfo(dd.rowIdx, driverIdx).minutes, 0);
-        return worked - contractMinutesFor(getContractHours(driverIdx), periodDays.map(dd => dd.date));
+        return worked - contractMinutesFor(getContractHours(driverIdx), periodDays.map(dd => dd.date), driverIdx);
     }
     function thSetPeriod(p) {
         thBalPeriod = p; try { localStorage.setItem('th_bal_period', p); } catch(e) {}
