@@ -24,7 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,badge,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,expand_less,expand_more,filter_list,group,history,hourglass_top,ink_eraser,login,logout,manage_accounts,move_down,notifications_active,notifications_off,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,summarize,swap_horiz,sync,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning&display=block" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,badge,balance,beach_access,calendar_month,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,expand_less,expand_more,filter_list,group,history,hourglass_top,info,ink_eraser,login,logout,manage_accounts,move_down,notifications_active,notifications_off,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,summarize,swap_horiz,sync,table_view,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning&display=block" rel="stylesheet">
     <style>
         * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
         :root {
@@ -452,6 +452,44 @@
         .spec-xs     { background: var(--bg-sport);  color: var(--t-sport);  border: 1px solid var(--b-sport);  font-size: 0.7rem; }
         .spec-xl     { background: var(--bg-lutto);  color: var(--t-lutto);  border: 1px solid var(--b-lutto);  font-size: 0.72rem; }
         .spec-xa     { background: var(--bg-matr);   color: var(--t-matr);   border: 1px solid var(--b-matr);   font-size: 0.66rem; }
+        .spec-cong.spec-cong-prev { background: linear-gradient(135deg, var(--bg-cong) 0 50%, var(--bg-ferie) 50% 100%); color: #1f1300; border-color: var(--b-ferie); text-shadow: 0 0 3px rgba(255,255,255,.65); }
+        .hg-viewsw { margin: 0 auto 6px; }
+        .hs-wrap { overflow: auto; max-height: calc(94vh - 260px); border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); -webkit-overflow-scrolling: touch; }
+        .hs-table { border-collapse: separate; border-spacing: 0; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+        .hs-table th, .hs-table td { padding: 0 4px; height: 24px; border-bottom: 1px solid var(--border); border-right: 1px solid rgba(148,163,184,.25); white-space: nowrap; text-align: center; }
+        .hs-table thead th { position: sticky; z-index: 3; background: var(--bg-card); }
+        .hs-table thead tr:first-child th { top: 0; height: 28px; }
+        .hs-table thead tr:nth-child(2) th { top: 28px; font-size: 0.58rem; font-weight: 800; text-transform: uppercase; color: var(--text-sec); letter-spacing: .03em; }
+        .hs-name { color: #fff; background: var(--hc) !important; font-weight: 800; font-size: 0.78rem; cursor: pointer; border-right: 3px solid var(--bg-card) !important; }
+        .hs-date { position: sticky; left: 0; z-index: 2; background: var(--bg-card); min-width: 62px; text-align: left !important; padding-left: 8px !important; border-right: 2px solid var(--border) !important; }
+        thead .hs-date { z-index: 4; font-weight: 800; color: var(--text-main); }
+        .hs-date b { display: inline-block; min-width: 18px; font-size: 0.8rem; color: var(--text-main); }
+        .hs-date small { font-size: 0.62rem; color: var(--text-sec); font-weight: 700; margin-left: 2px; }
+        .hs-date.red b, .hs-date.red small { color: #dc2626; }
+        .hs-code { min-width: 30px; }
+        .hs-code span { display: inline-block; min-width: 24px; padding: 1px 4px; border-radius: 4px; font-weight: 800; font-size: 0.68rem; }
+        .hs-dash { color: var(--text-sec); background: none !important; }
+        .hs-ore { min-width: 38px; background: rgba(34,197,94,.08); font-weight: 700; color: var(--text-main); }
+        .hs-ore.z { color: var(--text-sec); font-weight: 500; }
+        .hs-ass { min-width: 38px; font-weight: 800; }
+        .hs-wk { min-width: 46px; border-right: 3px solid var(--border) !important; }
+        .hs-wk b { font-weight: 800; color: var(--text-main); }
+        .hs-wk em { font-style: normal; font-weight: 800; }
+        .hs-wk em.pos { color: #15803d; } .hs-wk em.neg { color: #dc2626; }
+        .hs-table tr.hs-sun td, .hs-table tr.hs-sun th { border-bottom: 2px solid #a855f7; }
+        .hs-table tr.hs-today th, .hs-table tr.hs-today td { background-color: rgba(249,115,22,.12); }
+        .src-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 560px) { .src-switch { grid-template-columns: 1fr; } }
+        .src-opt { display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; border: 1.5px solid var(--cc-line); border-radius: 14px; background: var(--cc-surface); color: var(--cc-text); cursor: pointer; font-family: inherit; position: relative; }
+        .src-opt .msym { font-size: 26px; color: var(--cc-muted); }
+        .src-opt b { display: block; font-size: 14px; } .src-opt small { display: block; font-size: 12px; color: var(--cc-muted); margin-top: 2px; }
+        .src-opt em { position: absolute; top: 8px; right: 10px; font-style: normal; font-size: 10.5px; font-weight: 700; color: #fff; background: var(--cc-accent); border-radius: 999px; padding: 1px 8px; }
+        .src-opt.on { border-color: var(--cc-accent); background: var(--cc-accent-soft); box-shadow: inset 0 0 0 1px var(--cc-accent); }
+        .src-opt.on .msym { color: var(--cc-accent); }
+        .src-info { display: flex; gap: 10px; margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: var(--cc-surface-2); border: 1px solid var(--cc-line-2); font-size: 13px; line-height: 1.5; color: var(--cc-text); }
+        .src-info > .msym { color: var(--cc-accent); font-size: 20px; flex: none; }
+        .src-info ul { margin: 6px 0 0 16px; padding: 0; } .src-info li { margin-bottom: 4px; }
+        .src-info small { color: var(--cc-muted); }
         .spec-pl     { background: var(--bg-pl);     color: var(--t-pl);     border: 1px solid var(--b-pl);     font-size: 0.72rem; }
         .spec-ps     { background: var(--bg-ps);     color: var(--t-ps);     border: 1px solid var(--b-ps);     font-size: 0.68rem; }
         .cell .perm-h { text-transform:none; }
@@ -2567,6 +2605,10 @@
         </div>
         <div class="modal-body">
             <div id="hc-list-view">
+                <div class="ab-toolbar"><div class="ab-period hg-viewsw">
+                    <button data-v="riep" onclick="hgSetView('riep')">Riepilogo</button>
+                    <button data-v="foglio" onclick="hgSetView('foglio')">Foglio</button>
+                </div></div>
                 <div class="hg-nav">
                     <button class="hg-nav-btn" onclick="hgNav(-1)" aria-label="Mese precedente"><span class="material-icons-round">chevron_left</span></button>
                     <div class="hg-month" id="hg-month"></div>
@@ -4165,7 +4207,7 @@
         // se l'ultima volta i turni erano già su Firebase, l'Excel (300 KB) non si scarica nemmeno
         let lastDs = null; try { lastDs = localStorage.getItem('data_source_' + DATA_NS); } catch(e) {}
         const fetchExcel = async () => {
-            try { const response = await fetch(FILE_NAME); if(!response.ok) throw new Error("File mancante"); return await response.arrayBuffer(); }
+            try { const response = await fetch(/PROVA/i.test(location.pathname) ? IMPORT_OFFICIAL.url + '?v=' + Date.now() : FILE_NAME); if(!response.ok) throw new Error("File mancante"); return await response.arrayBuffer(); }
             catch(e) { console.error(e); return null; }
         };
         const excelAttempt = lastDs === 'firebase' ? null : fetchExcel();
@@ -6890,6 +6932,125 @@
         document.getElementById('eq-grid').innerHTML = summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, 860)}</div><div class="eq-cards">${cards}</div>`;
         document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti la media conta solo chi ne fa. Tocca un titolo o un riquadro in alto per ordinare.`;
     }
+
+    // ═══ CONTEGGIO ORE › VISTA "FOGLIO" (come il file Excel) ════════════════
+    // Righe = giorni del mese, per ogni persona: turno, ore lavorate, ore di assenza giustificata
+    // (col colore dell'assenza) e, la domenica, il totale della settimana; il lunedì dopo il
+    // saldo progressivo dall'inizio dell'anno (verde sopra, rosso sotto il contratto).
+    let hgView = (() => { try { return localStorage.getItem('hg_view_v1') || 'riep'; } catch(e) { return 'riep'; } })();
+    function hgSetView(v) { vibrate(); hgView = v; try { localStorage.setItem('hg_view_v1', v); } catch(e) {} renderHoursGrid(); }
+    function renderHoursGrid() {
+        document.querySelectorAll('#hc-list-view .hg-viewsw button').forEach(b => b.classList.toggle('active', b.dataset.v === hgView));
+        const leg = document.querySelector('#hc-list-view .hg-legend'), note = document.querySelector('#hc-list-view .hg-note');
+        if(leg) leg.style.display = hgView === 'foglio' ? 'none' : '';
+        if(hgView !== 'foglio') { if(note && note.dataset.orig) note.innerHTML = note.dataset.orig; renderHoursGridOld(); return; }
+        if(note && !note.dataset.orig) note.dataset.orig = note.innerHTML;
+        renderHoursSheet();
+    }
+    const HS_HEAD_COLORS = ['#ef4444', '#d946ef', '#38bdf8', '#22c55e', '#f59e0b', '#8b5cf6', '#14b8a6', '#f43f5e'];
+    function hsHM(min) { const neg = min < 0, m = Math.round(Math.abs(min)); return (neg && m ? '−' : '') + Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0'); }
+    function renderHoursSheet() {
+        const el = document.getElementById('hg-grid'); if(!el) return;
+        document.getElementById('hg-month').innerHTML = `${MONTH_NAMES_IT[hgMonth].charAt(0).toUpperCase() + MONTH_NAMES_IT[hgMonth].slice(1)} <small>${SHIFT_YEAR}</small>`;
+        const all = buildDaysIndex(), today = ymd(new Date());
+        const people = drivers.filter(d => !d.hidden);
+        // per persona, su tutto l'anno: minuti lavorati / di assenza, totale settimana, saldo progressivo
+        const data = people.map(d => {
+            const ch = getContractHours(d.idx), sp = serviceSpan(d.idx), perDay = ch * 60 / CONTRACT_WORKDAYS;
+            let cum = 0, weekTot = 0; const byRow = {}, weekEnd = {}, balAfter = {};
+            all.forEach((dd, i) => {
+                const info = computeDayInfo(dd.rowIdx, d.idx), inS = dd.date >= sp.first && dd.date <= sp.last;
+                const work = info.justified ? 0 : (info.minutes || 0), abs = info.justified ? (info.minutes || 0) : 0;
+                byRow[dd.rowIdx] = { info, work, abs, inS };
+                weekTot += work + abs;
+                if(inS) cum += work + abs - (isContractDay(dd.date) ? perDay : 0);
+                if(dd.date.getDay() === 0 || i === all.length - 1) { weekEnd[dd.rowIdx] = weekTot; balAfter[ymd(dd.date)] = cum; weekTot = 0; }
+            });
+            return { d, byRow, weekEnd, balAfter, inYear: sp.first.getFullYear() < 3000 };
+        });
+        const days = all.filter(dd => dd.monthIdx === hgMonth);
+        const wd = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+        const head1 = `<tr><th class="hs-date hs-h1" rowspan="2">${SHIFT_YEAR}</th>${data.map((p, i) => `<th class="hs-name" colspan="4" style="--hc:${HS_HEAD_COLORS[i % HS_HEAD_COLORS.length]}" onclick="openHoursDetail(${p.d.idx}, ${hgMonth})">${esc(p.d.name)}</th>`).join('')}</tr>`;
+        const head2 = `<tr>${data.map(() => `<th class="hs-sub">Turno</th><th class="hs-sub">Ore</th><th class="hs-sub">Ass.</th><th class="hs-sub hs-wk">Sett.</th>`).join('')}</tr>`;
+        const body = days.map(dd => {
+            const iso = ymd(dd.date), g = dd.date.getDay(), red = g === 0 || !!HOLIDAYS[`${dd.monthIdx}-${dd.day}`], sun = g === 0;
+            const prevSun = new Date(dd.date); prevSun.setDate(prevSun.getDate() - 1);
+            const cells = data.map(p => {
+                const c = p.byRow[dd.rowIdx]; if(!c) return '<td></td><td></td><td></td><td class="hs-wk"></td>';
+                const meta = ccCodeMeta(c.info), code = c.info.code;
+                const codeCell = code ? `<td class="hs-code"><span style="${swatchStyle(meta.colors)}">${esc(meta.short || code)}</span></td>` : `<td class="hs-code"><span class="hs-dash">${c.inS ? '-' : ''}</span></td>`;
+                const ore = `<td class="hs-ore ${c.work ? '' : 'z'}">${c.inS || c.work ? hsHM(c.work) : ''}</td>`;
+                const ass = c.abs ? `<td class="hs-ass" style="background:var(${(meta.colors && meta.colors.bg) || '--bg-mal'});color:var(${(meta.colors && meta.colors.fg) || '--t-mal'})">${hsHM(c.abs)}</td>` : '<td class="hs-ass"></td>';
+                let wk = '';
+                if(p.weekEnd[dd.rowIdx] !== undefined && p.inYear) wk = `<b>${hsHM(p.weekEnd[dd.rowIdx])}</b>`;
+                else if(g === 1 && p.balAfter[ymd(prevSun)] !== undefined && p.inYear) { const b = p.balAfter[ymd(prevSun)]; wk = `<em class="${Math.abs(b) < 1 ? '' : (b < 0 ? 'neg' : 'pos')}" title="Saldo dall'inizio dell'anno">${b > 0 ? '+' : ''}${hsHM(b)}</em>`; }
+                return codeCell + ore + ass + `<td class="hs-wk">${wk}</td>`;
+            }).join('');
+            return `<tr class="${sun ? 'hs-sun' : ''} ${iso === today ? 'hs-today' : ''}"><th class="hs-date ${red ? 'red' : ''}"><b>${dd.day}</b><small>${wd[g]}</small></th>${cells}</tr>`;
+        }).join('');
+        el.innerHTML = `<div class="hs-wrap"><table class="hs-table"><thead>${head1}${head2}</thead><tbody>${body}</tbody></table></div>`;
+        const note = document.querySelector('#hc-list-view .hg-note');
+        if(note) note.innerHTML = 'Come il foglio Excel: per ognuno il turno, le ore lavorate e le ore di assenza giustificata (col colore dell’assenza). La domenica il totale della settimana, il lunedì dopo il saldo dall’inizio dell’anno (verde sopra il contratto, rosso sotto). Tocca un nome per il dettaglio.';
+        const t = el.querySelector('.hs-today'); if(t) setTimeout(() => { const w = el.querySelector('.hs-wrap'); if(w) w.scrollTop = Math.max(0, t.offsetTop - 90); }, 30);
+    }
+
+    // ═══ ORIGINE DEI TURNI: DA EXCEL O SOLO DALL'APP ═════════════════════
+    async function ccSwitchSource(target) {
+        if(target === dataSourceMode) return;
+        if(isViewingArchive()) { ccToast('Torna all’anno attivo prima di cambiare.', true); return; }
+        if(pendingChangesCount()) { ccToast('Prima salva o annulla le modifiche in sospeso.', true); return; }
+        if(target === 'excel') {
+            const ok = await ccConfirm('Tornare ai turni dal file Excel?', 'L’app mostrerà il file infermieri.xlsx così com’è. I turni fatti nell’app restano salvati ma non si vedono finché non torni a "Solo dall’app". Le correzioni fatte in modalità Excel ripartono da zero. Prima faccio una copia di sicurezza.', 'Passa a Excel', 'solid-danger');
+            if(!ok) return;
+            try {
+                await takeSnapshot('prima-di-tornare-a-excel');
+                const batch = db.batch();
+                batch.update(cfgRef('settings'), { dataSource: 'excel', manualOverrides: {}, excelSyncedMarks: {} });
+                addLogWrite(batch, [], 'Origine dei turni: file Excel');
+                await batch.commit();
+                try { localStorage.setItem('data_source_' + DATA_NS, 'excel'); } catch(e) {}
+                ccToast('Fatto: ora i turni arrivano dal file Excel. Riapro l’app…'); setTimeout(() => location.reload(), 1200);
+            } catch(e) { console.error(e); ccToast('Cambio non riuscito: ' + (e.code || e.message), true); }
+            return;
+        }
+        const choice = await ccDialog('Passare a "Solo dall’app"?', 'Scegli cosa fare con i turni: copiare nell’app tutto il file Excel (i mesi dell’app vengono sostituiti dal file) oppure tenere i turni già salvati nell’app e poi portare dentro solo le differenze con "Importa da Excel". In entrambi i casi prima faccio una copia di sicurezza.', [
+            { label: 'Annulla', kind: 'ghost', value: null },
+            { label: 'Tieni i turni dell’app', kind: '', value: 'keep' },
+            { label: 'Copia il file Excel nell’app', kind: 'solid-danger', value: 'copy' }
+        ]);
+        if(choice === 'copy') { ccMigrateToFirebase(true); return; }
+        if(choice !== 'keep') return;
+        try {
+            await takeSnapshot('prima-di-passare-a-solo-app');
+            const batch = db.batch();
+            batch.update(cfgRef('settings'), { dataSource: 'firebase' });
+            addLogWrite(batch, [], 'Origine dei turni: solo dall’app (turni dell’app tenuti)');
+            await batch.commit();
+            sessionStorage.setItem('fb_mode_reloaded', '1');
+            ccToast('Fatto: i turni si fanno solo nell’app. Riapro…'); setTimeout(() => location.reload(), 1200);
+        } catch(e) { console.error(e); ccToast('Cambio non riuscito: ' + (e.code || e.message), true); }
+    }
+    function ccSourcePanelHtml() {
+        const xl = dataSourceMode !== 'firebase';
+        setTimeout(async () => {   // data dell'ultimo caricamento del file Excel ufficiale
+            const s = document.getElementById('src-xl-date'); if(!s) return;
+            try { const r = await fetch(IMPORT_OFFICIAL.url + '?t=' + Date.now(), { method: 'HEAD', cache: 'no-store' }); const lm = r.headers.get('last-modified'); s.textContent = lm ? 'ultimo caricamento del file: ' + new Date(lm).toLocaleString('it-IT', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : ''; } catch(e) {}
+        }, 0);
+        return `<div class="src-switch" role="radiogroup" aria-label="Origine dei turni">
+                <button class="src-opt ${xl ? 'on' : ''}" role="radio" aria-checked="${xl}" onclick="ccSwitchSource('excel')"><span class="msym">table_view</span><span><b>Da file Excel</b><small>il coordinatore carica infermieri.xlsx su GitHub</small></span>${xl ? '<em>in uso</em>' : ''}</button>
+                <button class="src-opt ${xl ? '' : 'on'}" role="radio" aria-checked="${!xl}" onclick="ccSwitchSource('firebase')"><span class="msym">cloud_done</span><span><b>Solo dall’app</b><small>i turni si fanno in Modifica turni</small></span>${xl ? '' : '<em>in uso</em>'}</button>
+            </div>
+            <div class="src-info"><span class="msym">info</span><div>
+                ${xl ? `<b>Ora: i turni arrivano dal file Excel</b> <small id="src-xl-date"></small>
+                    <ul><li>L’app mostra il file così com’è: per aggiornare i turni basta caricare il nuovo infermieri.xlsx.</li>
+                    <li>Le correzioni fatte in Modifica turni restano sopra il file (meglio riportarle anche nell’Excel).</li>
+                    <li><b>Se passi a "Solo dall’app"</b>: scegli se copiare tutto il file nell’app (i mesi vengono sostituiti) o tenere i turni già nell’app e importare solo le differenze. Da lì caricare il file non cambia più niente: i turni si fanno solo qui.</li></ul>`
+                : `<b>Ora: i turni si fanno solo nell’app</b> <small id="src-xl-date"></small>
+                    <ul><li>Il file Excel non viene letto: se ne carichi uno nuovo, portalo dentro con "Importa da Excel".</li>
+                    <li>Tutto ciò che si salva in Modifica turni è subito visibile a tutti (un documento per mese su Firebase).</li>
+                    <li><b>Se torni a "Da file Excel"</b>: l’app mostra di nuovo il file così com’è; i turni fatti nell’app restano salvati ma non si vedono finché non torni qui; le correzioni ripartono da zero. Prima del cambio faccio sempre una copia di sicurezza.</li></ul>`}
+            </div></div>`;
+    }
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
     // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
@@ -7100,7 +7261,7 @@
                 if(shiftRowYear(r) !== SHIFT_YEAR + 1) continue;
                 const cell = finalData[r][d.idx] || {}, sub = (cell.subV || '').toString().trim().toLowerCase();
                 let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-                if(sub === 'f' && !/^r(iposo)?$/i.test(v)) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
+                if(sub === 'f' && !/^r(iposo)?$/i.test(v) && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
             }
         }
         const n = k => counts[k] || 0;
@@ -7224,7 +7385,7 @@
         const last = points[points.length - 1], col = Math.abs(last) < 30 ? '#3b82f6' : (last < 0 ? '#dc2626' : '#16a34a');
         return `<svg class="hg-spark" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true"><line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="currentColor" stroke-opacity=".18" stroke-dasharray="2 2"/><path d="${d}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round"/></svg>`;
     }
-    function renderHoursGrid() {
+    function renderHoursGridOld() {
         const el = document.getElementById('hg-grid'); if(!el) return;
         document.getElementById('hg-month').innerHTML = `${MONTH_NAMES_IT[hgMonth].charAt(0).toUpperCase() + MONTH_NAMES_IT[hgMonth].slice(1)} <small>${SHIFT_YEAR}</small>`;
         const days = buildDaysIndex().filter(dd => dd.monthIdx === hgMonth);
@@ -7834,7 +7995,8 @@
 
     // ── Turni solo su Firebase: calendario generato e un documento per mese ──
     // Mesi dell'anno dopo mostrati dopo dicembre (ferie dell'anno godute a gennaio, programmazione).
-    const NEXT_YEAR_MONTHS = 3;
+    const NEXT_YEAR_MONTHS = 12;   // tutto l'anno dopo, man mano si riempie
+    const CO_CARRY_MONTHS = 3;     // le ferie (C.O.) messe entro marzo dell'anno dopo sono dell'anno in corso
     function buildBlankYearData(year, baseNames, extraMonths) {
         const header = ['MESE', 'GIORNO', 'NOME'].concat(baseNames);
         const rows = [header];
@@ -7906,12 +8068,12 @@
     }
     // Passaggio definitivo: i turni del calendario (Excel + modifiche) vengono copiati su Firebase,
     // un documento per mese; le reperibilità "/R" dell'Excel diventano reperibilità dell'app.
-    async function ccMigrateToFirebase() {
+    async function ccMigrateToFirebase(skipConfirm) {
         if(dataSourceMode === 'firebase') return;
         if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
         if(!excelParsedData.length || !finalData.length) { ccToast('Turni non ancora caricati: riprova tra poco.', true); return; }
         const year = SHIFT_YEAR;
-        const ok = await ccConfirm(`Passare definitivamente a Firebase?`,
+        const ok = skipConfirm || await ccConfirm(`Passare definitivamente a Firebase?`,
             `I turni del ${year} visibili ora a calendario vengono copiati su Firebase, mese per mese. Da quel momento l’app non legge più infermieri.xlsx: ogni turno si assegna solo da qui. Prima faccio una copia di sicurezza. Fallo solo quando l’Excel caricato è quello giusto.`,
             'Copia e passa a Firebase', 'solid-danger');
         if(!ok) return;
@@ -7958,7 +8120,7 @@
         if(dataSourceMode !== 'firebase' || isViewingArchive()) return;
         if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
         const next = activeYear + 1;
-        const ok = await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura. Il ${next} parte vuoto con la stessa squadra e le stesse ore di contratto. Prima faccio una copia di sicurezza.`, `Apri il ${next}`, 'solid-danger');
+        const ok = await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura. Il ${next} parte con i turni già inseriti, la stessa squadra e le stesse ore di contratto; le ferie del ${activeYear} messe tra gennaio e marzo del ${next} diventano «ferie residue anno prima». Prima faccio una copia di sicurezza.`, `Apri il ${next}`, 'solid-danger');
         if(!ok) return;
         try {
             await takeSnapshot('prima-del-nuovo-anno');
@@ -7967,7 +8129,13 @@
             const batch = db.batch(), now = new Date().toISOString();
             batch.set(cfgRef('anno_' + activeYear), { year: activeYear, baseNames: header, contract: operatorConfig.contract || {}, removed: operatorConfig.removed || {}, nameOverrides, closedAt: now, closedBy: whoAmI() });
             batch.update(cfgRef('settings'), { activeYear: next, archivedYears: [...new Set(archivedYears.concat([activeYear]))], operatorConfig: Object.assign({}, operatorConfig, { baseNames: newBase, added: [], removed: {} }) });
-            addLogWrite(batch, [], `Chiuso il ${activeYear}, aperto il ${next}`);
+            let conv = 0;
+            for(let m = 0; m < CO_CARRY_MONTHS; m++) {
+                const doc = await cfgRef(monthDocName(next, m)).get(); const cells = doc.exists ? (doc.data().cells || {}) : {}, upd = {};
+                Object.keys(cells).forEach(k => { const c = cells[k] || {}; if(String(c.subV || '').trim().toLowerCase() === 'f' && !/^r(iposo)?$/i.test(String(c.v || '').trim())) { upd[k] = Object.assign({}, c, { subV: 'v' }); conv++; } });
+                if(Object.keys(upd).length) batch.set(cfgRef(monthDocName(next, m)), { cells: upd }, { merge:true });
+            }
+            addLogWrite(batch, [], `Chiuso il ${activeYear}, aperto il ${next}${conv ? ` (${conv} giorni di ferie del ${activeYear} diventati ferie residue)` : ''}`);
             await batch.commit();
             ccToast(`Fatto: da ora si lavora sul ${next}.`);
             setTimeout(() => location.reload(), 1000);
@@ -8078,14 +8246,11 @@
             <div class="cc-panel"><div class="cc-panel-head"><h3>Copie automatiche</h3><span class="cc-hint">una al giorno, ultime 14</span></div><div class="cc-panel-body" id="dat-snaps"><p class="cc-note">Carico…</p></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Storico modifiche</h3><span class="cc-hint">ultimi 7 giorni</span></div><div class="cc-panel-body" id="dat-log"><p class="cc-note">Carico…</p></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Origine dei turni e anni</h3></div><div class="cc-panel-body">
-                ${dataSourceMode === 'firebase' ? `
-                    <p class="cc-note" style="margin-bottom:12px"><span class="msym" style="vertical-align:-4px;color:var(--cc-pos)">cloud_done</span> I turni si gestiscono solo da questa app (un documento per mese su Firebase). Anno attivo: <b>${activeYear}</b>${archivedYears.length ? ` · archiviati: ${archivedYears.slice().sort((a,b)=>b-a).join(', ')}` : ''}.</p>
-                    <div class="cc-inline-form">
-                        ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}
-                        <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>
-                    </div>` : `
-                    <p class="cc-note" style="margin-bottom:12px">I turni arrivano ancora da infermieri.xlsx; le modifiche fatte qui sono correzioni sopra il file. Passando a Firebase l’Excel non serve più e si potranno archiviare gli anni.</p>
-                    <button class="cc-btn danger" onclick="ccMigrateToFirebase()"><span class="msym">cloud_upload</span>Passa definitivamente a Firebase…</button>`}
+                ${ccSourcePanelHtml()}
+                ${dataSourceMode === 'firebase' ? `<div style="margin-top:14px"><div class="cc-inline-form">
+                        ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}
+                        <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>
+                    </div></div>` : ''}
             </div></div>`;
         maybeDailySnapshot();
         // copie e storico si caricano dopo, senza bloccare la pagina
@@ -10661,9 +10826,11 @@
             let uVal = val.toUpperCase();
             let riposoHtml = (uVal === "R" || uVal === "RIPOSO")
                 ? `<div class="riposo-sub">+ RIPOSO</div>` : "";
-            return `<div class="cell spec-cong">
+            // C.O. dell'anno messo a gennaio-marzo dell'anno dopo: metà giallo e metà arancio
+            const prevCO = fmtDateCtx && +fmtDateCtx.slice(0, 4) > SHIFT_YEAR && +fmtDateCtx.slice(5, 7) <= CO_CARRY_MONTHS;
+            return `<div class="cell spec-cong${prevCO ? ' spec-cong-prev' : ''}"${prevCO ? ` title="Congedo ordinario del ${SHIFT_YEAR}"` : ''}>
                 <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-                    CONGEDO<br>ORD.${riposoHtml}
+                    ${prevCO ? 'C.O.<br>' + SHIFT_YEAR : 'CONGEDO<br>ORD.'}${riposoHtml}
                 </div>${repHtml}</div>`;
         }
 
