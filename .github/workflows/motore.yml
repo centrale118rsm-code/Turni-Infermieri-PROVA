@@ -1,10 +1,9 @@
-# Ogni 15 minuti: aggiorna i calendari del telefono (cartella cal/) e manda le notifiche.
+# SPENTO dal 6/10/2026: il motore ora gira nell'app ufficiale (Turni-Infermieri-2026),
+# che legge gli stessi dati; qui resterebbero notifiche doppie. Si avvia solo a mano.
 # Serve il secret VAPID_PRIVATE (Settings › Secrets and variables › Actions).
 name: Motore notifiche e calendari
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 permissions:
