@@ -3040,6 +3040,17 @@
     const SCHEDULE_DIURNI = { "m":"06:30 - 13:42","p":"13:15 - 20:27","r":"RIPOSO" };
     const DEFAULT_SCHEDULE = Object.assign({}, SCHEDULE);
     const DEFAULT_SCHEDULE_DIURNI = Object.assign({}, SCHEDULE_DIURNI);
+    // Orari dei diurnisti che cambiano da una data in poi (prima valgono quelli sopra o delle impostazioni).
+    const DIURNI_FROM = [ { from: '2026-10-01', m: '07:00 - 13:00', p: '13:00 - 19:00' } ];
+    let fmtDateCtx = null;   // giorno della riga che si sta disegnando (per gli orari dei diurnisti)
+    function diurniSched(code, when) {
+        code = String(code || '').toLowerCase();
+        let t = SCHEDULE_DIURNI[code];
+        if(code !== 'm' && code !== 'p') return t;
+        const iso = !when ? ymd(new Date()) : (typeof when === 'string' ? when : ymd(when));
+        DIURNI_FROM.forEach(p => { if(iso >= p.from && p[code]) t = p[code]; });
+        return t;
+    }
 
     // ── DATI DI DEFAULT "INCORPORATI" NEL FILE ──────────────────────────────
     // Queste costanti vengono lette/sovrascritte automaticamente dalla funzione
@@ -4726,7 +4737,7 @@
         let firstChar = val.charAt(0);
         let isDiurnista = firstChar >= 'a' && firstChar <= 'z';
         if(isDiurnista) {
-            let t = SCHEDULE_DIURNI[val.toLowerCase()];
+            let t = diurniSched(val, repRowDate(rowIdx));
             if(t === undefined) return { minutes:0, code:val, label:val, unrecognized:true };
             return { minutes: minutesFromRange(t), code: val.toLowerCase(), label: val.toUpperCase()+" (diurno)" };
         } else {
@@ -4762,7 +4773,7 @@
         if(!v || v === "-") return 0;
         let fc = v.charAt(0); let isD = fc>='a' && fc<='z';
         if(!isD && customCodes[v.toUpperCase()]) { const cc = customCodes[v.toUpperCase()]; return cc.kind === 'abs' ? justifiedDayMinutes(rowIdx, colIdx) : customMinutes(cc); }
-        let t = isD ? SCHEDULE_DIURNI[v.toLowerCase()] : SCHEDULE[v.toUpperCase()];
+        let t = isD ? diurniSched(v, repRowDate(rowIdx)) : SCHEDULE[v.toUpperCase()];
         if(t === undefined) return 0;
         return minutesFromRange(t);
     }
@@ -4945,7 +4956,7 @@
     function shiftSpan(code) {
         const cc = customCodes[code];
         if(cc) { if(cc.kind !== 'work' || !cc.from || !cc.to) return null; const t = x => { const [h, m] = x.split(':').map(Number); return h * 60 + (m || 0); }; let a = t(cc.from), b = t(cc.to); if(b <= a) b += 1440; return [a, b]; }
-        const sched = /^[mp]$/.test(code) ? SCHEDULE_DIURNI[code] : SCHEDULE[code];
+        const sched = /^[mp]$/.test(code) ? diurniSched(code) : SCHEDULE[code];
         let a, b;
         if(sched && sched.includes('-')) { [a, b] = sched.split('-').map(x => x.trim()); } else if(SHIFT_SPAN[code]) [a, b] = SHIFT_SPAN[code]; else return null;
         const t = x => { const [h, m] = x.split(':').map(Number); return h * 60 + m; };
@@ -5198,7 +5209,7 @@
         const dd = buildDaysIndex().find(x => x.date.getTime() === t.getTime()); if(!dd) return;
         const info = computeDayInfo(dd.rowIdx, md.idx); if(!info.code) return;
         const lbl = info.justified ? ((ABS_TYPES[info.code] || {}).label || info.label) : (SHIFT_NAMES[info.code] || info.label);
-        const time = info.justified ? '' : ((/^[mpr]$/.test(info.code) ? SCHEDULE_DIURNI[info.code] : SCHEDULE[info.code]) || '');
+        const time = info.justified ? '' : ((/^[mpr]$/.test(info.code) ? diurniSched(info.code, dd.date) : SCHEDULE[info.code]) || '');
         const dateLabel = t.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' });
         notifHistory.unshift({ id: Date.now() + Math.random(), ts: Date.now(), kind:'domani', title:'Il tuo turno di domani', detail:`${dateLabel}: ${lbl}${time ? ' ' + time : ''}`, text:`<b>Domani</b> — ${esc(lbl)}`, read:false, archived:false, date: new Date().toLocaleString(), type:'turno' });
         saveNotifications(); updateBadge();
@@ -5963,7 +5974,7 @@
         if(c === 'R' || c === 'r') return [{ kind: 'rest', code: c, label: 'Riposo' }];
         if(c === 'M+N') return [Object.assign({ kind: 'work', code: 'M', label: 'Mattina' }, { t: hmRange(SCHEDULE.M) }), Object.assign({ kind: 'work', code: 'N', label: 'Notte' }, { t: hmRange(SCHEDULE.N) })];
         if(info.custom) { const cc = customCodes[c]; return [{ kind: cc.kind === 'work' ? 'work' : 'note', code: c, label: (cc.label || c).replace(/\|/g, ' '), t: cc.kind === 'work' ? [cc.from, cc.to] : null }]; }
-        const t = hmRange(/^[mpr]$/.test(c) ? SCHEDULE_DIURNI[c] : SCHEDULE[c]);
+        const t = hmRange(/^[mpr]$/.test(c) ? diurniSched(c, repRowDate(rowIdx)) : SCHEDULE[c]);
         return [{ kind: 'work', code: c, label: SHIFT_NAMES[c === 'S' ? 'SM' : c] || info.label || c, t }];
     }
     function icsEsc(s) { return String(s).replace(/[\\;,]/g, m => '\\' + m).replace(/\n/g, '\\n'); }
@@ -6156,27 +6167,28 @@
         const M = mi => months[mi] = months[mi] || { mi, cells: [], rep: [], people: new Set(), days: 0 };
         rows.slice(1).forEach(row => {
             const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v); if(mi === undefined || isNaN(dn)) return;
-            if(row.year !== activeYear) { otherYears.add(MONTH_NAMES_IT[mi] + ' ' + row.year); return; }
-            M(mi).days++;
+            const nextY = row.year === activeYear + 1 && mi < NEXT_YEAR_MONTHS, gi = nextY ? 12 + mi : mi;   // gi: 12+ = mesi dell'anno dopo
+            if(row.year !== activeYear && !nextY) { otherYears.add(MONTH_NAMES_IT[mi] + ' ' + row.year); return; }
+            M(gi).days++;
             map.forEach((d, i) => {
                 if(!d) return;
-                const key = overrideKey(d.originalName, row[0].v, dn), cur = manualOverrides[key] || null, x = importCellVal(row[i + 3]);
+                const key = overrideKey(d.originalName, row[0].v, dn, row.year), cur = manualOverrides[key] || null, x = importCellVal(row[i + 3]);
                 const cv = cur ? (cur.v || '').toString().trim() : '', cs = cur ? (cur.subV || '').toString().trim() : '';
                 if(cv === x.v && cs === x.subV) return;
                 const hasMin = cur && cur.customMinutes !== undefined && cur.customMinutes !== null && cur.customMinutes !== '';
                 let next = (x.v || x.subV) ? { v: x.v, subV: x.subV } : null;
                 if(hasMin) next = Object.assign(next || { v: '', subV: '' }, { customMinutes: cur.customMinutes });   // lo straordinario resta
                 if(cur && cur.perm && next && next.v && !x.subV) next.perm = cur.perm;   // anche il permesso a ore dentro il turno
-                months[mi].cells.push({ key, next, prev: cur, name: d.name, dn, iso: ymd(new Date(activeYear, mi, dn)) });
-                months[mi].people.add(d.name);
+                months[gi].cells.push({ key, next, prev: cur, name: d.name, dn, iso: ymd(new Date(row.year, mi, dn)) });
+                months[gi].people.add(d.name);
             });
         });
         const R = repData();
         Object.keys(rep).forEach(iso => {
-            const [y, m] = iso.split('-').map(Number); if(y !== activeYear) return;
+            const [y, m] = iso.split('-').map(Number); if(y !== activeYear && !(y === activeYear + 1 && m - 1 < NEXT_YEAR_MONTHS)) return;
             const d = byNorm[normalizeNameForMatch(rep[iso])]; if(!d) return;
             if((R.tit[iso] || '') === d.originalName) return;
-            M(m - 1).rep.push({ iso, orig: d.originalName, name: d.name, prev: R.tit[iso] ? (drivers.find(x => x.originalName === R.tit[iso]) || { name: R.tit[iso] }).name : '' });
+            M(y === activeYear ? m - 1 : 12 + m - 1).rep.push({ iso, orig: d.originalName, name: d.name, prev: R.tit[iso] ? (drivers.find(x => x.originalName === R.tit[iso]) || { name: R.tit[iso] }).name : '' });
         });
         const curMonth = today.startsWith(activeYear + '-') ? new Date().getMonth() : (activeYear > new Date().getFullYear() ? -1 : 12);
         importSel = {};
@@ -6222,7 +6234,7 @@
     }
     function renderCcImport() {
         const main = document.getElementById('cc-main'); if(!main) return;
-        const mName = m => MONTH_NAMES_IT[m].charAt(0).toUpperCase() + MONTH_NAMES_IT[m].slice(1);
+        const mName = m => MONTH_NAMES_IT[m % 12].charAt(0).toUpperCase() + MONTH_NAMES_IT[m % 12].slice(1) + (m >= 12 ? ' ' + (activeYear + 1) : '');
         if(dataSourceMode !== 'firebase') {
             main.innerHTML = `<div class="cc-panel"><div class="cc-panel-body"><p class="cc-note">L’app legge ancora i turni direttamente da ${esc(FILE_NAME)}: basta aggiornare quel file. L’importazione serve dopo il passaggio a Firebase (Dati e backup).</p></div></div>`;
             return;
@@ -6245,7 +6257,7 @@
                     <td><b>${mName(m.mi)}</b>${m.mi < new Date().getMonth() && activeYear === new Date().getFullYear() ? ' <small>passato</small>' : ''}</td>
                     <td>${m.cells.length || '<small>uguale</small>'}</td><td>${m.people.size ? `<small>${esc([...m.people].slice(0, 6).join(', '))}${m.people.size > 6 ? ` e altri ${m.people.size - 6}` : ''}</small>` : ''}</td>${L.hasRep ? `<td>${m.rep.length || '<small>uguale</small>'}</td>` : ''}</tr>`; }).join('')}
                 </tbody></table></div>` : '<p class="cc-note">Nel file non ci sono giorni del ' + activeYear + '.</p>'}
-                ${list.filter(m => importSel[m.mi] && (m.cells.length || m.rep.length)).map(m => `<details class="imp-det"><summary>Dettaglio di ${MONTH_NAMES_IT[m.mi]} (${m.cells.length + m.rep.length})</summary><ul>
+                ${list.filter(m => importSel[m.mi] && (m.cells.length || m.rep.length)).map(m => `<details class="imp-det"><summary>Dettaglio di ${mName(m.mi).toLowerCase()} (${m.cells.length + m.rep.length})</summary><ul>
                     ${m.cells.slice().sort((a, b) => a.dn - b.dn || a.name.localeCompare(b.name)).slice(0, 150).map(c => `<li><span>${fmtD(c.iso)}</span> <b>${esc(c.name)}</b> ${esc(cellTxt(c.prev))} → <b>${esc(cellTxt(c.next))}</b></li>`).join('')}
                     ${m.cells.length > 150 ? `<li><small>… e altre ${m.cells.length - 150}</small></li>` : ''}
                     ${m.rep.map(r => `<li><span>${fmtD(r.iso)}</span> reperibile: ${esc(r.prev || '—')} → <b>${esc(r.name)}</b></li>`).join('')}
@@ -6794,7 +6806,7 @@
                 <span class="abd-c2-s"><i class="done"></i>${absFmtQ(q.done, q.unit)} fatti <i class="plan"></i>${absFmtQ(plan, q.unit)} in programma</span>
                 <em class="${left < 0 ? 'over' : 'ok'}">${left < 0 ? 'oltre di ' + absFmtQ(-left, q.unit) : 'restano ' + absFmtQ(left, q.unit)}</em>${note ? `<small class="abd-c2-n">${note}</small>` : ''}</div></div>`; };
         const counters = det.querySelector('.abd-counters');
-        if(counters) counters.outerHTML = `<div class="abd-counters2">${card(Q.co)}${card(Q.sp, (r.counts.pn || 0) ? `di cui ${r.counts.pn} per permessi notte` : '')}${card(Q.pn)}${card(Q.pl)}</div>${absMonthChart(r)}`;
+        if(counters) counters.outerHTML = `<div class="abd-counters2">${card(Q.co, r.nextF ? `di cui ${r.nextF} ${r.nextF === 1 ? 'giorno' : 'giorni'} nel ${SHIFT_YEAR + 1}` : '')}${card(Q.sp, (r.counts.pn || 0) ? `di cui ${r.counts.pn} per permessi notte` : '')}${card(Q.pn)}${card(Q.pl)}</div>${absMonthChart(r)}`;
     }
     // grafico mese per mese: colonne impilate per tipo di assenza
     function absMonthChart(r) {
@@ -6923,7 +6935,7 @@
         // prossimi 7 giorni
         const next = all.filter(dd => dd.date >= today).slice(0, 7).map(dd => {
             const info = computeDayInfo(dd.rowIdx, d.idx), meta = ccCodeMeta(info), iso = ymd(dd.date);
-            const sched = info.code && (/^[mpr]$/.test(info.code) ? SCHEDULE_DIURNI[info.code] : SCHEDULE[info.code]);
+            const sched = info.code && (/^[mpr]$/.test(info.code) ? diurniSched(info.code, dd.date) : SCHEDULE[info.code]);
             const label = meta.kind === 'abs' ? ((ABS_TYPES[info.code] || {}).label || meta.label) : (SHIFT_NAMES[info.code] || info.label || 'Libero');
             const mine = (R.days[iso] || []).map((w, s) => w === me ? REP_SLOTS[s].label : null).filter(Boolean);
             const rep = R.tit[iso] === me ? '<span class="me-rep">REPERIBILE</span>' : (mine.length ? `<span class="me-rep">REP ${mine.join(' ')}</span>` : '');
@@ -7080,9 +7092,20 @@
             if(HOLIDAYS[`${dd.date.getMonth()}-${dd.date.getDate()}`]) add('fest', dd);
             if(info.code === 'N' || info.code === 'M+N') add('notti', dd);
         });
+        // conteggio dell'anno intero: le ferie (C.O.) messe a gennaio-marzo dell'anno dopo contano su quest'anno
+        let nextF = 0;
+        const lastDay = days[days.length - 1];
+        if(lastDay && lastDay.monthIdx === 11 && lastDay.day === 31) {
+            for(let r = 1; r < finalData.length; r++) {
+                if(shiftRowYear(r) !== SHIFT_YEAR + 1) continue;
+                const cell = finalData[r][d.idx] || {}, sub = (cell.subV || '').toString().trim().toLowerCase();
+                let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
+                if(sub === 'f' && !/^r(iposo)?$/i.test(v)) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
+            }
+        }
         const n = k => counts[k] || 0;
         return { counts, dates, total: ABS_COUNTED.reduce((a, k) => a + n(k), 0),
-                 allow: { co: n('f'), sp: n('p') + n('pn'), pn: n('pn') }, hours, hdates };
+                 allow: { co: n('f'), sp: n('p') + n('pn'), pn: n('pn') }, hours, hdates, nextF };
     }
     function computeAbsences() {
         const all = buildDaysIndex(), days = absPeriod === 'anno' ? all : all.filter(dd => dd.monthIdx === absMonth);
@@ -7518,8 +7541,12 @@
         const now = new Date().toISOString();
         if(dataSourceMode === 'firebase') {
             const byMonth = {};
-            changes.forEach(c => { const m = keyMonthIdx(c.key); if(m < 0) return; (byMonth[m] = byMonth[m] || {})[c.key] = cellWriteValue(c.next); });
-            Object.keys(byMonth).forEach(m => batch.set(cfgRef(monthDocName(activeYear, +m)), { cells: byMonth[m], updatedAt: now }, { merge:true }));
+            changes.forEach(c => {
+                const m = keyMonthIdx(c.key); if(m < 0) return;
+                const at = c.key.indexOf('@'), y = at >= 0 ? parseInt(c.key.slice(at + 1)) : activeYear, k = at >= 0 && y !== activeYear ? c.key.slice(0, at) : c.key;
+                const g = byMonth[y + '-' + m] = byMonth[y + '-' + m] || { y, m, cells: {} }; g.cells[k] = cellWriteValue(c.next);
+            });
+            Object.values(byMonth).forEach(g => batch.set(cfgRef(monthDocName(g.y, g.m)), { cells: g.cells, updatedAt: now }, { merge:true }));
         } else {
             const cells = {}; changes.forEach(c => { cells[c.key] = cellWriteValue(c.next); });
             batch.set(cfgRef('settings'), { manualOverrides: cells }, { merge:true });
@@ -7638,7 +7665,12 @@
         const saved = JSON.parse(JSON.stringify(coordEditBaseline || {}));   // solo ciò che è confermato dal server
         if(dataSourceMode === 'firebase') {
             content.turni = {};
-            Object.keys(saved).forEach(k => { const m = keyMonthIdx(k); if(m < 0) return; const id = String(m + 1).padStart(2, '0'); (content.turni[id] = content.turni[id] || {})[k] = saved[k]; });
+            content.turniNext = {};
+            Object.keys(saved).forEach(k => {
+                const m = keyMonthIdx(k); if(m < 0) return; const id = String(m + 1).padStart(2, '0'), at = k.indexOf('@');
+                if(at >= 0) { const y = k.slice(at + 1); (content.turniNext[y + '-' + id] = content.turniNext[y + '-' + id] || {})[k.slice(0, at)] = saved[k]; }
+                else (content.turni[id] = content.turni[id] || {})[k] = saved[k];
+            });
         } else content.settings.manualOverrides = saved;
         return content;
     }
@@ -7716,6 +7748,7 @@
             const batch = db.batch(), now = new Date().toISOString();
             if(content.mode === 'firebase') {
                 for(let m = 0; m < 12; m++) { const id = String(m + 1).padStart(2, '0'); batch.set(cfgRef(monthDocName(activeYear, m)), { cells: (content.turni || {})[id] || {}, updatedAt: now, restoredFrom: content.createdAt }); }
+                Object.keys(content.turniNext || {}).forEach(ym => { const [y, mm] = ym.split('-').map(Number); batch.set(cfgRef(monthDocName(y, mm - 1)), { cells: content.turniNext[ym], updatedAt: now, restoredFrom: content.createdAt }); });
             } else {
                 batch.update(cfgRef('settings'), { manualOverrides: (content.settings || {}).manualOverrides || {}, excelSyncedMarks: (content.settings || {}).excelSyncedMarks || {} });
             }
@@ -7800,13 +7833,14 @@
     }
 
     // ── Turni solo su Firebase: calendario generato e un documento per mese ──
-    function buildBlankYearData(year, baseNames) {
+    // Mesi dell'anno dopo mostrati dopo dicembre (ferie dell'anno godute a gennaio, programmazione).
+    const NEXT_YEAR_MONTHS = 3;
+    function buildBlankYearData(year, baseNames, extraMonths) {
         const header = ['MESE', 'GIORNO', 'NOME'].concat(baseNames);
         const rows = [header];
-        Object.keys(MONTH_MAP).forEach((mn, mi) => {
-            const days = new Date(year, mi + 1, 0).getDate();
-            for(let d = 1; d <= days; d++) { const row = [{ v: mn }, { v: d }, { v: '' }]; baseNames.forEach(() => row.push({ v: '', subV: '', supV: '' })); rows.push(row); }
-        });
+        const addMonth = (y, mn, mi) => { const days = new Date(y, mi + 1, 0).getDate(); for(let d = 1; d <= days; d++) { const row = [{ v: mn }, { v: d }, { v: '' }]; baseNames.forEach(() => row.push({ v: '', subV: '', supV: '' })); rows.push(row); } };
+        Object.keys(MONTH_MAP).forEach((mn, mi) => addMonth(year, mn, mi));
+        Object.keys(MONTH_MAP).slice(0, extraMonths || 0).forEach((mn, mi) => addMonth(year + 1, mn, mi));
         return rows;
     }
     let monthUnsubs = [];
@@ -7835,7 +7869,7 @@
                     // non è un mese vuoto, si aspetta il server
                     if(!doc.exists && doc.metadata.fromCache) return;
                     const cells = doc.exists ? (doc.data().cells || {}) : {};
-                    mergeRemoteOverrides(cells, k => keyMonthIdx(k) === m);
+                    mergeRemoteOverrides(cells, k => !k.includes('@') && keyMonthIdx(k) === m);   // i giorni "@anno dopo" li gestisce il loro lettore
                     if(first) {
                         first = false; fbMonthState[m] = 'ok';
                         if(--pending === 0) { finish(); if(appBooted) fbMonthsAllLoaded(); }
@@ -7843,6 +7877,17 @@
                     }
                     else refreshAfterRemoteOverrides();
                 }, err => { console.error('Errore ascolto turni ' + monthDocName(year, m), err); fbMonthState[m] = 'err'; if(first) { first = false; if(--pending === 0) finish(); } fbMonthsWarn(); }));
+            }
+            // primi mesi dell'anno dopo: nel loro documento le chiavi sono senza anno, qui prendono "@anno"
+            for(let m = 0; m < NEXT_YEAR_MONTHS; m++) {
+                const y2 = year + 1, tag = '@' + y2;
+                monthUnsubs.push(cfgRef(monthDocName(y2, m)).onSnapshot(doc => {
+                    if(!doc.exists && doc.metadata.fromCache) return;
+                    const src = doc.exists ? (doc.data().cells || {}) : {}, cells = {};
+                    Object.keys(src).forEach(k => { cells[k.includes('@') ? k : k + tag] = src[k]; });
+                    mergeRemoteOverrides(cells, k => k.endsWith(tag) && keyMonthIdx(k) === m);
+                    refreshAfterRemoteOverrides();
+                }, err => console.warn('Mese ' + monthDocName(y2, m) + ' non letto:', err)));
             }
             setTimeout(() => { finish(); if(pending > 0) fbMonthsWarn(); }, timeoutMs);
         });
@@ -7852,7 +7897,7 @@
         setShiftYear(activeYear);
         hoursWeekAnchor = new Date(SHIFT_YEAR, new Date().getMonth(), new Date().getDate());
         await listenYearMonths(activeYear, 5000);
-        excelParsedData = buildBlankYearData(activeYear, operatorConfig.baseNames || []);
+        excelParsedData = buildBlankYearData(activeYear, operatorConfig.baseNames || [], NEXT_YEAR_MONTHS);
         rebuildDataFromExcel(); initApp(); updateYearUi();
         appBooted = true;
         if(splashMinTime) await splashMinTime;
@@ -9482,7 +9527,7 @@
     function wheelPaletteItems() {
         const items = [];
         STANDARD_CODES.forEach(c => items.push({ v:c, subV:'', short:c, label:SHIFT_NAMES[c] || c, time:SCHEDULE[c] && SCHEDULE[c] !== 'RIPOSO' ? SCHEDULE[c] : '', colors:MAIN_CODE_COLORS[c], group:0 }));
-        DIURNI_CODES.forEach(c => items.push({ v:c, subV:'', short:c, label:SHIFT_NAMES[c] || c, time:SCHEDULE_DIURNI[c] && SCHEDULE_DIURNI[c] !== 'RIPOSO' ? SCHEDULE_DIURNI[c] : '', colors:DIURNI_CODE_COLORS[c], group:1, dashed:true }));
+        DIURNI_CODES.forEach(c => items.push({ v:c, subV:'', short:c, label:SHIFT_NAMES[c] || c, time:diurniSched(c) && diurniSched(c) !== 'RIPOSO' ? diurniSched(c) : '', colors:DIURNI_CODE_COLORS[c], group:1, dashed:true }));
         items.push({ v:'M+N', subV:'', short:'M+N', label:SHIFT_NAMES['M+N'], time:`${SCHEDULE.M} e ${SCHEDULE.N}`, colors:MAIN_CODE_COLORS.N, group:1 });
         Object.keys(customCodes).sort().forEach(k => { const c = customCodes[k];
             items.push({ v:k, subV:'', short:k.slice(0, 4), label:(c.label || k).replace(/\|/g, ' '), time: c.kind === 'work' ? `${c.from}-${c.to}` : (c.kind === 'abs' ? 'assenza' : ''), colors: customColors(k), group:3 }); });
@@ -10379,7 +10424,7 @@
         let html = `<td class="${dateClass}"${chk && chk.day.length ? ` title="${esc(chk.day.join(' \u00b7 '))}"` : ''}>${dNum}<small>${dayWeek}</small>${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}<div class="day-staff-counts"><span class="${mClass}" title="Operatori mattina">M<b>${countM}</b></span><span class="${pClass}" title="Operatori pomeriggio">P<b>${countP}</b></span>${nightBadge}</div></td>`;
 
         let prevRow = finalData[i-1];
-        const isoDate = ymd(dateObj);
+        const isoDate = ymd(dateObj); fmtDateCtx = isoDate;
         rtCols.forEach(d => {
             let cellInfo = row[d.idx] || { v:"", subV:"" };
             let prevCellInfo = prevRow ? prevRow[d.idx] : null;
@@ -10405,12 +10450,12 @@
         const frag = document.createDocumentFragment();
         const today = new Date(), blocks = monthBlocks(), lite = liteOn();
         if(lite) liteCheckRange();
-        globalMonthsList = blocks.map(b => ({ name: b.name, id: 'm-' + b.start, row: b.start }));
+        globalMonthsList = blocks.map(b => ({ name: b.name + (shiftRowYear(b.start) !== SHIFT_YEAR ? ' ' + shiftRowYear(b.start) : ''), id: 'm-' + b.start, row: b.start }));
         if(lite && liteFrom > 0) frag.appendChild(liteMoreRow(-1, blocks[liteFrom - 1].name));
         blocks.forEach((b, bi) => {
             if(lite && (bi < liteFrom || bi > liteTo)) return;   // modalità leggera: solo i mesi della finestra
             let mh = document.createElement('tr'); mh.className = 'month-header'; mh.id = 'm-' + b.start;
-            mh.innerHTML = `<td colspan="${rtCols.length+1}"><div class="sticky-month-text"><span class="month-label">${b.name}</span><span class="live-clock"></span><span class="rep-now-pill"></span></div></td>`;
+            mh.innerHTML = `<td colspan="${rtCols.length+1}"><div class="sticky-month-text"><span class="month-label">${b.name}${shiftRowYear(b.start) !== SHIFT_YEAR ? ' ' + shiftRowYear(b.start) : ''}</span><span class="live-clock"></span><span class="rep-now-pill"></span></div></td>`;
             frag.appendChild(mh);
             for(let i = b.start; i <= b.end; i++) frag.appendChild(buildDayRow(i, today));
         });
@@ -10651,7 +10696,7 @@
             ? `<img src="graziella.jpg" class="graziella-icon" onclick="event.stopPropagation();playGraziella();">` : "";
 
         if(isDiurnista) {
-            let time = SCHEDULE_DIURNI[val.toLowerCase()] || "";
+            let time = diurniSched(val, fmtDateCtx) || "";
             let timeHtml = time ? `<div class="time-tag">${time}</div>` : "";
             let cls = "d-" + u; if(!["M","P","R"].includes(u)) cls = "d-M";
             return `<div class="cell ${cls}">
@@ -10716,7 +10761,7 @@
             }
             if(isMatch) {
                 let time = isD
-                    ? (SCHEDULE_DIURNI[rawV.toLowerCase()] || rawV)
+                    ? (diurniSched(rawV, repRowDate(rowIndex)) || rawV)
                     : (isMN(rawV)
                         ? `M: ${SCHEDULE["M"]} / N: ${SCHEDULE["N"]}`
                         : (SCHEDULE[uVal] || uVal));
