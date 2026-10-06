@@ -17,13 +17,17 @@ service cloud.firestore {
       return id.matches('^(prova_)?(settings|reperibilita|saldi|prefs|push|snapindex|turni_[0-9]{4}-[0-9]{2}|anno_[0-9]{4}|log_[0-9]{4}-[0-9]{2}-[0-9]{2}|snap_[A-Za-z0-9_-]+)$')
           || id.matches('^zztest_[A-Za-z0-9_-]+$');
     }
-    // un mese dei turni deve sempre avere la mappa delle caselle (niente svuotamenti per errore)
-    function validMonth(id) {
-      return !id.matches('^(prova_)?turni_[0-9]{4}-[0-9]{2}$') || request.resource.data.cells is map;
+    function isMonth(id) { return id.matches('^(prova_)?turni_[0-9]{4}-[0-9]{2}$'); }
+    // un mese dei turni deve sempre avere la mappa delle caselle
+    function validMonth(id) { return !isMonth(id) || request.resource.data.cells is map; }
+    // e un mese con molti turni non si può svuotare tutto in un colpo (es. un salvataggio sbagliato)
+    function notWiped(id) {
+      return !isMonth(id) || !('cells' in resource.data) || resource.data.cells.size() < 50 || request.resource.data.cells.size() > 0;
     }
     match /infermieri26_config/{docId} {
       allow read: if signedIn();
-      allow create, update: if signedIn() && knownConfigDoc(docId) && validMonth(docId);
+      allow create: if signedIn() && knownConfigDoc(docId) && validMonth(docId);
+      allow update: if signedIn() && knownConfigDoc(docId) && validMonth(docId) && notWiped(docId);
       // si cancellano solo le copie automatiche vecchie (e i documenti di prova tecnica)
       allow delete: if signedIn() && (docId.matches('^(prova_)?snap_[A-Za-z0-9_-]+$') || docId.matches('^zztest_[A-Za-z0-9_-]+$'));
     }

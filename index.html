@@ -467,7 +467,7 @@
         .hs-date small { font-size: 0.62rem; color: var(--text-sec); font-weight: 700; margin-left: 2px; }
         .hs-date.red b, .hs-date.red small { color: #dc2626; }
         .hs-code { min-width: 30px; }
-        .hs-code span { display: inline-block; min-width: 24px; padding: 1px 4px; border-radius: 4px; font-weight: 800; font-size: 0.68rem; }
+        .hs-code span { display: inline-block; min-width: 24px; padding: 1px 4px; border-radius: 4px; font-weight: 800; font-size: 0.68rem; background: var(--sw, transparent); color: var(--sf, var(--text-main)); }
         .hs-dash { color: var(--text-sec); background: none !important; }
         .hs-ore { min-width: 38px; background: rgba(34,197,94,.08); font-weight: 700; color: var(--text-main); }
         .hs-ore.z { color: var(--text-sec); font-weight: 500; }
@@ -490,6 +490,39 @@
         .src-info > .msym { color: var(--cc-accent); font-size: 20px; flex: none; }
         .src-info ul { margin: 6px 0 0 16px; padding: 0; } .src-info li { margin-bottom: 4px; }
         .src-info small { color: var(--cc-muted); }
+        #chg-modal { display:none; position:fixed; inset:0; z-index:9800; background:rgba(15,23,42,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px; opacity:0; transition:opacity .22s; }
+        #chg-modal.open { opacity:1; }
+        .chg-card { width:min(520px, 100%); max-height:min(88vh, 760px); display:flex; flex-direction:column; background:var(--bg-card); color:var(--text-main); border-radius:20px; overflow:hidden; box-shadow:0 30px 70px -20px rgba(15,23,42,.6); transform:translateY(12px) scale(.98); transition:transform .22s; }
+        #chg-modal.open .chg-card { transform:none; }
+        .chg-head { display:flex; align-items:center; gap:12px; padding:16px 16px 12px 18px; background:linear-gradient(135deg, #0f2a63, #1d4ed8); color:#fff; }
+        .chg-ico { width:42px; height:42px; border-radius:12px; background:rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center; flex:none; }
+        .chg-ht { flex:1; min-width:0; } .chg-ht b { display:block; font-size:1.05rem; font-weight:800; } .chg-ht small { display:block; font-size:.74rem; opacity:.8; margin-top:2px; }
+        .chg-x { width:34px; height:34px; border:none; border-radius:10px; background:rgba(255,255,255,.14); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .chg-sum { display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:12px 16px 10px; border-bottom:1px solid var(--border); }
+        .chg-pill { font-size:.74rem; font-weight:800; padding:3px 10px; border-radius:999px; }
+        .chg-pill.mod { background:#dbeafe; color:#1e40af; } .chg-pill.new { background:#dcfce7; color:#166534; } .chg-pill.del { background:#fee2e2; color:#991b1b; }
+        .chg-imp { margin-left:auto; font-size:.74rem; font-weight:700; color:var(--text-sec); }
+        .chg-list { overflow:auto; padding:4px 10px 8px; -webkit-overflow-scrolling:touch; }
+        .chg-month { font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--text-sec); padding:12px 6px 6px; }
+        .chg-row { width:100%; display:flex; align-items:center; gap:10px; padding:8px 8px; margin:0 0 6px; border:1px solid var(--border); border-radius:14px; background:var(--bg); color:inherit; font-family:inherit; text-align:left; cursor:pointer; }
+        .chg-row:hover { border-color:var(--primary); }
+        .chg-row.new { box-shadow:inset 3px 0 0 #16a34a; } .chg-row.del { box-shadow:inset 3px 0 0 #dc2626; } .chg-row.mod { box-shadow:inset 3px 0 0 #2563eb; }
+        .chg-date { width:40px; flex:none; text-align:center; line-height:1.05; } .chg-date b { display:block; font-size:1.1rem; font-weight:800; } .chg-date small { font-size:.62rem; font-weight:700; text-transform:uppercase; color:var(--text-sec); }
+        .chg-date.red b, .chg-date.red small { color:#dc2626; }
+        .chg-pair { flex:1; min-width:0; display:flex; align-items:center; gap:6px; }
+        .chg-arrow { font-size:18px; color:var(--text-sec); flex:none; }
+        .chg-chip { flex:1; min-width:0; display:flex; align-items:center; gap:7px; }
+        .chg-code { flex:none; min-width:32px; height:28px; padding:0 6px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.78rem; background:var(--sw, var(--border)); color:var(--sf, var(--text-main)); border:1px solid rgba(0,0,0,.06); }
+        .chg-lbl { min-width:0; font-size:.78rem; font-weight:700; line-height:1.15; overflow:hidden; text-overflow:ellipsis; } .chg-lbl small { display:block; font-size:.66rem; font-weight:600; color:var(--text-sec); }
+        .chg-tag { flex:1; font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; } .chg-tag.new { color:#16a34a; } .chg-tag.del { color:#dc2626; }
+        .chg-more { font-size:.74rem; color:var(--text-sec); text-align:center; padding:8px; }
+        .chg-foot { display:flex; gap:8px; padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--border); flex-wrap:wrap; }
+        .chg-btn { flex:1; min-width:120px; height:42px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:700 .82rem inherit; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; }
+        .chg-btn .material-icons-round { font-size:18px; }
+        .chg-btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:0 10px 22px -12px rgba(29,78,216,.8); }
+        @media (max-width:420px) { .chg-lbl small { display:none; } .chg-btn { min-width:0; } .chg-foot .chg-btn.ghost:first-child { flex:0 0 auto; padding:0 12px; } }
+        #table-body tr.chg-flash td { animation:chgFlash 2.2s ease; }
+        @keyframes chgFlash { 0%, 60% { box-shadow:inset 0 0 0 3px #2563eb; } 100% { box-shadow:none; } }
         .spec-pl     { background: var(--bg-pl);     color: var(--t-pl);     border: 1px solid var(--b-pl);     font-size: 0.72rem; }
         .spec-ps     { background: var(--bg-ps);     color: var(--t-ps);     border: 1px solid var(--b-ps);     font-size: 0.68rem; }
         .cell .perm-h { text-transform:none; }
@@ -2678,7 +2711,6 @@
                 <button data-sec="reperibilita" onclick="ccGo('reperibilita')"><span class="msym">phone_in_talk</span><span>Report reperibilità</span></button>
                 <button data-sec="ferie" onclick="ccGo('ferie')"><span class="msym">beach_access</span><span>Regole ferie</span></button>
                 <div class="cc-nav-group">Sistema</div>
-                <button data-sec="riportare" onclick="ccGo('riportare')"><span class="msym">task_alt</span><span>Da riportare</span><span class="cc-count" id="cc-count-sync"></span></button>
                 <button data-sec="dati" onclick="ccGo('dati')"><span class="msym">shield</span><span>Dati e backup</span></button>
                 <button data-sec="impostazioni" onclick="ccGo('impostazioni')"><span class="msym">settings</span><span>Impostazioni</span></button>
             </nav>
@@ -4374,9 +4406,9 @@
             Object.entries(current).forEach(([k, v]) => {
                 const o = old[k]; if(o === undefined || o === v) return;
                 const lbl = formatNotifDateKey(k);
-                if(!o) added.push({ label: lbl, value: show(v) });
-                else if(!v) removed.push({ label: lbl, value: 'era ' + show(o) });
-                else changed.push({ label: lbl, value: show(o) + ' \u2192 ' + show(v) });
+                if(!o) added.push({ label: lbl, value: show(v), k, from: '', to: v });
+                else if(!v) removed.push({ label: lbl, value: 'era ' + show(o), k, from: o, to: '' });
+                else changed.push({ label: lbl, value: show(o) + ' \u2192 ' + show(v), k, from: o, to: v });
             });
             const push = obj => notifHistory.unshift(Object.assign({ id: Date.now() + Math.random(), ts: Date.now(), read:false, archived:false, date: new Date().toLocaleString(), type:'turno' }, obj));
             const alerts = [];
@@ -4390,7 +4422,7 @@
                 alerts.push(`<b>🔄 ${changed.length} turni modificati</b>`);
             } else changed.forEach(a => { push({ kind:'modificato', title:'Turno modificato', detail:`${a.label}: ${a.value}`, text:`<b>🔄 Turno modificato</b> \u2014 ${a.label}` }); alerts.push(`<b>🔄 Turno modificato</b> \u2014 ${a.label}<br><span style="font-size:0.85rem;color:var(--text-sec)">${a.value}</span>`); });
             removed.forEach(a => { push({ kind:'rimosso', title:'Turno rimosso', detail:`${a.label}: ${a.value}`, text:`<b>🗑️ Turno rimosso</b> \u2014 ${a.label}` }); alerts.push(`<b>🗑️ Turno rimosso</b> \u2014 ${a.label}<br><span style="font-size:0.85rem;color:var(--text-sec)">${a.value}</span>`); });
-            if(alerts.length) { saveNotifications(); updateBadge(); showChangeAlert(alerts); if(document.getElementById('notif-center-modal').classList.contains('open')) renderNotifList(); }
+            if(alerts.length) { saveNotifications(); updateBadge(); showChangeAlert2({ added, changed, removed }, myDriver && myDriver.name); if(document.getElementById('notif-center-modal').classList.contains('open')) renderNotifList(); }
         }
         localStorage.setItem(snapKey, JSON.stringify(current));
         if(prefs.notifyRep !== false) checkReperibilitaReminder(myDriver);
@@ -7043,13 +7075,91 @@
             <div class="src-info"><span class="msym">info</span><div>
                 ${xl ? `<b>Ora: i turni arrivano dal file Excel</b> <small id="src-xl-date"></small>
                     <ul><li>L’app mostra il file così com’è: per aggiornare i turni basta caricare il nuovo infermieri.xlsx.</li>
-                    <li>Le correzioni fatte in Modifica turni restano sopra il file (meglio riportarle anche nell’Excel).</li>
+                    <li>Le correzioni fatte in Modifica turni restano sopra il file.</li>
                     <li><b>Se passi a "Solo dall’app"</b>: scegli se copiare tutto il file nell’app (i mesi vengono sostituiti) o tenere i turni già nell’app e importare solo le differenze. Da lì caricare il file non cambia più niente: i turni si fanno solo qui.</li></ul>`
                 : `<b>Ora: i turni si fanno solo nell’app</b> <small id="src-xl-date"></small>
                     <ul><li>Il file Excel non viene letto: se ne carichi uno nuovo, portalo dentro con "Importa da Excel".</li>
                     <li>Tutto ciò che si salva in Modifica turni è subito visibile a tutti (un documento per mese su Firebase).</li>
                     <li><b>Se torni a "Da file Excel"</b>: l’app mostra di nuovo il file così com’è; i turni fatti nell’app restano salvati ma non si vedono finché non torni qui; le correzioni ripartono da zero. Prima del cambio faccio sempre una copia di sicurezza.</li></ul>`}
             </div></div>`;
+    }
+
+    // ═══ FINESTRA "I TUOI TURNI SONO CAMBIATI" ═══════════════════════════
+    // Riepilogo (modificati / nuovi / tolti), effetto su ore e notti, e ogni giorno con il turno
+    // di prima e quello nuovo (colore e orario). Toccando un giorno il calendario va lì.
+    function chgDate(k) { const i = k.lastIndexOf('-'); return new Date(SHIFT_YEAR, MONTH_MAP[k.slice(0, i)], parseInt(k.slice(i + 1))); }
+    function chgChip(v, k) {
+        const [code, sub] = String(v || '').split('|'), dt = chgDate(k);
+        if(sub) { const lbl = (ABS_TYPES[sub] && ABS_TYPES[sub].label) || (SPECIAL_SUBCODES[sub] || sub).charAt(0) + (SPECIAL_SUBCODES[sub] || sub).slice(1).toLowerCase(); return { short: ABS_SHORT[sub] || sub.toUpperCase(), label: lbl, time: '', colors: SUB_CODE_COLORS[sub] }; }
+        let c = String(code || '').trim(); if(isRepStr(c)) c = c.slice(0, c.indexOf('/')).trim();
+        if(!c || c === '-') return { short: '—', label: 'Libero', time: '', colors: null };
+        const u = c.toUpperCase().replace(/\s+/g, '');
+        if(isMN(u)) return { short: 'M+N', label: 'Mattina + notte', time: `${SCHEDULE.M} e ${SCHEDULE.N}`, colors: MAIN_CODE_COLORS.N };
+        if(/^[a-z]/.test(c) && DIURNI_CODE_COLORS[c.toLowerCase()]) { const d = c.toLowerCase(); return { short: d, label: SHIFT_NAMES[d] || d, time: d === 'r' ? '' : diurniSched(d, dt), colors: DIURNI_CODE_COLORS[d] }; }
+        const cc = customCodes[u]; if(cc) return { short: u.slice(0, 4), label: (cc.label || u).replace(/\|/g, ' '), time: cc.kind === 'work' ? `${cc.from}-${cc.to}` : '', colors: customColors(u) };
+        const key = u === 'S' ? 'SM' : u;
+        return { short: u === 'SM' ? 'S' : u, label: SHIFT_NAMES[key] || u, time: SCHEDULE[key] && SCHEDULE[key] !== 'RIPOSO' && u !== 'R' ? SCHEDULE[key] : '', colors: MAIN_CODE_COLORS[key] };
+    }
+    function chgMinutes(v, k, contractH) {
+        const [code, sub] = String(v || '').split('|'), dt = chgDate(k);
+        let c = String(code || '').trim(); if(isRepStr(c)) c = c.slice(0, c.indexOf('/')).trim();
+        if(sub) return /^r(iposo)?$/i.test(c) || dt.getDay() === 0 ? 0 : contractH * 60 / CONTRACT_WORKDAYS;
+        if(!c || c === '-') return 0;
+        const u = c.toUpperCase().replace(/\s+/g, '');
+        if(isMN(u)) return minutesFromRange(SCHEDULE.M) + minutesFromRange(SCHEDULE.N);
+        if(/^[a-z]/.test(c)) { const t = diurniSched(c, dt); return t && t !== 'RIPOSO' ? minutesFromRange(t) : 0; }
+        const cc = customCodes[u]; if(cc) return customMinutes(cc);
+        const t = SCHEDULE[u === 'S' ? 'SM' : u]; return t && t !== 'RIPOSO' ? minutesFromRange(t) : 0;
+    }
+    const chgIsNight = v => { const c = String(v || '').split('|'); if(c[1]) return false; const u = String(c[0] || '').toUpperCase().replace(/\s+/g, '').split('/')[0]; return u === 'N' || isMN(u); };
+    function showChangeAlert2(ch, who) {
+        const all = [].concat(ch.changed.map(x => Object.assign({ t: 'mod' }, x)), ch.added.map(x => Object.assign({ t: 'new' }, x)), ch.removed.map(x => Object.assign({ t: 'del' }, x)))
+            .sort((a, b) => chgDate(a.k) - chgDate(b.k));
+        if(!all.length) return;
+        const me = prefMe(), ch36 = me ? getContractHours(me.idx) : 36;
+        const minBefore = all.reduce((s, x) => s + chgMinutes(x.from, x.k, ch36), 0), minAfter = all.reduce((s, x) => s + chgMinutes(x.to, x.k, ch36), 0);
+        const nBefore = all.filter(x => chgIsNight(x.from)).length, nAfter = all.filter(x => chgIsNight(x.to)).length;
+        const dm = minAfter - minBefore, dn = nAfter - nBefore;
+        const chip = (v, k) => { const c = chgChip(v, k); return `<span class="chg-chip"><span class="chg-code" style="${c.colors ? swatchStyle(c.colors) : ''}">${esc(c.short)}</span><span class="chg-lbl">${esc(c.label)}${c.time ? `<small>${esc(c.time)}</small>` : ''}</span></span>`; };
+        const wd = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
+        let lastM = -1, rows = '';
+        all.slice(0, 80).forEach(x => {
+            const dt = chgDate(x.k);
+            if(dt.getMonth() !== lastM) { lastM = dt.getMonth(); rows += `<div class="chg-month">${MONTH_NAMES_IT[lastM].charAt(0).toUpperCase() + MONTH_NAMES_IT[lastM].slice(1)} ${SHIFT_YEAR}</div>`; }
+            const red = dt.getDay() === 0 || HOLIDAYS[`${dt.getMonth()}-${dt.getDate()}`];
+            rows += `<button class="chg-row ${x.t}" onclick="chgGo('${x.k}')"><span class="chg-date ${red ? 'red' : ''}"><b>${dt.getDate()}</b><small>${wd[dt.getDay()]}</small></span>
+                <span class="chg-pair">${x.t === 'new' ? '<span class="chg-tag new">nuovo</span>' : chip(x.from, x.k)}<span class="material-icons-round chg-arrow">arrow_forward</span>${x.t === 'del' ? '<span class="chg-tag del">tolto</span>' : chip(x.to, x.k)}</span></button>`;
+        });
+        if(all.length > 80) rows += `<div class="chg-more">e altri ${all.length - 80} giorni: li trovi nello storico delle notifiche</div>`;
+        const pill = (n, cls, one, many) => n ? `<span class="chg-pill ${cls}">${n} ${n === 1 ? one : many}</span>` : '';
+        const fmtD = m => (m > 0 ? '+' : m < 0 ? '−' : '') + permHFmt(Math.abs(m) / 60);
+        let el = document.getElementById('chg-modal');
+        if(!el) { el = document.createElement('div'); el.id = 'chg-modal'; el.onclick = e => { if(e.target === el) chgClose(); }; document.body.appendChild(el); }
+        el.innerHTML = `<div class="chg-card" role="dialog" aria-labelledby="chg-title">
+            <div class="chg-head"><span class="chg-ico"><span class="material-icons-round">event_repeat</span></span>
+                <div class="chg-ht"><b id="chg-title">${all.length === 1 ? 'Un tuo turno è cambiato' : `${all.length} tuoi turni sono cambiati`}</b><small>${esc(who || (me ? me.name : ''))} · aggiornamento del ${new Date().toLocaleString('it-IT', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</small></div>
+                <button class="chg-x" onclick="chgClose()" aria-label="Chiudi"><span class="material-icons-round">close</span></button></div>
+            <div class="chg-sum">${pill(ch.changed.length, 'mod', 'modificato', 'modificati')}${pill(ch.added.length, 'new', 'nuovo', 'nuovi')}${pill(ch.removed.length, 'del', 'tolto', 'tolti')}
+                <span class="chg-imp" title="Effetto sui giorni cambiati">ore ${dm === 0 ? 'invariate' : fmtD(dm)}${dn ? ` · notti ${dn > 0 ? '+' : '−'}${Math.abs(dn)}` : ''}</span></div>
+            <div class="chg-list">${rows}</div>
+            <div class="chg-foot"><button class="chg-btn ghost" onclick="chgClose(true)"><span class="material-icons-round">history</span>Storico</button>
+                <button class="chg-btn ghost" onclick="chgGo('${all[0].k}')"><span class="material-icons-round">calendar_month</span>Vedi nel calendario</button>
+                <button class="chg-btn primary" onclick="chgClose()"><span class="material-icons-round">check</span>Ho capito</button></div>
+        </div>`;
+        el.style.display = 'flex'; requestAnimationFrame(() => el.classList.add('open')); vibrate();
+    }
+    function chgClose(history) {
+        const el = document.getElementById('chg-modal'); if(!el) return;
+        el.classList.remove('open'); setTimeout(() => { el.style.display = 'none'; }, 250);
+        if(history) setTimeout(() => { openNotifCenter(); switchNotifTab('storico', document.querySelector('#notif-center-modal .admin-tab-btn[data-notiftab="storico"]')); }, 280);
+    }
+    function chgGo(k) {
+        chgClose();
+        const i = k.lastIndexOf('-'), m = k.slice(0, i), d = parseInt(k.slice(i + 1));
+        const r = finalData.findIndex((row, j) => j > 0 && row[0].v === m && +row[1].v === d && shiftRowYear(j) === SHIFT_YEAR);
+        if(r < 0) return;
+        if(calOverview) setCalView('dettaglio');
+        setTimeout(() => { if(liteOn()) liteShowRow(r); const tr = document.querySelector(`#table-body tr[data-row="${r}"]`); if(tr) { liteScrollTo(tr, 200); tr.classList.add('chg-flash'); setTimeout(() => tr.classList.remove('chg-flash'), 2200); } }, 300);
     }
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
@@ -7729,7 +7839,7 @@
             let settled = false;
             batch.commit().then(() => { if(!settled) { settled = true; resolve('ok'); } else if(onLateOk) onLateOk(); })
                 .catch(e => { console.error('Salvataggio non riuscito:', e); if(!settled) { settled = true; resolve({ error: e }); } else if(onLateFail) onLateFail(e); });
-            setTimeout(() => { if(!settled) { settled = true; resolve('queued'); } }, 5000);
+            setTimeout(() => { if(!settled) { settled = true; resolve('queued'); } }, 12000);   // connessione lenta: si aspetta fino a 12 s
         });
     }
     let saveInFlight = false;
@@ -7752,7 +7862,7 @@
             updateCoordToolbarState(); ccUpdateNavCounts();
             ccToast('Il salvataggio in coda non è andato a buon fine: le modifiche sono di nuovo da salvare.', true);
         };
-        const res = await commitWithConfirm(batch, () => { draftClear(); markLastSave(); }, lateFail);
+        const res = await commitWithConfirm(batch, () => { draftClear(); markLastSave(); ccToast('Salvato: la conferma è arrivata in ritardo, ora le modifiche sono visibili a tutti.'); }, lateFail);
         saveInFlight = false;
         if(res && res.error) {
             ccToast('Salvataggio NON riuscito (' + (res.error.code || 'errore') + '). Le modifiche sono ancora qui: riprova.', true);
@@ -7767,9 +7877,9 @@
         coordUndoStack = []; coordRedoStack = [];
         if(res === 'ok') { draftClear(); markLastSave(); } else draftSaveNow();
         updateCoordToolbarState(); ccUpdateNavCounts(); ccRefreshIfOpen(); renderTableHead();
-        if(res === 'queued') ccToast('Senza rete: salvato sul dispositivo, verrà inviato appena torna la connessione.');
+        if(res === 'queued') ccToast(navigator.onLine === false ? 'Senza rete: salvato sul dispositivo, verrà inviato appena torna la connessione.' : 'Connessione lenta: il salvataggio è partito e arriverà a breve (te lo confermo appena arriva).');
         else {
-            const n = dataSourceMode === 'excel' ? computePendingExcelSyncList().length : 0;
+            const n = 0;   // il promemoria "riporta su Excel" non serve più
             ccToast(n ? `Salvato. Ricorda di riportare ${n} ${n===1?'modifica':'modifiche'} su Excel.` : 'Salvato: le modifiche sono visibili a tutti.');
         }
         maybeDailySnapshot(); publishSaldiSoon();
@@ -8501,7 +8611,7 @@
     }
     function ccUpdateNavCounts() {
         updateYearUi();
-        const s = document.getElementById('cc-count-sync'); if(s) { const n = computePendingExcelSyncList().length; s.textContent = n ? n : ''; }
+        const s = document.getElementById('cc-count-sync'); if(s) { const n = 0; s.textContent = n ? n : ''; }
         const p = document.getElementById('cc-count-pending'); if(p) { const n = pendingChangesCount(); p.textContent = n ? n : ''; }
     }
 
@@ -8615,7 +8725,7 @@
         else hoursList = `<ul class="cc-list">${debt.map(balRow).join('')}${cred.map(balRow).join('')}</ul>`;
 
         // cose da fare
-        const pending = pendingChangesCount(), toSync = computePendingExcelSyncList().length;
+        const pending = pendingChangesCount(), toSync = 0;
         const hiddenOps = drivers.filter(d => d.hidden);
         const todo = [];
         if(pending) todo.push(`<li><span class="msym" style="color:var(--cc-warn)">edit_note</span><span class="cc-grow">${pending} ${pending===1?'modifica non salvata':'modifiche non salvate'}<small>Visibili solo su questo dispositivo finché non salvi.</small></span><button class="cc-btn sm primary" onclick="coordConfirmChanges()">Salva</button></li>`);
@@ -8659,7 +8769,7 @@
                             <li><b>Anello interno</b>: Seleziona (apre l\u2019editor della cella; su computer puoi anche trascinare per scambiare o estendere), Scambia (tocca due celle), Gomma, Annulla, Ripeti, Salva, Scarta, Esci.</li>
                             <li><b>Centro</b>: toccalo per chiudere o riaprire la ruota, trascinalo per spostarla dove non ti copre il calendario.</li>
                         </ol>
-                        <p class="cc-note" style="margin-bottom:16px">Le modifiche restano su questo dispositivo finché non premi Salva: da quel momento le vedono tutti e compaiono in \u201cDa riportare\u201d.</p>
+                        <p class="cc-note" style="margin-bottom:16px">Le modifiche restano su questo dispositivo finché non premi Salva: da quel momento le vedono tutti.</p>
                         <div class="cc-inline-form">
                             <button class="cc-btn primary" onclick="enterCoordEdit()"><span class="msym">edit_calendar</span>${coordEditModeActive ? 'Torna al calendario in modifica' : 'Apri il calendario in modifica'}</button>
                         </div>
@@ -8693,7 +8803,7 @@
             const orig = d.originalName;
             const hEntry = operatorConfig.hidden[orig];
             const meta = [];
-            meta.push(d.virtual ? `<span class="cc-tag accent">aggiunto</span>` : `<span>da Excel</span>`);
+            if(d.virtual) meta.push(`<span class="cc-tag accent">aggiunto</span>`);
             if(d.name !== orig) meta.push(`<span>nome originale: ${esc(orig)}</span>`);
             if(operatorConfig.contract[orig]) meta.push(`<span class="cc-tag">contratto ${getContractHours(d.idx)} h</span>`);
             const visHtml = d.hidden
