@@ -58,6 +58,74 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── Monete della ruota e mercato delle fasce ───────────────────────────
+    // Collezioni nuove, lette solo dall'app che ha le monete ("ns" = "prova_" per la PROVA).
+    // Il telefono non può decidere chi esce: ogni giro salva solo l'ora del server (t0, t1, t2)
+    // e il vincitore si ricava da quell'ora. Un'estrazione al giorno, senza rifarla né cancellarla.
+    function okNs(ns) { return ns == '' || ns == 'prova_'; }
+    // nome scelto in "Chi sei?" dal telefono che scrive
+    function myName() { return get(/databases/$(database)/documents/infermieri26_identities/$(request.auth.uid)).data.name; }
+
+    match /infermieri26_estrazioni/{eid} {
+      function newEstrazione(d) {
+        return d.keys().hasOnly(['ns', 'day', 'dayKey', 'endsAt', 'slots', 'people', 'by', 'byUid', 'createdAt'])
+            && d.keys().hasAll(['ns', 'day', 'dayKey', 'endsAt', 'slots', 'people', 'by', 'byUid', 'createdAt'])
+            && okNs(d.ns)
+            && d.day is timestamp && d.day == d.day.date()
+            && (d.day == request.time.date() || d.day == request.time.date() - duration.value(1, 'd') || d.day == request.time.date() + duration.value(1, 'd'))
+            && eid == d.ns + 'e_' + string(d.day.toMillis())
+            && d.dayKey is string
+            && d.endsAt is timestamp && d.endsAt > d.day + duration.value(27, 'h') && d.endsAt < d.day + duration.value(31, 'h')
+            && d.slots is list && d.slots.size() == 3
+            && d.people is list && d.people.size() >= 2 && d.people.size() <= 12 && d.people.toSet().size() == d.people.size()
+            && d.by is string && d.by == myName()
+            && d.byUid == request.auth.uid && d.createdAt == request.time;
+      }
+      // un giro alla volta, in ordine, con l'ora del server e senza toccare il resto
+      function nextSpin(k, prev) {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly([k])
+            && !(k in resource.data) && resource.data.keys().hasAll(prev)
+            && request.resource.data[k] == request.time;
+      }
+      allow read: if signedIn();
+      allow create: if signedIn() && newEstrazione(request.resource.data);
+      allow update: if signedIn() && (nextSpin('t0', []) || nextSpin('t1', ['t0']) || nextSpin('t2', ['t0', 't1']));
+      allow delete: if false;
+    }
+
+    match /infermieri26_mercato/{oid} {
+      function est(eid) { return get(/databases/$(database)/documents/infermieri26_estrazioni/$(eid)).data; }
+      // offerta: "ti do la mia fascia + N monete per la tua", solo su un'estrazione finita e prima di fine turno
+      function newOffer(d) {
+        return d.keys().hasOnly(['ns', 'eid', 'from', 'to', 'give', 'take', 'price', 'status', 'createdAt', 'byUid'])
+            && d.keys().hasAll(['ns', 'eid', 'from', 'to', 'give', 'take', 'price', 'status', 'createdAt', 'byUid'])
+            && okNs(d.ns) && oid.matches(d.ns + 'o_[A-Za-z0-9]+')
+            && d.eid is string && est(d.eid).ns == d.ns && est(d.eid).keys().hasAll(['t0', 't1', 't2'])
+            && request.time < est(d.eid).endsAt
+            && d.from is string && d.to is string && d.from != d.to
+            && d.from in est(d.eid).people && d.to in est(d.eid).people && d.from == myName()
+            && d.give is int && d.take is int && d.give >= 0 && d.give <= 2 && d.take >= 0 && d.take <= 2 && d.give != d.take
+            && d.price is int && d.price >= 1 && d.price <= 100
+            && d.status == 'aperta' && d.createdAt == request.time && d.byUid == request.auth.uid;
+      }
+      // si chiude una volta sola: accetta o rifiuta chi la riceve, annulla chi l'ha fatta
+      function closeOffer() {
+        let n = request.resource.data;
+        return resource.data.status == 'aperta'
+            && n.diff(resource.data).affectedKeys().hasOnly(['status', 'doneAt', 'doneBy'])
+            && n.status in ['accettata', 'rifiutata', 'annullata']
+            && n.doneAt == request.time && n.doneBy is string
+            && (n.status == 'annullata'
+                ? request.auth.uid == resource.data.byUid
+                : request.auth.uid != resource.data.byUid && n.doneBy == resource.data.to && myName() == resource.data.to)
+            && (n.status != 'accettata' || request.time < est(resource.data.eid).endsAt);
+      }
+      allow read: if signedIn();
+      allow create: if signedIn() && newOffer(request.resource.data);
+      allow update: if signedIn() && closeOffer();
+      allow delete: if false;
+    }
+
     // ── Tutto il resto è chiuso ────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
