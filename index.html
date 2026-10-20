@@ -682,12 +682,12 @@
         @keyframes splashDotPulse { 0%,100%{opacity:0.25; transform:scale(0.8);} 50%{opacity:1; transform:scale(1.15);} }
 
         /* MODALI */
-        #shift-modal,#dinner-modal,#options-modal,#notif-center-modal,#wheel-modal {
+        #shift-modal,#dinner-modal,#options-modal,#notif-center-modal,#wheel-modal,#coin-modal {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:3000;
             backdrop-filter:blur(8px); align-items:flex-end; justify-content:center;
             opacity:0; transition:opacity 0.3s;
         }
-        #shift-modal.open,#dinner-modal.open,#options-modal.open,#notif-center-modal.open,#wheel-modal.open { opacity:1; }
+        #shift-modal.open,#dinner-modal.open,#options-modal.open,#notif-center-modal.open,#wheel-modal.open,#coin-modal.open { opacity:1; }
         .modal-content {
             background:var(--bg-card); width:100%; max-width:600px; border-radius:24px 24px 0 0;
             box-shadow:0 -10px 40px rgba(0,0,0,0.3); overflow:hidden;
@@ -696,7 +696,7 @@
         }
         #shift-modal.open .modal-content,#dinner-modal.open .modal-content,
         #options-modal.open .modal-content,#notif-center-modal.open .modal-content,
-        #wheel-modal.open .modal-content { transform:translateY(0); }
+        #wheel-modal.open .modal-content,#coin-modal.open .modal-content { transform:translateY(0); }
         .modal-header { background:var(--bg); color:var(--text-main); padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); }
         .header-text h3 { margin:0; font-size:1.3rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:10px; }
         .header-text span { display:block; font-size:0.9rem; font-weight:600; color:var(--text-sec); margin-top:4px; }
@@ -2463,6 +2463,54 @@
         .missing-list { display:flex; flex-wrap:wrap; gap:6px; }
         .missing-badge { background:#fee2e2; color:#b91c1c; font-size:0.75rem; font-weight:600; padding:4px 8px; border-radius:6px; }
 
+        /* ── MONETE E MERCATO DELLE FASCE ─────────────────────────────────── */
+        .coin-wbox { display:flex; align-items:center; gap:12px; margin:0 20px 16px; padding:12px 14px; border-radius:14px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); }
+        .coin-wbox > .material-icons-round { font-size:26px; color:var(--text-sec); flex:none; }
+        .coin-wbox.on { border-color:#f59e0b; background:rgba(245,158,11,0.1); } .coin-wbox.on > .material-icons-round { color:#d97706; }
+        .coin-wbox > div { flex:1; min-width:0; } .coin-wbox b { display:block; font-size:0.88rem; font-weight:800; } .coin-wbox small { display:block; font-size:0.74rem; font-weight:600; color:var(--text-sec); margin-top:2px; }
+        label.coin-wbox { cursor:pointer; } label.coin-wbox input { display:none; }
+        .coin-check { width:24px; height:24px; border-radius:7px; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:16px !important; color:transparent; flex:none; }
+        .coin-wbox.on .coin-check { background:#d97706; border-color:#d97706; color:#fff; }
+        #wheel-done-banner .coin-wbox { margin:10px 0 0; text-align:left; }
+        .coin-btn { border:none; border-radius:10px; padding:8px 14px; font-weight:800; font-size:0.8rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; cursor:pointer; flex:none; font-family:inherit; }
+        .coin-btn.ghost { background:var(--bg); color:var(--text-main); border:1px solid var(--border); }
+        .coin-btn:active { transform:scale(0.96); }
+        .coin-hero { display:flex; align-items:center; gap:14px; margin:16px 20px 4px; padding:18px; border-radius:18px; background:linear-gradient(135deg,#f59e0b,#ea580c); color:#fff; box-shadow:0 14px 30px -16px rgba(234,88,12,0.9); }
+        .coin-hero > .material-icons-round { font-size:40px; } .coin-hero small { display:block; font-size:0.75rem; font-weight:700; opacity:0.9; }
+        .coin-hero b { display:block; font-size:1.7rem; font-weight:900; line-height:1.1; } .coin-hero em { display:block; font-style:normal; font-size:0.78rem; font-weight:700; opacity:0.95; margin-top:2px; }
+        .coin-note { display:flex; gap:10px; align-items:flex-start; margin:10px 20px; padding:12px 14px; border-radius:14px; background:var(--bg); border:1px solid var(--border); font-size:0.82rem; font-weight:600; color:var(--text-sec); }
+        .coin-note > .material-icons-round { color:var(--text-sec); } .coin-note b { color:var(--text-main); } .coin-note .coin-btn { margin-top:8px; }
+        .coin-card { margin:0 20px 12px; border:1px solid var(--border); border-radius:16px; overflow:hidden; background:var(--bg-card); }
+        .coin-card-h { padding:12px 14px; background:var(--bg); border-bottom:1px solid var(--border); } .coin-card-h b { display:block; font-size:0.9rem; color:var(--text-main); } .coin-card-h small { font-size:0.72rem; color:var(--text-sec); font-weight:600; }
+        .coin-slot { display:flex; align-items:center; gap:10px; padding:10px 14px; border-top:1px solid var(--border); } .coin-slot:first-of-type { border-top:none; }
+        .coin-slot.me { background:rgba(245,158,11,0.08); }
+        .coin-slot-t { width:138px; flex:none; } .coin-slot-t small { display:block; font-size:0.66rem; font-weight:800; color:#d97706; text-transform:uppercase; letter-spacing:0.03em; } .coin-slot-t b { font-size:0.86rem; color:var(--text-main); }
+        .coin-slot-w { flex:1; min-width:0; font-weight:800; font-size:0.9rem; color:var(--text-main); } .coin-slot-w i { font-style:normal; font-size:0.66rem; background:#d97706; color:#fff; padding:1px 6px; border-radius:6px; vertical-align:2px; }
+        .coin-slot-w small { display:block; font-size:0.7rem; font-weight:600; color:var(--text-sec); }
+        .coin-tag { font-size:0.7rem; font-weight:800; color:var(--text-sec); }
+        .coin-form { padding:12px 14px; background:var(--bg); border-top:1px dashed var(--border); display:flex; flex-direction:column; gap:10px; }
+        .coin-form label { display:flex; flex-direction:column; gap:4px; font-size:0.74rem; font-weight:800; color:var(--text-sec); }
+        .coin-form select, .coin-form input { padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-weight:700; font-size:0.9rem; font-family:inherit; }
+        .coin-form small { font-size:0.72rem; color:var(--text-sec); font-weight:600; } .coin-form-b { display:flex; gap:8px; justify-content:flex-end; }
+        .coin-offer { display:flex; align-items:center; gap:10px; margin:0 20px 10px; padding:12px 14px; border-radius:14px; border:1.5px solid #f59e0b; background:rgba(245,158,11,0.08); }
+        .coin-offer.mine { border-color:var(--border); background:var(--bg); }
+        .coin-offer > div:first-child { flex:1; min-width:0; } .coin-offer b { font-size:0.86rem; color:var(--text-main); } .coin-offer small { display:block; font-size:0.74rem; color:var(--text-sec); font-weight:600; margin-top:2px; }
+        .coin-offer small b { font-size:inherit; } .coin-warn { color:#dc2626 !important; } .coin-offer-b { display:flex; flex-direction:column; gap:6px; }
+        .coin-list { margin:0 20px 8px; border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+        .coin-mv { display:flex; align-items:center; gap:12px; padding:9px 14px; border-top:1px solid var(--border); background:var(--bg-card); } .coin-mv:first-child { border-top:none; }
+        .coin-mv.me { background:rgba(245,158,11,0.08); } .coin-mv > div { flex:1; min-width:0; } .coin-mv b { font-size:0.82rem; color:var(--text-main); display:block; } .coin-mv small { font-size:0.7rem; color:var(--text-sec); font-weight:600; }
+        .coin-d { font-weight:900; font-size:0.95rem; color:#15803d; min-width:34px; text-align:right; } .coin-d.neg { color:#dc2626; }
+        .coin-rank { width:24px; height:24px; border-radius:8px; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:800; color:var(--text-sec); flex:none; }
+        .coin-help { margin:12px 20px 30px; border:1px solid var(--border); border-radius:14px; background:var(--bg); }
+        .coin-help summary { display:flex; align-items:center; gap:8px; padding:12px 14px; font-weight:800; font-size:0.85rem; color:var(--text-main); cursor:pointer; list-style:none; } .coin-help summary::-webkit-details-marker { display:none; }
+        .coin-help div { padding:0 14px 12px; font-size:0.8rem; color:var(--text-sec); font-weight:600; } .coin-help p { margin:0 0 8px; } .coin-help b { color:var(--text-main); }
+        .adm-coin-t .adm-tr, .adm-coin-o .adm-tr { grid-template-columns:1.2fr 1fr .8fr .8fr .8fr 1fr; }
+        .adm-coin-f .adm-tr { grid-template-columns:1.4fr .7fr .7fr .7fr .7fr; }
+        .adm-coin-m .adm-tr { grid-template-columns:1fr 1fr .5fr 2.4fr; } .adm-coin-e .adm-tr { grid-template-columns:.9fr 2.2fr 1fr .8fr; }
+        .adm-pos { color:#15803d; font-weight:800; } .adm-neg { color:#dc2626; font-weight:800; }
+        @media (max-width:900px) { .adm-coin-t .adm-tr, .adm-coin-o .adm-tr, .adm-coin-m .adm-tr, .adm-coin-e .adm-tr { grid-template-columns:1fr 1fr; } .adm-coin-f .adm-tr { grid-template-columns:1.4fr repeat(4, .6fr); } .adm-coin-f .adm-th { display:grid; } }
+        body.dark-mode .coin-d { color:#86efac; } body.dark-mode .coin-d.neg, body.dark-mode .adm-neg { color:#fca5a5; } body.dark-mode .adm-pos { color:#86efac; }
+
         /* ── RUOTA DELLA SFIGA ────────────────────────────────────────────── */
         .wheel-steps-nav { display:flex; align-items:center; gap:8px; padding:14px 20px 0 20px; color:var(--primary); font-weight:700; font-size:0.85rem; cursor:pointer; }
         .wheel-mode-grid { display:flex; flex-direction:column; gap:14px; padding:16px 20px 24px; }
@@ -2880,6 +2928,7 @@
                 <button class="admin-tab-btn" data-tab="accessi" onclick="switchAdminTab('accessi',this)"><span class="material-icons-round">insights</span><span class="adm-nav-l">Accessi</span><b class="adm-badge" id="adm-badge-accessi"></b></button>
                 <button class="admin-tab-btn" data-tab="identita" onclick="switchAdminTab('identita',this)"><span class="material-icons-round">how_to_reg</span><span class="adm-nav-l">Nomi e identità</span><b class="adm-badge" id="adm-badge-identita"></b></button>
                 <button class="admin-tab-btn" data-tab="ruota" onclick="switchAdminTab('ruota',this)"><span class="material-icons-round">casino</span><span class="adm-nav-l">Ruota della sfiga</span></button>
+                <button class="admin-tab-btn" data-tab="monete" onclick="switchAdminTab('monete',this)"><span class="material-icons-round">savings</span><span class="adm-nav-l">Monete e mercato</span></button>
                 <button class="admin-tab-btn" data-tab="registro" onclick="switchAdminTab('registro',this)"><span class="material-icons-round">history</span><span class="adm-nav-l">Registro modifiche</span></button>
                 <div class="adm-nav-grp">Configurazione</div>
                 <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span><span class="adm-nav-l">Aspetto</span></button>
@@ -2903,6 +2952,7 @@
             <div class="admin-tab-panel" id="admin-tab-errori"><div id="adm-errori"></div></div>
             <div class="admin-tab-panel" id="admin-tab-identita"><div id="adm-identita"></div></div>
             <div class="admin-tab-panel" id="admin-tab-ruota"><div id="adm-ruota"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-monete"><div id="adm-monete"></div></div>
             <div class="admin-tab-panel" id="admin-tab-registro"><div id="adm-registro"></div></div>
 
             <div class="admin-tab-panel" id="admin-tab-accessi">
@@ -3384,6 +3434,21 @@
     </div>
 </div>
 
+<div id="coin-modal" onclick="closeCoinModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()" style="height:92vh;max-height:92vh;">
+        <div class="modal-header" style="background:#fffbeb;border-bottom-color:#fef3c7;">
+            <div class="header-text">
+                <h3 style="color:#d97706"><span class="material-icons-round" style="margin-right:8px">savings</span> MONETE E MERCATO</h3>
+                <span style="color:#f59e0b">Portafoglio e scambi delle fasce</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeCoinModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="modal-body" id="coin-body" style="background:var(--bg-card);"></div>
+    </div>
+</div>
+
 <div id="wheel-modal" onclick="closeWheelModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()" style="height:92vh;max-height:92vh;">
         <div class="modal-header" style="background:#fff7ed;border-bottom-color:#ffedd5;">
@@ -3441,6 +3506,7 @@
                 </div>
                 <div style="padding:0 20px 6px;font-size:0.75rem;font-weight:600;color:var(--text-sec);">Il turno verrà diviso automaticamente in 3 fasce uguali fino alle 06:30.</div>
                 <div class="slot-chip-list" id="wheel-slot-list"></div>
+                <div id="wheel-coin-box"></div>
                 <button class="btn-wheel-primary" id="wheel-slots-start-btn" onclick="startSlotWheel()" disabled>
                     <span class="material-icons-round">play_circle</span> AVVIA LA RUOTA
                 </button>
@@ -3465,6 +3531,7 @@
                 <div id="wheel-assign-list" class="wheel-assign-list"></div>
                 <div id="wheel-done-banner" class="wheel-done-banner" style="display:none;">
                     <span class="material-icons-round" style="vertical-align:middle">celebration</span> Assegnazione completata! Buona (s)fortuna a tutti.
+                    <div id="wheel-coin-done"></div>
                 </div>
                 <div class="character-reveal" id="wheel-character-reveal">
                     <div class="char-avatar" id="wheel-char-avatar">??</div>
@@ -4254,6 +4321,7 @@
         accessi:    ['Accessi', 'Chi usa l’app, da quale dispositivo e cosa guarda'],
         identita:   ['Nomi e identità', 'I nomi occupati nella schermata “Chi sei?”'],
         ruota:      ['Ruota della sfiga', 'Statistiche delle estrazioni'],
+        monete:     ['Monete e mercato', 'Crediti degli operatori, guadagni, vendite e fasce della ruota'],
         registro:   ['Registro modifiche', 'Chi ha cambiato cosa negli ultimi 7 giorni'],
         aspetto:    ['Aspetto', 'Colori dell’app per tutti'],
         operatori:  ['Nomi operatori', 'Nome mostrato nell’app per ogni colonna'],
@@ -4328,7 +4396,7 @@
     }
     function admRenderTab() {
         if(!document.getElementById('admin-panel-modal') || document.getElementById('admin-panel-modal').style.display === 'none') return;
-        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
+        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, monete: admRenderMonete, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
         if(f) { try { f(); } catch(e) { console.warn('Pannello admin:', e); } }
     }
     const admLoadingHtml = () => `<div class="adm-empty"><span class="material-icons-round adm-spin">autorenew</span>Carico i dati…</div>`;
@@ -5089,9 +5157,10 @@
             { id:'equita', icon:'balance', label:'Equità dell’anno', desc:'Notti, weekend, festivi e reperibilità di ognuno', color:'#0f766e', run: () => openEquity() },
             { group:'Squadra' },
             { id:'share', icon:'share', label:'Condividi l’app', desc:'Mandala su WhatsApp a chi non ce l’ha', color:'#16a34a', stay:true, run: () => shareAppWhatsApp() },
-            { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo e ruota della sfiga', color: MN_COLORS.svago, children: [
+            { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo, ruota della sfiga e monete', color: MN_COLORS.svago, children: [
                 { id:'dinner', icon:'restaurant', label:'Organizza un\u2019uscita', desc:'Chi è libero per colazione, pranzo, cena…', color: MN_COLORS.svago, run: () => openDinnerModal() },
-                { id:'wheel', icon:'casino', label:'La ruota della sfiga', desc:'Estrai a sorte chi tocca', color: MN_COLORS.svago, run: () => openWheelModal() }
+                { id:'wheel', icon:'casino', label:'La ruota della sfiga', desc:'Estrai a sorte chi tocca', color: MN_COLORS.svago, run: () => openWheelModal() },
+                { id:'coins', icon:'savings', label:'Monete e mercato', desc:'Il tuo portafoglio e lo scambio delle fasce', color: MN_COLORS.svago, run: () => openCoinModal() }
             ] },
             { id:'link', icon:'apps', label:'Collegamenti', desc:'Richieste e turni autisti', color: MN_COLORS.link, children: [
                 { id:'req', icon:'assignment', label:'Richieste', desc:'Ferie, permessi, cambi turno, cessioni', color: MN_COLORS.link, run: () => window.openRichiestePanel && window.openRichiestePanel() },
@@ -10382,9 +10451,12 @@
             <div class="cc-panel"><div class="cc-panel-head"><h3>Storico modifiche</h3><span class="cc-hint">ultimi 7 giorni</span></div><div class="cc-panel-body" id="dat-log"><p class="cc-note">Carico…</p></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Origine dei turni e anni</h3></div><div class="cc-panel-body">
                 ${ccSourcePanelHtml()}
-                ${dataSourceMode === 'firebase' ? `<div style="margin-top:14px"><div class="cc-inline-form">
-                        ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}
-                        <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>
+                ${dataSourceMode === 'firebase' ? `<div style="margin-top:14px"><div class="cc-inline-form">
+
+                        ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}
+
+                        <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>
+
                     </div></div>` : ''}
             </div></div>`;
         maybeDailySnapshot();
@@ -13247,7 +13319,8 @@
 
     function resetWheelFullState() {
         wheelSelectedNurses = []; wheelMode = ''; wheelSlots = []; wheelSlotPool = [];
-        wheelAssignments = []; wheelCurrentSlotIdx = 0; wheelNamesOnWheel = []; wheelSpinning = false;
+        wheelAssignments = []; wheelCurrentSlotIdx = 0; wheelNamesOnWheel = []; wheelSpinning = false; wheelCoin = null; wheelCoinPlan = null;
+        const coinDone = document.getElementById('wheel-coin-done'); if(coinDone) coinDone.innerHTML = '';
         const spinBtn = document.getElementById('wheel-spin-btn'); if(spinBtn) { spinBtn.style.display = 'inline-flex'; spinBtn.disabled = false; spinBtn.innerText = 'GIRA LA RUOTA!'; }
         const restartBtn = document.getElementById('wheel-restart-btn'); if(restartBtn) restartBtn.style.display = 'none';
         const doneBanner = document.getElementById('wheel-done-banner'); if(doneBanner) doneBanner.style.display = 'none';
@@ -13296,8 +13369,10 @@
 
     function chooseWheelMode(mode) {
         vibrate(); wheelMode = mode; hideAllWheelSteps();
+        wheelCoin = null;
         if(mode === 'slots') {
             document.getElementById('wheel-step-3-slots').style.display = 'block';
+            coinWheelBox();
         } else {
             whFreshRun();
             wheelNamesOnWheel = wheelSelectedNurses.slice();
@@ -13331,8 +13406,14 @@
         wheelSlots.forEach(s => { c.innerHTML += `<div class="slot-chip">${s}</div>`; });
         document.getElementById('wheel-slots-start-btn').disabled = wheelSlots.length < 1;
     }
-    function startSlotWheel() {
+    async function startSlotWheel() {
         vibrate();
+        const coinOn = document.getElementById('wheel-coin-on');
+        if(coinOn && coinOn.checked && wheelCoinPlan && wheelCoinPlan.day) {
+            const b = document.getElementById('wheel-slots-start-btn'); b.disabled = true;
+            await coinStartOfficial(); b.disabled = false; return;
+        }
+        wheelCoin = null;
         whFreshRun();
         wheelSlotPool = shuffleArr(wheelSelectedNurses); wheelAssignments = []; wheelCurrentSlotIdx = 0;
         wheelNamesOnWheel = wheelSlotPool.slice();
@@ -13425,7 +13506,9 @@
 
     // Il giro è animato a mano (requestAnimationFrame): gira anche in modalità leggera e su iPhone,
     // dove le transizioni CSS sono spente. Il puntatore scatta a ogni spicchio, con il suo "tic".
-    function doSpin() {
+    // forced: chi è uscito, deciso dall'ora del server (estrazione con monete)
+    function doSpin(forced) {
+        if(wheelCoin && forced === undefined) return coinSpin();
         if(wheelSpinning) return;
         const segments = wheelExpandedSegments;
         if(!segments || segments.length === 0) return;
@@ -13437,7 +13520,8 @@
         document.querySelectorAll('#wheel-svg-holder .wh-win').forEach(x => x.classList.remove('wh-win'));
         const holder = document.getElementById('wheel-svg-holder'), pointer = document.getElementById('wh-pointer'), wheel = document.getElementById('wh-wheel');
         const total = segments.length, seg = 360 / total;
-        const winnerIndex = Math.floor(Math.random() * total), winnerName = segments[winnerIndex];
+        const forcedIdx = forced === undefined ? [] : segments.map((n, i) => n === forced ? i : -1).filter(i => i >= 0);
+        const winnerIndex = forcedIdx.length ? forcedIdx[Math.floor(Math.random() * forcedIdx.length)] : Math.floor(Math.random() * total), winnerName = segments[winnerIndex];
         // si ferma in un punto a caso dentro lo spicchio (non sempre al centro)
         const within = seg * (0.18 + Math.random() * 0.64);
         const start = whAngle, targetMod = (360 - (winnerIndex * seg + within) % 360) % 360;
@@ -13473,6 +13557,7 @@
             if(!auto) whResult('La fascia ' + slotTime + ' tocca a', winnerName, '');
             wheelSlotPool = wheelSlotPool.filter(nm => nm !== winnerName);
             wheelCurrentSlotIdx++;
+            if(wheelCoin) wheelSlotPool = (coinWinners(wheelCoin.est).pools[wheelCurrentSlotIdx] || []).slice();
             whProgress(); renderWheelAssignList();
             if(wheelCurrentSlotIdx >= wheelSlots.length) {
                 document.getElementById('wheel-spin-btn').style.display = 'none';
@@ -13480,6 +13565,7 @@
                 document.getElementById('wheel-done-banner').style.display = 'block';
                 document.getElementById('wheel-restart-btn').style.display = 'flex';
                 const hub = document.getElementById('wh-hub'); if(hub) hub.disabled = true;
+                coinWheelDone();
             } else {
                 if(wheelSlotPool.length === 0) wheelSlotPool = shuffleArr(wheelSelectedNurses);
                 // si lascia vedere il risultato, poi la ruota si prepara per la fascia dopo
@@ -13487,7 +13573,8 @@
                     wheelNamesOnWheel = wheelSlotPool.slice();
                     document.getElementById('wheel-current-slot-time').innerText = wheelSlots[wheelCurrentSlotIdx];
                     renderWheelGraphic(wheelNamesOnWheel, true);   // il risultato di prima resta visibile fino al prossimo giro
-                    if(wheelSlotPool.length === 1) {
+                    if(wheelSlotPool.length === 1 && wheelCoin) coinAuto();
+                    else if(wheelSlotPool.length === 1) {
                         // rimane un solo infermiere: niente giro, la fascia è sua
                         const only = wheelSlotPool[0], time = wheelSlots[wheelCurrentSlotIdx];
                         document.getElementById('wheel-spin-btn').disabled = true;
@@ -13509,7 +13596,7 @@
     function admWheelLog(winner) {
         try {
             if(SERVER_MODE || !fbReady) return;
-            const e = { t: Date.now(), mode: wheelMode, winner: String(winner || ''), slot: wheelMode === 'slots' ? String(wheelSlots[wheelCurrentSlotIdx] || '') : '', n: (wheelNamesOnWheel || []).length, by: userIdentity || '' };
+            const e = { t: Date.now(), mode: wheelMode, winner: String(winner || ''), slot: wheelMode === 'slots' ? String(wheelSlots[wheelCurrentSlotIdx] || '') : '', k: wheelMode === 'slots' ? wheelCurrentSlotIdx : -1, coin: !!wheelCoin, n: (wheelNamesOnWheel || []).length, by: userIdentity || '' };
             const FV = firebase.firestore.FieldValue;
             db.collection('infermieri26_accessi').doc(sessionId).set({ wheelLog: FV.arrayUnion(e), wheelSpins: FV.increment(1) }, { merge:true }).catch(() => {});
         } catch(e) {}
@@ -13527,6 +13614,330 @@
         document.getElementById('wheel-char-name').innerText = name;
         document.getElementById('wheel-char-quote').innerText = IRONIC_QUOTES[Math.floor(Math.random()*IRONIC_QUOTES.length)];
         rev.classList.add('show');
+    }
+
+    // ── MONETE DELLA RUOTA E MERCATO DELLE FASCE ─────────────────────────────
+    // Dati in due collezioni nuove (infermieri26_estrazioni, infermieri26_mercato) con "ns" = DATA_NS:
+    // l'app ufficiale non le legge e non tocca turni o impostazioni.
+    // Un'estrazione con monete al giorno: il documento <ns>e_<giorno> si crea una volta sola e ogni
+    // giro salva solo l'ora del server (t0, t1, t2). Chi esce si ricava da quell'ora (millisecondi
+    // modulo i nomi rimasti): il telefono non sceglie il vincitore e non si può rigirare (regole Firebase).
+    // I saldi non sono salvati da nessuna parte: si ricalcolano ogni volta da estrazioni e scambi.
+    const COIN_EST = 'infermieri26_estrazioni', COIN_MKT = 'infermieri26_mercato';
+    const COIN_PAY = [2, 4, 3];   // prima fascia, centrale, ultima
+    const COIN_START = 10;        // dotazione iniziale di ogni operatore
+    const COIN_SLOT = ['Prima fascia', 'Fascia centrale', 'Ultima fascia'];
+    let wheelCoin = null, wheelCoinPlan = null, coinBusy = false;   // estrazione con monete nella ruota
+    let coinState = { ests: [], offers: [], loaded: 0, err: '' }, coinUnsubs = [], coinForm = null;
+
+    const coinTimeout = (p, ms) => Promise.race([p, new Promise((_, r) => setTimeout(() => r({ code: 'timeout' }), ms))]);
+    const coinMs = v => tsToMillis(v) || 0;
+    const coinMe = () => userIdentity && userIdentity !== 'Ospite' ? userIdentity : '';
+    // il turno di stanotte: prima delle 06:30 vale ancora quello di ieri
+    function coinToday() {
+        const d = new Date(); if(d.getHours() * 60 + d.getMinutes() < 390) d.setDate(d.getDate() - 1);
+        const dayMs = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+        return { key: ymd(d), dayMs, eid: DATA_NS + 'e_' + dayMs, endsAt: new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 6, 30).getTime() };
+    }
+    function coinDayLabel(e) { const d = new Date((e.dayKey || '') + 'T12:00'); return isNaN(d) ? '' : d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }); }
+    const coinWhen = ms => ms ? new Date(ms).toLocaleString('it-IT', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+    const coinN = n => n + (Math.abs(n) === 1 ? ' moneta' : ' monete');
+
+    // chi esce in ogni fascia: dall'ora del server di ogni giro, sui nomi rimasti (finiti i nomi si ricomincia)
+    function coinWinners(e) {
+        const people = (e.people || []).slice(); let pool = people.slice(); const win = [], pools = [];
+        for(let k = 0; k < 3; k++) {
+            if(!pool.length) pool = people.slice();
+            pools.push(pool.slice());
+            const t = coinMs(e['t' + k]); if(!t) break;
+            const i = t % pool.length; win.push(pool[i]); pool.splice(i, 1);
+        }
+        return { win, pools };
+    }
+    // Saldi e movimenti, in ordine di tempo: dotazione, scambi accettati e monete delle fasce a fine turno
+    // (date a chi ha la fascia dopo gli scambi). Uno scambio vale solo se le fasce sono ancora di quei due
+    // e chi compra ha le monete in quel momento.
+    function coinLedger(ests, offers) {
+        const now = Date.now(), bal = {}, pend = {}, moves = [], byE = {}, ev = [];
+        const add = (who, d, m) => { bal[who] = (bal[who] || 0) + d; moves.push(Object.assign({ who, d }, m)); };
+        (drivers || []).forEach(d => add(d.name, COIN_START, { t: 0, kind: 'start', txt: 'Dotazione iniziale' }));
+        ests.forEach(e => { const w = coinWinners(e).win; e.win = w; e.hold = w.slice(); e.done = w.length === 3; e.end = coinMs(e.endsAt); byE[e.id] = e; if(e.done) ev.push({ t: e.end, e }); });
+        offers.forEach(o => { o.valid = null; if(o.status === 'accettata') ev.push({ t: coinMs(o.doneAt), o }); });
+        ev.sort((a, b) => a.t - b.t);
+        ev.forEach(x => {
+            if(x.e) {
+                const e = x.e;
+                e.paid = x.t <= now;
+                e.hold.forEach((who, k) => { if(!e.paid) pend[who] = (pend[who] || 0) + COIN_PAY[k]; else add(who, COIN_PAY[k], { t: x.t, kind: 'pay', eid: e.id, k, txt: COIN_SLOT[k] + ' ' + (e.slots[k] || '') + ' · ' + coinDayLabel(e) }); });
+                return;
+            }
+            const o = x.o, e = byE[o.eid];
+            o.valid = !!(e && e.done && x.t < e.end && e.hold[o.give] === o.from && e.hold[o.take] === o.to && (bal[o.from] || 0) >= o.price);
+            if(!o.valid) return;
+            e.hold[o.give] = o.to; e.hold[o.take] = o.from;
+            const what = COIN_SLOT[o.take] + ' (' + (e.slots[o.take] || '') + ') · ' + coinDayLabel(e);
+            add(o.from, -o.price, { t: x.t, kind: 'buy', oid: o.id, txt: 'Comprata da ' + o.to + ': ' + what });
+            add(o.to, o.price, { t: x.t, kind: 'sell', oid: o.id, txt: 'Venduta a ' + o.from + ': ' + what });
+        });
+        moves.sort((a, b) => b.t - a.t);
+        return { bal, pend, moves, byE };
+    }
+
+    const coinDocs = s => s.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    function coinListen() {
+        if(!fbReady || coinUnsubs.length) return;
+        const fail = e => { coinState.err = (e && e.code) || 'errore'; coinStopListen(); coinRender(); };
+        coinUnsubs.push(db.collection(COIN_EST).where('ns', '==', DATA_NS).onSnapshot(s => { coinState.ests = coinDocs(s); coinState.loaded |= 1; coinState.err = ''; coinRender(); }, fail));
+        coinUnsubs.push(db.collection(COIN_MKT).where('ns', '==', DATA_NS).onSnapshot(s => { coinState.offers = coinDocs(s); coinState.loaded |= 2; coinRender(); }, fail));
+    }
+    function coinStopListen() { coinUnsubs.forEach(u => { try { u(); } catch(e) {} }); coinUnsubs = []; }
+    async function coinFetchAll() {
+        const [a, b] = await Promise.all([db.collection(COIN_EST).where('ns', '==', DATA_NS).get(), db.collection(COIN_MKT).where('ns', '==', DATA_NS).get()]);
+        return { ests: coinDocs(a), offers: coinDocs(b) };
+    }
+    // le regole controllano il nome scelto in "Chi sei?": lo si riscrive prima di ogni operazione
+    function coinEnsureIdentity() {
+        return db.collection('infermieri26_identities').doc(fbAuth.currentUser.uid)
+            .set({ name: userIdentity, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    }
+    function coinErrText(e) {
+        const c = e && e.code;
+        if(c === 'permission-denied') return 'Firebase non lo permette (regole non ancora pubblicate, o operazione non valida)';
+        if(c === 'timeout' || c === 'unavailable') return 'serve la connessione';
+        return (e && (e.code || e.message)) || 'errore';
+    }
+
+    // ── finestra "Monete e mercato" ──
+    function openCoinModal() {
+        closeMenu(); vibrate();
+        const m = document.getElementById('coin-modal'); m.style.display = 'flex';
+        setTimeout(() => m.classList.add('open'), 10);
+        setCurrentView('Monete e mercato');
+        coinForm = null; coinState.err = ''; coinRender(); coinListen();
+    }
+    function closeCoinModal(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('coin-modal'); m.classList.remove('open');
+        setTimeout(() => m.style.display = 'none', 200); coinStopListen();
+    }
+    const coinNote = (icon, html) => `<div class="coin-note"><span class="material-icons-round">${icon}</span><div>${html}</div></div>`;
+    function coinRender() {
+        const box = document.getElementById('coin-body'), m = document.getElementById('coin-modal');
+        if(!box || !m || m.style.display === 'none') return;
+        if(!fbReady) { box.innerHTML = coinNote('cloud_off', 'Le monete hanno bisogno della connessione.'); return; }
+        if(coinState.err) { box.innerHTML = coinNote('lock', coinState.err === 'permission-denied' ? '<b>Le monete non sono ancora attive.</b> Vanno pubblicate le nuove regole di Firebase.' : 'Non riesco a leggere le monete (' + esc(coinState.err) + ').'); return; }
+        if(coinState.loaded !== 3) { box.innerHTML = `<div class="coin-note"><span class="material-icons-round adm-spin">autorenew</span><div>Carico portafogli e mercato…</div></div>`; return; }
+        const me = coinMe(), L = coinLedger(coinState.ests, coinState.offers), now = Date.now();
+        const myBal = me ? (L.bal[me] || 0) : 0, myPend = me ? (L.pend[me] || 0) : 0;
+        let h = me
+            ? `<div class="coin-hero"><span class="material-icons-round">savings</span><div><small>Il portafoglio di ${esc(me)}</small><b>${coinN(myBal)}</b>${myPend ? `<em>+${myPend} in arrivo a fine turno</em>` : ''}</div></div>`
+            : coinNote('person', 'Per avere un portafoglio scegli chi sei: <button class="coin-btn" onclick="closeCoinModal();setTimeout(requestChangeIdentityDirect,300)">Scegli il tuo nome</button>');
+
+        // turni con fasce ancora scambiabili
+        const open = coinState.ests.filter(e => e.done && now < e.end).sort((a, b) => coinMs(b.day) - coinMs(a.day));
+        const openOffers = coinState.offers.filter(o => o.status === 'aperta');
+        h += `<div class="dinner-section-title">Mercato delle fasce</div>`;
+        if(!open.length) h += coinNote('storefront', 'Nessun turno aperto agli scambi. Il mercato si apre quando la ruota ha assegnato tutte e tre le fasce con monete e resta aperto fino alle 06:30.');
+        open.forEach(e => {
+            const mine = me ? e.hold.map((n, k) => n === me ? k : -1).filter(k => k >= 0) : [];
+            h += `<div class="coin-card"><div class="coin-card-h"><b>Turno di ${esc(coinDayLabel(e))}</b><small>Scambi fino a ${esc(coinWhen(e.end))}</small></div>`;
+            e.hold.forEach((who, k) => {
+                const isMe = who === me, pending = openOffers.some(o => o.eid === e.id && o.take === k && o.from === me);
+                const can = me && !isMe && mine.length && !pending;
+                h += `<div class="coin-slot${isMe ? ' me' : ''}"><div class="coin-slot-t"><small>${COIN_SLOT[k]} · +${COIN_PAY[k]}</small><b>${esc(e.slots[k] || '')}</b></div><div class="coin-slot-w">${esc(who)}${isMe ? ' <i>tu</i>' : ''}${who !== e.win[k] ? `<small>uscita a ${esc(e.win[k])}</small>` : ''}</div>${can ? `<button class="coin-btn" onclick="coinOpenForm('${e.id}',${k})">Compra</button>` : pending ? '<span class="coin-tag">offerta inviata</span>' : ''}</div>`;
+                if(coinForm && coinForm.eid === e.id && coinForm.k === k && can) {
+                    h += `<div class="coin-form"><label>Dai in cambio<select id="coin-f-give">${mine.map(g => `<option value="${g}">${COIN_SLOT[g]} ${esc(e.slots[g] || '')}</option>`).join('')}</select></label>
+                        <label>Monete offerte a ${esc(who)}<input id="coin-f-price" type="number" min="1" max="100" step="1" value="${Math.min(Math.max(1, COIN_PAY[k]), Math.max(1, myBal))}" inputmode="numeric"></label>
+                        <small>Ne hai ${myBal}. Le monete passano a ${esc(who)} solo se accetta.</small>
+                        <div class="coin-form-b"><button class="coin-btn ghost" onclick="coinForm=null;coinRender()">Annulla</button><button class="coin-btn" onclick="coinSendOffer('${e.id}',${k})">Invia l’offerta</button></div></div>`;
+                }
+            });
+            h += `</div>`;
+        });
+
+        // offerte
+        if(me) {
+            const offerTxt = o => { const e = L.byE[o.eid]; return e ? `${COIN_SLOT[o.take]} <b>${esc(e.slots[o.take] || '')}</b> in cambio di ${COIN_SLOT[o.give].toLowerCase()} <b>${esc(e.slots[o.give] || '')}</b> · ${esc(coinDayLabel(e))}` : 'turno non trovato'; };
+            const stillOk = o => { const e = L.byE[o.eid]; return !!(e && now < e.end && e.hold[o.give] === o.from && e.hold[o.take] === o.to); };
+            const forMe = openOffers.filter(o => o.to === me), byMe = openOffers.filter(o => o.from === me);
+            if(forMe.length || byMe.length) h += `<div class="dinner-section-title">Offerte aperte</div>`;
+            forMe.forEach(o => { const ok = stillOk(o);
+                h += `<div class="coin-offer"><div><b>${esc(o.from)} ti offre ${coinN(o.price)}</b><small>per la tua ${offerTxt(o)}</small>${ok ? '' : '<small class="coin-warn">Non più valida: le fasce sono cambiate o il turno è finito</small>'}</div>
+                    <div class="coin-offer-b">${ok ? `<button class="coin-btn" onclick="coinCloseOffer('${o.id}','accettata')">Accetta</button>` : ''}<button class="coin-btn ghost" onclick="coinCloseOffer('${o.id}','rifiutata')">Rifiuta</button></div></div>`; });
+            byMe.forEach(o => {
+                h += `<div class="coin-offer mine"><div><b>Hai offerto ${coinN(o.price)} a ${esc(o.to)}</b><small>per la sua ${offerTxt(o)}</small>${stillOk(o) ? '<small>In attesa di risposta</small>' : '<small class="coin-warn">Non più valida</small>'}</div>
+                    <div class="coin-offer-b"><button class="coin-btn ghost" onclick="coinCloseOffer('${o.id}','annullata')">Ritira</button></div></div>`; });
+            const mv = L.moves.filter(x => x.who === me);
+            h += `<div class="dinner-section-title">I tuoi movimenti</div><div class="coin-list">${mv.slice(0, 40).map(x => `<div class="coin-mv"><span class="coin-d ${x.d < 0 ? 'neg' : ''}">${x.d > 0 ? '+' : ''}${x.d}</span><div><b>${esc(x.txt)}</b><small>${x.t ? esc(coinWhen(x.t)) : 'all’inizio'}</small></div></div>`).join('')}</div>`;
+        }
+
+        // portafogli di tutti
+        const names = Object.keys(L.bal).concat(Object.keys(L.pend).filter(n => !(n in L.bal)));
+        names.sort((a, b) => (L.bal[b] || 0) - (L.bal[a] || 0) || a.localeCompare(b, 'it'));
+        h += `<div class="dinner-section-title">Portafogli</div><div class="coin-list">${names.map((n, i) => `<div class="coin-mv${n === me ? ' me' : ''}"><span class="coin-rank">${i + 1}</span><div><b>${esc(n)}</b>${L.pend[n] ? `<small>+${L.pend[n]} in arrivo</small>` : ''}</div><span class="coin-d">${L.bal[n] || 0}</span></div>`).join('')}</div>`;
+
+        h += `<details class="coin-help"><summary><span class="material-icons-round">help_outline</span>Come funziona</summary><div>
+            <p>Le monete si guadagnano solo con la <b>ruota della sfiga</b>, modalità <b>Smista le fasce orarie</b>, con l’opzione “Estrazione con monete”: prima fascia <b>${COIN_PAY[0]}</b>, fascia centrale <b>${COIN_PAY[1]}</b>, ultima fascia <b>${COIN_PAY[2]}</b>. Ognuno parte con ${COIN_START}.</p>
+            <p>Si può fare <b>una sola estrazione con monete al giorno</b>: una volta avviata non si rifà e non si cancella, e chi esce lo decide l’orologio del server di Firebase, non il telefono. Rigirare la ruota dopo non dà monete.</p>
+            <p>Per cambiare fascia con un collega la compri da lui: gli offri le monete e la tua fascia in cambio. Se accetta, vi scambiate le fasce e le monete passano a lui. Le monete della fascia vanno a chi la fa davvero, a fine turno (06:30).</p></div></details>`;
+        box.innerHTML = h;
+    }
+    function coinOpenForm(eid, k) { vibrate(); coinForm = { eid, k }; coinRender(); }
+    async function coinSendOffer(eid, take) {
+        const me = coinMe(); if(!me) return;
+        const L = coinLedger(coinState.ests, coinState.offers), e = L.byE[eid]; if(!e) return;
+        const give = +document.getElementById('coin-f-give').value, price = Math.round(+document.getElementById('coin-f-price').value), to = e.hold[take];
+        if(!(price >= 1 && price <= 100)) return ccToast('Scegli da 1 a 100 monete', true);
+        if(price > (L.bal[me] || 0)) return ccToast('Hai solo ' + coinN(L.bal[me] || 0), true);
+        if(e.hold[give] !== me || !to || to === me) return ccToast('Le fasce sono cambiate: riprova', true);
+        try {
+            await coinTimeout(coinEnsureIdentity(), 10000);
+            const id = DATA_NS + 'o_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+            await coinTimeout(db.collection(COIN_MKT).doc(id).set({ ns: DATA_NS, eid, from: me, to, give, take, price, status: 'aperta', createdAt: firebase.firestore.FieldValue.serverTimestamp(), byUid: fbAuth.currentUser.uid }), 12000);
+            coinForm = null; coinRender(); ccToast('Offerta inviata a ' + to);
+        } catch(err) { ccToast('Offerta non inviata: ' + coinErrText(err), true); }
+    }
+    async function coinCloseOffer(id, status) {
+        const me = coinMe(), o = coinState.offers.find(x => x.id === id); if(!me || !o) return;
+        if(status === 'accettata') {
+            const L = coinLedger(coinState.ests, coinState.offers), e = L.byE[o.eid];
+            if(!e || e.hold[o.give] !== o.from || e.hold[o.take] !== o.to) return ccToast('Offerta non più valida', true);
+            if((L.bal[o.from] || 0) < o.price) return ccToast(o.from + ' non ha più abbastanza monete', true);
+            if(!confirm(`Accetti?\n\nDai a ${o.from} la tua ${COIN_SLOT[o.take].toLowerCase()} (${e.slots[o.take]}) e prendi la sua ${COIN_SLOT[o.give].toLowerCase()} (${e.slots[o.give]}).\nRicevi ${coinN(o.price)}.`)) return;
+        }
+        try {
+            await coinTimeout(coinEnsureIdentity(), 10000);
+            await coinTimeout(db.collection(COIN_MKT).doc(id).update({ status, doneAt: firebase.firestore.FieldValue.serverTimestamp(), doneBy: me }), 12000);
+            ccToast({ accettata: 'Scambio fatto', rifiutata: 'Offerta rifiutata', annullata: 'Offerta ritirata' }[status]);
+        } catch(err) { ccToast('Non riuscito: ' + coinErrText(err), true); }
+    }
+
+    // ── la ruota con monete ──
+    // Nel passo delle fasce: si controlla se l'estrazione con monete di oggi c'è già, è a metà o è da fare.
+    async function coinWheelBox() {
+        const box = document.getElementById('wheel-coin-box'); wheelCoinPlan = null;
+        if(!box) return;
+        if(!fbReady || SERVER_MODE) { box.innerHTML = ''; return; }
+        const day = coinToday(), label = coinDayLabel({ dayKey: day.key });
+        box.innerHTML = `<div class="coin-wbox"><span class="material-icons-round adm-spin">autorenew</span><div><small>Controllo l’estrazione con monete di ${esc(label)}…</small></div></div>`;
+        let snap;
+        try { snap = await coinTimeout(db.collection(COIN_EST).doc(day.eid).get({ source: 'server' }), 8000); }
+        catch(e) { box.innerHTML = `<div class="coin-wbox"><span class="material-icons-round">cloud_off</span><div><b>Monete non disponibili</b><small>${esc(coinErrText(e))}. Questa estrazione non dà monete.</small></div></div>`; return; }
+        if(!snap.exists) {
+            if(!coinMe()) { box.innerHTML = `<div class="coin-wbox"><span class="material-icons-round">person</span><div><b>Estrazione senza monete</b><small>Per le monete scegli prima chi sei (menu › Chi sei?).</small></div></div>`; return; }
+            wheelCoinPlan = { day };
+            box.innerHTML = `<label class="coin-wbox on"><input type="checkbox" id="wheel-coin-on" checked onchange="this.parentElement.classList.toggle('on',this.checked)"><span class="material-icons-round">savings</span><div><b>Estrazione con monete di ${esc(label)}</b><small>Prima fascia ${COIN_PAY[0]}, centrale ${COIN_PAY[1]}, ultima ${COIN_PAY[2]} monete. Una sola al giorno: una volta avviata non si rifà.</small></div><i class="coin-check material-icons-round">check</i></label>`;
+            return;
+        }
+        const e = Object.assign({ id: snap.id }, snap.data()), w = coinWinners(e).win;
+        if(w.length < 3) {
+            wheelCoinPlan = { resume: e };
+            box.innerHTML = `<div class="coin-wbox on"><span class="material-icons-round">savings</span><div><b>Estrazione con monete a metà</b><small>Avviata da ${esc(e.by)}: ${w.length} fasce su 3. Si riprende con gli stessi nomi e orari.</small></div><button class="coin-btn" onclick="coinBeginWheel(wheelCoinPlan.resume)">Riprendi</button></div>`;
+        } else box.innerHTML = `<div class="coin-wbox"><span class="material-icons-round">verified</span><div><b>Monete di ${esc(label)} già estratte</b><small>Da ${esc(e.by)}: ${w.map((n, k) => esc(n) + ' ' + COIN_PAY[k]).join(' · ')}. Se giri adesso è solo per ridere.</small></div><button class="coin-btn" onclick="openCoinModal()">Vedi</button></div>`;
+    }
+    async function coinStartOfficial() {
+        const plan = wheelCoinPlan, me = coinMe(); if(!plan || !plan.day || !me) return;
+        const people = wheelSelectedNurses.slice().sort((a, b) => a.localeCompare(b, 'it')), label = coinDayLabel({ dayKey: plan.day.key });
+        if(!confirm(`Avviare l’estrazione con monete di ${label}?\n\nPartecipano: ${people.join(', ')}.\nFasce: ${wheelSlots.join(' · ')}.\n\nVale una volta sola: non si potrà rifare né annullare.`)) return;
+        const ref = db.collection(COIN_EST).doc(plan.day.eid), TS = firebase.firestore.Timestamp;
+        try {
+            await coinTimeout(coinEnsureIdentity(), 10000);
+            await coinTimeout(ref.set({ ns: DATA_NS, day: TS.fromMillis(plan.day.dayMs), dayKey: plan.day.key, endsAt: TS.fromMillis(plan.day.endsAt), slots: wheelSlots.slice(), people, by: me, byUid: fbAuth.currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() }), 12000);
+            const snap = await coinTimeout(ref.get({ source: 'server' }), 10000);
+            coinBeginWheel(Object.assign({ id: snap.id }, snap.data()));
+        } catch(err) { ccToast('Estrazione con monete non avviata: ' + coinErrText(err), true); coinWheelBox(); }
+    }
+    function coinBeginWheel(e) {
+        vibrate(); whFreshRun();
+        wheelCoin = { eid: e.id, est: e }; wheelMode = 'slots';
+        wheelSlots = e.slots.slice(); wheelSelectedNurses = e.people.slice();
+        const w = coinWinners(e);
+        wheelAssignments = w.win.map((n, k) => ({ time: e.slots[k], name: n }));
+        wheelCurrentSlotIdx = w.win.length; wheelSlotPool = (w.pools[wheelCurrentSlotIdx] || []).slice(); wheelNamesOnWheel = wheelSlotPool.slice();
+        hideAllWheelSteps(); document.getElementById('wheel-step-spin').style.display = 'block';
+        document.getElementById('wheel-current-slot-label').style.display = 'block';
+        document.getElementById('wheel-current-slot-time').innerText = wheelSlots[wheelCurrentSlotIdx] || '';
+        renderWheelGraphic(wheelNamesOnWheel);
+        if(wheelSlotPool.length === 1) coinAuto();
+    }
+    // salva l'ora del server per la fascia k e restituisce chi è uscito (anche se l'ha girata un altro telefono)
+    async function coinTake(k) {
+        const ref = db.collection(COIN_EST).doc(wheelCoin.eid); let err = null;
+        try { await coinTimeout(ref.update({ ['t' + k]: firebase.firestore.FieldValue.serverTimestamp() }), 12000); } catch(e) { err = e; }
+        const snap = await coinTimeout(ref.get({ source: 'server' }), 10000);
+        const e = Object.assign({ id: snap.id }, snap.data()), w = coinWinners(e);
+        wheelCoin.est = e;
+        if(w.win.length <= k) throw err || { code: 'non salvato' };
+        return { name: w.win[k], pool: w.pools[k] };
+    }
+    function coinSpinBtns(on, txt) {
+        const sb = document.getElementById('wheel-spin-btn'), hub = document.getElementById('wh-hub');
+        if(sb) { sb.disabled = !on; sb.innerText = txt || 'GIRA LA RUOTA!'; } if(hub) hub.disabled = !on;
+    }
+    async function coinSpin() {
+        if(coinBusy || wheelSpinning) return;
+        if(!navigator.onLine) return ccToast('Per girare la ruota con monete serve la connessione', true);
+        coinBusy = true; coinSpinBtns(false, 'UN ATTIMO…');
+        try {
+            const r = await coinTake(wheelCurrentSlotIdx);
+            if(!wheelExpandedSegments.includes(r.name)) { wheelSlotPool = r.pool.slice(); wheelNamesOnWheel = r.pool.slice(); renderWheelGraphic(wheelNamesOnWheel, true); }
+            coinBusy = false; coinSpinBtns(false); doSpin(r.name);
+        } catch(err) { coinBusy = false; coinSpinBtns(true); ccToast('Giro non salvato: ' + coinErrText(err) + '. Riprova.', true); }
+    }
+    // rimane un solo nome: la fascia è sua, ma l'ora del giro si salva lo stesso
+    function coinAuto() {
+        const k = wheelCurrentSlotIdx, only = wheelSlotPool[0];
+        coinSpinBtns(false);
+        whResult('Rimane solo', only, 'La fascia ' + wheelSlots[k] + ' è sua, senza girare la ruota', true);
+        setTimeout(() => coinTake(k).then(r => onWheelSpinResolved(r.name, true)).catch(err => { coinSpinBtns(true); ccToast('Fascia non salvata: ' + coinErrText(err) + '. Tocca GIRA.', true); }), 1600);
+    }
+    function coinWheelDone() {
+        const box = document.getElementById('wheel-coin-done'); if(!box) return;
+        if(!wheelCoin) { box.innerHTML = ''; return; }
+        const w = coinWinners(wheelCoin.est).win;
+        box.innerHTML = `<div class="coin-wbox on"><span class="material-icons-round">savings</span><div><b>Monete a fine turno</b><small>${w.map((n, k) => esc(n) + ' +' + COIN_PAY[k]).join(' · ')}. Fino alle 06:30 le fasce si possono comprare nel mercato.</small></div><button class="coin-btn" onclick="openCoinModal()">Mercato</button></div>`;
+    }
+
+    // ── area admin: monete, guadagni, vendite e fasce della ruota per operatore ──
+    let admCoin = null;
+    function admRenderMonete() {
+        const box = document.getElementById('adm-monete'); if(!box) return;
+        if(!fbReady) { box.innerHTML = '<div class="adm-empty">Serve la connessione.</div>'; return; }
+        const at = admData ? admData.at : 0;
+        if(admCoin && admCoin.loading) { box.innerHTML = admLoadingHtml(); return; }
+        if(!admCoin || admCoin.at < at) {
+            box.innerHTML = admLoadingHtml();
+            admCoin = { at, loading: true };
+            coinFetchAll().then(d => { admCoin = Object.assign({ at: Math.max(at, 1) }, d); }).catch(e => { admCoin = { at: Math.max(at, 1), err: e && e.code || 'errore', ests: [], offers: [] }; }).finally(() => { if(admTab === 'monete') admRenderMonete(); });
+            return;
+        }
+        if(admCoin.err) { box.innerHTML = `<div class="adm-note"><span class="material-icons-round">lock</span><div>${admCoin.err === 'permission-denied' ? 'Le monete non sono ancora attive: vanno pubblicate in Firebase le regole nuove (file firebase/firestore.rules).' : 'Non riesco a leggere le monete: ' + admEsc(admCoin.err)}</div></div>`; return; }
+        const L = coinLedger(admCoin.ests, admCoin.offers), ests = admCoin.ests.slice().sort((a, b) => coinMs(b.day) - coinMs(a.day));
+        const offers = admCoin.offers.slice().sort((a, b) => (coinMs(b.doneAt) || coinMs(b.createdAt)) - (coinMs(a.doneAt) || coinMs(a.createdAt)));
+        const st = {}; const S = n => st[n] || (st[n] = { pay: 0, sell: 0, buy: 0, nSell: 0, nBuy: 0, f: [0, 0, 0], last: 0 });
+        L.moves.forEach(m => { const s = S(m.who); if(m.kind === 'pay') s.pay += m.d; if(m.kind === 'sell') { s.sell += m.d; s.nSell++; } if(m.kind === 'buy') { s.buy -= m.d; s.nBuy++; } if(m.kind !== 'start') s.last = Math.max(s.last, m.t); });
+        ests.forEach(e => (e.win || []).forEach((n, k) => S(n).f[k]++));
+        const names = Object.keys(st).sort((a, b) => (L.bal[b] || 0) - (L.bal[a] || 0) || a.localeCompare(b, 'it'));
+        const total = Object.values(L.bal).reduce((a, b) => a + b, 0), done = offers.filter(o => o.status === 'accettata' && o.valid);
+        const stName = o => o.status === 'accettata' ? (o.valid ? '<span class="adm-pill ok">fatto</span>' : '<span class="adm-pill warn">non valido</span>') : o.status === 'aperta' ? '<span class="adm-pill info">aperta</span>' : `<span class="adm-pill muted">${admEsc(o.status)}</span>`;
+        box.innerHTML = `<div class="adm-kpis">
+                ${admKpi('savings', total, 'Monete in circolazione', 'saldi di tutti', 'info')}
+                ${admKpi('casino', ests.length, 'Estrazioni con monete', 'una al giorno al massimo', 'info')}
+                ${admKpi('swap_horiz', done.length, 'Fasce vendute', 'scambi conclusi', 'ok')}
+                ${admKpi('pending', offers.filter(o => o.status === 'aperta').length, 'Offerte aperte', 'in attesa di risposta', 'warn')}</div>
+            <div class="adm-note"><span class="material-icons-round">info</span><div>Ognuno parte con ${COIN_START} monete. Fasce: prima ${COIN_PAY[0]}, centrale ${COIN_PAY[1]}, ultima ${COIN_PAY[2]}, date a fine turno a chi fa la fascia dopo gli scambi. I saldi si ricalcolano da estrazioni e scambi, che non si possono cancellare.</div></div>
+            <div class="adm-card"><h4><span class="material-icons-round">account_balance_wallet</span>Portafogli</h4>
+                <div class="adm-table adm-coin-t"><div class="adm-tr adm-th"><span>Operatore</span><span>Saldo</span><span>Dalla ruota</span><span>Vendite</span><span>Acquisti</span><span>Ultimo movimento</span></div>
+                ${names.map(n => { const s = st[n]; return `<div class="adm-tr"><b>${admEsc(n)}</b><span><b>${L.bal[n] || 0}</b>${L.pend[n] ? ` <span class="adm-pill info">+${L.pend[n]} in arrivo</span>` : ''}</span><span>+${s.pay}</span><span>+${s.sell} <span class="adm-muted">(${s.nSell})</span></span><span>−${s.buy} <span class="adm-muted">(${s.nBuy})</span></span><span class="adm-muted">${s.last ? admWhen(s.last) : '—'}</span></div>`; }).join('')}</div></div>
+            <div class="adm-card"><h4><span class="material-icons-round">bedtime</span>Fasce della ruota per operatore</h4><small class="adm-muted">Quante volte ognuno è uscito in ogni fascia nelle estrazioni con monete (prima degli scambi)</small>
+                <div class="adm-table adm-coin-f"><div class="adm-tr adm-th"><span>Operatore</span><span>Prima</span><span>Centrale</span><span>Ultima</span><span>Totale</span></div>
+                ${names.filter(n => st[n].f.some(x => x)).sort((a, b) => st[b].f[1] - st[a].f[1] || a.localeCompare(b, 'it')).map(n => { const f = st[n].f; return `<div class="adm-tr"><b>${admEsc(n)}</b><span>${f[0]}</span><span><b>${f[1]}</b></span><span>${f[2]}</span><span>${f[0] + f[1] + f[2]}</span></div>`; }).join('') || '<div class="adm-empty sm">Ancora nessuna estrazione con monete.</div>'}</div></div>
+            <div class="adm-card"><h4><span class="material-icons-round">receipt_long</span>Movimenti</h4><small class="adm-muted">Quando sono state guadagnate, comprate e vendute le monete</small>
+                ${L.moves.some(m => m.kind !== 'start') ? `<div class="adm-table adm-coin-m"><div class="adm-tr adm-th"><span>Quando</span><span>Operatore</span><span>Monete</span><span>Cosa</span></div>${L.moves.filter(m => m.kind !== 'start').slice(0, 150).map(m => `<div class="adm-tr"><span>${admWhen(m.t)}</span><b>${admEsc(m.who)}</b><span class="${m.d < 0 ? 'adm-neg' : 'adm-pos'}">${m.d > 0 ? '+' : ''}${m.d}</span><span>${admEsc(m.txt)}</span></div>`).join('')}</div>` : '<div class="adm-empty sm">Nessun movimento finora.</div>'}</div>
+            <div class="adm-card"><h4><span class="material-icons-round">storefront</span>Scambi e offerte</h4>
+                ${offers.length ? `<div class="adm-table adm-coin-o"><div class="adm-tr adm-th"><span>Quando</span><span>Compra</span><span>Vende</span><span>Fasce</span><span>Monete</span><span>Stato</span></div>${offers.slice(0, 100).map(o => { const e = L.byE[o.eid]; return `<div class="adm-tr"><span>${admWhen(coinMs(o.doneAt) || coinMs(o.createdAt))}</span><b>${admEsc(o.from)}</b><b>${admEsc(o.to)}</b><span>${e ? admEsc(COIN_SLOT[o.take] + ' ⇄ ' + COIN_SLOT[o.give].toLowerCase() + ' · ' + coinDayLabel(e)) : '—'}</span><span>${o.price}</span><span>${stName(o)}</span></div>`; }).join('')}</div>` : '<div class="adm-empty sm">Nessuna offerta.</div>'}</div>
+            <div class="adm-card"><h4><span class="material-icons-round">casino</span>Estrazioni con monete</h4>
+                ${ests.length ? `<div class="adm-table adm-coin-e"><div class="adm-tr adm-th"><span>Turno</span><span>Fasce (uscito → chi la fa)</span><span>Avviata da</span><span>Stato</span></div>${ests.map(e => `<div class="adm-tr"><span>${admEsc(coinDayLabel(e))}<br><span class="adm-muted">${admWhen(coinMs(e.createdAt))}</span></span><span>${(e.slots || []).map((s, k) => `${admEsc(s)}: <b>${admEsc(e.win[k] || '…')}</b>${e.hold[k] && e.hold[k] !== e.win[k] ? ' → ' + admEsc(e.hold[k]) : ''}`).join('<br>')}</span><span>${admEsc(e.by)}<br><span class="adm-muted">${(e.people || []).length} nomi</span></span><span>${!e.done ? '<span class="adm-pill warn">a metà</span>' : e.paid ? '<span class="adm-pill ok">pagata</span>' : '<span class="adm-pill info">mercato aperto</span>'}</span></div>`).join('')}</div>` : '<div class="adm-empty sm">Nessuna estrazione con monete.</div>'}</div>`;
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -13559,6 +13970,7 @@
         'access-detail-modal': closeAccessDetail,
         'dinner-modal': closeDinnerModal,
         'wheel-modal': closeWheelModal,
+        'coin-modal': closeCoinModal,
         'driver-filter-dropdown': closeDriverFilterDropdown,
         'menu-dropdown': toggleMenu
     };
