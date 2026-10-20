@@ -65,6 +65,11 @@ service cloud.firestore {
     function okNs(ns) { return ns == '' || ns == 'prova_'; }
     // nome scelto in "Chi sei?" dal telefono che scrive
     function myName() { return get(/databases/$(database)/documents/infermieri26_identities/$(request.auth.uid)).data.name; }
+    // interruttore dell'area admin (campo "coinGame" delle impostazioni): spento non si guadagna né si scambia
+    function gameOn(ns) {
+      let p = /databases/$(database)/documents/infermieri26_config/$(ns + 'settings');
+      return !exists(p) || get(p).data.get('coinGame', true) != false;
+    }
 
     match /infermieri26_estrazioni/{eid} {
       function newEstrazione(d) {
@@ -79,13 +84,15 @@ service cloud.firestore {
             && d.slots is list && d.slots.size() == 3
             && d.people is list && d.people.size() >= 2 && d.people.size() <= 12 && d.people.toSet().size() == d.people.size()
             && d.by is string && d.by == myName()
-            && d.byUid == request.auth.uid && d.createdAt == request.time;
+            && d.byUid == request.auth.uid && d.createdAt == request.time
+            && gameOn(d.ns);
       }
       // un giro alla volta, in ordine, con l'ora del server e senza toccare il resto
       function nextSpin(k, prev) {
         return request.resource.data.diff(resource.data).affectedKeys().hasOnly([k])
             && !(k in resource.data) && resource.data.keys().hasAll(prev)
-            && request.resource.data[k] == request.time;
+            && request.resource.data[k] == request.time
+            && gameOn(resource.data.ns);
       }
       allow read: if signedIn();
       allow create: if signedIn() && newEstrazione(request.resource.data);
@@ -106,7 +113,8 @@ service cloud.firestore {
             && d.from in est(d.eid).people && d.to in est(d.eid).people && d.from == myName()
             && d.give is int && d.take is int && d.give >= 0 && d.give <= 2 && d.take >= 0 && d.take <= 2 && d.give != d.take
             && d.price is int && d.price >= 1 && d.price <= 100
-            && d.status == 'aperta' && d.createdAt == request.time && d.byUid == request.auth.uid;
+            && d.status == 'aperta' && d.createdAt == request.time && d.byUid == request.auth.uid
+            && gameOn(d.ns);
       }
       // si chiude una volta sola: accetta o rifiuta chi la riceve, annulla chi l'ha fatta
       function closeOffer() {
@@ -118,7 +126,7 @@ service cloud.firestore {
             && (n.status == 'annullata'
                 ? request.auth.uid == resource.data.byUid
                 : request.auth.uid != resource.data.byUid && n.doneBy == resource.data.to && myName() == resource.data.to)
-            && (n.status != 'accettata' || request.time < est(resource.data.eid).endsAt);
+            && (n.status != 'accettata' || (request.time < est(resource.data.eid).endsAt && gameOn(resource.data.ns)));
       }
       allow read: if signedIn();
       allow create: if signedIn() && newOffer(request.resource.data);

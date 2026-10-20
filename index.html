@@ -2507,6 +2507,7 @@
         .adm-coin-t .adm-tr, .adm-coin-o .adm-tr { grid-template-columns:1.2fr 1fr .8fr .8fr .8fr 1fr; }
         .adm-coin-f .adm-tr { grid-template-columns:1.4fr .7fr .7fr .7fr .7fr; }
         .adm-coin-m .adm-tr { grid-template-columns:1fr 1fr .5fr 2.4fr; } .adm-coin-e .adm-tr { grid-template-columns:.9fr 2.2fr 1fr .8fr; }
+        .adm-coin-sw { display:flex; align-items:center; gap:14px; margin-top:0; margin-bottom:12px; } .adm-coin-sw > .material-icons-round { font-size:40px; color:#d97706; } .adm-coin-sw > div { flex:1; min-width:0; } .adm-coin-sw b { display:block; font-size:.92rem; } .adm-coin-sw small { color:var(--text-sec); font-size:.78rem; }
         .adm-pos { color:#15803d; font-weight:800; } .adm-neg { color:#dc2626; font-weight:800; }
         @media (max-width:900px) { .adm-coin-t .adm-tr, .adm-coin-o .adm-tr, .adm-coin-m .adm-tr, .adm-coin-e .adm-tr { grid-template-columns:1fr 1fr; } .adm-coin-f .adm-tr { grid-template-columns:1.4fr repeat(4, .6fr); } .adm-coin-f .adm-th { display:grid; } }
         body.dark-mode .coin-d { color:#86efac; } body.dark-mode .coin-d.neg, body.dark-mode .adm-neg { color:#fca5a5; } body.dark-mode .adm-pos { color:#86efac; }
@@ -4053,6 +4054,7 @@
             }
             if(data.coverageMin) { coverageMin = Object.assign({}, COVERAGE_DEFAULT, data.coverageMin); dayChecksCache = null; }
             if(data.identityReleases !== undefined) identityReleases = data.identityReleases || {};
+            if(coinGameOn !== (data.coinGame !== false)) { coinGameOn = data.coinGame !== false; setTimeout(coinOnGameChange, 0); }
             if(data.checksResolved !== undefined) { checksResolved = data.checksResolved || {}; setTimeout(chkRefresh, 0); }   // fuori dal flusso: un errore qui non deve fermare il resto delle impostazioni
             if(data.customCodes !== undefined && JSON.stringify(data.customCodes || {}) !== JSON.stringify(customCodes)) {
                 customCodes = data.customCodes || {}; applyCustomCodes();
@@ -13628,6 +13630,14 @@
     const COIN_START = 10;        // dotazione iniziale di ogni operatore
     const COIN_SLOT = ['Prima fascia', 'Fascia centrale', 'Ultima fascia'];
     let wheelCoin = null, wheelCoinPlan = null, coinBusy = false;   // estrazione con monete nella ruota
+    // interruttore dell'admin (campo "coinGame" delle impostazioni): spento non si guadagna né si scambia, i saldi restano
+    var coinGameOn = true;
+    const COIN_OFF_TXT = 'Il gioco delle monete è sospeso dall’admin';
+    function coinOnGameChange() {
+        coinRender();
+        const w = document.getElementById('wheel-step-3-slots'); if(w && w.style.display === 'block') coinWheelBox();
+        if(admTab === 'monete') admRenderMonete();
+    }
     let coinState = { ests: [], offers: [], loaded: 0, err: '' }, coinUnsubs = [], coinForm = null;
 
     const coinTimeout = (p, ms) => Promise.race([p, new Promise((_, r) => setTimeout(() => r({ code: 'timeout' }), ms))]);
@@ -13732,6 +13742,7 @@
         let h = me
             ? `<div class="coin-hero"><span class="material-icons-round">savings</span><div><small>Il portafoglio di ${esc(me)}</small><b>${coinN(myBal)}</b>${myPend ? `<em>+${myPend} in arrivo a fine turno</em>` : ''}</div></div>`
             : coinNote('person', 'Per avere un portafoglio scegli chi sei: <button class="coin-btn" onclick="closeCoinModal();setTimeout(requestChangeIdentityDirect,300)">Scegli il tuo nome</button>');
+        if(!coinGameOn) h += coinNote('pause_circle', '<b>' + COIN_OFF_TXT + '.</b> Le monete guadagnate restano a tutti, ma per ora non se ne guadagnano altre e il mercato è fermo.');
 
         // turni con fasce ancora scambiabili
         const open = coinState.ests.filter(e => e.done && now < e.end).sort((a, b) => coinMs(b.day) - coinMs(a.day));
@@ -13743,7 +13754,7 @@
             h += `<div class="coin-card"><div class="coin-card-h"><b>Turno di ${esc(coinDayLabel(e))}</b><small>Scambi fino a ${esc(coinWhen(e.end))}</small></div>`;
             e.hold.forEach((who, k) => {
                 const isMe = who === me, pending = openOffers.some(o => o.eid === e.id && o.take === k && o.from === me);
-                const can = me && !isMe && mine.length && !pending;
+                const can = coinGameOn && me && !isMe && mine.length && !pending;
                 h += `<div class="coin-slot${isMe ? ' me' : ''}"><div class="coin-slot-t"><small>${COIN_SLOT[k]} · +${COIN_PAY[k]}</small><b>${esc(e.slots[k] || '')}</b></div><div class="coin-slot-w">${esc(who)}${isMe ? ' <i>tu</i>' : ''}${who !== e.win[k] ? `<small>uscita a ${esc(e.win[k])}</small>` : ''}</div>${can ? `<button class="coin-btn" onclick="coinOpenForm('${e.id}',${k})">Compra</button>` : pending ? '<span class="coin-tag">offerta inviata</span>' : ''}</div>`;
                 if(coinForm && coinForm.eid === e.id && coinForm.k === k && can) {
                     h += `<div class="coin-form"><label>Dai in cambio<select id="coin-f-give">${mine.map(g => `<option value="${g}">${COIN_SLOT[g]} ${esc(e.slots[g] || '')}</option>`).join('')}</select></label>
@@ -13763,7 +13774,7 @@
             if(forMe.length || byMe.length) h += `<div class="dinner-section-title">Offerte aperte</div>`;
             forMe.forEach(o => { const ok = stillOk(o);
                 h += `<div class="coin-offer"><div><b>${esc(o.from)} ti offre ${coinN(o.price)}</b><small>per la tua ${offerTxt(o)}</small>${ok ? '' : '<small class="coin-warn">Non più valida: le fasce sono cambiate o il turno è finito</small>'}</div>
-                    <div class="coin-offer-b">${ok ? `<button class="coin-btn" onclick="coinCloseOffer('${o.id}','accettata')">Accetta</button>` : ''}<button class="coin-btn ghost" onclick="coinCloseOffer('${o.id}','rifiutata')">Rifiuta</button></div></div>`; });
+                    <div class="coin-offer-b">${ok && coinGameOn ? `<button class="coin-btn" onclick="coinCloseOffer('${o.id}','accettata')">Accetta</button>` : ''}<button class="coin-btn ghost" onclick="coinCloseOffer('${o.id}','rifiutata')">Rifiuta</button></div></div>`; });
             byMe.forEach(o => {
                 h += `<div class="coin-offer mine"><div><b>Hai offerto ${coinN(o.price)} a ${esc(o.to)}</b><small>per la sua ${offerTxt(o)}</small>${stillOk(o) ? '<small>In attesa di risposta</small>' : '<small class="coin-warn">Non più valida</small>'}</div>
                     <div class="coin-offer-b"><button class="coin-btn ghost" onclick="coinCloseOffer('${o.id}','annullata')">Ritira</button></div></div>`; });
@@ -13785,6 +13796,7 @@
     function coinOpenForm(eid, k) { vibrate(); coinForm = { eid, k }; coinRender(); }
     async function coinSendOffer(eid, take) {
         const me = coinMe(); if(!me) return;
+        if(!coinGameOn) return ccToast(COIN_OFF_TXT, true);
         const L = coinLedger(coinState.ests, coinState.offers), e = L.byE[eid]; if(!e) return;
         const give = +document.getElementById('coin-f-give').value, price = Math.round(+document.getElementById('coin-f-price').value), to = e.hold[take];
         if(!(price >= 1 && price <= 100)) return ccToast('Scegli da 1 a 100 monete', true);
@@ -13800,6 +13812,7 @@
     async function coinCloseOffer(id, status) {
         const me = coinMe(), o = coinState.offers.find(x => x.id === id); if(!me || !o) return;
         if(status === 'accettata') {
+            if(!coinGameOn) return ccToast(COIN_OFF_TXT, true);
             const L = coinLedger(coinState.ests, coinState.offers), e = L.byE[o.eid];
             if(!e || e.hold[o.give] !== o.from || e.hold[o.take] !== o.to) return ccToast('Offerta non più valida', true);
             if((L.bal[o.from] || 0) < o.price) return ccToast(o.from + ' non ha più abbastanza monete', true);
@@ -13818,6 +13831,7 @@
         const box = document.getElementById('wheel-coin-box'); wheelCoinPlan = null;
         if(!box) return;
         if(!fbReady || SERVER_MODE) { box.innerHTML = ''; return; }
+        if(!coinGameOn) { box.innerHTML = `<div class="coin-wbox"><span class="material-icons-round">pause_circle</span><div><b>${COIN_OFF_TXT}</b><small>Questa estrazione non dà monete. Le monete già guadagnate restano.</small></div></div>`; return; }
         const day = coinToday(), label = coinDayLabel({ dayKey: day.key });
         box.innerHTML = `<div class="coin-wbox"><span class="material-icons-round adm-spin">autorenew</span><div><small>Controllo l’estrazione con monete di ${esc(label)}…</small></div></div>`;
         let snap;
@@ -13837,6 +13851,7 @@
     }
     async function coinStartOfficial() {
         const plan = wheelCoinPlan, me = coinMe(); if(!plan || !plan.day || !me) return;
+        if(!coinGameOn) { ccToast(COIN_OFF_TXT, true); coinWheelBox(); return; }
         const people = wheelSelectedNurses.slice().sort((a, b) => a.localeCompare(b, 'it')), label = coinDayLabel({ dayKey: plan.day.key });
         if(!confirm(`Avviare l’estrazione con monete di ${label}?\n\nPartecipano: ${people.join(', ')}.\nFasce: ${wheelSlots.join(' · ')}.\n\nVale una volta sola: non si potrà rifare né annullare.`)) return;
         const ref = db.collection(COIN_EST).doc(plan.day.eid), TS = firebase.firestore.Timestamp;
@@ -13876,6 +13891,7 @@
     }
     async function coinSpin() {
         if(coinBusy || wheelSpinning) return;
+        if(!coinGameOn) return ccToast(COIN_OFF_TXT + ': l’estrazione con monete è ferma', true);
         if(!navigator.onLine) return ccToast('Per girare la ruota con monete serve la connessione', true);
         coinBusy = true; coinSpinBtns(false, 'UN ATTIMO…');
         try {
@@ -13900,6 +13916,14 @@
 
     // ── area admin: monete, guadagni, vendite e fasce della ruota per operatore ──
     let admCoin = null;
+    // acceso/spento per tutti: si salva nelle impostazioni (le regole Firebase lo controllano); nessun dato si cancella
+    async function admSetCoinGame(on) {
+        if(!on && !confirm('Sospendere il gioco delle monete?\n\nLe monete guadagnate restano a tutti. Finché è sospeso non si fanno estrazioni con monete e il mercato è fermo.')) return;
+        try {
+            await cfgRef('settings').set({ coinGame: !!on }, { merge: true });
+            coinGameOn = !!on; coinOnGameChange(); showAdminToast(on ? 'Gioco delle monete riattivato' : 'Gioco delle monete sospeso');
+        } catch(e) { showAdminToast('Non riuscito: ' + (e.code || e.message)); }
+    }
     function admRenderMonete() {
         const box = document.getElementById('adm-monete'); if(!box) return;
         if(!fbReady) { box.innerHTML = '<div class="adm-empty">Serve la connessione.</div>'; return; }
@@ -13912,6 +13936,7 @@
             return;
         }
         if(admCoin.err) { box.innerHTML = `<div class="adm-note"><span class="material-icons-round">lock</span><div>${admCoin.err === 'permission-denied' ? 'Le monete non sono ancora attive: vanno pubblicate in Firebase le regole nuove (file firebase/firestore.rules).' : 'Non riesco a leggere le monete: ' + admEsc(admCoin.err)}</div></div>`; return; }
+        const sw = `<div class="adm-card adm-coin-sw"><span class="material-icons-round">${coinGameOn ? 'toggle_on' : 'toggle_off'}</span><div><b>Gioco delle monete ${coinGameOn ? 'attivo' : 'sospeso'}</b><small>${coinGameOn ? 'Si guadagnano monete con la ruota e si comprano le fasce.' : 'Nessuno guadagna o scambia monete. I saldi restano com’erano.'}</small></div><button class="adm-btn${coinGameOn ? '' : ' primary'}" onclick="admSetCoinGame(${!coinGameOn})">${coinGameOn ? 'Sospendi' : 'Riattiva'}</button></div>`;
         const L = coinLedger(admCoin.ests, admCoin.offers), ests = admCoin.ests.slice().sort((a, b) => coinMs(b.day) - coinMs(a.day));
         const offers = admCoin.offers.slice().sort((a, b) => (coinMs(b.doneAt) || coinMs(b.createdAt)) - (coinMs(a.doneAt) || coinMs(a.createdAt)));
         const st = {}; const S = n => st[n] || (st[n] = { pay: 0, sell: 0, buy: 0, nSell: 0, nBuy: 0, f: [0, 0, 0], last: 0 });
@@ -13920,7 +13945,7 @@
         const names = Object.keys(st).sort((a, b) => (L.bal[b] || 0) - (L.bal[a] || 0) || a.localeCompare(b, 'it'));
         const total = Object.values(L.bal).reduce((a, b) => a + b, 0), done = offers.filter(o => o.status === 'accettata' && o.valid);
         const stName = o => o.status === 'accettata' ? (o.valid ? '<span class="adm-pill ok">fatto</span>' : '<span class="adm-pill warn">non valido</span>') : o.status === 'aperta' ? '<span class="adm-pill info">aperta</span>' : `<span class="adm-pill muted">${admEsc(o.status)}</span>`;
-        box.innerHTML = `<div class="adm-kpis">
+        box.innerHTML = sw + `<div class="adm-kpis">
                 ${admKpi('savings', total, 'Monete in circolazione', 'saldi di tutti', 'info')}
                 ${admKpi('casino', ests.length, 'Estrazioni con monete', 'una al giorno al massimo', 'info')}
                 ${admKpi('swap_horiz', done.length, 'Fasce vendute', 'scambi conclusi', 'ok')}
