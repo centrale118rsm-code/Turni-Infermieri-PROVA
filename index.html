@@ -464,7 +464,7 @@
         .spec-xa     { background: var(--bg-matr);   color: var(--t-matr);   border: 1px solid var(--b-matr);   font-size: 0.66rem; }
         .spec-cong.spec-cong-prev { background: linear-gradient(135deg, var(--bg-cong) 0 50%, var(--bg-ferie) 50% 100%); color: #1f1300; border-color: var(--b-ferie); text-shadow: 0 0 3px rgba(255,255,255,.65); }
         .hg-viewsw { margin: 0 auto 6px; }
-        .hs-wrap { overflow: auto; max-height: calc(94vh - 260px); border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); -webkit-overflow-scrolling: touch; }
+        .hs-wrap { overflow: auto; max-height: calc(94vh - 260px); border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); -webkit-overflow-scrolling: touch; overflow-anchor: none; }
         .hs-table { border-collapse: separate; border-spacing: 0; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
         .hs-table th, .hs-table td { padding: 0 4px; height: 24px; border-bottom: 1px solid var(--border); border-right: 1px solid rgba(148,163,184,.25); white-space: nowrap; text-align: center; }
         .hs-table thead th { position: sticky; z-index: 3; background: var(--bg-card); }
@@ -1077,6 +1077,12 @@
         #hours-modal.open { opacity:1; }
         #hours-modal .modal-content { max-width:680px; max-height:94vh; }
         #hours-modal.open .modal-content { transform:translateY(0); }
+        /* conteggio orario a tutto schermo */
+        .hm-head-btns { display:flex; gap:8px; align-items:center; }
+        #hours-modal.hm-full { align-items:stretch; }
+        #hours-modal.hm-full .modal-content { max-width:none; width:100vw; max-height:none; height:100vh; height:100dvh; border-radius:0; }
+        #hours-modal.hm-full .modal-body { flex:1; }
+        #hours-modal.hm-full .hs-wrap { max-height:calc(100dvh - 230px); }
         .hc-header-badge { background:linear-gradient(135deg,#0f172a,#1e293b); color:#fff; }
         /* ── Centro notifiche ── */
         .nt-tabs { display:flex; gap:6px; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--bg); }
@@ -3155,7 +3161,10 @@
                 <h3><span class="material-icons-round" style="margin-right:10px">query_stats</span> CONTEGGIO ORARIO</h3>
                 <span>Ore del mese di tutti, settimana per settimana</span>
             </div>
-            <button class="btn-close-modal" onclick="closeHoursModal()"><span class="material-icons-round">close</span></button>
+            <div class="hm-head-btns">
+                <button class="btn-close-modal" id="hm-full-btn" onclick="hoursToggleFull()" title="Tutto schermo" aria-label="Tutto schermo"><span class="material-icons-round">open_in_full</span></button>
+                <button class="btn-close-modal" onclick="closeHoursModal()"><span class="material-icons-round">close</span></button>
+            </div>
         </div>
         <div class="modal-body">
             <div id="hc-list-view">
@@ -6116,7 +6125,20 @@
         const now = new Date(); hgMonth = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : (now.getFullYear() > SHIFT_YEAR ? 11 : 0);
         renderHoursGrid();
         let m = document.getElementById('hours-modal'); m.style.display = 'flex';
+        hoursApplyFull();
         setTimeout(()=>m.classList.add('open'),10);
+    }
+    // Tutto schermo: la finestra occupa tutto lo schermo (si ricorda la scelta su questo telefono)
+    let hoursFull = (() => { try { return localStorage.getItem('hours_full_v1') === '1'; } catch(e) { return false; } })();
+    function hoursApplyFull() {
+        const m = document.getElementById('hours-modal'), b = document.getElementById('hm-full-btn');
+        if(m) m.classList.toggle('hm-full', hoursFull);
+        if(b) { b.querySelector('.material-icons-round').textContent = hoursFull ? 'close_fullscreen' : 'open_in_full'; b.title = hoursFull ? 'Esci da tutto schermo' : 'Tutto schermo'; b.setAttribute('aria-label', b.title); }
+    }
+    function hoursToggleFull() {
+        vibrate(); hoursFull = !hoursFull; try { localStorage.setItem('hours_full_v1', hoursFull ? '1' : '0'); } catch(e) {}
+        hoursApplyFull();
+        if(hoursChartInstance) setTimeout(() => { try { hoursChartInstance.resize(); } catch(e) {} }, 50);
     }
     function closeHoursModal(e) {
         if(e && e.target !== e.currentTarget) return;
@@ -8712,9 +8734,11 @@
         const months = Object.keys(parts).map(Number).sort((a, b) => a - b), gen = ++hsGen;
         const tb = m => `<tbody data-m="${m}">${parts[m]}</tbody>`;
         const startM = months.includes(curM) ? curM : months[0], progressive = !keepTop && months.length > 2;
-        el.innerHTML = `<div class="hs-wrap ${one ? 'hs-one' : ''}"><table class="hs-table"><thead>${head1}${head2}</thead>${(progressive ? [startM] : months).map(tb).join('')}</table></div>`;
+        // si parte dal mese corrente più il successivo, così c'è spazio per portare oggi in alto
+        const firstMs = progressive ? months.filter(m => m >= startM).slice(0, 2) : months;
+        el.innerHTML = `<div class="hs-wrap ${one ? 'hs-one' : ''}"><table class="hs-table"><thead>${head1}${head2}</thead>${firstMs.map(tb).join('')}</table></div>`;
         if(progressive) {
-            const after = months.filter(m => m > startM), before = months.filter(m => m < startM).reverse();
+            const after = months.filter(m => m > firstMs[firstMs.length - 1]), before = months.filter(m => m < startM).reverse();
             const step = () => {
                 const w = el.querySelector('.hs-wrap'), table = w && w.querySelector('table');
                 if(gen !== hsGen || !table) return;
