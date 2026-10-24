@@ -4067,6 +4067,10 @@
                 customCodes = data.customCodes || {}; applyCustomCodes();
                 if(finalData.length && document.querySelector('#table-body tr[data-row]')) renderTable();
             }
+            if(data.oreAssenze !== undefined) {   // ore delle assenze importate dal file Excel principale
+                const m = (data.oreAssenze || {}).min || {};
+                if(JSON.stringify(m) !== JSON.stringify(absMinImported)) { absMinImported = m; if(finalData.length) refreshAfterRemoteOverrides(); }
+            }
             if(data.ferieRules) { ferieRules = Object.assign({}, FERIE_DEFAULT, data.ferieRules); if(calOverview) renderOverviewSoon(); }
             if(data.coordinatorName !== undefined) {
                 coordinatorName = data.coordinatorName || null;
@@ -5844,15 +5848,72 @@
         return (year && year !== SHIFT_YEAR) ? `${k}@${year}` : k;
     }
 
-    // Assenze giustificate (ferie, recupero, congedo, malattia, permessi, festivi, gravidanza,
-    // sostituzione coordinatore…): coprono l'intera giornata di contratto, cioè ore settimanali
-    // ÷ 6 nei giorni lun–sab (6 h con 36 h); la domenica non matura ore e vale 0.
-    function justifiedDayMinutes(rowIdx, colIdx) {
+    // Giornata di contratto: ore settimanali ÷ 6 nei giorni lun–sab (6 h con 36 h); la domenica vale 0.
+    function contractDayMinutesAt(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return 0;
         const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
         if(mi === undefined || isNaN(dn)) return 0;
         if(!isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
         return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
+    }
+    // ── Ore delle assenze come nel file Excel principale (m-Infermieri 2026.xlsm, foglio CONTEGGI ORARI) ──
+    // Un'assenza (ferie, recupero, congedo, malattia, permessi, gravidanza, sostituzione coordinatore…)
+    // vale l'orario del turno che si sarebbe fatto quel giorno, non 6 ore fisse. 1) Se è stato importato
+    // il file principale, si usano le sue ore (al minuto). 2) Se sopra c'è scritto il turno, vale quel
+    // turno. 3) Altrimenti si guarda l'ultimo giorno valido prima (o il primo dopo): per i turnisti il
+    // turno si ricava dal ciclo P › M › N › S › R, per i diurnisti vale la giornata diurna (7:12, dal
+    // 1/10/2026 6 h).
+    // Un'assenza su un riposo non conta; il festivo non goduto (ng) resta la giornata di contratto.
+    let absMinImported = {};   // "YYYY-MM-DD|NOME" -> minuti, dal file principale (campo oreAssenze delle impostazioni)
+    const ABS_CYCLE = ['P', 'M', 'N', 'SM', 'R'];
+    function absOwnCode(cell) {
+        let v = String((cell && cell.v) || '').trim(); const si = v.indexOf('/'); if(si !== -1) v = v.slice(0, si).trim();
+        return v;
+    }
+    function absCycleCode(cell) {
+        if(!cell) return null;
+        const sub = String(cell.subV || '').trim().toLowerCase();
+        if(sub && Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) return null;
+        const v = absOwnCode(cell); if(!v) return null;
+        if(/^[mpr]$/.test(v)) return 'd';   // minuscoli = diurnista
+        const u = v.toUpperCase().replace(/\s+/g, '');
+        if(v !== u) return null;
+        if(u === 'M+N' || u === 'MN') return 'M';
+        if(u === 'S') return 'SM';
+        return ABS_CYCLE.includes(u) ? u : null;
+    }
+    function plannedShiftMinutes(rowIdx, colIdx) {
+        // l'ultimo giorno valido prima dell'assenza (fino a 40 giorni), se non c'è il primo dopo (fino a 5):
+        // confrontato col file Excel è il modo che ci azzecca più spesso, anche nelle ferie lunghe
+        const at = (dir, k) => {
+            const c = absCycleCode((finalData[rowIdx + dir * k] || [])[colIdx]);
+            if(!c) return null;
+            if(c === 'd') return minutesFromRange(diurniSched('m', repRowDate(rowIdx)));
+            const code = ABS_CYCLE[((ABS_CYCLE.indexOf(c) - dir * k) % 5 + 5) % 5];
+            return code === 'R' ? 0 : minutesFromRange(SCHEDULE[code]);
+        };
+        for(let k = 1; k <= 40 && rowIdx - k >= 1; k++) { const m = at(-1, k); if(m !== null) return m; }
+        for(let k = 1; k <= 5; k++) { const m = at(1, k); if(m !== null) return m; }
+        return null;
+    }
+    function absImportedMinutes(rowIdx, colIdx) {
+        const iso = repRowDate(rowIdx), d = getDriverByIdx(colIdx);
+        if(!iso || !d) return null;
+        const v = absMinImported[iso + '|' + d.originalName];
+        return typeof v === 'number' ? v : null;
+    }
+    function justifiedDayMinutes(rowIdx, colIdx) {
+        const cell = (finalData[rowIdx] || [])[colIdx] || {};
+        const own = absOwnCode(cell), sub = String(cell.subV || '').trim().toLowerCase();
+        const imp = absImportedMinutes(rowIdx, colIdx); if(imp !== null) return imp;
+        if(/^(r|riposo)$/i.test(own)) return 0;
+        if(sub === 'ng') return contractDayMinutesAt(rowIdx, colIdx);
+        if(own && own !== '-') {
+            const t = /^[a-z]/.test(own) ? diurniSched(own, repRowDate(rowIdx)) : SCHEDULE[own.toUpperCase().replace(/\s+/g, '')];
+            if(t !== undefined) return minutesFromRange(t);
+        }
+        const pm = plannedShiftMinutes(rowIdx, colIdx); if(pm !== null) return pm;
+        return contractDayMinutesAt(rowIdx, colIdx);
     }
     // Il giorno dopo un permesso notte è libero se non ha un turno suo né un'altra assenza
     function pnTailFree(cell) {
@@ -5952,10 +6013,8 @@
         if(rawU === "M+N" || rawU === "MN") return minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]);
         let sub = (cell.subV||"").toString().trim().toLowerCase();
         if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) {
-            // assenza giustificata: copre la giornata (6 h con 36 h/sett.), la domenica 0
-            const r = finalData[rowIdx], mi = MONTH_MAP[r[0].v], dn = parseInt(r[1].v);
-            if(mi === undefined || isNaN(dn) || new Date(shiftRowYear(rowIdx), mi, dn).getDay() === 0) return 0;
-            return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
+            // assenza giustificata: l'orario del turno che avrebbe fatto (come nel file Excel principale)
+            return justifiedDayMinutes(rowIdx, colIdx);
         }
         let v = raw; let si = v.indexOf('/'); if(si !== -1) v = v.substring(0,si).trim();
         if(!v || v === "-") return 0;
@@ -6107,7 +6166,7 @@
         if(/^\d+([.,]\d+)?$/.test(subRaw) && !(cell.perm && cell.perm.k)) {
             const h = parseFloat(subRaw.replace(',', '.'));
             if(h > 0 && h <= 24) {
-                let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
+                let v = (cell.v || '').toString().trim(); if(isRepStr(v) || /^\/\s*r$/i.test(v)) v = v.slice(0, v.indexOf('/')).trim();   // "/R" da solo = solo reperibile, nessun turno
                 const onShift = v && v !== '-' && !/^r(iposo)?$/i.test(v);
                 return Object.assign({}, cell, onShift ? { subV: '', perm: { k: 'pl', h } } : { subV: 'pl', perm: { k: 'pl', h } }, { writtenAs: subRaw });
             }
@@ -6931,6 +6990,7 @@
         { k: 'fest', label: 'Festivi' },
         { k: 'repT', label: 'Reperibilità', sub: 'turni' },
         { k: 'repH', label: 'Ore rep.', fmt: m => Math.round(m / 60) },
+        { k: 'repCop', label: 'Rep. coperte', sub: 'ore per colleghi', fmt: m => Math.round(m / 60), onlyDoers: true },
         { k: 'saldo', label: 'Saldo ore', fmt: m => fmtHM(m, true) || '0:00', signed: true }
     ];
     function openEquity() {
@@ -7418,6 +7478,85 @@
         const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.xlsx';
         inp.onchange = () => { const f = inp.files[0]; if(!f) return; const r = new FileReader(); r.onload = () => importLoadBuffer(r.result, f.name); r.readAsArrayBuffer(f); };
         inp.click();
+    }
+    // ═══ FILE EXCEL PRINCIPALE (m-Infermieri 2026.xlsm) ═══════════════════
+    // Dal file principale si leggono: i turni dal foglio CARTELLINO (stesso contenuto e stessa forma del
+    // file piccolo infermieri.xlsx) e le ore delle assenze dal foglio CONTEGGI ORARI (per ogni infermiere,
+    // 5 colonne: codice assenza, turno, ore lavorate, ore di assenza, settimana). Le ore delle assenze si
+    // salvano subito (campo oreAssenze delle impostazioni) e il conteggio orario dell'app le usa al minuto; i turni
+    // passano dal solito confronto di "Importa da Excel" prima di finire nel calendario.
+    function xlCellVal(v) {
+        if(v && typeof v === 'object' && !(v instanceof Date)) v = v.result !== undefined ? v.result : (v.richText ? v.richText.map(t => t.text).join('') : (v.text || ''));
+        return v === undefined || v === null ? '' : v;
+    }
+    function xlMinutes(v) {
+        v = xlCellVal(v);
+        if(v instanceof Date) return Math.round(((v.getTime() / 60000) % 1440 + 1440) % 1440);
+        if(typeof v === 'number') return Math.round(v * 1440);
+        const m = String(v).trim().match(/^(-?)(\d{1,2}):(\d{2})/); if(!m) return null;
+        return (m[1] ? -1 : 1) * (+m[2] * 60 + +m[3]);
+    }
+    function mainParseWorkbook(wb) {
+        const ct = wb.getWorksheet('CONTEGGI ORARI'), car = wb.getWorksheet('CARTELLINO');
+        if(!ct || !car) throw new Error('non è il file principale: mancano i fogli CONTEGGI ORARI o CARTELLINO');
+        const year = parseInt(xlCellVal(ct.getCell('A2').value)) || activeYear;
+        // ore delle assenze: riga 2 = nomi ("Mosca M.P.", uno ogni 5 colonne), dalla riga 6 un giorno per riga
+        const people = [], surname = n => normalizeNameForMatch(String(n).split(/\s+/)[0]);
+        for(let c = 1; c <= 130; c++) {
+            const n = String(xlCellVal(ct.getCell(2, c).value)).trim(); if(!n || n.length < 3 || n.startsWith('#')) continue;
+            const d = drivers.find(x => normalizeNameForMatch(x.originalName) === normalizeNameForMatch(n) || normalizeNameForMatch(x.name) === normalizeNameForMatch(n))
+                || drivers.find(x => normalizeNameForMatch(x.originalName) === surname(n) || normalizeNameForMatch(x.name) === surname(n));
+            if(d && !people.some(p => p.d === d)) people.push({ c, d });
+        }
+        const min = {}; let y = year, month = -1, nAbs = 0;
+        for(let r = 6; r <= ct.rowCount; r++) {
+            const mTxt = String(xlCellVal(ct.getCell(r, 1).value)).toUpperCase();
+            const mk = Object.keys(MONTH_MAP).find(m => mTxt.includes(m));
+            if(mk !== undefined) { const mi = MONTH_MAP[mk]; if(mi < month) y++; month = mi; }
+            const dn = parseInt(xlCellVal(ct.getCell(r, 2).value)); if(month < 0 || isNaN(dn) || dn < 1 || dn > 31) continue;
+            const iso = ymd(new Date(y, month, dn));
+            people.forEach(p => {
+                const code = String(xlCellVal(ct.getCell(r, p.c).value)).trim();
+                if(!code || code === '0' || code.startsWith('#')) return;
+                const m = xlMinutes(ct.getCell(r, p.c + 3).value); if(m === null) return;   // "X" o vuoto: ore non ancora scritte
+                min[iso + '|' + p.d.originalName] = m; nAbs++;
+            });
+        }
+        return { raw: importReadRaw(car), min, nAbs, people: people.length };
+    }
+    async function importMainBuffer(buf, fileName) {
+        ccToast('Leggo il file principale… (qualche secondo)');
+        try {
+            await loadLib('excel');
+            const wb = new ExcelJS.Workbook(); await wb.xlsx.load(buf);
+            const res = mainParseWorkbook(wb);
+            if(!res.people) throw new Error('nel foglio CONTEGGI ORARI non trovo gli infermieri dell’app');
+            absMinImported = res.min; refreshAfterRemoteOverrides();
+            // nelle impostazioni (documento già ammesso dalle regole di Firebase); update sostituisce tutto il campo
+            if(fbReady) await cfgRef('settings').update({ oreAssenze: { min: res.min, fileName, importedAt: new Date().toISOString(), by: whoAmI() } });
+            if(dataSourceMode === 'firebase') {
+                importAnalyze(importParseRaw(res.raw), fileName);
+                ccGo('importa');
+                ccToast(`Ore di ${res.nAbs} assenze prese dal file principale. Controlla qui sotto i turni che cambiano, poi Porta nel calendario.`);
+            } else {
+                ccToast(`Ore di ${res.nAbs} assenze prese dal file principale: il conteggio orario ora le usa al minuto. I turni restano quelli di infermieri.xlsx.`);
+                ccRefreshIfOpen();
+            }
+        } catch(e) { console.error(e); ccToast('File principale non leggibile: ' + (e.message || e), true); }
+    }
+    function importPickMain() {
+        const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.xlsm,.xlsx';
+        inp.onchange = () => { const f = inp.files[0]; if(!f) return; const r = new FileReader(); r.onload = () => importMainBuffer(r.result, f.name); r.readAsArrayBuffer(f); };
+        inp.click();
+    }
+    function importPickSmall() {
+        if(dataSourceMode !== 'firebase') { ccToast('L’app legge già infermieri.xlsx da sola: per aggiornarla basta caricare il file nuovo su GitHub. Il caricamento da qui serve dopo il passaggio a Firebase.', true); return; }
+        ccGo('importa'); importPickFile();
+    }
+    function absImportInfoHtml() {
+        const n = Object.keys(absMinImported).length;
+        return n ? `<p class="cc-note" style="margin-top:10px">Ore delle assenze dal file principale: <b>${n}</b> giorni. Il conteggio orario usa queste ore, al minuto; per le assenze inserite dopo ricava il turno dai giorni vicini.</p>`
+            : `<p class="cc-note" style="margin-top:10px">Ore delle assenze dal file principale: non ancora importate. Finché non lo carichi, per le assenze l’app ricava il turno che si sarebbe fatto dai giorni vicini.</p>`;
     }
     async function importFromOfficial() {
         try {
@@ -8151,7 +8290,7 @@
         const all = buildDaysIndex(), days = eqPeriod === 'oggi' ? all.filter(dd => dd.date <= today) : all;
         const R = repData(), me = prefMe();
         const rows = drivers.filter(d => !d.hidden).map(d => {
-            const r = { d, isMe: !!me && me.idx === d.idx, notti: 0, dom: 0, sab: 0, we: 0, fest: 0, repT: 0, repF: 0, repH: 0, worked: 0, active: false };
+            const r = { d, isMe: !!me && me.idx === d.idx, notti: 0, dom: 0, sab: 0, we: 0, fest: 0, repT: 0, repF: 0, repH: 0, repCop: 0, worked: 0, active: false };
             days.forEach(dd => {
                 const info = computeDayInfo(dd.rowIdx, d.idx); r.worked += info.minutes || 0; if(info.code) r.active = true;
                 const c = info.justified ? '' : info.code;
@@ -8164,7 +8303,12 @@
                 }
                 const iso = ymd(dd.date);
                 if(R.tit[iso] === d.originalName) { r.repT++; if(repIsFestive(iso)) r.repF++; }
-                (R.days[iso] || []).forEach((who, s) => { if(who === d.originalName) r.repH += REP_SLOTS[s].minutes; });
+                (R.days[iso] || []).forEach((who, s) => {
+                    if(who !== d.originalName) return;
+                    r.repH += REP_SLOTS[s].minutes;
+                    // fascia ricevuta da un collega con una cessione: ore coperte per altri
+                    const tit = repTitolareOfSlot(R, iso, s); if(tit && tit !== who) r.repCop += REP_SLOTS[s].minutes;
+                });
             });
             r.we = r.sab + r.dom;
             r.saldo = r.worked - contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date), d.idx);
@@ -8209,7 +8353,7 @@
                 return `<div class="eq-m ${dv.cls}"><small>${c.label}</small><b>${txt(c, v)}${dv.d && dv.d !== '=' ? `<sup>${dv.d}</sup>` : ''}</b><i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></div>`; }).join('')}</div></div>`).join('');
         document.getElementById('eq-grid').innerHTML = summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, 860)}</div><div class="eq-cards">${cards}</div>`;
         const pw = document.getElementById('eq-pairs'); if(pw) pw.innerHTML = pairsHtml(eqPeriod, 'eq');
-        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti la media conta solo chi ne fa. Tocca un titolo o un riquadro in alto per ordinare.`;
+        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti e per le reperibilità coperte (fasce ricevute da un collega con una cessione) la media conta solo chi ne fa. Tocca un titolo o un riquadro in alto per ordinare.`;
     }
 
     // ═══ NOTE: AL COORDINATORE, AI COLLEGHI, A TUTTI ════════════════════════
@@ -10470,6 +10614,14 @@
                     <button class="cc-btn" onclick="takeSnapshot('manuale').then(id => { if(id) { ccToast('Copia creata'); ccRefreshIfOpen(); } })"><span class="msym">save_as</span>Crea copia adesso</button>
                     <button class="cc-btn danger" onclick="pickBackupFile()"><span class="msym">upload</span>Ripristina da file…</button>
                 </div>
+            </div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Importa da Excel</h3></div><div class="cc-panel-body">
+                <p class="cc-note" style="margin-bottom:12px">Il file principale porta anche le ore esatte di ferie, permessi e malattie (il turno che si sarebbe fatto), così il conteggio orario è uguale a quello dell’Excel. Il file piccolo è quello che finora si caricava su GitHub per aggiornare l’app.</p>
+                <div class="cc-inline-form">
+                    <button class="cc-btn primary" onclick="importPickMain()"><span class="msym">upload_file</span>File principale (m-Infermieri 2026.xlsm)</button>
+                    <button class="cc-btn" onclick="importPickSmall()"><span class="msym">upload_file</span>File piccolo (infermieri.xlsx)</button>
+                </div>
+                ${absImportInfoHtml()}
             </div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Copie automatiche</h3><span class="cc-hint">una al giorno, ultime 14</span></div><div class="cc-panel-body" id="dat-snaps"><p class="cc-note">Carico…</p></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Storico modifiche</h3><span class="cc-hint">ultimi 7 giorni</span></div><div class="cc-panel-body" id="dat-log"><p class="cc-note">Carico…</p></div></div>
