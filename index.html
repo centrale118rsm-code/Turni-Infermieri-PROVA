@@ -2708,8 +2708,17 @@
         }
         #richieste-iframe { flex: 1; border: none; width: 100%; background: #fff; }
     </style>
+    <style>
+        /* Modalità offline: avviso in basso quando manca la rete */
+        #net-offline { position:fixed; left:50%; bottom:calc(14px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:9940; display:none; align-items:center; gap:6px; max-width:calc(100% - 32px); padding:6px 12px; border-radius:999px; background:#7c2d12; color:#fff; font:600 12.5px/1.25 system-ui,-apple-system,'Segoe UI',sans-serif; box-shadow:0 4px 14px rgba(0,0,0,.25); cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        #net-offline.show { display:flex; }
+        #net-offline .material-icons-round { font-size:16px; color:#fff; }
+        #net-offline .net-txt { overflow:hidden; text-overflow:ellipsis; }
+        @media print { #net-offline { display:none !important; } }
+    </style>
 </head>
 <body>
+<div id="net-offline" role="status" onclick="netOfflineInfo()"><span class="material-icons-round">cloud_off</span><span class="net-txt">Senza rete</span></div>
 
 <div id="graziella-modal" onclick="closeGraziellaModal()">
     <img src="graziella.jpg" alt="Graziella" id="graziella-large-img">
@@ -3836,6 +3845,7 @@
         setTimeout(() => { const go = () => loadLib('chart').catch(() => {}); window.requestIdleCallback ? requestIdleCallback(go, { timeout: 10000 }) : go(); }, 8000);
         // impostazioni e reperibilità subito: non aspettano la scrittura della sessione (connessione lenta o assente)
         listenConfigChanges();
+        netWatchSync();         // ora dell'ultimo allineamento, per l'avviso "Senza rete"
         listenReperibilita();   // le richieste in arrivo si ascoltano solo sul telefono del coordinatore
         listenOpNotes();        // note degli operatori per il coordinatore
         try {
@@ -4027,7 +4037,8 @@
     function listenConfigChanges() {
         if(!fbReady) return;
         cfgRef('settings').onSnapshot(doc => {
-            if(!doc.exists) { seedNamespaceSettings(); resolveConfigReady(); return; }
+            // senza rete un documento che manca dalla copia sul dispositivo non vuol dire che non esista: niente copia iniziale
+            if(!doc.exists) { if(!doc.metadata.fromCache) seedNamespaceSettings(); resolveConfigReady(); return; }
             const data = doc.data();
             if(data.dataSource !== undefined) dataSourceMode = data.dataSource === 'firebase' ? 'firebase' : 'excel';
             if(data.activeYear !== undefined && data.activeYear) {
@@ -5276,6 +5287,7 @@
 
     if('serviceWorker' in navigator && !SERVER_MODE) navigator.serviceWorker.register('sw.js').catch(() => {});
     window.onload = async () => {
+        netUpdateBadge();
         initFirebaseTracking();
         try {
             const lastUp = new Date(document.lastModified);
@@ -9883,9 +9895,9 @@
     function seedNamespaceSettings() {
         if(!DATA_NS || nsSeedTried || !fbReady) return;
         nsSeedTried = true;
-        db.collection('infermieri26_config').doc('settings').get().then(d => {
+        db.collection('infermieri26_config').doc('settings').get({ source: 'server' }).then(d => {
             if(!d.exists) return;
-            return cfgRef('settings').get().then(p => { if(!p.exists) return cfgRef('settings').set(Object.assign({}, d.data(), { copiedFromSharedAt: new Date().toISOString() })); });
+            return cfgRef('settings').get({ source: 'server' }).then(p => { if(!p.exists) return cfgRef('settings').set(Object.assign({}, d.data(), { copiedFromSharedAt: new Date().toISOString() })); });
         }).catch(e => console.error('Copia iniziale impostazioni non riuscita:', e));
     }
 
@@ -9982,6 +9994,7 @@
         const rep = repBuildPayload();
         if(!changes.length && !rep) { ccToast('Non ci sono modifiche da salvare.'); return true; }
         if(!fbReady) { ccToast('Firebase non disponibile: le modifiche restano su questo dispositivo.', true); return false; }
+        if(netBlockWrite('Senza rete i turni non si salvano: le modifiche restano qui, salvale appena torna la connessione.')) { draftSaveNow(); return false; }
         vibrate(); saveInFlight = true; ccToast('Salvataggio in corso…');
         const batch = db.batch();
         if(changes.length) addCellWrites(batch, changes);
@@ -10313,6 +10326,7 @@
     // un documento per mese; le reperibilità "/R" dell'Excel diventano reperibilità dell'app.
     async function ccMigrateToFirebase(skipConfirm) {
         if(dataSourceMode === 'firebase') return;
+        if(netBlockWrite()) return;
         if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
         if(!excelParsedData.length || !finalData.length) { ccToast('Turni non ancora caricati: riprova tra poco.', true); return; }
         const year = SHIFT_YEAR;
@@ -10362,6 +10376,7 @@
     // telefono che apre l'app dal 1° gennaio lo fa per tutti) oppure a mano dall'Area Coordinatore.
     async function ccStartNewYear() {
         if(dataSourceMode !== 'firebase' || isViewingArchive()) return;
+        if(netBlockWrite()) return;
         if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
         const next = activeYear + 1;
         const ok = await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura dal menu, alla voce «Anni passati». Il ${next} parte con i turni già inseriti, la stessa squadra e le stesse ore di contratto; le ferie del ${activeYear} messe tra gennaio e marzo del ${next} diventano «ferie residue anno prima». Prima faccio una copia di sicurezza. A capodanno succede anche da solo.`, `Apri il ${next}`, 'solid-danger');
@@ -10830,6 +10845,48 @@
         t.innerHTML = `<span class="msym">${isErr ? 'error' : 'check_circle'}</span><span>${esc(msg)}</span>`;
         t.classList.toggle('err', !!isErr); t.classList.add('show');
         clearTimeout(ccToastTimer); ccToastTimer = setTimeout(() => t.classList.remove('show'), isErr ? 4200 : 2600);
+    }
+
+    // ── Modalità offline: senza rete l'app mostra l'ultimo calendario scaricato, in sola lettura ──
+    // La pagina, le librerie e l'Excel li tiene il service worker (sw.js); turni e impostazioni
+    // li tiene Firestore sul dispositivo. Quando torna la rete Firestore si riallinea da solo.
+    // Senza rete i salvataggi dei turni non partono (niente scritture in coda): restano "da salvare".
+    const NET_SYNC_KEY = 'net_last_sync_' + DATA_NS;
+    let netWasOffline = navigator.onLine === false;
+    function netIsOffline() { return navigator.onLine === false; }
+    function netMarkSync() { try { localStorage.setItem(NET_SYNC_KEY, String(Date.now())); } catch(e) {} }
+    function netLastSyncText() {
+        let t = 0; try { t = +localStorage.getItem(NET_SYNC_KEY) || 0; } catch(e) {}
+        if(!t) return '';
+        const d = new Date(t), day = d.toDateString() === new Date().toDateString() ? 'oggi' : d.toLocaleDateString('it-IT', { day:'numeric', month:'short' });
+        return day + ' alle ' + d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
+    }
+    function netUpdateBadge() {
+        const b = document.getElementById('net-offline'); if(!b) return;
+        const off = netIsOffline();
+        if(off) { const t = netLastSyncText(); b.querySelector('.net-txt').textContent = 'Senza rete · ' + (t ? 'turni aggiornati ' + t : 'ultimo calendario scaricato'); }
+        b.classList.toggle('show', off);
+    }
+    function netOfflineInfo() {
+        ccToast('Senza rete vedi l’ultimo calendario scaricato. Si aggiorna da solo appena torna la connessione. Per salvare le modifiche serve la rete.');
+        clearTimeout(ccToastTimer); ccToastTimer = setTimeout(() => { const t = document.getElementById('cc-toast'); if(t) t.classList.remove('show'); }, 6500);
+    }
+    // prima di un salvataggio: senza rete si ferma qui (true) e lo dice
+    function netBlockWrite(msg) {
+        if(!netIsOffline()) return false;
+        ccToast(msg || 'Senza rete non si può salvare: riprova appena torna la connessione.', true);
+        return true;
+    }
+    window.addEventListener('offline', () => { netWasOffline = true; netUpdateBadge(); });
+    window.addEventListener('online', () => { netUpdateBadge(); if(netWasOffline) { netWasOffline = false; ccToast('Rete tornata: il calendario si aggiorna da solo.'); } });
+    // Firestore dice se i dati arrivano dal server o dalla copia sul dispositivo: si annota l'ora dell'ultimo allineamento
+    function netWatchSync() {
+        if(!fbReady || SERVER_MODE) return;
+        let iv = null;
+        cfgRef('settings').onSnapshot({ includeMetadataChanges: true }, doc => {
+            if(doc.metadata.fromCache) { clearInterval(iv); iv = null; return; }
+            netMarkSync(); if(!iv) iv = setInterval(() => { if(!netIsOffline()) netMarkSync(); }, 60000);
+        }, () => {});
     }
 
     // ── Colori e sigle dei codici turno (riusano le variabili CSS del calendario) ──
