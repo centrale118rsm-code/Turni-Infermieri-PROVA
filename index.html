@@ -2302,6 +2302,23 @@
         .adm-search .material-icons-round { font-size:18px; color:var(--text-sec); } .adm-search input { flex:1; min-width:0; border:none; background:none; outline:none; color:var(--text-main); font:600 .82rem 'Plus Jakarta Sans',sans-serif; }
         .adm-note { display:flex; gap:10px; align-items:flex-start; padding:11px 14px; margin-bottom:14px; border-radius:12px; background:rgba(37,99,235,.07); border:1px solid rgba(37,99,235,.2); font-size:.78rem; line-height:1.45; color:var(--text-main); }
         .adm-note > .material-icons-round { color:#2563eb; font-size:19px; }
+        /* consumi Firebase */
+        .cons-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+        .cons-p { font-size:.8rem; color:var(--text-sec); line-height:1.45; margin:0 0 12px; } .cons-p b { color:var(--text-main); }
+        .cons-note { display:block; margin-top:10px; line-height:1.4; } .cons-note a { color:var(--primary); }
+        .cons-meters { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin:12px 0 16px; }
+        .cons-meter { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:12px 14px; min-width:0; }
+        .cons-meter-h { display:flex; flex-direction:column; gap:2px; font-size:.76rem; color:var(--text-sec); } .cons-meter-h span { font-size:1.05rem; font-weight:800; color:var(--text-main); white-space:nowrap; } .cons-meter-h small { font-size:.7rem; color:var(--text-sec); font-weight:600; }
+        .cons-meter-t { height:8px; border-radius:99px; background:var(--border); overflow:hidden; margin:8px 0 6px; } .cons-meter-t i { display:block; height:100%; border-radius:99px; background:#16a34a; }
+        .cons-meter.tone-warn .cons-meter-t i { background:#f59e0b; } .cons-meter.tone-err .cons-meter-t i { background:#dc2626; } .cons-meter > small { font-size:.7rem; color:var(--text-sec); }
+        .cons-meter.tone-err { border-color:#fca5a5; } .cons-meter.tone-warn { border-color:#fcd34d; }
+        .cons-chart .cons-track { flex:1; width:100%; position:relative; display:flex; align-items:flex-end; justify-content:center; }
+        .cons-chart .adm-col i.cons-r, .cons-chart .adm-col i.cons-w { display:block; background:#2563eb; } .cons-chart .adm-col i.cons-w { background:#f59e0b; } .cons-chart .adm-col i.over { background:#dc2626; }
+        .cons-lim { position:absolute; left:-3px; right:-3px; border-top:2px dashed rgba(220,38,38,.75); pointer-events:none; }
+        .adm-legend i.cons-lim-k { height:0; border-top:2px dashed rgba(220,38,38,.75); border-radius:0; vertical-align:3px; }
+        .adm-bar-t i.cons-wbar { background:#f59e0b; }
+        .cons-tr { grid-template-columns:1.6fr .7fr .7fr; }
+        @media (max-width:760px) { .cons-meters { grid-template-columns:1fr 1fr; } }
         .adm-empty { text-align:center; padding:34px 16px; color:var(--text-sec); font-size:.85rem; } .adm-empty .material-icons-round { display:block; font-size:36px; margin:0 auto 8px; opacity:.6; }
         .adm-empty.ok .material-icons-round { color:#16a34a; opacity:1; } .adm-empty.sm { padding:14px; } .adm-empty.sm .material-icons-round { font-size:24px; }
         .adm-err { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; margin-bottom:8px; box-shadow:inset 4px 0 0 #dc2626; overflow:hidden; }
@@ -2945,6 +2962,7 @@
                 <button class="admin-tab-btn" data-tab="ruota" onclick="switchAdminTab('ruota',this)"><span class="material-icons-round">casino</span><span class="adm-nav-l">Ruota della sfiga</span></button>
                 <button class="admin-tab-btn" data-tab="monete" onclick="switchAdminTab('monete',this)"><span class="material-icons-round">savings</span><span class="adm-nav-l">Monete e mercato</span></button>
                 <button class="admin-tab-btn" data-tab="registro" onclick="switchAdminTab('registro',this)"><span class="material-icons-round">history</span><span class="adm-nav-l">Registro modifiche</span></button>
+                <button class="admin-tab-btn" data-tab="consumi" onclick="switchAdminTab('consumi',this)"><span class="material-icons-round">data_usage</span><span class="adm-nav-l">Consumi Firebase</span><b class="adm-badge" id="adm-badge-consumi"></b></button>
                 <div class="adm-nav-grp">Configurazione</div>
                 <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span><span class="adm-nav-l">Aspetto</span></button>
                 <button class="admin-tab-btn" data-tab="operatori" onclick="switchAdminTab('operatori',this)"><span class="material-icons-round">badge</span><span class="adm-nav-l">Nomi operatori</span></button>
@@ -2969,6 +2987,7 @@
             <div class="admin-tab-panel" id="admin-tab-ruota"><div id="adm-ruota"></div></div>
             <div class="admin-tab-panel" id="admin-tab-monete"><div id="adm-monete"></div></div>
             <div class="admin-tab-panel" id="admin-tab-registro"><div id="adm-registro"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-consumi"><div id="adm-consumi"></div></div>
 
             <div class="admin-tab-panel" id="admin-tab-accessi">
                 <div class="adm-kpis three">
@@ -3758,6 +3777,87 @@
     // è quello in cui scrive anche il portale Richieste.
     const DATA_NS = 'prova_';
     function cfgRef(name) { return db.collection('infermieri26_config').doc(DATA_NS + name); }
+    // ── Contatore dei consumi Firebase ──────────────────────────────────
+    // Conta le letture, le scritture e le eliminazioni che fa QUESTA app sul dispositivo (non le altre
+    // app né le Functions) e ogni tanto le somma in admin_config/prova_consumi, per giorno "di Google"
+    // (le quote gratuite si azzerano a mezzanotte della California) e per documento o raccolta.
+    // È una stima: le letture servite dalla cache non costano e non si contano, ma Google a volte
+    // ne fa pagare qualcuna in più (ascoltatori che ripartono). Il dato ufficiale è nella scheda
+    // "Consumi Firebase" del pannello admin, letto da Google con l'accesso del proprietario.
+    const CONS_DOC = 'consumi', CONS_KEEP_DAYS = 35, CONS_FLUSH_MS = 10 * 60e3;
+    const CONS_DOC_COLS = ['infermieri26_config', 'admin_config'];   // qui si conta per documento, altrove per raccolta
+    // in admin_config perché le regole di infermieri26_config ammettono solo i documenti dei turni
+    function consRef() { return db.collection('admin_config').doc(DATA_NS + CONS_DOC); }
+    const consPT = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' });
+    const consDay = ms => consPT.format(new Date(ms == null ? Date.now() : ms));
+    const CONS_HERE = { r: 0, w: 0, x: 0, since: Date.now(), keys: {} };   // questo dispositivo da quando è aperta l'app
+    let consPend = {}, consDirty = false, consFlushing = null;
+    function consKey(path) {
+        const seg = String(path || '?').split('/').filter(Boolean);
+        const col = seg.length % 2 === 0 ? seg[seg.length - 2] : seg[seg.length - 1];
+        // i nomi dei documenti con date e numeri (log_2026-10-25, turni_2026-03) diventano uno solo
+        const k = seg.length % 2 === 0 && CONS_DOC_COLS.includes(col) ? String(seg[seg.length - 1]).replace(/\d{4}-\d{2}-\d{2}/g, '#data').replace(/\d+/g, '#') : col;
+        return String(k || '?').replace(/[^A-Za-z0-9_#-]+/g, '-').slice(0, 60) || '?';
+    }
+    function consPath(ref) {
+        try { return ref.path || (ref._delegate && ref._delegate._query && ref._delegate._query.path.canonicalString()) || '?'; } catch(e) { return '?'; }
+    }
+    function consAdd(kind, path, n) {
+        if(!n) return;
+        const k = consKey(path), day = consDay(), P = consPend[day] || (consPend[day] = { r: {}, w: {}, x: {} });
+        P[kind][k] = (P[kind][k] || 0) + n;
+        CONS_HERE[kind] += n; const h = CONS_HERE.keys[k] || (CONS_HERE.keys[k] = { r: 0, w: 0, x: 0 }); h[kind] += n;
+        // il salvataggio del contatore si conta ma non fa ripartire un altro salvataggio
+        if(k !== DATA_NS + CONS_DOC) consDirty = true;
+    }
+    (function consPatch() {
+        const F = firebase.firestore; if(!F || !F.DocumentReference || !F.Query) return;
+        const DR = F.DocumentReference.prototype, Q = F.Query.prototype;
+        const wrapW = (P, m, kind, refArg) => { const o = P && P[m]; if(typeof o !== 'function') return;
+            P[m] = function(...a) { try { consAdd(kind, consPath(refArg ? a[0] : this), 1); } catch(e) {} return o.apply(this, a); }; };
+        wrapW(DR, 'set', 'w'); wrapW(DR, 'update', 'w'); wrapW(DR, 'delete', 'x');
+        if(F.CollectionReference) { const o = F.CollectionReference.prototype.add; if(o) F.CollectionReference.prototype.add = function(...a) { try { consAdd('w', this.path, 1); } catch(e) {} return o.apply(this, a); }; }
+        [F.WriteBatch, F.Transaction].forEach(C => { if(C) { wrapW(C.prototype, 'set', 'w', 1); wrapW(C.prototype, 'update', 'w', 1); wrapW(C.prototype, 'delete', 'x', 1); } });
+        if(F.Transaction) { const o = F.Transaction.prototype.get; F.Transaction.prototype.get = function(ref) { try { consAdd('r', consPath(ref), 1); } catch(e) {} return o.apply(this, arguments); }; }
+        // letture: quelle arrivate dalla cache del telefono non costano; una ricerca vuota costa 1
+        const fresh = s => s && !(s.metadata && s.metadata.fromCache);
+        const dg = DR.get; DR.get = function(...a) { const p = consPath(this); return dg.apply(this, a).then(s => { if(fresh(s)) consAdd('r', p, 1); return s; }); };
+        const qg = Q.get; Q.get = function(...a) { const p = consPath(this); return qg.apply(this, a).then(s => { if(fresh(s)) consAdd('r', p, Math.max(1, s.size)); return s; }); };
+        // ascoltatori: la prima risposta del server costa tutti i documenti, poi solo quelli cambiati
+        const wrapL = (P, isQ) => { const o = P.onSnapshot; P.onSnapshot = function(...a) {
+            const p = consPath(this); let first = true;
+            const count = s => { if(!fresh(s) || s.metadata.hasPendingWrites) return; consAdd('r', p, isQ ? (first ? Math.max(1, s.size) : s.docChanges().length) : 1); first = false; };
+            const i = a.findIndex(x => typeof x === 'function' || (x && typeof x === 'object' && typeof x.next === 'function'));
+            if(i >= 0) { const h = a[i];
+                if(typeof h === 'function') a[i] = function(s) { try { count(s); } catch(e) {} return h.apply(this, arguments); };
+                else a[i] = { next: s => { try { count(s); } catch(e) {} return h.next(s); }, error: h.error && (e => h.error(e)), complete: h.complete && (() => h.complete()) };
+            }
+            return o.apply(this, a);
+        }; };
+        wrapL(DR, false); wrapL(Q, true);
+    })();
+    // salva le somme (una sola scrittura, e solo se c'è stato qualcosa da contare). Con la rete assente la
+    // scrittura resta in coda sul dispositivo e parte dopo; il motore aspetta al massimo qualche secondo.
+    function consFlush(waitMs) {
+        if(consFlushing || !consDirty || !fbReady || !db || !fbAuth || !fbAuth.currentUser) return consFlushing || Promise.resolve();
+        const pend = consPend; consPend = {}; consDirty = false;
+        const inc = firebase.firestore.FieldValue.increment, src = SERVER_MODE ? 'motore' : 'app', days = {};
+        Object.entries(pend).forEach(([day, P]) => {
+            const D = days[day] = { tot: {}, src: { [src]: {} } };
+            ['r', 'w', 'x'].forEach(kind => {
+                const e = Object.entries(P[kind]); if(!e.length) return;
+                let t = 0; D[kind] = {}; e.forEach(([k, n]) => { D[kind][k] = inc(n); t += n; });
+                D.tot[kind] = inc(t); D.src[src][kind] = inc(t);
+            });
+        });
+        const w = consRef().set({ days, updatedAt: Date.now() }, { merge: true }).catch(e => console.warn('Contatore consumi:', e && (e.code || e.message)));
+        consFlushing = Promise.race([w, new Promise(r => setTimeout(r, waitMs || 4000))]).finally(() => { consFlushing = null; });
+        return consFlushing;
+    }
+    setInterval(() => consFlush(), CONS_FLUSH_MS);
+    document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden') consFlush(); });
+    window.addEventListener('pagehide', () => consFlush());
+
     try {
         fbApp = firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
@@ -4347,6 +4447,7 @@
         ruota:      ['Ruota della sfiga', 'Statistiche delle estrazioni'],
         monete:     ['Monete e mercato', 'Crediti degli operatori, guadagni, vendite e fasce della ruota'],
         registro:   ['Registro modifiche', 'Chi ha cambiato cosa negli ultimi 7 giorni'],
+        consumi:    ['Consumi Firebase', 'Letture, scritture e Functions, come nella console di Firebase'],
         aspetto:    ['Aspetto', 'Colori dell’app per tutti'],
         operatori:  ['Nomi operatori', 'Nome mostrato nell’app per ogni colonna'],
         turni:      ['Orari turni', 'Orari standard dei turni'],
@@ -4420,7 +4521,7 @@
     }
     function admRenderTab() {
         if(!document.getElementById('admin-panel-modal') || document.getElementById('admin-panel-modal').style.display === 'none') return;
-        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, monete: admRenderMonete, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
+        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, monete: admRenderMonete, registro: admRenderRegistro, accessi: renderAdminAccessList, consumi: consRender }[admTab];
         if(f) { try { f(); } catch(e) { console.warn('Pannello admin:', e); } }
     }
     const admLoadingHtml = () => `<div class="adm-empty"><span class="material-icons-round adm-spin">autorenew</span>Carico i dati…</div>`;
@@ -4626,6 +4727,8 @@
         if(!lastSnap || Date.now() - lastSnap > 3 * 864e5) add('warn', 'backup', 'Nessuna copia di sicurezza recente', `Ultima copia ${admAgo(lastSnap)}. Si crea da sola aprendo l’Area coordinatore.`, '', '');
         const salAt = admData.saldi ? admMs(admData.saldi.updatedAt || admData.saldi.at) : 0;
         if(!salAt || Date.now() - salAt > 2 * 864e5) add('info', 'account_balance_wallet', 'Saldi per il portale Richieste non aggiornati di recente', `Ultimo aggiornamento ${admAgo(salAt)}.`, '', '');
+        if(consG) ['r', 'w', 'x'].forEach(k => { const v = consG.kinds[k][consG.kinds[k].length - 1], p = v / CONS_LIMITS[k];
+            if(p >= .7) add(p >= 1 ? 'err' : 'warn', 'data_usage', `${CONS_KIND[k]} Firebase di oggi: ${consFmt(v)} su ${consFmt(CONS_LIMITS[k])} gratuite`, p >= 1 ? (consG.plan === 'blaze' ? 'Oltre la quota gratuita: con il piano Blaze il resto si paga (pochi centesimi).' : 'Oltre la quota gratuita: con il piano gratuito Firebase smette di rispondere fino a domani.') : 'Ci si sta avvicinando alla quota gratuita di oggi.', "admGo('consumi')", 'Vedi consumi'); });
         if(dataSourceMode === 'excel') add('info', 'table_view', 'I turni arrivano dal file Excel', 'L’app è in modalità Excel: le modifiche si fanno sul file.', '', '');
         const rank = { err: 0, warn: 1, info: 2 }; return out.sort((a, b) => rank[a.sev] - rank[b.sev]);
     }
@@ -4696,6 +4799,167 @@
         const on = admReal().filter(s => s.online && admMs(s.lastActive) > Date.now() - 100000).length; set('adm-badge-accessi', on, 'ok');
     }
     function admAccSet(f) { vibrate(); admAccFilter = f; renderAdminAccessList(); }
+    // ── consumi Firebase ──
+    // Due fonti. 1) I numeri ufficiali di Google (gli stessi dei grafici della console Firebase), letti
+    // da Cloud Monitoring con un accesso Google del proprietario del progetto: il permesso dura un'ora e
+    // resta solo in questa scheda del browser, l'app non salva password né chiavi. 2) Il contatore
+    // interno (admin_config/prova_consumi), che dice QUALI documenti legge e scrive questa app.
+    const CONS_LIMITS = { r: 50000, w: 20000, x: 20000 };     // quote gratuite al giorno (piano Spark e Blaze)
+    const CONS_SCOPES = ['https://www.googleapis.com/auth/monitoring.read', 'https://www.googleapis.com/auth/cloud-billing.readonly'];
+    const CONS_KIND = { r: 'Letture', w: 'Scritture', x: 'Eliminazioni' };
+    let consTok = null, consG = null, consGErr = '', consGLoading = null, consMine = null, consMineAt = 0;
+    try { const t = JSON.parse(sessionStorage.getItem('cons_tok') || 'null'); if(t && t.exp > Date.now()) consTok = t; } catch(e) {}
+    const consFmt = n => Math.round(n || 0).toLocaleString('it-IT');
+    // ora italiana in cui Google azzera le quote (mezzanotte in California: le 9, o le 8 quando i cambi d'ora non coincidono)
+    function consResetHour() { const now = Date.now(); let ms = now; while(consDay(ms) === consDay(now)) ms += 15 * 60e3; return new Date(ms - ms % (15 * 60e3)).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Rome' }); }
+    const consDayLbl = day => { const [y, m, d] = day.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }); };
+    function consLastDays(n) { const out = []; let ms = Date.now(); while(out.length < n) { const d = consDay(ms); if(!out.includes(d)) out.unshift(d); ms -= 6 * 36e5; } return out; }
+
+    async function consSignIn() {
+        vibrate(); consGErr = '';
+        try {
+            const app = firebase.apps.find(a => a.name === 'consumi') || firebase.initializeApp(firebaseConfig, 'consumi');
+            const auth = app.auth(); await auth.setPersistence(firebase.auth.Auth.Persistence.NONE).catch(() => {});
+            const pr = new firebase.auth.GoogleAuthProvider(); CONS_SCOPES.forEach(s => pr.addScope(s)); pr.setCustomParameters({ prompt: 'select_account' });
+            const res = await auth.signInWithPopup(pr);
+            const t = res && res.credential && res.credential.accessToken;
+            if(!t) throw { code: 'no-token' };
+            consTok = { t, exp: Date.now() + 55 * 60e3, email: (res.user && res.user.email) || '' };
+            try { sessionStorage.setItem('cons_tok', JSON.stringify(consTok)); } catch(e) {}
+            auth.signOut().catch(() => {});   // serve solo il permesso di lettura dei consumi, non l'accesso all'app
+            await consLoadGoogle();
+        } catch(e) {
+            const c = String((e && e.code) || '');
+            consGErr = c.includes('operation-not-allowed') ? 'In Firebase non è attivo l’accesso con Google. Apri la console Firebase › Authentication › Metodo di accesso, attiva “Google” e salva, poi riprova.'
+                : c.includes('unauthorized-domain') ? `Il sito ${location.hostname} non è tra i domini autorizzati. Apri la console Firebase › Authentication › Impostazioni › Domini autorizzati, aggiungi ${location.hostname} e riprova.`
+                : c.includes('popup-blocked') ? 'Il browser ha bloccato la finestra di accesso: consenti i popup per questo sito e riprova.'
+                : c.includes('popup-closed') || c.includes('cancelled-popup') ? 'Accesso annullato.'
+                : 'Accesso non riuscito' + (c ? ' (' + c + ')' : '') + '. Sul telefono con l’app installata la finestra di Google a volte non si apre: prova dal browser o dal PC.';
+        }
+        consRender();
+    }
+    function consSignOut() { vibrate(); consTok = null; consG = null; try { sessionStorage.removeItem('cons_tok'); } catch(e) {} consRender(); }
+
+    async function consApi(url) {
+        const r = await fetch(url, { headers: { Authorization: 'Bearer ' + consTok.t } });
+        const j = await r.json().catch(() => ({}));
+        if(r.status === 401) { consSignOut(); throw new Error('Il permesso di Google è scaduto: accedi di nuovo.'); }
+        if(!r.ok) { const e = new Error((j.error && j.error.message) || ('errore ' + r.status)); e.status = r.status; throw e; }
+        return j;
+    }
+    // somme per ora dal Cloud Monitoring; le finestre di un'ora finiscono all'ora piena, così i giorni tornano esatti
+    async function consSeries(metric, group, hours) {
+        const end = Math.ceil(Date.now() / 36e5) * 36e5, base = `https://monitoring.googleapis.com/v3/projects/${firebaseConfig.projectId}/timeSeries`;
+        const q = endMs => { const p = new URLSearchParams({ filter: `metric.type="${metric}"`, 'interval.startTime': new Date(end - hours * 36e5).toISOString(), 'interval.endTime': new Date(endMs).toISOString(),
+            'aggregation.alignmentPeriod': '3600s', 'aggregation.perSeriesAligner': 'ALIGN_SUM', 'aggregation.crossSeriesReducer': 'REDUCE_SUM' });
+            if(group) p.append('aggregation.groupByFields', group); return base + '?' + p; };
+        let j; try { j = await consApi(q(end)); } catch(e) { if(e.status === 400) j = await consApi(q(Date.now())); else throw e; }
+        return (j.timeSeries || []).map(s => ({ name: group ? ((s.resource && s.resource.labels) || {})[group.split('.').pop()] || ((s.metric && s.metric.labels) || {})[group.split('.').pop()] || '?' : '',
+            pts: (s.points || []).map(p => ({ t: Date.parse(p.interval.endTime) - 1, v: +(p.value.int64Value || p.value.doubleValue || 0) })) }));
+    }
+    const consSum = (series, f) => series.reduce((a, s) => a + s.pts.filter(f).reduce((b, p) => b + p.v, 0), 0);
+    async function consLoadGoogle() {
+        if(!consTok) return; if(consGLoading) return consGLoading;
+        consGLoading = (async () => {
+            const H = 24 * 8, days = consLastDays(7), out = { at: Date.now(), days, hours: [], kinds: {}, fn: [], plan: null, email: consTok.email };
+            const pick = async (a, b) => { const s = await consSeries(a, '', H).catch(() => []); return s.some(x => x.pts.length) ? s : consSeries(b, '', H); };
+            const [r, w, x, f1, f2, bill] = await Promise.all([
+                pick('firestore.googleapis.com/document/read_ops_count', 'firestore.googleapis.com/document/read_count'),
+                pick('firestore.googleapis.com/document/write_ops_count', 'firestore.googleapis.com/document/write_count'),
+                pick('firestore.googleapis.com/document/delete_ops_count', 'firestore.googleapis.com/document/delete_count'),
+                consSeries('cloudfunctions.googleapis.com/function/execution_count', 'resource.label.function_name', H).catch(() => []),
+                consSeries('run.googleapis.com/request_count', 'resource.label.service_name', H).catch(() => []),
+                consApi(`https://cloudbilling.googleapis.com/v1/projects/${firebaseConfig.projectId}/billingInfo`).catch(() => null)
+            ]);
+            Object.entries({ r, w, x }).forEach(([k, s]) => { out.kinds[k] = days.map(d => consSum(s, p => consDay(p.t) === d)); });
+            // grafico per ora del giorno di Google in corso
+            const today = days[days.length - 1];
+            for(let t = Math.ceil(Date.now() / 36e5) * 36e5 - 36e5; consDay(t) === today; t -= 36e5) out.hours.unshift({ t, r: consSum(r, p => p.t >= t && p.t < t + 36e5), w: consSum(w, p => p.t >= t && p.t < t + 36e5) });
+            // Functions di 1ª generazione (cloudfunctions) e di 2ª (girano su Cloud Run): stesso nome = stessa funzione
+            const fn = {}; [...f1, ...f2].forEach(s => { const k = String(s.name).toLowerCase(); const v = { name: s.name, today: consSum([s], p => consDay(p.t) === today), week: consSum([s], p => days.includes(consDay(p.t))) };
+                if(!fn[k] || fn[k].week < v.week) fn[k] = v; });
+            out.fn = Object.values(fn).filter(v => v.week).sort((a, b) => b.week - a.week);
+            out.fnDays = days.map(d => consSum([...f1, ...f2.filter(s => !f1.some(z => String(z.name).toLowerCase() === String(s.name).toLowerCase()))], p => consDay(p.t) === d));
+            out.plan = bill ? (bill.billingEnabled ? 'blaze' : 'spark') : null;
+            consG = out; consGErr = '';
+        })().catch(e => { consGErr = 'Google non ha dato i dati: ' + ((e && e.message) || e) + (/disabled|has not been used/i.test(String(e && e.message)) ? ' Attiva “Cloud Monitoring API” nel progetto (link nel messaggio) e riprova tra qualche minuto.' : /permission|PERMISSION/i.test(String(e && e.message)) ? ' Accedi con l’account Google proprietario del progetto Firebase.' : ''); })
+          .finally(() => { consGLoading = null; consRender(); });
+        consRender();
+        return consGLoading;
+    }
+    async function consLoadMine(force) {
+        if(!fbReady || (!force && consMine && Date.now() - consMineAt < 60e3)) return;
+        consMineAt = Date.now();
+        try { await consFlush(); const s = await consRef().get(); consMine = s.exists ? (s.data() || {}) : {}; } catch(e) { consMine = consMine || {}; }
+        // si tengono solo gli ultimi 35 giorni
+        const old = Object.keys(consMine.days || {}).filter(d => d < consLastDays(CONS_KEEP_DAYS)[0]);
+        if(old.length) { const del = firebase.firestore.FieldValue.delete(), u = {}; old.forEach(d => { u['days.' + d] = del; delete consMine.days[d]; }); consRef().update(u).catch(() => {}); }
+        consRender();
+    }
+    function consRefresh() { vibrate(); consLoadMine(true); if(consTok) consLoadGoogle(); }
+
+    function consBars(vals, labels, limit, tone) {
+        const mx = Math.max(1, limit || 0, ...vals), short = v => v >= 1000 ? (v / 1000).toLocaleString('it-IT', { maximumFractionDigits: v >= 1e4 ? 0 : 1 }) + 'K' : v;
+        return `<div class="adm-chart cons-chart">${vals.map((v, i) => `<div class="adm-col" title="${admEsc(labels[i])}: ${consFmt(v)}"><span class="adm-col-v">${v ? short(v) : ''}</span><span class="cons-track">${limit ? `<b class="cons-lim" style="bottom:${limit / mx * 100}%"></b>` : ''}<i class="cons-${tone}${limit && v > limit ? ' over' : ''}" style="height:${v / mx * 100}%"></i></span><small>${admEsc(String(labels[i]).split(' ')[1] || labels[i])}</small></div>`).join('')}</div>${limit ? `<div class="adm-legend"><span><i class="cons-lim-k"></i>quota gratuita al giorno (${consFmt(limit)})</span></div>` : ''}`;
+    }
+    function consMeter(kind, v) {
+        const lim = CONS_LIMITS[kind], pct = v / lim * 100, tone = pct >= 100 ? 'err' : pct >= 70 ? 'warn' : 'ok';
+        return `<div class="cons-meter tone-${tone}"><div class="cons-meter-h"><b>${CONS_KIND[kind]} oggi</b><span>${consFmt(v)} <small>/ ${consFmt(lim)}</small></span></div><div class="cons-meter-t"><i style="width:${Math.min(100, pct)}%"></i></div><small>${pct >= 100 ? 'oltre la quota gratuita' + (consG && consG.plan === 'blaze' ? ': il resto si paga (pochi centesimi)' : ': con il piano gratuito Firebase si blocca fino a domani') : Math.round(pct) + '% della quota gratuita di oggi'}</small></div>`;
+    }
+    function consRender() {
+        const box = document.getElementById('adm-consumi'); if(!box || admTab !== 'consumi') return;
+        if(!consMine) { box.innerHTML = admLoadingHtml(); consLoadMine(); return; }
+        if(consTok && !consG && !consGLoading && !consGErr) consLoadGoogle();
+        const days = consLastDays(7), lbl = days.map(consDayLbl), G = consG, M = consMine.days || {};
+        const plan = G && G.plan ? (G.plan === 'blaze' ? ['ok', 'verified', 'Piano Blaze attivo', 'Paghi solo quello che supera le quote gratuite.'] : ['warn', 'savings', 'Piano gratuito (Spark)', 'Oltre le quote gratuite Firebase smette di rispondere fino al giorno dopo.']) : null;
+        const gToday = k => G ? G.kinds[k][G.kinds[k].length - 1] : 0;
+        let google;
+        if(!consTok) google = `<div class="adm-card"><h4><span class="material-icons-round">query_stats</span>Numeri ufficiali di Google</h4>
+            <p class="cons-p">Per vedere qui gli stessi numeri della console Firebase (letture, scritture, chiamate alle Functions e piano attivo) accedi con l’account Google <b>proprietario del progetto Firebase</b>. Il permesso è solo di lettura, dura un’ora e resta in questo browser.</p>
+            ${consGErr ? `<div class="adm-issue sev-warn"><span class="material-icons-round">error_outline</span><div><p>${admEsc(consGErr)}</p></div></div>` : ''}
+            <button class="adm-btn primary" onclick="consSignIn()"><span class="material-icons-round">login</span>Accedi con Google</button>
+            <small class="adm-muted cons-note">La prima volta Google può avvisare che l’app “non è verificata”: è normale per un’app privata, scegli “Avanzate” e poi “Vai a…”.</small></div>`;
+        else if(!G) google = `<div class="adm-card">${consGErr ? `<div class="adm-issue sev-err"><span class="material-icons-round">error</span><div><p>${admEsc(consGErr)}</p></div><button class="adm-btn sm" onclick="consLoadGoogle()">Riprova</button></div>` : admLoadingHtml()}</div>`;
+        else google = `${plan ? `<div class="adm-issue sev-${plan[0] === 'ok' ? 'info' : 'warn'}"><span class="material-icons-round">${plan[1]}</span><div><b>${plan[2]}</b><p>${plan[3]}</p></div></div>` : ''}
+            <div class="cons-meters">${consMeter('r', gToday('r'))}${consMeter('w', gToday('w'))}${consMeter('x', gToday('x'))}
+                <div class="cons-meter tone-info"><div class="cons-meter-h"><b>Chiamate Functions oggi</b><span>${consFmt(G.fnDays[G.fnDays.length - 1])}</span></div><small>${consFmt(G.fnDays.reduce((a, b) => a + b, 0))} negli ultimi 7 giorni</small></div></div>
+            <div class="adm-grid2">
+                <div class="adm-card"><h4><span class="material-icons-round">menu_book</span>Letture Firestore, ultimi 7 giorni</h4>${consBars(G.kinds.r, lbl, CONS_LIMITS.r, 'r')}</div>
+                <div class="adm-card"><h4><span class="material-icons-round">edit_note</span>Scritture Firestore, ultimi 7 giorni</h4>${consBars(G.kinds.w, lbl, CONS_LIMITS.w, 'w')}</div>
+            </div>
+            <div class="adm-grid2">
+                <div class="adm-card"><h4><span class="material-icons-round">schedule</span>Letture di oggi, ora per ora</h4>${G.hours.length ? consBars(G.hours.map(h => h.r), G.hours.map(h => 'ore ' + new Date(h.t).toLocaleTimeString('it-IT', { hour: 'numeric', timeZone: 'Europe/Rome' })), 0, 'r') : '<div class="adm-empty sm">Il giorno è appena iniziato.</div>'}<p class="cons-p" style="margin:10px 0 0">Sotto ogni colonna l’ora italiana in cui inizia.</p></div>
+                <div class="adm-card"><h4><span class="material-icons-round">functions</span>Functions, chiamate per funzione</h4>${G.fn.length ? `<div class="adm-table"><div class="adm-tr cons-tr adm-th"><span>Funzione</span><span>Oggi</span><span>7 giorni</span></div>${G.fn.slice(0, 12).map(f => `<div class="adm-tr cons-tr"><b>${admEsc(f.name)}</b><span>${consFmt(f.today)}</span><span>${consFmt(f.week)}</span></div>`).join('')}</div>` : '<div class="adm-empty sm">Nessuna chiamata alle Functions negli ultimi 7 giorni.</div>'}</div>
+            </div>
+            <small class="adm-muted cons-note">Dati Google delle ${new Date(G.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} per tutto il progetto Firebase (app ufficiale, app di prova, portale e Functions insieme). Google li pubblica con qualche minuto di ritardo. Accesso come ${admEsc(G.email || 'proprietario')} · <a href="#" onclick="consSignOut();return false">esci</a></small>`;
+        // contatore interno
+        const tot = (d, k) => ((M[d] || {}).tot || {})[k] || 0, srcT = (d, s) => (((M[d] || {}).src || {})[s] || {}).r || 0;
+        const today = days[days.length - 1], T = M[today] || {};
+        const top = k => Object.entries(T[k] || {}).sort((a, b) => b[1] - a[1]).slice(0, 8);
+        const topR = top('r'), topW = top('w').concat(top('x').map(([n, v]) => [n + ' (elimina)', v])).sort((a, b) => b[1] - a[1]).slice(0, 8);
+        const bars = (rows, cls) => { const mx = Math.max(1, ...rows.map(x => x[1])); return rows.length ? rows.map(([n, v]) => `<div class="adm-bar"><span class="adm-bar-l" title="${admEsc(n)}">${admEsc(n)}</span><span class="adm-bar-t"><i class="${cls}" style="width:${v / mx * 100}%"></i></span><b>${consFmt(v)}</b></div>`).join('') : '<div class="adm-empty sm">Ancora niente oggi.</div>'; };
+        const mine = `<div class="adm-sec-h"><span class="material-icons-round">phone_android</span>Misurato dall’app di prova</div>
+            <p class="cons-p">Queste sono solo le operazioni fatte da <b>questa app di prova</b> (telefoni, PC e motore delle notifiche), contate dall’app stessa. Non comprendono l’app ufficiale, il portale Richieste né le Functions, e non sono identiche al conteggio di Google: servono a capire <b>quali dati</b> pesano di più.</p>
+            <div class="adm-kpis three">
+                ${admKpi('menu_book', consFmt(tot(today, 'r')), 'Letture oggi', srcT(today, 'motore') ? `di cui motore ${consFmt(srcT(today, 'motore'))}` : '', 'info')}
+                ${admKpi('edit_note', consFmt(tot(today, 'w')), 'Scritture oggi', tot(today, 'x') ? `più ${consFmt(tot(today, 'x'))} eliminazioni` : '', 'info')}
+                ${admKpi('devices', consFmt(CONS_HERE.r), 'Letture da questo dispositivo', `${consFmt(CONS_HERE.w)} scritture da quando hai aperto l’app`, 'muted')}
+            </div>
+            <div class="adm-grid2">
+                <div class="adm-card"><h4><span class="material-icons-round">bar_chart</span>Letture dell’app di prova, 7 giorni</h4>${consBars(days.map(d => tot(d, 'r')), lbl, 0, 'r')}</div>
+                <div class="adm-card"><h4><span class="material-icons-round">bar_chart</span>Scritture dell’app di prova, 7 giorni</h4>${consBars(days.map(d => tot(d, 'w') + tot(d, 'x')), lbl, 0, 'w')}</div>
+            </div>
+            <div class="adm-grid2">
+                <div class="adm-card"><h4><span class="material-icons-round">visibility</span>Cosa legge di più, oggi</h4>${bars(topR, 'blue')}</div>
+                <div class="adm-card"><h4><span class="material-icons-round">edit</span>Cosa scrive di più, oggi</h4>${bars(topW, 'cons-wbar')}</div>
+            </div>`;
+        box.innerHTML = `<div class="cons-head"><span class="adm-muted">Il giorno di Google va da mezzanotte della California: le quote gratuite ripartono alle <b>${consResetHour()}</b> ora italiana.</span>
+                <button class="adm-btn sm" onclick="consRefresh()"><span class="material-icons-round">refresh</span>Aggiorna</button></div>
+            <div class="adm-sec-h"><span class="material-icons-round">query_stats</span>Tutto il progetto Firebase (dati Google)</div>
+            ${google}
+            ${mine}`;
+    }
+
 
     // ── Dettaglio singolo accesso ────────────────────────────────────────
     let accessDetailTicker = null;
@@ -7347,6 +7611,7 @@
         // il coordinatore con tutti i nomi con cui può aver scelto "chi sei" (nome mostrato e nome originale)
         const cd = coordinatorName ? drivers.find(d => normalizeNameForMatch(d.name) === normalizeNameForMatch(coordinatorName) || normalizeNameForMatch(d.originalName) === normalizeNameForMatch(coordinatorName)) : null;
         const coordinators = [coordinatorName, cd && cd.name, cd && cd.originalName].concat(typeof AS_OPERATORI !== 'undefined' ? AS_OPERATORI : []).filter(Boolean).map(x => String(x).toUpperCase());
+        await consFlush(4000);   // il motore chiude subito dopo: salva prima il contatore dei consumi
         return { team: document.title, url: appBaseUrl(), today: todayIso, tomorrow, people: people.map(d => ({ orig: d.originalName, name: d.name, slug: calSlug(d.originalName) })),
             ics, schedule, labels, repTomorrow, prefs: prefsDoc, subs, requests, coordinators };
     }
