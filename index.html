@@ -5457,7 +5457,7 @@
         renderDriverFilterDropdown(); updateDriverFilterBadge();
         initNotificationOptions(); loadNotificationHistory(); renderTable(); startLiveClock();
         setCurrentView("Tabella Turni");
-        if(prefs.startToday !== false) setTimeout(scrollToToday, 600);
+        if(prefs.startToday !== false) setTimeout(startAtToday, 300);
         setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
         if(prefs.startPage === 'insieme') setTimeout(() => setCalView('insieme'), 350);
         setTimeout(async () => {
@@ -5802,10 +5802,27 @@
         setTimeout(() => { window.openRichiestePanel(reqId); }, 320);
     }
 
-    function scrollToToday() {
+    function scrollToToday(instant) {
         if(calOverview) { ovScrollToday(); return; }
         if(liteOn()) liteShowRow(liteTodayRow());
-        liteScrollTo(document.getElementById('today-row'), 240);
+        liteScrollTo(document.getElementById('today-row'), 240, instant);
+    }
+    // All'apertura: salto secco a oggi, ripetuto finché la pagina si assesta (dati che arrivano,
+    // calendario ridisegnato, caricamento che sparisce). Lo scorrimento "morbido" sul telefono veniva
+    // interrotto da questi ridisegni e il calendario restava al 1° gennaio. Se l'utente tocca o scorre, ci si ferma.
+    function startAtToday() {
+        const evs = ['touchstart', 'wheel', 'mousedown', 'keydown'], end = Date.now() + 6000;
+        let stopped = false;
+        const stop = () => { stopped = true; evs.forEach(e => removeEventListener(e, stop, true)); };
+        evs.forEach(e => addEventListener(e, stop, { capture:true, passive:true }));
+        const tick = () => {
+            if(stopped) return;
+            if(Date.now() > end) { stop(); return; }
+            const el = calOverview ? document.querySelector('#ov-table tr.ov-today') : document.getElementById('today-row');
+            if(!el || calOverview || Math.abs(el.getBoundingClientRect().top - 240) > 60) scrollToToday(true);
+            setTimeout(tick, 400);
+        };
+        tick();
     }
 
     function filterDriver(val) {
@@ -13177,10 +13194,10 @@
     // dopo un salto (oggi, un mese, un giorno) per un attimo non si aggiungono mesi:
     // aggiungerli durante lo scorrimento farebbe finire nel punto sbagliato
     let liteQuietUntil = 0;
-    function liteScrollTo(el, offset) {
+    function liteScrollTo(el, offset, instant) {
         if(!el) return;
         liteQuietUntil = Date.now() + 1500;
-        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - offset, behavior: liteOn() ? 'auto' : 'smooth' });
+        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - offset, behavior: liteOn() || instant ? 'auto' : 'smooth' });
         if(liteOn()) setTimeout(liteObserve, 1600);
     }
     function liteMoreRow(dir, name) {
