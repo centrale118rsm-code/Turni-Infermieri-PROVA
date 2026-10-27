@@ -1193,13 +1193,14 @@
         body.pref-hl-me #main-table thead th.me-col { color: var(--primary); box-shadow: inset 0 -3px 0 var(--primary); }
         /* nomi toccati nell'intestazione: quelle colonne in evidenza, le altre sbiadite */
         #main-table thead th[data-col] { cursor: pointer; }
-        #main-table td.col-dim { opacity: .28; }
         /* intestazione: resta piena (è fissa in alto, sbiadita lascerebbe vedere sotto), sbiadisce solo il contenuto */
         #main-table thead th.col-dim { color: color-mix(in srgb, var(--text-sec) 40%, transparent); }
         #main-table thead th.col-dim > * { opacity: .4; }
         #main-table thead th.col-dim:hover { color: var(--text-sec); }
         #main-table thead th.col-focus { color: var(--primary); box-shadow: inset 0 -3px 0 var(--primary); }
-        #main-table td.col-focus-end, #main-table thead th.col-focus-end { border-right: 3px solid var(--primary); }
+        #main-table td.col-dim { opacity: .28; }
+        #main-table thead th.col-focus-start, #main-table td.col-focus-start { border-left: 3px solid var(--primary); }
+        #main-table thead th.col-focus-end, #main-table td.col-focus-end { border-right: 3px solid var(--primary); }
         #main-table thead th.th-focus-clear { cursor: pointer; color: var(--primary); }
         body.pref-no-times #main-table .time-tag, body.pref-no-times #cell-probe .time-tag { display:none; }
         body.pref-no-repbar #main-table .rep-bar, body.pref-no-repbar #cell-probe .rep-bar { display:none; }
@@ -12986,29 +12987,75 @@
         const me = prefMe(); rtMeIdx = me ? me.idx : null;
         // preferenza "la mia colonna per prima" (non in modifica turni: lì resta l'ordine vero)
         if(me && prefs.myColFirst && !coordEditModeActive && list.includes(me)) list = [me].concat(list.filter(d => d !== me));
-        // colonne messe in evidenza toccando i nomi: affiancate per prime, nell'ordine in cui si toccano
+        // colonne messe in evidenza toccando i nomi: affiancate nell'ordine in cui si toccano,
+        // al centro dello schermo sul computer, subito dopo la data sul telefono
         focusCols = focusCols.filter(i => list.some(d => d.idx === i));
-        if(focusCols.length) list = focusCols.map(i => list.find(d => d.idx === i)).concat(list.filter(d => !focusCols.includes(d.idx)));
+        if(focusCols.length) {
+            const rest = list.filter(d => !focusCols.includes(d.idx)), at = colFocusAt(list.length, focusCols.length);
+            list = rest.slice(0, at).concat(focusCols.map(i => list.find(d => d.idx === i)), rest.slice(at));
+        }
         return list;
+    }
+    function colFocusAt(total, k) {
+        const w = window.innerWidth; if(w < 900) return 0;   // niente misure: costerebbero un'impaginazione
+        const cw = parseFloat(document.documentElement.style.getPropertyValue('--cell-w')) || 115;
+        const n = Math.floor((w - 60) / cw);   // colonne che stanno nello schermo accanto alla data
+        return Math.max(0, Math.min(total - k, Math.floor((n - k) / 2)));
     }
     // Tocco su un nome dell'intestazione: aggiunge o toglie la colonna da quelle in evidenza.
     function colFocusCls(idx) {
         if(!focusCols.length) return '';
         const k = focusCols.indexOf(idx);
-        return k < 0 ? 'col-dim' : (k === focusCols.length - 1 ? 'col-focus col-focus-end' : 'col-focus');
+        return k < 0 ? 'col-dim' : 'col-focus' + (k === 0 ? ' col-focus-start' : '') + (k === focusCols.length - 1 ? ' col-focus-end' : '');
+    }
+    // Veloce: le caselle non si ridisegnano, si spostano dentro le righe già fatte e cambiano
+    // solo classe. Subito le righe sullo schermo, le altre (fino a due anni di righe sul
+    // computer) a pezzi subito dopo, così il tocco risponde. Niente regole di stile su tutte
+    // le caselle insieme: ricalcolarle su ~16.000 caselle costa più di tutto il resto.
+    let cfJob = 0;
+    function cfReorderRow(tr) {
+        const byCol = {};
+        for(const td of tr.children) if(td.dataset.col !== undefined) byCol[td.dataset.col] = td;
+        const frag = document.createDocumentFragment();
+        rtCols.forEach(d => {
+            const td = byCol[d.idx]; if(!td) return;
+            const c = colFocusCls(d.idx).split(' '), cl = td.classList;
+            ['col-dim', 'col-focus', 'col-focus-start', 'col-focus-end'].forEach(k => cl.toggle(k, c.includes(k)));
+            frag.appendChild(td);
+        });
+        tr.appendChild(frag);
+    }
+    function applyColFocus() {
+        const rows = [...document.querySelectorAll('#table-body tr[data-row]')];
+        // prima riga sullo schermo (letta prima di cambiare qualcosa: misura già pronta)
+        let lo = 0, hi = rows.length - 1;
+        while(lo < hi) { const m = (lo + hi) >> 1; if(rows[m].getBoundingClientRect().bottom < 0) lo = m + 1; else hi = m; }
+        rtCols = rtVisibleCols();
+        // stessi nomi in altro ordine: l'altezza dell'intestazione non cambia, niente misure
+        rtDeferHeadFit = true; try { renderTableHead(); } finally { rtDeferHeadFit = false; }
+        const from = Math.max(0, lo - 10), to = Math.min(rows.length, lo + 40);
+        for(let i = from; i < to; i++) cfReorderRow(rows[i]);
+        // il resto: prima le righe vicine, a gruppi, una pausa per volta
+        const rest = rows.slice(to).concat(rows.slice(0, from).reverse()), job = ++cfJob;
+        const step = () => {
+            if(job !== cfJob) return;   // nel frattempo è stato toccato un altro nome
+            rest.splice(0, 60).forEach(tr => { if(tr.isConnected) cfReorderRow(tr); });
+            if(rest.length) setTimeout(step, 30);
+        };
+        if(rest.length) setTimeout(step, 60);
     }
     function toggleColFocus(idx) {
         const k = focusCols.indexOf(idx);
         if(k < 0) focusCols.push(idx); else focusCols.splice(k, 1);
-        renderTable(); vibrate();
-        if(k < 0) {   // le colonne in evidenza sono le prime: si torna all'inizio a sinistra
-            if(focusCols.length === 1) ccToast('Tocca altri nomi per affiancarli · di nuovo per toglierli · DATA per vederli tutti');
+        applyColFocus(); vibrate();
+        if(focusCols.length) {   // le colonne in evidenza sono nella prima schermata: si torna all'inizio a sinistra
+            if(focusCols.length === 1 && k < 0) ccToast('Tocca altri nomi per affiancarli · di nuovo per toglierli · DATA per vederli tutti');
             let el = document.getElementById('main-table');
             for(; el; el = el.parentElement) if(el.scrollLeft) el.scrollLeft = 0;
             if(window.scrollX) window.scrollTo(0, window.scrollY);
         }
     }
-    function clearColFocus() { if(!focusCols.length) return; focusCols = []; renderTable(); }
+    function clearColFocus() { if(!focusCols.length) return; focusCols = []; applyColFocus(); }
     document.addEventListener('click', e => {
         const th = e.target.closest && e.target.closest('#table-head th');
         if(!th || e.target.closest('button, a, input, select, .th-ai-badge')) return;
@@ -13026,7 +13073,7 @@
             thD.className = 'th-period-cell';
             thD.innerHTML = `<button class="th-period-btn" onclick="event.stopPropagation();thTogglePeriodMenu(this)" title="Saldo ore: ${esc(P.label)} (tocca per cambiare)"><span class="th-period-top">${esc(P.short)}<span class="material-icons-round">arrow_drop_down</span></span><small>${esc(thPeriodContext())}</small></button>`;
             thRenderedKey = thPeriodKey();
-        } else if(focusCols.length) { thD.className = 'th-focus-clear'; thD.title = 'Mostra di nuovo tutte le colonne'; thD.innerHTML = 'DATA<br><span class="material-icons-round" style="font-size:16px">close</span>'; }
+        } else if(focusCols.length) { thD.className = 'th-focus-clear'; thD.title = 'Mostra di nuovo tutte le colonne'; thD.innerHTML = 'DATA<span class="material-icons-round" style="font-size:14px;vertical-align:-3px;margin-left:1px">close</span>'; }
         else thD.innerText = "DATA";
         frag.appendChild(thD);
         rtCols.forEach(d => {
