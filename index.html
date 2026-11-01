@@ -3175,7 +3175,7 @@
                 </div>
                 <div class="ab-kpis" id="ab-kpis"></div>
                 <div class="hg-wrap" id="ab-grid"></div>
-                <p class="hg-note">Ogni anno: 31 giorni di congedo ordinario, 6 permessi straordinari e 2 permessi notte (un permesso notte usa anche un permesso straordinario). Le assenze che cadono su un riposo non contano. Tocca un operatore per il dettaglio.</p>
+                <p class="hg-note">Ogni anno: 31 giorni di congedo ordinario, 6 permessi straordinari e 2 permessi notte (un permesso notte usa anche un permesso straordinario). Le assenze che cadono su un riposo non contano. Il C.O. dei turnisti segue il ciclo del turno: il 1° giorno di ferie di fila vale un pomeriggio, poi mattina, notte, smonto e il 5° è riposo (non scala). Tocca un operatore per il dettaglio.</p>
             </div>
             <div id="ab-view-detail" style="display:none"></div>
         </div>
@@ -5935,9 +5935,23 @@
     // ÷ 6 nei giorni lun–sab (6 h con 36 h); la domenica non matura ore e vale 0.
     // Il permesso notte invece vale le ore vere della notte (19:45-00:00, come nel file Excel);
     // le 7:20 dopo mezzanotte si contano il giorno dopo.
+    // Congedo ordinario (C.O.) dei turnisti: segue il ciclo del turno. Il 1° giorno di un blocco di
+    // C.O. di fila è un pomeriggio, poi mattina, notte, smonto e riposo, e si ricomincia. Ogni giorno
+    // vale le ore di quel turno (P 7:25, M 6:45, N 4:15, SM 7:20, R 0) e il riposo non scala giorni.
+    // Se il giorno prima del blocco c'è un turno da diurnista (m, p…) resta il conteggio normale.
+    function coCycleCode(rowIdx, colIdx) {
+        const sub = c => String((c || {}).subV || '').trim().toLowerCase();
+        if(!finalData[rowIdx] || sub(finalData[rowIdx][colIdx]) !== 'f') return null;
+        let start = rowIdx;
+        while(start - 1 >= 1 && finalData[start - 1] && sub(finalData[start - 1][colIdx]) === 'f') start--;
+        const before = start - 1 >= 1 && finalData[start - 1] ? String((finalData[start - 1][colIdx] || {}).v || '').trim() : '';
+        if(/^[a-z]/.test(before)) return null;
+        return TURNISTI_CYCLE[(rowIdx - start) % TURNISTI_CYCLE.length];
+    }
     function justifiedDayMinutes(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return 0;
         if(String((row[colIdx] || {}).subV || '').trim().toLowerCase() === 'pn') return minutesFromRange(SCHEDULE["N"]);
+        const coc = coCycleCode(rowIdx, colIdx); if(coc) return minutesFromRange(SCHEDULE[coc]);
         const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
         if(mi === undefined || isNaN(dn)) return 0;
         if(!isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
@@ -6043,6 +6057,11 @@
         if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) {
             // assenza giustificata: copre la giornata (6 h con 36 h/sett.), la domenica 0; il permesso notte le ore della notte
             if(sub === 'pn') return minutesFromRange(SCHEDULE["N"]);
+            if(sub === 'f') {   // C.O. dei turnisti: ricalcolo del ciclo P M N SM R, scritto a parte
+                let k = 0; while(rowIdx - k - 1 >= 1 && String(((finalData[rowIdx - k - 1] || [])[colIdx] || {}).subV || '').trim().toLowerCase() === 'f') k++;
+                const pc = rowIdx - k - 1 >= 1 ? String(((finalData[rowIdx - k - 1] || [])[colIdx] || {}).v || '').trim() : '';
+                if(!(pc.charAt(0) >= 'a' && pc.charAt(0) <= 'z')) return [445, 405, 255, 440, 0][k % 5];
+            }
             const r = finalData[rowIdx], mi = MONTH_MAP[r[0].v], dn = parseInt(r[1].v);
             if(mi === undefined || isNaN(dn) || new Date(shiftRowYear(rowIdx), mi, dn).getDay() === 0) return 0;
             return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
@@ -8199,7 +8218,7 @@
         });
         document.getElementById('ab-grid').innerHTML = xgHtml('ab2', headL, head, body, year ? 860 + (psShown ? 70 : 0) + (otherShown ? 60 : 0) : 640);
         const note = document.querySelector('#ab-view-grid .hg-note');
-        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge; chi ne ha meno (es. i nuovi assunti) ha le sue spettanze in Area coordinatore › Operatori. Le assenze che cadono su un riposo non contano. Tocca un nome per il dettaglio.`;
+        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge; chi ne ha meno (es. i nuovi assunti) ha le sue spettanze in Area coordinatore › Operatori. Le assenze che cadono su un riposo non contano. Il C.O. dei turnisti segue il ciclo del turno: il 1° giorno di ferie di fila vale un pomeriggio, poi mattina, notte, smonto e il 5° è riposo (non scala). Tocca un nome per il dettaglio.`;
     }
     // dettaglio della persona: contatori con fatti/in programma/restano e grafico mese per mese
     function renderAbsDetail() {
@@ -9576,7 +9595,7 @@
             const cell = finalData[dd.rowIdx][d.idx] || {};
             const sub = (cell.subV || '').toString().trim().toLowerCase();
             let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-            if(SPECIAL_SUBCODES[sub] !== undefined) { if(!/^r(iposo)?$/i.test(v)) add(sub, dd); return; }   // assenza su un riposo: non conta
+            if(SPECIAL_SUBCODES[sub] !== undefined) { if(!/^r(iposo)?$/i.test(v) && !(sub === 'f' && coCycleCode(dd.rowIdx, d.idx) === 'R')) add(sub, dd); return; }   // assenza su un riposo (anche il 5° giorno del ciclo di C.O.): non conta
             const info = computeDayInfo(dd.rowIdx, d.idx);
             if(!WORK_SHIFTS.has(info.code) || !info.minutes) return;
             if(dd.date.getDay() === 0) add('dom', dd);
@@ -9591,7 +9610,7 @@
                 if(shiftRowYear(r) !== SHIFT_YEAR + 1) continue;
                 const cell = finalData[r][d.idx] || {}, sub = (cell.subV || '').toString().trim().toLowerCase();
                 let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-                if(sub === 'f' && !/^r(iposo)?$/i.test(v) && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
+                if(sub === 'f' && !/^r(iposo)?$/i.test(v) && coCycleCode(r, d.idx) !== 'R' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
             }
         }
         const n = k => counts[k] || 0;
