@@ -5935,23 +5935,41 @@
     // ÷ 6 nei giorni lun–sab (6 h con 36 h); la domenica non matura ore e vale 0.
     // Il permesso notte invece vale le ore vere della notte (19:45-00:00, come nel file Excel);
     // le 7:20 dopo mezzanotte si contano il giorno dopo.
-    // Congedo ordinario (C.O.) dei turnisti: segue il ciclo del turno. Il 1° giorno di un blocco di
-    // C.O. di fila è un pomeriggio, poi mattina, notte, smonto e riposo, e si ricomincia. Ogni giorno
-    // vale le ore di quel turno (P 7:25, M 6:45, N 4:15, SM 7:20, R 0) e il riposo non scala giorni.
-    // Se il giorno prima del blocco c'è un turno da diurnista (m, p…) resta il conteggio normale.
-    function coCycleCode(rowIdx, colIdx) {
-        const sub = c => String((c || {}).subV || '').trim().toLowerCase();
-        if(!finalData[rowIdx] || sub(finalData[rowIdx][colIdx]) !== 'f') return null;
-        let start = rowIdx;
-        while(start - 1 >= 1 && finalData[start - 1] && sub(finalData[start - 1][colIdx]) === 'f') start--;
-        const before = start - 1 >= 1 && finalData[start - 1] ? String((finalData[start - 1][colIdx] || {}).v || '').trim() : '';
-        if(/^[a-z]/.test(before)) return null;
-        return TURNISTI_CYCLE[(rowIdx - start) % TURNISTI_CYCLE.length];
+    // Assenze a giornata intera dei turnisti (C.O., ferie residue, P.S., recuperi, malattia, festivi
+    // non lavorati, studio…): come nel file Excel valgono le ore del turno che coprono e seguono il
+    // ciclo P › M › N › SM › R. Il ciclo continua dal turno del giorno prima del blocco di assenze
+    // (dopo una mattina si parte dalla notte, dopo un riposo dal pomeriggio; dopo un turno da
+    // diurnista o una casella vuota dal pomeriggio). Se sotto l'assenza è scritto il turno (P, M, N,
+    // S, R) vale quello. Il riposo vale 0 ore e non scala giorni. Il festivo non goduto resta a 6 h,
+    // il permesso notte vale la notte e il giorno dopo lo smonto.
+    const ABS_CYCLE = { f:1, v:1, r:1, m:1, p:1, c:1, nl:1, gr:1, s:1, l:1, a:1 };
+    const ABS_CYCLE_NEXT = { P:'M', M:'N', N:'SM', SM:'R', R:'P' };
+    function absTurnCode(v) {   // turno da turnista scritto nella casella (P, M, N, SM, R) o ''
+        let u = String(v || '').trim(); const i = u.indexOf('/'); if(i !== -1) u = u.slice(0, i).trim();
+        if(/^[a-z]/.test(u)) return 'd';
+        u = u.toUpperCase().replace(/\s+/g, '');
+        if(u === 'M+N' || u === 'MN') return 'N';
+        if(u === 'S') return 'SM';
+        if(u === 'RIPOSO') return 'R';
+        return ABS_CYCLE_NEXT[u] ? u : '';
+    }
+    function absCycleCode(rowIdx, colIdx) {
+        const cellAt = r => (finalData[r] || [])[colIdx] || {}, sub = r => String(cellAt(r).subV || '').trim().toLowerCase();
+        const inBlock = r => r >= 1 && finalData[r] && (ABS_CYCLE[sub(r)] || sub(r) === 'ng' || sub(r) === 'pn' || (r - 1 >= 1 && sub(r - 1) === 'pn' && pnTailFree(cellAt(r))));
+        if(!finalData[rowIdx] || !ABS_CYCLE[sub(rowIdx)]) return null;
+        let start = rowIdx; while(inBlock(start - 1)) start--;
+        const before = start - 1 >= 1 ? absTurnCode(cellAt(start - 1).v) : '';
+        let code = before && before !== 'd' ? before : 'R';
+        for(let r = start; r <= rowIdx; r++) {
+            const own = absTurnCode(cellAt(r).v);
+            code = sub(r) === 'pn' ? 'N' : (own && own !== 'd' ? own : ABS_CYCLE_NEXT[code]);
+        }
+        return code;
     }
     function justifiedDayMinutes(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return 0;
         if(String((row[colIdx] || {}).subV || '').trim().toLowerCase() === 'pn') return minutesFromRange(SCHEDULE["N"]);
-        const coc = coCycleCode(rowIdx, colIdx); if(coc) return minutesFromRange(SCHEDULE[coc]);
+        const coc = absCycleCode(rowIdx, colIdx); if(coc) return minutesFromRange(SCHEDULE[coc]);
         const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
         if(mi === undefined || isNaN(dn)) return 0;
         if(!isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
@@ -6064,10 +6082,16 @@
         if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) {
             // assenza giustificata: copre la giornata (6 h con 36 h/sett.), la domenica 0; il permesso notte le ore della notte
             if(sub === 'pn') return minutesFromRange(SCHEDULE["N"]);
-            if(sub === 'f') {   // C.O. dei turnisti: ricalcolo del ciclo P M N SM R, scritto a parte
-                let k = 0; while(rowIdx - k - 1 >= 1 && String(((finalData[rowIdx - k - 1] || [])[colIdx] || {}).subV || '').trim().toLowerCase() === 'f') k++;
-                const pc = rowIdx - k - 1 >= 1 ? String(((finalData[rowIdx - k - 1] || [])[colIdx] || {}).v || '').trim() : '';
-                if(!(pc.charAt(0) >= 'a' && pc.charAt(0) <= 'z')) return [445, 405, 255, 440, 0][k % 5];
+            if(['f','v','r','m','p','c','nl','gr','s','l','a'].includes(sub)) {   // ciclo P M N SM R, ricalcolato a parte
+                const C = ['P','M','N','SM','R'], MIN = [445, 405, 255, 440, 0], at = r => (finalData[r] || [])[colIdx] || {};
+                const sb = r => String(at(r).subV || '').trim().toLowerCase();
+                const pos = c => { let x = String(at(c).v || '').split('/')[0].trim(); if(/^[a-z]/.test(x)) return -1; x = x.toUpperCase().replace(/\s+/g, ''); if(x === 'M+N' || x === 'MN') x = 'N'; if(x === 'S') x = 'SM'; if(x === 'RIPOSO') x = 'R'; return C.indexOf(x); };
+                const free = r => { const c = at(r); if(sb(r) && Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sb(r))) return false; const x = String(c.v || '').split('/')[0].trim(); return !x || x === '-' || ['R','RIPOSO','S','SM'].includes(x.toUpperCase()); };
+                const block = r => r >= 1 && !!finalData[r] && (['f','v','r','m','p','c','nl','gr','s','l','a','ng','pn'].includes(sb(r)) || (r >= 2 && sb(r - 1) === 'pn' && free(r)));
+                let a = rowIdx; while(block(a - 1)) a--;
+                let k = a - 1 >= 1 ? pos(a - 1) : -1; if(k < 0) k = 4;
+                for(let r = a; r <= rowIdx; r++) { const o = pos(r); k = sb(r) === 'pn' ? 2 : (o >= 0 ? o : (k + 1) % 5); }
+                return MIN[k];
             }
             const r = finalData[rowIdx], mi = MONTH_MAP[r[0].v], dn = parseInt(r[1].v);
             if(mi === undefined || isNaN(dn) || new Date(shiftRowYear(rowIdx), mi, dn).getDay() === 0) return 0;
@@ -9636,7 +9660,7 @@
             const cell = finalData[dd.rowIdx][d.idx] || {};
             const sub = (cell.subV || '').toString().trim().toLowerCase();
             let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-            if(SPECIAL_SUBCODES[sub] !== undefined) { if(!/^r(iposo)?$/i.test(v) && !(sub === 'f' && coCycleCode(dd.rowIdx, d.idx) === 'R')) add(sub, dd); return; }   // assenza su un riposo (anche il 5° giorno del ciclo di C.O.): non conta
+            if(SPECIAL_SUBCODES[sub] !== undefined) { if(absCycleCode(dd.rowIdx, d.idx) !== 'R' && !(!ABS_CYCLE[sub] && /^r(iposo)?$/i.test(v))) add(sub, dd); return; }   // assenza su un riposo (anche il riposo del ciclo del turno): non conta
             const info = computeDayInfo(dd.rowIdx, d.idx);
             if(!WORK_SHIFTS.has(info.code) || !info.minutes) return;
             if(dd.date.getDay() === 0) add('dom', dd);
@@ -9651,7 +9675,7 @@
                 if(shiftRowYear(r) !== SHIFT_YEAR + 1) continue;
                 const cell = finalData[r][d.idx] || {}, sub = (cell.subV || '').toString().trim().toLowerCase();
                 let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-                if(sub === 'f' && !/^r(iposo)?$/i.test(v) && coCycleCode(r, d.idx) !== 'R' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
+                if(sub === 'f' && absCycleCode(r, d.idx) !== 'R' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
             }
         }
         const n = k => counts[k] || 0;
