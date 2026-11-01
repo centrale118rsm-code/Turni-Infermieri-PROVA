@@ -5,7 +5,7 @@
 // Il nome della cache è solo di questa app: le altre app dello stesso sito (autisti, infermieri
 // ufficiale) hanno le loro cache e non si toccano. Per buttare la copia vecchia basta cambiare v1.
 const CACHE_PREFIX = 'prova-infermieri-';
-const CACHE_NAME = CACHE_PREFIX + 'v1';
+const CACHE_NAME = CACHE_PREFIX + 'v2';
 const OLD_CACHES = [];
 
 const urlsToCache = [
@@ -13,8 +13,8 @@ const urlsToCache = [
   './index.html',
   './manifest.json',
   './logo.png',
-  './icon-118.png',
-  './icon-118-192.png'
+  './icon-118b-512.png',
+  './icon-118b-192.png'
 ];
 // librerie e caratteri presi da Internet che servono anche senza rete
 const CDN_HOSTS = ['www.gstatic.com', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
@@ -74,8 +74,8 @@ self.addEventListener('push', (event) => {
   const title = d.title || 'Turni 118';
   event.waitUntil(self.registration.showNotification(title, {
     body: d.body || '',
-    icon: 'icon-118-192.png',
-    badge: 'icon-118-192.png',
+    icon: 'icon-118b-192.png',
+    badge: 'icon-118b-192.png',
     tag: d.tag || undefined,
     renotify: !!d.tag,
     data: { url: d.url || './' }
