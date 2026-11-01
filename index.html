@@ -5976,18 +5976,25 @@
     }
     function computeDayInfo(rowIdx, colIdx) {
         const info = computeDayInfoBase(rowIdx, colIdx);
-        if(info.code === 'SM' || info.code === 'S' || info.code === 'STR' || info.justified || info.unrecognized || !prevPlainNight(rowIdx, colIdx)) return info;
+        if(info.code === 'SM' || info.code === 'S' || info.code === 'STR' || info.manual || info.justified || info.unrecognized || !prevPlainNight(rowIdx, colIdx)) return info;
         const rest = !info.code || /^r$/i.test(info.code), tail = minutesFromRange(SCHEDULE["SM"]);
         return Object.assign({}, info, { minutes: (rest ? 0 : (info.minutes || 0)) + tail, code: rest ? 'SM' : info.code, label: rest ? 'SMONTO (dopo la notte)' : 'SMONTO + ' + info.label, nightTail: true });
     }
     // Metodo A (principale): rispecchia esattamente la logica usata per disegnare
     // le celle del calendario, incluso lo SMONTO automatico dopo un turno M+N.
+    // Ore a mano (customMinutes, in ore): il coordinatore scrive le ore vere di quel giorno. Il turno
+    // o l'assenza restano (il C.O. continua a contare nei giorni di ferie), cambiano solo le ore.
     function computeDayInfoBase(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return { minutes:0, code:"", label:"" };
+        const cm = (row[colIdx] || {}).customMinutes;
+        if(cm === undefined || cm === null || cm === "") return computeDayInfoAuto(rowIdx, colIdx);
+        const minutes = Math.round(Number(cm)*60) || 0, auto = computeDayInfoAuto(rowIdx, colIdx);
+        if(!auto.code || auto.unrecognized) return { minutes, code: "STR", label: "ORE A MANO", manual:true };
+        return Object.assign({}, auto, { minutes, label: auto.label + " \u00b7 ore a mano", manual:true, autoMinutes: auto.minutes });
+    }
+    function computeDayInfoAuto(rowIdx, colIdx) {
+        const row = finalData[rowIdx]; if(!row) return { minutes:0, code:"", label:"" };
         const info = row[colIdx] || {};
-        if(info.customMinutes !== undefined && info.customMinutes !== null && info.customMinutes !== "") {
-            return { minutes: Math.round(Number(info.customMinutes)*60) || 0, code: "STR", label: "STRAORDINARIO" };
-        }
         const prevRow = finalData[rowIdx-1];
         const prevInfo = prevRow ? (prevRow[colIdx] || {}) : null;
         let prevRaw = (prevInfo && prevInfo.v !== undefined && prevInfo.v !== null) ? prevInfo.v.toString().trim().toUpperCase().replace(/\s+/g,'') : "";
@@ -7708,6 +7715,40 @@
                 </div>
             </div>`;
     }
+    // ── Ore a mano: il coordinatore corregge le ore del giorno senza cambiare turno o assenza ──
+    function sepManHtml(rowIdx, col) {
+        const cell = finalData[rowIdx][col] || {}, has = cell.customMinutes !== undefined && cell.customMinutes !== null && cell.customMinutes !== '';
+        const info = computeDayInfo(rowIdx, col), autoMin = has ? (info.autoMinutes || 0) : info.minutes;
+        const val = has ? Number(cell.customMinutes) : Math.round(autoMin / 6) / 10;
+        return `<div class="sep-group-label">Ore a mano</div>
+            <div class="sep-perm">
+                <div class="sep-perm-row">
+                    <label>Ore del giorno <input type="number" id="sep-man-h" min="0" max="24" step="0.25" value="${val}" inputmode="decimal"></label>
+                    <small>${has ? `Scritte a mano: ${hsHM(info.minutes)} invece delle ${hsHM(autoMin)} calcolate` : `Calcolate dall\u2019app: ${hsHM(autoMin)}`}. Turno e assenza restano come sono, cambiano solo le ore.</small>
+                </div>
+                <div class="sep-perm-row">
+                    <button class="cc-btn primary" onclick="sepManApply()"><span class="msym">edit</span>Salva ore</button>
+                    ${has ? `<button class="cc-btn danger" onclick="sepManRemove()">Torna alle ore calcolate</button>` : ''}
+                </div>
+            </div>`;
+    }
+    function sepManSet(h) {
+        if(!coordEditPopupTarget) return; vibrate();
+        const { row, col } = coordEditPopupTarget, key = cellKey(row, col), cell = finalData[row][col] || {};
+        const next = { v: (cell.v || '').toString(), subV: (cell.subV || '').toString() };
+        if(cell.perm && cell.perm.k) next.perm = cell.perm;
+        if(h !== null) next.customMinutes = h;
+        const prev = setOverride(key, next);
+        pushUndo({ entries: [{ key, prev, next }] });
+        afterCoordChange([key]); closeShiftEditPopup();
+    }
+    function sepManApply() {
+        const h = parseFloat(String(document.getElementById('sep-man-h').value).replace(',', '.'));
+        if(!(h >= 0 && h <= 24)) { ccToast('Scrivi le ore (da 0 a 24).', true); return; }
+        sepManSet(Math.round(h * 100) / 100);
+        ccToast(`Ore del giorno: ${hsHM(Math.round(h * 60))} (a mano)`);
+    }
+    function sepManRemove() { sepManSet(null); ccToast('Tornano le ore calcolate.'); }
     function sepPermApply(full) {
         if(!coordEditPopupTarget) return; vibrate();
         const { row, col } = coordEditPopupTarget, key = cellKey(row, col), cell = finalData[row][col] || {};
@@ -10995,9 +11036,9 @@
         const c = info.code || '';
         if(!c) return { short:'', kind:'empty' };
         if(info.custom && customCodes[c]) return { short: c, kind: customCodes[c].kind === 'abs' ? 'abs' : 'shift', colors: customColors(c), label: (customCodes[c].label || c).replace(/\|/g, ' ') };
-        if(SPECIAL_SUBCODES[c] !== undefined && info.label === SPECIAL_SUBCODES[c]) return { short: ABS_SHORT[c] || c.toUpperCase(), kind:'abs', colors: codeColors('abs', c), label: SPECIAL_SUBCODES[c] };
+        if(SPECIAL_SUBCODES[c] !== undefined && info.justified && !info.pnTail) return { short: ABS_SHORT[c] || c.toUpperCase(), kind:'abs', colors: codeColors('abs', c), label: SPECIAL_SUBCODES[c] + (info.manual ? ' \u00b7 ore a mano' : '') };
         if(info.unrecognized) return { short: c, kind:'unk', label:'Codice non riconosciuto' };
-        if(c === 'STR') return { short:'STR', kind:'str', label:'Ore personalizzate' };
+        if(c === 'STR') return { short:'ORE', kind:'str', label:'Ore a mano' };
         const isRest = (c === 'R' || c === 'r');
         return { short: c, kind: isRest ? 'rest' : 'shift', colors: codeColors('shift', c), label: info.label };
     }
@@ -12053,7 +12094,7 @@
             group('Diurni e combinati', items.filter(i => i.group === 1)) +
             group('Assenze e permessi', items.filter(i => i.group === 2)) +
             (items.some(i => i.group === 3) ? group('Caselle personalizzate', items.filter(i => i.group === 3)) : '');
-        document.getElementById('sep-perm').innerHTML = sepPermHtml(rowIdx, colIdx);
+        document.getElementById('sep-perm').innerHTML = sepPermHtml(rowIdx, colIdx) + sepManHtml(rowIdx, colIdx);
         const m = document.getElementById('shift-edit-popup'); m.style.display = 'flex';
         requestAnimationFrame(() => m.classList.add('open'));
     }
