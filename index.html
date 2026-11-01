@@ -5959,17 +5959,36 @@
         if(!finalData[rowIdx] || !ABS_CYCLE[sub(rowIdx)]) return null;
         let start = rowIdx; while(inBlock(start - 1)) start--;
         const before = start - 1 >= 1 ? absTurnCode(cellAt(start - 1).v) : '';
-        let code = before && before !== 'd' ? before : 'R';
+        // un giorno solo tra due giorni da diurnista (es. un recupero isolato): vale una giornata da diurnista
+        if(before === 'd' && start === rowIdx && !inBlock(rowIdx + 1) && rowIdx + 1 < finalData.length && absTurnCode(cellAt(rowIdx + 1).v) === 'd') return sub(rowIdx) === 'nl' ? 'F6' : 'D';
+        let code = before && before !== 'd' ? before : 'R', flat = false;
         for(let r = start; r <= rowIdx; r++) {
             const own = absTurnCode(cellAt(r).v);
-            code = sub(r) === 'pn' ? 'N' : (own && own !== 'd' ? own : ABS_CYCLE_NEXT[code]);
+            flat = false;
+            if(sub(r) === 'pn') code = 'N';
+            else if(own && own !== 'd') code = own;
+            else if(r === start && before === 'd' && sub(r) === 'nl') flat = true;   // festivo dopo un diurno: 6 h, il ciclo parte dopo
+            else code = ABS_CYCLE_NEXT[code];
         }
-        return code;
+        return flat ? 'F6' : code;
+    }
+    // ore di un giorno di assenza secondo absCycleCode
+    function absCycleMinutes(code, rowIdx, colIdx) {
+        if(code === 'D') return minutesFromRange(diurniSched('m', repRowDate(rowIdx)));
+        if(code === 'F6') return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
+        return minutesFromRange(SCHEDULE[code]);
     }
     function justifiedDayMinutes(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return 0;
         if(String((row[colIdx] || {}).subV || '').trim().toLowerCase() === 'pn') return minutesFromRange(SCHEDULE["N"]);
-        const coc = absCycleCode(rowIdx, colIdx); if(coc) return minutesFromRange(SCHEDULE[coc]);
+        const coc = absCycleCode(rowIdx, colIdx); if(coc) return absCycleMinutes(coc, rowIdx, colIdx);
+        const sb = String((row[colIdx] || {}).subV || '').trim().toLowerCase();
+        if(sb === 'k') return 0;   // distacco speciale: 0 ore, come nel file Excel
+        if(sb === 'z') {           // sostituzione coordinatore: le ore del turno scritto sotto, se no una mattina da diurnista
+            const own = String((row[colIdx] || {}).v || '').split('/')[0].trim();
+            if(own && own !== '-') { const t = /^[a-z]/.test(own) ? diurniSched(own, repRowDate(rowIdx)) : SCHEDULE[own.toUpperCase()]; if(t !== undefined) return minutesFromRange(t); }
+            return minutesFromRange(diurniSched('m', repRowDate(rowIdx)));
+        }
         const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
         if(mi === undefined || isNaN(dn)) return 0;
         if(!isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
@@ -6088,10 +6107,21 @@
                 const pos = c => { let x = String(at(c).v || '').split('/')[0].trim(); if(/^[a-z]/.test(x)) return -1; x = x.toUpperCase().replace(/\s+/g, ''); if(x === 'M+N' || x === 'MN') x = 'N'; if(x === 'S') x = 'SM'; if(x === 'RIPOSO') x = 'R'; return C.indexOf(x); };
                 const free = r => { const c = at(r); if(sb(r) && Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sb(r))) return false; const x = String(c.v || '').split('/')[0].trim(); return !x || x === '-' || ['R','RIPOSO','S','SM'].includes(x.toUpperCase()); };
                 const block = r => r >= 1 && !!finalData[r] && (['f','v','r','m','p','c','nl','gr','s','l','a','ng','pn'].includes(sb(r)) || (r >= 2 && sb(r - 1) === 'pn' && free(r)));
+                const low = r => r >= 1 && !!finalData[r] && /^[a-z]/.test(String(at(r).v || '').trim());
+                const dm = () => minutesFromRange(diurniSched('m', repRowDate(rowIdx))), six = getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
                 let a = rowIdx; while(block(a - 1)) a--;
+                let e = rowIdx; while(block(e + 1)) e++;
+                if(a === e && low(a - 1) && low(e + 1)) return sub === 'nl' ? six : dm();
                 let k = a - 1 >= 1 ? pos(a - 1) : -1; if(k < 0) k = 4;
-                for(let r = a; r <= rowIdx; r++) { const o = pos(r); k = sb(r) === 'pn' ? 2 : (o >= 0 ? o : (k + 1) % 5); }
-                return MIN[k];
+                let fl = false;
+                for(let r = a; r <= rowIdx; r++) { const o = pos(r); fl = false; if(sb(r) === 'pn') k = 2; else if(o >= 0) k = o; else if(r === a && low(a - 1) && sb(r) === 'nl') fl = true; else k = (k + 1) % 5; }
+                return fl ? six : MIN[k];
+            }
+            if(sub === 'k') return 0;
+            if(sub === 'z') {
+                const w = String(cell.v || '').split('/')[0].trim();
+                if(w && w !== '-') { const t = /^[a-z]/.test(w) ? diurniSched(w, repRowDate(rowIdx)) : SCHEDULE[w.toUpperCase()]; if(t !== undefined) return minutesFromRange(t); }
+                return minutesFromRange(diurniSched('m', repRowDate(rowIdx)));
             }
             const r = finalData[rowIdx], mi = MONTH_MAP[r[0].v], dn = parseInt(r[1].v);
             if(mi === undefined || isNaN(dn) || new Date(shiftRowYear(rowIdx), mi, dn).getDay() === 0) return 0;
