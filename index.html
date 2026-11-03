@@ -5331,8 +5331,11 @@
         const owner = prefOwner(); prefsOwnerLoaded = owner;
         let p = null; try { p = JSON.parse(localStorage.getItem('prefs_v1__' + owner) || 'null'); } catch(e) {}
         if(!p) p = { theme: localStorage.getItem('theme') === 'dark' ? 'dark' : 'light' };   // primo avvio: si parte dal tema usato finora
-        return Object.assign({}, PREF_DEFAULTS, p);
+        return prefsFix(Object.assign({}, PREF_DEFAULTS, p));
     }
+    // L'app si apre sempre nel calendario normale: la "Vista d'insieme" come pagina iniziale non
+    // si sceglie più (rimasta salvata su qualche telefono, faceva aprire sempre la vista d'insieme).
+    function prefsFix(p) { if(p.startPage !== 'me') p.startPage = 'calendario'; return p; }
     function savePrefsLocal() { try { localStorage.setItem('prefs_v1__' + prefsOwnerLoaded, JSON.stringify(prefs)); } catch(e) {} }
     function prefsSaveRemoteSoon() {
         if(SERVER_MODE || prefsOwnerLoaded === 'OSPITE') return;
@@ -5349,7 +5352,7 @@
             const owner = prefsOwnerLoaded, snap = await cfgRef('prefs').get();
             const r = snap.exists ? (snap.data() || {})[owner] : null;
             if(owner !== prefsOwnerLoaded || !r || (r.updatedAt || 0) <= (prefs.updatedAt || 0)) return;
-            prefs = Object.assign({}, PREF_DEFAULTS, r); savePrefsLocal(); applyAllPrefs();
+            prefs = prefsFix(Object.assign({}, PREF_DEFAULTS, r)); savePrefsLocal(); applyAllPrefs();
             if(document.getElementById('options-modal').classList.contains('open')) renderOptions();
         } catch(e) {}
     }
@@ -5671,7 +5674,6 @@
         setCurrentView("Tabella Turni");
         if(prefs.startToday !== false) startAtToday();
         setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
-        if(prefs.startPage === 'insieme') setTimeout(() => setCalView('insieme'), 350);
         setTimeout(async () => {
             if(SERVER_MODE) return;
             if(!userIdentity && identityRecoveryPromise) { try { await identityRecoveryPromise; } catch(e) {} }
@@ -6735,7 +6737,7 @@
 
             <div class="option-category-header"><span class="material-icons-round">calendar_month</span> Calendario</div>
             <div class="opt-block"><div class="opt-txt"><span>All’apertura mostra</span><small>La schermata con cui parte l’app.</small></div>
-                ${seg('startPage', [['calendario', 'Calendario', 'view_agenda'], ['insieme', 'Vista d’insieme', 'grid_view'], ['me', 'La mia pagina', 'person']])}</div>
+                ${seg('startPage', [['calendario', 'Calendario', 'view_agenda'], ['me', 'La mia pagina', 'person']])}</div>
             ${sw('startToday', 'Parti dal giorno di oggi', 'All’apertura il calendario scorre fino a oggi.')}
             ${sw('myColFirst', 'La mia colonna per prima', named ? 'I tuoi turni sempre nella prima colonna, accanto alla data.' : 'Disponibile dopo aver scelto chi sei.')}
             ${sw('highlightMe', 'Evidenzia la mia colonna', 'Colora leggermente la tua colonna per trovarla subito.')}
