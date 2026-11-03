@@ -137,16 +137,17 @@ service cloud.firestore {
     // ── Calendario ferie desiderate ────────────────────────────────────────
     // Un documento per persona e per anno ("prova_2027_ROSSI"). Lo legge chiunque usi l'app,
     // ma lo scrive solo il telefono che in "Chi sei?" ha scelto proprio quel nome.
-    // Giorni: "MM-GG" -> "F" (ferie) o "P" (permesso). Non si cancella: si svuota.
+    // Giorni: "MM-GG" -> "F" (ferie) o "P" (permesso); note: "MM-GG" -> testo. Non si cancella: si svuota.
     match /infermieri26_desiderate/{did} {
       function okDesiderate(d) {
-        return d.keys().hasOnly(['ns', 'year', 'name', 'days', 'byUid', 'updatedAt'])
+        return d.keys().hasOnly(['ns', 'year', 'name', 'days', 'notes', 'byUid', 'updatedAt'])
             && d.keys().hasAll(['ns', 'year', 'name', 'days', 'byUid', 'updatedAt'])
             && okNs(d.ns)
             && d.year is int && d.year >= 2026 && d.year <= 2035
             && did.matches('^(prova_)?[0-9]{4}_[A-Z0-9_]+$') && did.matches('^' + d.ns + string(d.year) + '_.*')
             && d.name is string && d.name == myName()
             && d.days is map && d.days.size() <= 366
+            && (!('notes' in d) || (d.notes is map && d.notes.size() <= 366))
             && d.byUid == request.auth.uid && d.updatedAt == request.time;
       }
       allow read: if signedIn();
