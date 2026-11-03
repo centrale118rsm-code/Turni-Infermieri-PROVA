@@ -2783,6 +2783,28 @@
         .des-sum .des-save.err { color:#b91c1c; }
         .des-scroll { flex:1; overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding-bottom:110px; }
         #des-table { width:auto; }
+        #des-view.des-anno #des-table { display:none; }
+        #des-yg { display:none; padding:12px; gap:12px; grid-template-columns:repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+        #des-view.des-anno #des-yg { display:grid; }
+        .yg-m { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:10px 10px 12px; box-shadow:0 1px 3px rgba(15,23,42,.06); }
+        .yg-m h4 { margin:0 0 6px; display:flex; align-items:baseline; justify-content:space-between; font-size:0.95rem; font-weight:900; text-transform:uppercase; letter-spacing:-.2px; color:var(--text-main); }
+        .yg-m h4 small { font-size:0.66rem; font-weight:700; color:var(--text-sec); text-transform:none; letter-spacing:0; }
+        .yg-g { display:grid; grid-template-columns:repeat(7, 1fr); gap:3px; }
+        .yg-wd { font-size:0.6rem; font-weight:800; color:var(--text-sec); text-align:center; padding:2px 0; }
+        .yg-wd.r { color:#dc2626; }
+        .yg-d { aspect-ratio:1; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:0.82rem; font-weight:800; color:var(--text-main); background:var(--bg); border:1px solid transparent; cursor:pointer; position:relative; line-height:1; padding:0; font-family:inherit; }
+        .yg-d.red { color:#dc2626; }
+        .yg-d.hol::after { content:''; position:absolute; top:3px; right:3px; width:5px; height:5px; border-radius:50%; background:#dc2626; }
+        .yg-d.today { box-shadow:0 0 0 2px #f97316; }
+        .yg-d.F { background:var(--bg-cong); color:var(--t-cong); border-color:var(--b-cong); }
+        .yg-d.P { background:var(--bg-perm); color:var(--t-perm); border-color:var(--b-perm); }
+        .yg-d.R { background:var(--c-R); color:var(--t-R); border-color:var(--b-R); }
+        .yg-d small { font-size:0.42rem; font-weight:900; margin-top:2px; letter-spacing:.2px; }
+        .yg-d.ro { cursor:default; }
+        .yg-legend { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:6px 14px; font-size:0.72rem; font-weight:700; color:var(--text-sec); align-items:center; padding:0 2px; }
+        .yg-legend i { display:inline-block; width:12px; height:12px; border-radius:4px; margin-right:5px; vertical-align:-2px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.15); }
+        .yg-who { grid-column:1 / -1; display:flex; align-items:center; gap:8px; font-size:0.78rem; font-weight:700; color:var(--text-sec); }
+        .yg-who select { height:34px; border:1px solid var(--border); border-radius:10px; background:var(--bg-card); color:var(--text-main); font:700 13px 'Plus Jakarta Sans',sans-serif; padding:0 8px; }
         #des-table thead th { top:0; }
         #des-table tr.month-header td { top:var(--th-h); height:auto; }
         #des-table thead th:not(:first-child), #des-table tbody td[data-col] { width:var(--cell-w); min-width:var(--cell-w); max-width:var(--cell-w); }
@@ -3789,6 +3811,7 @@
         <button class="ov-btn" onclick="closeDesiderate()" title="Torna al calendario dei turni"><span class="material-icons-round">arrow_back</span><span class="l-long">Turni</span></button>
         <div class="des-title"><b>Ferie desiderate</b><small id="des-sub">Scrivi le ferie che vorresti</small></div>
         <div class="des-year"><button onclick="desChangeYear(-1)" id="des-y-prev" title="Anno prima"><span class="material-icons-round">chevron_left</span></button><span id="des-y-lbl"></span><button onclick="desChangeYear(1)" id="des-y-next" title="Anno dopo"><span class="material-icons-round">chevron_right</span></button></div>
+        <button class="ov-btn" onclick="desToggleMode()" id="des-mode-btn" title="Cambia visualizzazione"></button>
         <button class="ov-btn" onclick="desOpenRange()" id="des-range-btn" title="Inserisci da una data a un'altra"><span class="material-icons-round">date_range</span><span class="l-long">Dal… al…</span></button>
     </div>
     <div class="des-sum" id="des-sum"></div>
@@ -3797,6 +3820,7 @@
             <thead><tr id="des-head"></tr></thead>
             <tbody id="des-body"></tbody>
         </table>
+        <div id="des-yg"></div>
     </div>
 </div>
 <div id="des-wheel" class="collapsed">
@@ -6889,7 +6913,8 @@
         P: { label:'Permesso', cls:'spec-perm', bg:'var(--bg-perm)', fg:'var(--t-perm)', icon:'event_available' },
         X: { label:'Cancella', cls:'', bg:'#e2e8f0', fg:'#334155', icon:'ink_eraser' }
     };
-    let desYear = null, desData = {}, desUnsub = null, desTool = 'F', desRangeKind = 'F';
+    let desYear = null, desData = {}, desUnsub = null, desTool = 'F', desRangeKind = 'F', desYgWho = null;
+    let desMode = (() => { try { return localStorage.getItem('infermieri_des_mode') === 'anno' ? 'anno' : 'cols'; } catch(e) { return 'cols'; } })();
     let desSaveTimer = null, desSaveState = 'ok', desDirty = false, desIdOk = false, desPendingOpen = false, desToastT = null;
     function desDefaultYear() { const t = new Date(); return t.getMonth() >= 8 ? t.getFullYear() + 1 : t.getFullYear(); }
     function desYearsAllowed() { const y = new Date().getFullYear(); return [y, y + 1]; }
@@ -7030,7 +7055,7 @@
             html += '</tr>';
         });
         document.getElementById('des-body').innerHTML = html;
-        desRenderSum(); desRenderWheel();
+        desRenderSum(); desRenderWheel(); desApplyMode();
         if(scroll) {
             const sc = document.getElementById('des-scroll');
             requestAnimationFrame(() => {
@@ -7053,6 +7078,54 @@
             });
         });
         desRenderSum();
+        if(desMode === 'anno') desRenderYearGrid();
+    }
+    // ── vista "Anno intero": i 12 mesi a griglia in una pagina ──
+    function desApplyMode() {
+        const v = document.getElementById('des-view'), anno = desMode === 'anno';
+        v.classList.toggle('des-anno', anno);
+        document.getElementById('des-mode-btn').innerHTML = anno
+            ? '<span class="material-icons-round">view_column</span><span class="l-long">Colonne</span>'
+            : '<span class="material-icons-round">calendar_view_month</span><span class="l-long">Anno intero</span>';
+        if(anno) desRenderYearGrid();
+    }
+    function desToggleMode() {
+        vibrate(); desMode = desMode === 'anno' ? 'cols' : 'anno';
+        try { localStorage.setItem('infermieri_des_mode', desMode); } catch(e) {}
+        desApplyMode();
+        const sc = document.getElementById('des-scroll');
+        if(desMode === 'anno') { const t = document.querySelector('#des-yg .yg-m.cur'); sc.scrollTop = t ? Math.max(0, t.offsetTop - 12) : 0; }
+        else desRenderAll(true);
+    }
+    function desRenderYearGrid() {
+        const box = document.getElementById('des-yg'); if(!box) return;
+        const y = desYear, me = desMe(), H = holidaysFor(y), today = new Date();
+        const cols = desCols();
+        if(!desYgWho || !cols.some(d => d.idx === desYgWho)) desYgWho = me ? me.idx : (cols[0] ? cols[0].idx : null);
+        const who = cols.find(d => d.idx === desYgWho), mine = !!me && who === me;
+        const res = who ? desResolve(desDaysOf(who), y) : {};
+        const c = who ? desCount(desDaysOf(who), y) : { f:0, p:0, auto:0 };
+        const MN = Object.keys(MONTH_MAP), WD = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
+        let html = `<div class="yg-who">Calendario di <select onchange="desYgWho = +this.value; desRenderYearGrid()">${cols.map(d => `<option value="${d.idx}"${d === who ? ' selected' : ''}>${esc(d.name)}${d === me ? ' (tu)' : ''}</option>`).join('')}</select>${mine ? '' : '<span>solo da vedere</span>'}</div>`;
+        html += `<div class="yg-legend"><span><i style="background:var(--bg-cong)"></i>Ferie ${c.f}</span><span><i style="background:var(--bg-perm)"></i>Permessi ${c.p}</span><span><i style="background:var(--c-R)"></i>Riposo al 5° giorno ${c.auto}</span>${mine ? '<span>Tocca un giorno: usa lo strumento della ruota</span>' : ''}</div>`;
+        for(let m = 0; m < 12; m++) {
+            const first = new Date(y, m, 1), n = new Date(y, m + 1, 0).getDate(), lead = (first.getDay() + 6) % 7;
+            let cells = WD.map((w, i) => `<div class="yg-wd${i > 4 ? ' r' : ''}">${w}</div>`).join('');
+            for(let i = 0; i < lead; i++) cells += '<div></div>';
+            let mf = 0, mp = 0;
+            for(let d = 1; d <= n; d++) {
+                const dt = new Date(y, m, d), key = String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'), r = res[key];
+                const hol = H[m + '-' + d], wd = dt.getDay();
+                const isToday = y === today.getFullYear() && m === today.getMonth() && d === today.getDate();
+                if(r) { if(r.t === 'F') mf++; else if(r.t === 'P') mp++; }
+                const cls = ['yg-d', r ? r.t : '', (wd === 0 || wd === 6 || hol) && !r ? 'red' : '', hol ? 'hol' : '', isToday ? 'today' : '', mine ? '' : 'ro'].filter(Boolean).join(' ');
+                const tip = (hol ? hol + ' · ' : '') + (r ? (r.t === 'F' ? 'Ferie' : r.t === 'P' ? 'Permesso' : 'Riposo (' + r.n + '° giorno di ferie)') : '');
+                cells += `<button class="${cls}"${tip ? ` title="${esc(tip)}"` : ''} onclick="${mine ? `desCellTap('${key}')` : 'desOtherTap()'}">${d}${r ? `<small>${r.t === 'F' ? 'FER' : r.t === 'P' ? 'PERM' : 'RIP'}</small>` : ''}</button>`;
+            }
+            const sub = [mf ? mf + ' ferie' : '', mp ? mp + ' perm.' : ''].filter(Boolean).join(' · ');
+            html += `<div class="yg-m${y === today.getFullYear() && m === today.getMonth() ? ' cur' : ''}"><h4>${MN[m]}<small>${sub}</small></h4><div class="yg-g">${cells}</div></div>`;
+        }
+        box.innerHTML = html;
     }
     function desRenderSum() {
         const el = document.getElementById('des-sum'); if(!el) return;
