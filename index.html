@@ -2783,7 +2783,43 @@
         .des-sum .des-save.err { color:#b91c1c; }
         .des-scroll { flex:1; overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding-bottom:110px; }
         #des-table { width:auto; }
-        #des-view.des-anno #des-table { display:none; }
+        #des-view.des-anno #des-table, #des-view.des-tutti #des-table { display:none; }
+        #des-all { display:none; table-layout:fixed; width:100%; border-collapse:separate; border-spacing:0; font-family:'Plus Jakarta Sans',sans-serif; }
+        #des-view.des-tutti #des-all { display:table; }
+        #des-view.des-tutti .des-scroll { padding-bottom:96px; }
+        #des-all col.c-date { width:38px; } #des-all col.c-ass { width:26px; } #des-all col.c-op { min-width:12px; }
+        #des-all thead th::before { display:none; }
+        #des-all td.d small { display:block; margin:0; line-height:1; }
+        #des-all thead th { position:sticky; top:0; z-index:5; background:var(--bg-card); border-bottom:2px solid var(--border); padding:4px 0; height:92px; vertical-align:bottom; min-width:0; }
+        #des-all thead th .vn { writing-mode:vertical-rl; transform:rotate(180deg); font-size:10.5px; font-weight:800; letter-spacing:.2px; color:var(--text-sec); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-height:86px; margin:0 auto; display:block; }
+        #des-all thead th.me .vn { color:var(--primary); }
+        #des-all thead th.me { box-shadow:inset 0 -3px 0 var(--primary); }
+        #des-all thead th.h-date, #des-all thead th.h-ass { font-size:9.5px; font-weight:800; color:var(--text-sec); text-transform:uppercase; }
+        #des-all tr.da-m td { position:sticky; top:92px; z-index:4; background:var(--month-bar-bg, #1e3a8a); color:#fff; font-weight:900; font-size:0.8rem; text-transform:uppercase; padding:5px 10px; letter-spacing:.3px; }
+        #des-all td { height:26px; padding:0; border-bottom:1px solid var(--border); border-right:1px solid rgba(148,163,184,.25); text-align:center; font-size:9px; font-weight:900; position:relative; }
+        #des-all td.d { font-size:10.5px; font-weight:800; color:var(--text-main); white-space:nowrap; background:var(--date-col-bg); line-height:1.05; }
+        #des-all td.d small { font-size:8.5px; font-weight:700; color:var(--text-sec); margin-left:2px; }
+        #des-all tr.we td.d, #des-all tr.we td.d small { color:#dc2626; }
+        #des-all tr.we td.c:not(.F):not(.P):not(.R) { background:rgba(220,38,38,.05); }
+        #des-all tr.today td { box-shadow:inset 0 1px 0 #f97316, inset 0 -1px 0 #f97316; }
+        #des-all tr.today td.d { background:#f97316; color:#fff; } #des-all tr.today td.d small { color:#fff; }
+        #des-all td.c { cursor:default; }
+        #des-all td.c.me { cursor:pointer; background:rgba(37,99,235,.08); box-shadow:inset 1px 0 0 rgba(37,99,235,.5), inset -1px 0 0 rgba(37,99,235,.5); -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+        #des-all td.c.F { background:var(--bg-cong); color:var(--t-cong); }
+        #des-all td.c.P { background:var(--bg-perm); color:var(--t-perm); }
+        #des-all td.c.R { background:var(--c-R); color:var(--t-R); }
+        #des-all td.c.nt::after { content:''; position:absolute; top:1px; right:1px; width:6px; height:6px; border-radius:50%; background:#2563eb; box-shadow:0 0 0 1px #fff; }
+        #des-all td.a { font-size:10px; color:var(--text-sec); background:var(--bg-card); border-left:2px solid var(--border); }
+        #des-all td.a.a1 { color:#166534; } #des-all td.a.a2 { background:#fef3c7; color:#92400e; } #des-all td.a.a3 { background:#fee2e2; color:#b91c1c; }
+        body.dark-mode #des-all td.a.a2 { background:rgba(245,158,11,.2); color:#fcd34d; } body.dark-mode #des-all td.a.a3 { background:rgba(220,38,38,.25); color:#fecaca; }
+        #des-mode-menu { position:fixed; z-index:6350; display:none; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 32px rgba(15,23,42,.2); padding:6px; width:230px; }
+        #des-mode-menu.open { display:block; }
+        #des-mode-menu button { width:100%; display:flex; align-items:center; gap:10px; padding:9px 8px; border:none; border-radius:8px; background:transparent; color:var(--text-main); cursor:pointer; text-align:left; font-family:inherit; }
+        #des-mode-menu button:hover { background:var(--bg); }
+        #des-mode-menu button.on { background:rgba(37,99,235,.1); }
+        #des-mode-menu button .material-icons-round { font-size:20px; color:var(--primary); }
+        #des-mode-menu b { display:block; font-size:0.85rem; font-weight:800; }
+        #des-mode-menu small { display:block; font-size:0.7rem; color:var(--text-sec); font-weight:600; }
         #des-yg { display:none; padding:12px; gap:12px; grid-template-columns:repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
         #des-view.des-anno #des-yg { display:grid; }
         .yg-m { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:10px 10px 12px; box-shadow:0 1px 3px rgba(15,23,42,.06); }
@@ -3835,6 +3871,7 @@
             <thead><tr id="des-head"></tr></thead>
             <tbody id="des-body"></tbody>
         </table>
+        <table id="des-all"></table>
         <div id="des-yg"></div>
     </div>
 </div>
@@ -3879,6 +3916,7 @@
         </div>
     </div>
 </div>
+<div id="des-mode-menu" onclick="event.stopPropagation()"></div>
 <div id="des-toast"></div>
 
 <div class="container">
@@ -6948,7 +6986,8 @@
     let desNotes = {}, desNoteKey = null, desNoteRO = false, desPaint = null, desNoClickUntil = 0;
     function desNotesOf(d) { return (d && desNotes[desDKey(d)]) || {}; }
     let desYear = null, desData = {}, desUnsub = null, desTool = 'F', desRangeKind = 'F', desYgWho = null;
-    let desMode = (() => { try { return localStorage.getItem('infermieri_des_mode') === 'anno' ? 'anno' : 'cols'; } catch(e) { return 'cols'; } })();
+    let desMode = (() => { try { const m = localStorage.getItem('infermieri_des_mode'); return m === 'anno' || m === 'tutti' ? m : 'cols'; } catch(e) { return 'cols'; } })();
+    const DES_MODES = { cols:['view_column', 'Colonne', 'Caselle grandi come il calendario turni'], tutti:['view_comfy', 'Tutti', 'Tutti gli infermieri in una schermata'], anno:['calendar_view_month', 'Anno intero', 'I 12 mesi di una persona'] };
     let desSaveTimer = null, desSaveState = 'ok', desDirty = false, desIdOk = false, desPendingOpen = false, desToastT = null;
     function desDefaultYear() { const t = new Date(); return t.getMonth() >= 8 ? t.getFullYear() + 1 : t.getFullYear(); }
     function desYearsAllowed() { const y = new Date().getFullYear(); return [y, y + 1]; }
@@ -7093,7 +7132,7 @@
             });
             html += '</tr>';
         });
-        document.getElementById('des-body').innerHTML = html;
+        document.getElementById('des-body').innerHTML = desMode === 'cols' ? html : '';   // nelle altre viste non serve disegnarlo
         desRenderSum(); desRenderWheel(); desApplyMode();
         if(scroll) {
             const sc = document.getElementById('des-scroll');
@@ -7118,23 +7157,74 @@
         });
         desRenderSum();
         if(desMode === 'anno') desRenderYearGrid();
+        if(desMode === 'tutti') desFillCompact();
     }
     // ── vista "Anno intero": i 12 mesi a griglia in una pagina ──
     function desApplyMode() {
-        const v = document.getElementById('des-view'), anno = desMode === 'anno';
-        v.classList.toggle('des-anno', anno);
-        document.getElementById('des-mode-btn').innerHTML = anno
-            ? '<span class="material-icons-round">view_column</span><span class="l-long">Colonne</span>'
-            : '<span class="material-icons-round">calendar_view_month</span><span class="l-long">Anno intero</span>';
-        if(anno) desRenderYearGrid();
+        const v = document.getElementById('des-view');
+        v.classList.toggle('des-anno', desMode === 'anno'); v.classList.toggle('des-tutti', desMode === 'tutti');
+        const M = DES_MODES[desMode];
+        document.getElementById('des-mode-btn').innerHTML = `<span class="material-icons-round">${M[0]}</span><span class="l-long">${M[1]}</span>`;
+        if(desMode === 'anno') desRenderYearGrid();
+        if(desMode === 'tutti') desRenderAllCompact();
     }
     function desToggleMode() {
-        vibrate(); desMode = desMode === 'anno' ? 'cols' : 'anno';
+        vibrate();
+        const m = document.getElementById('des-mode-menu');
+        if(m.classList.contains('open')) { m.classList.remove('open'); return; }
+        m.innerHTML = Object.entries(DES_MODES).map(([k, M]) => `<button class="${k === desMode ? 'on' : ''}" onclick="desSetMode('${k}')"><span class="material-icons-round">${M[0]}</span><span><b>${M[1]}</b><small>${M[2]}</small></span></button>`).join('');
+        const r = document.getElementById('des-mode-btn').getBoundingClientRect();
+        m.style.top = (r.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(window.innerWidth - 238, r.right - 230)) + 'px';
+        m.classList.add('open');
+        setTimeout(() => document.addEventListener('click', () => m.classList.remove('open'), { once:true }), 0);
+    }
+    function desSetMode(k) {
+        document.getElementById('des-mode-menu').classList.remove('open');
+        if(!DES_MODES[k]) return;
+        vibrate(); desMode = k;
         try { localStorage.setItem('infermieri_des_mode', desMode); } catch(e) {}
         desApplyMode();
         const sc = document.getElementById('des-scroll');
         if(desMode === 'anno') { const t = document.querySelector('#des-yg .yg-m.cur'); sc.scrollTop = t ? Math.max(0, t.offsetTop - 12) : 0; }
+        else if(desMode === 'tutti') { const t = document.getElementById('da-today'); sc.scrollTop = t ? Math.max(0, t.offsetTop - 92 - 30) : 0; }
         else desRenderAll(true);
+    }
+    // ── vista "Tutti": tutte le colonne strette in una schermata, con gli assenti del giorno ──
+    function desRenderAllCompact() {
+        const tb = document.getElementById('des-all'); if(!tb) return;
+        const y = desYear, me = desMe(), cols = desCols(), H = holidaysFor(y), today = new Date(), MN = Object.keys(MONTH_MAP);
+        let html = `<colgroup><col class="c-date">${cols.map(() => '<col class="c-op">').join('')}<col class="c-ass"></colgroup>`;
+        html += `<thead><tr><th class="h-date">Data</th>${cols.map(d => `<th class="${d === me ? 'me' : ''}" title="${esc(d.name)}"><span class="vn">${esc(d.name)}${d === me ? ' · TU' : ''}</span></th>`).join('')}<th class="h-ass" title="Quanti sono assenti quel giorno">Ass.</th></tr></thead><tbody>`;
+        let lastM = -1;
+        desYearDays(y).forEach(({ date, key }) => {
+            const m = date.getMonth(), dn = date.getDate(), wd = date.getDay();
+            if(m !== lastM) { lastM = m; html += `<tr class="da-m"><td colspan="${cols.length + 2}">${MN[m]} ${y}</td></tr>`; }
+            const we = wd === 0 || wd === 6 || H[m + '-' + dn], isT = y === today.getFullYear() && m === today.getMonth() && dn === today.getDate();
+            html += `<tr data-key="${key}" class="${[we ? 'we' : '', isT ? 'today' : ''].filter(Boolean).join(' ')}"${isT ? ' id="da-today"' : ''}><td class="d">${dn}<small>${RT_WEEKDAY_FMT.format(date).slice(0, 2).toUpperCase()}</small></td>`;
+            cols.forEach(d => { const mine = d === me; html += `<td class="c${mine ? ' me' : ''}" data-col="${d.idx}" onclick="${mine ? `desCellTap('${key}')` : `desOtherTap('${key}',${d.idx})`}"></td>`; });
+            html += '<td class="a"></td></tr>';
+        });
+        tb.innerHTML = html + '</tbody>';
+        desFillCompact();
+    }
+    function desFillCompact() {
+        const tb = document.getElementById('des-all'); if(!tb || !tb.rows.length) return;
+        const y = desYear, cols = desCols(), R = new Map(cols.map(d => [d.idx, desResolve(desDaysOf(d), y)])), N = new Map(cols.map(d => [d.idx, desNotesOf(d)]));
+        tb.querySelectorAll('tbody tr[data-key]').forEach(tr => {
+            const key = tr.dataset.key; let ass = 0;
+            for(const td of tr.children) {
+                if(td.classList.contains('c')) {
+                    const idx = +td.dataset.col, r = R.get(idx)[key], nt = N.get(idx)[key];
+                    if(r) ass++;
+                    const cls = 'c' + (td.classList.contains('me') ? ' me' : '') + (r ? ' ' + r.t : '') + (nt ? ' nt' : '');
+                    if(td.className !== cls) { td.className = cls; td.textContent = r ? r.t : ''; td.title = nt || ''; }
+                } else if(td.classList.contains('a')) {
+                    const cls = 'a' + (ass >= 4 ? ' a3' : ass >= 3 ? ' a2' : ass ? ' a1' : '');
+                    if(td.className !== cls) td.className = cls;
+                    const tx = ass ? String(ass) : ''; if(td.textContent !== tx) td.textContent = tx;
+                }
+            }
+        });
     }
     function desRenderYearGrid() {
         const box = document.getElementById('des-yg'); if(!box) return;
@@ -7238,7 +7328,7 @@
     // ── trascinamento: col dito (tieni premuto un attimo, poi scorri) o col mouse ──
     function desKeyAtPoint(x, y) {
         const el = document.elementFromPoint(x, y); if(!el) return null;
-        const td = el.closest('#des-table td.me-col'); if(td) return td.parentNode.dataset.key;
+        const td = el.closest('#des-table td.me-col, #des-all td.c.me'); if(td) return td.parentNode.dataset.key;
         const b = el.closest('#des-yg .yg-d[data-key]'); return b ? b.dataset.key : null;
     }
     function desPaintStart(key) {
