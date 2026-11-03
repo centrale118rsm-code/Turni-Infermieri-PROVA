@@ -7171,7 +7171,7 @@
         const el = document.getElementById('des-sum'); if(!el) return;
         const me = desMe();
         if(!me) { el.innerHTML = `<span>Per scrivere le tue ferie desiderate scegli chi sei.</span><span class="des-who"><button onclick="requestChangeIdentityDirect()">Scegli chi sei</button></span>`; return; }
-        const c = desCount(desDaysOf(me), desYear), al = typeof absAllowFor === 'function' ? absAllowFor(me) : { co:31, sp:6 };
+        const c = desCount(desDaysOf(me), desYear), al = desAllow(me);
         const save = { ok:['cloud_done', 'Salvato'], saving:['sync', 'Salvo…'], err:['cloud_off', 'Non salvato'], offline:['cloud_off', 'Solo su questo telefono'] }[desSaveState] || ['cloud_done', 'Salvato'];
         el.innerHTML = `<span class="des-pill${c.f > al.co ? ' over' : ''}"><i style="background:var(--bg-cong)"></i>Ferie <b>${c.f}</b>/${al.co}</span>`
             + `<span class="des-pill${c.p > al.sp ? ' over' : ''}"><i style="background:var(--bg-perm)"></i>Permessi <b>${c.p}</b>/${al.sp}</span>`
@@ -7180,11 +7180,21 @@
     }
 
     // ── modifica: tocco sulle caselle o periodo "dal… al…" ──
+    function desAllow(d) { return typeof absAllowFor === 'function' ? absAllowFor(d) : { co:31, sp:6 }; }
     function desSetDays(changes) {
         const me = desMe(), name = desMyName(); if(!me || !name) return 0;
         const k = desDKey(me), days = Object.assign({}, desData[k] || {});
-        let n = 0;
-        changes.forEach(([key, val]) => { if(val && days[key] !== val) { days[key] = val; n++; } else if(!val && days[key]) { delete days[key]; n++; } });
+        // blocco: non si va oltre le spettanze dell'operatore (ferie = C.O., permessi straordinari)
+        const al = desAllow(me); let n = 0, blocked = 0;
+        changes.forEach(([key, val]) => {
+            if(val && days[key] !== val) {
+                const was = days[key], before = desCount(days, desYear); days[key] = val;
+                const c = desCount(days, desYear);
+                if((c.f > al.co && c.f > before.f) || (c.p > al.sp && c.p > before.p)) { if(was) days[key] = was; else delete days[key]; blocked++; return; }
+                n++;
+            } else if(!val && days[key]) { delete days[key]; n++; }
+        });
+        if(blocked) { desToast(`Limite raggiunto: hai ${al.co} giorni di ferie e ${al.sp} permessi${blocked > 1 ? ` (${blocked} giorni non inseriti)` : ''}`); if(navigator.vibrate) try { navigator.vibrate([30, 40, 30]); } catch(e) {} }
         if(!n) return 0;
         desData[k] = days; desDirty = true;
         desMarkDirty();
@@ -7376,16 +7386,18 @@
         const range = `<b>${list.length} ${list.length === 1 ? 'giorno' : 'giorni'}</b>, ${fmt(list[0].date)} → ${fmt(list[list.length - 1].date)}`;
         if(desRangeKind === 'X') { pv.innerHTML = range + '<br>Le tue desiderate di questi giorni si cancellano.'; return; }
         // anteprima con la regola del 5° giorno
-        const days = Object.assign({}, desDaysOf(desMe())); list.forEach(x => days[x.key] = desRangeKind);
+        // simulazione con il blocco delle spettanze
+        const me = desMe(), al = desAllow(me), days = Object.assign({}, desDaysOf(me)); let skip = 0;
+        list.forEach(x => { if(days[x.key] === desRangeKind) return; const was = days[x.key], b = desCount(days, desYear); days[x.key] = desRangeKind; const c = desCount(days, desYear); if((c.f > al.co && c.f > b.f) || (c.p > al.sp && c.p > b.p)) { if(was) days[x.key] = was; else delete days[x.key]; skip++; } });
         const res = desResolve(days, desYear); let f = 0, p = 0, auto = [];
         list.forEach(x => { const r = res[x.key]; if(!r) return; if(r.t === 'F') f++; else if(r.t === 'R') auto.push(r.n + '°'); else p++; });
-        pv.innerHTML = range + `<br>Diventano <b>${f} ${f === 1 ? 'giorno' : 'giorni'} di ferie</b>` + (p ? ` e <b>${p} ${p === 1 ? 'permesso' : 'permessi'}</b>` : '') + (auto.length ? ` + <b>${auto.length} ${auto.length === 1 ? 'riposo' : 'riposi'}</b> (il ${auto.join(', ')} giorno di fila è riposo e non scala le ferie)` : '') + '.';
+        pv.innerHTML = range + `<br>Diventano <b>${f} ${f === 1 ? 'giorno' : 'giorni'} di ferie</b>` + (p ? ` e <b>${p} ${p === 1 ? 'permesso' : 'permessi'}</b>` : '') + (auto.length ? ` + <b>${auto.length} ${auto.length === 1 ? 'riposo' : 'riposi'}</b> (il ${auto.join(', ')} giorno di fila è riposo e non scala le ferie)` : '') + '.' + (skip ? `<br><b style="color:#b91c1c">${skip} ${skip === 1 ? 'giorno resta fuori' : 'giorni restano fuori'}: superano le tue spettanze (${al.co} ferie, ${al.sp} permessi).</b>` : '');
     }
     function desApplyRange() {
         const list = desRangeKeys(); if(!list || !list.length) return;
         const n = desSetDays(list.map(x => [x.key, desRangeKind === 'X' ? null : desRangeKind]));
         desCloseRange();
-        desToast(n ? (desRangeKind === 'X' ? 'Cancellati ' + n + ' giorni' : 'Inseriti ' + list.length + ' giorni') : 'Nessun cambiamento');
+        desToast(n ? (desRangeKind === 'X' ? 'Cancellati ' + n + ' giorni' : 'Inseriti ' + n + ' giorni') : 'Nessun cambiamento');
         // porta il periodo sullo schermo
         setTimeout(() => {
             const tr = document.querySelector(`#des-body tr[data-key="${list[0].key}"]`), sc = document.getElementById('des-scroll');
