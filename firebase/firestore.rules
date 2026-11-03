@@ -49,6 +49,11 @@ service cloud.firestore {
     match /richieste_infermieri/{docId} {
       allow read, create, update, delete: if signedIn();
     }
+    // scambi turno scritti dal portale per ogni "Cambio turno" (id = id della richiesta);
+    // si cancellano quando la richiesta viene ritirata o eliminata
+    match /turno_overrides/{docId} {
+      allow read, create, update, delete: if signedIn();
+    }
     match /note_migliorative/{docId} {
       allow read, create, update, delete: if signedIn();
     }
