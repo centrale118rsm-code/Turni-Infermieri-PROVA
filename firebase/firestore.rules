@@ -164,6 +164,28 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── Storico delle ferie desiderate ─────────────────────────────────────
+    // Una riga per ogni salvataggio: data e ora del server (at), dispositivo (by = nome di "Chi sei?",
+    // es. "PC Pronto Soccorso"), operatore che ha inserito (op), colonna (col) e giorni cambiati.
+    // Si scrive soltanto: non si modifica e non si cancella.
+    match /infermieri26_desiderate_log/{lid} {
+      function okLog(d) {
+        return d.keys().hasOnly(['ns', 'year', 'col', 'by', 'op', 'days', 'notes', 'byUid', 'at'])
+            && d.keys().hasAll(['ns', 'year', 'col', 'by', 'op', 'days', 'byUid', 'at'])
+            && okNs(d.ns) && lid.matches('^' + d.ns + 'l_[A-Za-z0-9]+$')
+            && d.year is int && d.year >= 2026 && d.year <= 2035
+            && d.col is string && d.col.size() > 0 && d.col.size() <= 60
+            && d.by is string && d.by == myName()
+            && d.op is string && d.op.size() > 0 && d.op.size() <= 60
+            && d.days is map && d.days.size() <= 366
+            && (!('notes' in d) || (d.notes is map && d.notes.size() <= 366))
+            && d.byUid == request.auth.uid && d.at == request.time;
+      }
+      allow read: if signedIn();
+      allow create: if signedIn() && okLog(request.resource.data);
+      allow update, delete: if false;
+    }
+
     // ── Tutto il resto è chiuso ────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
