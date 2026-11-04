@@ -2820,6 +2820,60 @@
         #des-mode-menu .dmm-sep { height:1px; background:var(--border); margin:4px 6px; }
         .dr-who label { display:flex; flex-direction:column; gap:5px; font-size:0.74rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; letter-spacing:.4px; }
         .dr-who select, .da-pw { height:44px; border:1.5px solid var(--border); border-radius:12px; padding:0 10px; background:var(--bg); color:var(--text-main); font:700 15px 'Plus Jakarta Sans',sans-serif; width:100%; box-sizing:border-box; }
+        /* seconda riga: viste, dal-al, admin */
+        .des-bar2 { display:flex; align-items:center; gap:8px; padding:6px 10px; border-bottom:1px solid var(--border); background:var(--bg-card); flex-shrink:0; }
+        .des-seg { display:inline-flex; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:3px; gap:2px; flex-shrink:0; }
+        .des-seg button { display:inline-flex; align-items:center; gap:5px; height:34px; padding:0 12px; border:none; border-radius:9px; background:transparent; color:var(--text-sec); font:800 13px 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .des-seg button .material-icons-round { font-size:18px; }
+        .des-seg button.on { background:var(--primary); color:#fff; box-shadow:0 2px 6px rgba(37,99,235,.35); }
+        .des-b2 { display:inline-flex; align-items:center; gap:5px; height:40px; padding:0 12px; border:1px solid var(--border); border-radius:12px; background:var(--bg-card); color:var(--text-main); font:800 13px 'Plus Jakarta Sans',sans-serif; cursor:pointer; flex-shrink:0; }
+        .des-b2 .material-icons-round { font-size:19px; color:var(--primary); }
+        .des-adm-btn { margin-left:auto; border-color:#f59e0b; color:#92400e; background:#fffbeb; }
+        .des-adm-btn .material-icons-round { color:#d97706; }
+        body.dark-mode .des-adm-btn { background:rgba(245,158,11,.15); color:#fcd34d; }
+        #des-view.des-admin .des-adm-btn { background:#d97706; color:#fff; border-color:#d97706; }
+        #des-view.des-admin .des-adm-btn .material-icons-round { color:#fff; }
+        @media (max-width:560px) {
+            .des-bar2 { gap:6px; padding:6px 8px; }
+            .des-seg button { padding:0 9px; font-size:12px; gap:3px; }
+            .des-seg button .material-icons-round { font-size:16px; }
+            .des-b2 { padding:0 9px; font-size:12px; }
+            #des-range-btn span:not(.material-icons-round) { display:none; }
+        }
+        @media (max-width:380px) { .des-seg button .material-icons-round { display:none; } .des-adm-btn span:not(.material-icons-round) { display:none; } }
+        /* barra admin, ben visibile */
+        .des-admbar { display:none; flex-wrap:wrap; align-items:center; gap:6px; padding:8px 10px; background:#fef3c7; border-bottom:2px solid #f59e0b; flex-shrink:0; }
+        body.dark-mode .des-admbar { background:rgba(245,158,11,.16); }
+        #des-view.des-admin .des-admbar { display:flex; }
+        .des-admbar .dab-t { font:900 12px 'Plus Jakarta Sans',sans-serif; color:#92400e; margin-right:4px; display:inline-flex; align-items:center; gap:4px; }
+        body.dark-mode .des-admbar .dab-t { color:#fcd34d; }
+        .des-admbar button { display:inline-flex; align-items:center; gap:5px; height:38px; padding:0 11px; border-radius:10px; border:1.5px solid #f59e0b; background:#fff; color:#78350f; font:800 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        body.dark-mode .des-admbar button { background:var(--bg-card); color:#fde68a; }
+        .des-admbar button .material-icons-round { font-size:18px; }
+        .des-admbar button.on { background:#111827; color:#fff; border-color:#111827; }
+        .des-admbar button.exit { margin-left:auto; background:transparent; border-color:transparent; text-decoration:underline; }
+        @media (max-width:560px) { .des-admbar { gap:5px; padding:6px 8px; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; } .des-admbar::-webkit-scrollbar { display:none; } .des-admbar button { height:36px; padding:0 9px; font-size:11.5px; flex-shrink:0; white-space:nowrap; } .des-admbar .dab-t { display:none; } .des-admbar button.exit { margin-left:0; } }
+        /* guida */
+        #des-guide { display:none; position:fixed; inset:0; z-index:6370; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity .25s; }
+        #des-guide.open { opacity:1; }
+        #des-guide .modal-content { max-width:560px; max-height:88vh; display:flex; flex-direction:column; }
+        #des-guide.open .modal-content { transform:translateY(0); }
+        .dg-body { overflow-y:auto; padding:6px 18px 18px; -webkit-overflow-scrolling:touch; }
+        .dg-step { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
+        .dg-step:last-child { border-bottom:none; }
+        .dg-n { width:30px; height:30px; border-radius:50%; background:var(--primary); color:#fff; font:900 14px/30px 'Plus Jakarta Sans',sans-serif; text-align:center; flex-shrink:0; }
+        .dg-step.adm .dg-n { background:#d97706; }
+        .dg-step > div > b { display:block; font-size:0.92rem; color:var(--text-main); margin-bottom:3px; }
+        .dg-step p { margin:0; font-size:0.84rem; line-height:1.45; color:var(--text-sec); font-weight:600; }
+        .dg-chip { display:inline-flex; align-items:center; gap:3px; padding:1px 7px; border-radius:6px; font-size:0.78rem; font-weight:800; border:1px solid var(--border); background:var(--bg); color:var(--text-main); white-space:nowrap; }
+        .dg-chip .material-icons-round { font-size:14px; }
+        .dg-foot { display:flex; gap:8px; padding-top:10px; }
+        .dg-foot button { flex:1; height:44px; border-radius:12px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font:800 14px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+        .dg-foot button.pri { background:var(--primary); color:#fff; border-color:var(--primary); }
+        /* strumento scelto, sempre in vista accanto alla ruota */
+        .dw-now { position:absolute; right:74px; bottom:14px; pointer-events:auto; cursor:pointer; background:var(--cc-ink, #16212e); color:#fff; font:700 12px/1.2 'Plus Jakarta Sans',sans-serif; padding:7px 11px; border-radius:10px; white-space:nowrap; box-shadow:0 4px 12px rgba(12,18,26,.25); max-width:calc(100vw - 100px); overflow:hidden; text-overflow:ellipsis; }
+        .dw-now b { color:#fde047; }
+        #des-wheel:not(.collapsed) .dw-now { display:none; }
         #des-admin { display:none; position:fixed; inset:0; z-index:6360; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity .25s; }
         #des-admin.open { opacity:1; }
         #des-admin .modal-content { max-width:420px; }
@@ -3902,9 +3956,18 @@
         <button class="ov-btn" onclick="closeDesiderate()" title="Torna al calendario dei turni"><span class="material-icons-round">arrow_back</span><span class="l-long">Turni</span></button>
         <div class="des-title"><b>Ferie desiderate</b><small id="des-sub">Scrivi le ferie che vorresti</small></div>
         <div class="des-year"><button onclick="desChangeYear(-1)" id="des-y-prev" title="Anno prima"><span class="material-icons-round">chevron_left</span></button><span id="des-y-lbl"></span><button onclick="desChangeYear(1)" id="des-y-next" title="Anno dopo"><span class="material-icons-round">chevron_right</span></button></div>
-        <button class="ov-btn" onclick="desToggleMode()" id="des-mode-btn" title="Cambia visualizzazione"></button>
-        <button class="ov-btn" onclick="desOpenRange()" id="des-range-btn" title="Inserisci da una data a un'altra"><span class="material-icons-round">date_range</span><span class="l-long">Dal… al…</span></button>
+        <button class="ov-btn des-help-btn" onclick="desGuideOpen()" title="Come si usa"><span class="material-icons-round">help</span><span class="l-long">Guida</span></button>
     </div>
+    <div class="des-bar2">
+        <div class="des-seg" id="des-seg" role="tablist" aria-label="Visualizzazione">
+            <button data-m="tutti" onclick="desSetMode('tutti')"><span class="material-icons-round">view_comfy</span>Tutti</button>
+            <button data-m="cols" onclick="desSetMode('cols')"><span class="material-icons-round">view_column</span>Colonne</button>
+            <button data-m="anno" onclick="desSetMode('anno')"><span class="material-icons-round">calendar_view_month</span>Anno</button>
+        </div>
+        <button class="des-b2" onclick="desOpenRange()" id="des-range-btn" title="Inserisci da una data a un'altra"><span class="material-icons-round">date_range</span><span>Dal… al…</span></button>
+        <button class="des-b2 des-adm-btn" onclick="desAdminOpen()" id="des-adm-btn" title="Area admin per la riunione"><span class="material-icons-round">admin_panel_settings</span><span>Admin</span></button>
+    </div>
+    <div class="des-admbar" id="des-admbar"></div>
     <div class="des-sum" id="des-sum"></div>
     <div class="des-scroll" id="des-scroll">
         <table id="des-table">
@@ -3958,6 +4021,18 @@
     </div>
 </div>
 <div id="des-mode-menu" onclick="event.stopPropagation()"></div>
+<div id="des-guide" onclick="desGuideClose(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="header-text">
+                <h3><span class="material-icons-round" style="margin-right:10px">help</span> COME SI USA</h3>
+                <span>Il calendario delle ferie desiderate in poche parole</span>
+            </div>
+            <button class="btn-close-modal" onclick="desGuideClose()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="dg-body" id="dg-body"></div>
+    </div>
+</div>
 <div id="des-admin" onclick="desAdminClose(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -7161,8 +7236,10 @@
         const v = document.getElementById('des-view');
         v.classList.add('open'); document.body.classList.add('des-open');
         desTool = desTool || 'F';
+        desMode = 'tutti';   // si apre sempre con tutti gli operatori in vista
         desRenderAll(true);
         desListen();
+        setTimeout(() => { if(desMode === 'tutti') { const t = document.getElementById('da-today'), sc = document.getElementById('des-scroll'); if(t && sc) sc.scrollTop = Math.max(0, t.offsetTop - 122); } desGuideFirst(); }, 60);
         setCurrentView('Ferie desiderate');
         if(desIsPS()) { desPSOp = null; desRenderAll(true); setTimeout(() => desPSPick(), 250); }
         else if(!desMe()) {
@@ -7280,8 +7357,8 @@
     function desApplyMode() {
         const v = document.getElementById('des-view');
         v.classList.toggle('des-anno', desMode === 'anno'); v.classList.toggle('des-tutti', desMode === 'tutti');
-        const M = DES_MODES[desMode];
-        document.getElementById('des-mode-btn').innerHTML = `<span class="material-icons-round">${M[0]}</span><span class="l-long">${M[1]}</span>`;
+        document.querySelectorAll('#des-seg button').forEach(b => b.classList.toggle('on', b.dataset.m === desMode));
+        desRenderAdmBar();
         if(desMode === 'anno') desRenderYearGrid();
         if(desMode === 'tutti') desRenderAllCompact();
     }
@@ -7292,14 +7369,14 @@
         m.innerHTML = Object.entries(DES_MODES).map(([k, M]) => `<button class="${k === desMode ? 'on' : ''}" onclick="desSetMode('${k}')"><span class="material-icons-round">${M[0]}</span><span><b>${M[1]}</b><small>${M[2]}</small></span></button>`).join('')
             + `<div class="dmm-sep"></div><button onclick="desLogOpen()"><span class="material-icons-round">history</span><span><b>Storico inserimenti</b><small>Chi ha scritto cosa, con data e ora</small></span></button>`
             + `<button onclick="desAdminOpen()"><span class="material-icons-round">${desAdmin ? 'logout' : 'admin_panel_settings'}</span><span><b>${desAdmin ? 'Esci dall’admin' : 'Admin (riunione)'}</b><small>${desAdmin ? 'Torni a scrivere solo nella tua colonna' : 'Modifica le desiderate di tutti'}</small></span></button>`;
-        const r = document.getElementById('des-mode-btn').getBoundingClientRect();
+        const r = (document.getElementById('des-mode-btn') || document.getElementById('des-seg')).getBoundingClientRect();
         m.style.top = (r.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(window.innerWidth - 238, r.right - 230)) + 'px';
         m.classList.add('open');
         if(!m._out) { m._out = true; document.addEventListener('click', e => { if(!e.target.closest('#des-mode-menu, #des-mode-btn')) m.classList.remove('open'); }); }   // un solo ascoltatore: chiude il menu toccando fuori
     }
     function desSetMode(k) {
         document.getElementById('des-mode-menu').classList.remove('open');
-        if(!DES_MODES[k]) return;
+        if(!DES_MODES[k] || k === desMode) { if(k === desMode) desApplyMode(); return; }
         vibrate(); desMode = k;
         try { localStorage.setItem('infermieri_des_mode', desMode); } catch(e) {}
         desApplyMode();
@@ -7795,6 +7872,57 @@
         document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
     }
 
+    // ── barra admin: tutti gli strumenti della riunione in vista ──
+    function desRenderAdmBar() {
+        const el = document.getElementById('des-admbar'); if(!el) return;
+        if(!desAdmin) { el.innerHTML = ''; return; }
+        const b = (id, icon, label, fn, on) => `<button id="${id}" class="${on ? 'on' : ''}" onclick="${fn}"><span class="material-icons-round">${icon}</span>${label}</button>`;
+        el.innerHTML = `<span class="dab-t"><span class="material-icons-round" style="font-size:17px">admin_panel_settings</span>ADMIN · scrivi nelle colonne di tutti</span>`
+            + b('dab-f', 'edit', 'Inserisci', "desPickTool('F')", ['F', 'P', 'X', 'N'].includes(desTool))
+            + b('dab-b', 'strikethrough_s', 'Barra giorni', "desPickTool('B')", desTool === 'B')
+            + b('dab-i', 'move_down', 'Importa un periodo', "desAdmImportOne()", desTool === 'I')
+            + b('dab-a', 'playlist_add_check', 'Importa tutte', "desAdmImportAll()", false)
+            + b('dab-l', 'history', 'Storico', "desLogOpen()", false)
+            + `<button class="exit" onclick="desAdminExit()"><span class="material-icons-round">logout</span>Esci</button>`;
+    }
+    function desAdmImportOne() { vibrate(); if(!desImportCheck()) return; desTool = 'I'; desRenderWheel(); desRenderAdmBar(); desToast('Tocca un periodo di ferie o permessi da importare'); }
+    function desAdmImportAll() {
+        vibrate(); if(!desImportCheck()) return;
+        const all = desImportPlan();
+        if(!all.plan.length) { desToast('Niente da importare: tutti i giorni sono già barrati'); return; }
+        desImportConfirm(all);
+    }
+    // ── guida ──
+    function desGuideHtml() {
+        const c = (icon, t, bg) => `<span class="dg-chip"${bg ? ` style="background:${bg}"` : ''}>${icon ? `<span class="material-icons-round">${icon}</span>` : ''}${t}</span>`;
+        const st = (n, t, p, adm) => `<div class="dg-step${adm ? ' adm' : ''}"><div class="dg-n">${n}</div><div><b>${t}</b><p>${p}</p></div></div>`;
+        return st(1, 'Chi sei', `L'app ti riconosce dal nome scelto in “Chi sei?”: scrivi solo nella <b>tua colonna</b> (la prima, con scritto TU). Se non l'hai ancora scelto te lo chiede.`)
+            + st(2, 'Scegli cosa mettere', `Tocca il cerchio in basso a destra: si apre la ruota con ${c('beach_access', 'Ferie', 'var(--bg-cong)')} ${c('event_available', 'Permesso', 'var(--bg-perm)')} ${c('backspace', 'Cancella')} ${c('edit_note', 'Nota')}. Accanto al cerchio vedi sempre lo strumento scelto.`)
+            + st(3, 'Tocca i giorni', `Tocca una casella della tua colonna. Per tanti giorni di fila <b>tieni premuto e trascina</b>, oppure usa ${c('date_range', 'Dal… al…')} e scrivi la prima e l'ultima data. Ritoccando un giorno lo togli.`)
+            + st(4, 'Cambia visualizzazione', `In alto ci sono tre tasti: ${c('view_comfy', 'Tutti')} tutti gli operatori in una schermata, con quanti sono assenti ogni giorno; ${c('view_column', 'Colonne')} caselle grandi come il calendario turni; ${c('calendar_view_month', 'Anno')} i 12 mesi di una persona in una pagina (scegli di chi dal menu in alto). Con ${c('', '‹ 2027 ›')} cambi anno.`)
+            + st(5, 'Regole', `Il <b>5° giorno di ferie di fila è riposo</b> e non scala le ferie. Non puoi superare le tue ferie e i tuoi permessi: in alto vedi quanti ne hai usati. Il pallino blu su una casella vuol dire che c'è una nota.`)
+            + st(6, 'Giorni barrati', `Un giorno barrato con la ✓ è già stato messo nei turni dal coordinatore: non si cambia più da qui.`)
+            + st(7, 'Area admin (riunione)', `Tocca ${c('admin_panel_settings', 'Admin')} e metti la password. Compare una barra arancione: puoi scrivere in tutte le colonne, ${c('strikethrough_s', 'Barra giorni')} per segnare quelli già messi a mano, ${c('move_down', 'Importa un periodo')} (tocchi un periodo e va nel calendario turni), ${c('playlist_add_check', 'Importa tutte')}, ${c('history', 'Storico')} per vedere chi ha scritto cosa. ${c('logout', 'Esci')} quando hai finito.`, true)
+            + `<div class="dg-foot"><button onclick="desGuideClose(); desLogOpen()"><span class="material-icons-round">history</span>Storico inserimenti</button><button class="pri" onclick="desGuideClose()"><span class="material-icons-round">check</span>Ho capito</button></div>`;
+    }
+    function desGuideOpen() {
+        vibrate();
+        document.getElementById('dg-body').innerHTML = desGuideHtml();
+        document.getElementById('des-wheel').classList.add('collapsed');
+        const m = document.getElementById('des-guide'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+        try { localStorage.setItem('infermieri_des_guide', '1'); } catch(e) {}
+    }
+    function desGuideClose(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('des-guide'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
+    }
+    // la prima volta su questo telefono la guida si apre da sola (non sul PC del Pronto Soccorso, che chiede il nome)
+    function desGuideFirst() {
+        if(desIsPS()) return;
+        let seen = false; try { seen = !!localStorage.getItem('infermieri_des_guide'); } catch(e) { seen = true; }
+        if(!seen && desMe()) setTimeout(desGuideOpen, 500);
+    }
+
     // ── accesso admin per la riunione (password semplice, solo su questo telefono finché resta aperto) ──
     const DES_ADMIN_PW = '00';
     function desAdminOpen() {
@@ -7811,6 +7939,7 @@
         if(document.getElementById('da-pw').value.trim() !== DES_ADMIN_PW) { document.getElementById('da-err').textContent = 'Password sbagliata'; vibrate(); return; }
         desAdmin = true; desAdminClose(); vibrate();
         desRenderAll(false); desToast('Admin: puoi modificare le desiderate di tutti');
+        if(desMode === 'anno') desSetMode('tutti');
     }
     function desAdminExit() {
         if(desDirty) desSaveNow();
@@ -7936,7 +8065,8 @@
         const w = document.getElementById('des-wheel'); if(!w) return;
         w.classList.toggle('readonly', !desMe() && !desAll());
         const S = 250, c = S / 2, r0 = 46, r1 = 118;
-        const ids = desAdmin ? ['F', 'P', 'X', 'N', 'R', 'B', 'I'] : ['F', 'P', 'X', 'N', 'R'], step = 360 / ids.length;
+        // ruota semplice: solo i quattro strumenti di tutti i giorni (Dal… al… e l'admin hanno i loro tasti in alto)
+        const ids = ['F', 'P', 'X', 'N'], step = 360 / ids.length;
         const items = ids.map((id, i) => [id, i * step]);
         let paths = '', lbls = '';
         items.forEach(([id, a]) => {
@@ -7948,6 +8078,9 @@
         });
         document.getElementById('dw-ring').innerHTML = `<svg viewBox="0 0 ${S} ${S}">${paths}</svg>${lbls}`;
         const k = DES_KINDS[desTool];
+        const now = { F:'Metti <b>FERIE</b>: tocca i giorni', P:'Metti <b>PERMESSO</b>: tocca i giorni', X:'<b>CANCELLA</b>: tocca i giorni', N:'<b>NOTA</b>: tocca un giorno', B:'<b>BARRA</b>: tocca i giorni già nei turni', I:'<b>IMPORTA</b>: tocca un periodo' }[desTool] || '';
+        let nw = document.getElementById('dw-now'); if(!nw) { nw = document.createElement('div'); nw.id = 'dw-now'; nw.className = 'dw-now'; nw.onclick = desToggleWheel; w.appendChild(nw); }
+        nw.innerHTML = now;
         document.getElementById('dw-hub').innerHTML = `<span class="dw-hub-sw" style="background:${k.bg};color:${k.fg}">${desTool === 'X' || desTool === 'N' || desTool === 'B' || desTool === 'I' ? `<span class="material-icons-round">${k.icon}</span>` : (desTool === 'F' ? 'FERIE' : 'PERM.')}</span><small>${w.classList.contains('collapsed') ? 'strumenti' : 'chiudi'}</small>`;
         document.getElementById('dw-caption').innerHTML = desTool === 'I' ? 'Tocca un <b>periodo</b> di ferie o permessi: lo importo nel calendario turni e lo barro' : desTool === 'B' ? 'Tocca un giorno per <b>barrarlo</b> (già inserito nei turni); ritocca per togliere<br><small>Tieni premuto e trascina per più giorni</small>' : desTool === 'N' ? 'Tocca un tuo giorno per <b>scrivere una nota</b>' : (desTool === 'X' ? 'Tocca una tua casella per <b>cancellarla</b>' : `Tocca una tua casella per mettere <b>${esc(k.label.toLowerCase())}</b>; ritocca per togliere`) + '<br><small>Tieni premuto e trascina per più giorni</small>';
     }
@@ -7957,7 +8090,7 @@
         document.getElementById('des-wheel').classList.add('collapsed');
         if(id === 'R') { desRenderWheel(); desOpenRange(); return; }
         if(id === 'I') { desRenderWheel(); desImportAsk(); return; }
-        desTool = id; desRenderWheel();
+        desTool = id; desRenderWheel(); desRenderAdmBar();
         desToast(id === 'B' ? 'Strumento: barra i giorni già inseriti nei turni' : id === 'X' ? 'Strumento: cancella' : id === 'N' ? 'Strumento: nota. Tocca un tuo giorno' : 'Strumento: ' + DES_KINDS[id].label.toLowerCase());
     }
 
@@ -15800,6 +15933,7 @@
         'des-range': desCloseRange,
         'des-note': desCloseNote,
         'des-admin': desAdminClose,
+        'des-guide': desGuideClose,
         'des-op': desPSClose,
         'des-log': desLogClose,
         'des-view': closeDesiderate,
