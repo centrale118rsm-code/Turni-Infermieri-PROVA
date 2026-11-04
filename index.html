@@ -2853,6 +2853,27 @@
         .des-admbar button.on { background:#111827; color:#fff; border-color:#111827; }
         .des-admbar button.exit { margin-left:auto; background:transparent; border-color:transparent; text-decoration:underline; }
         @media (max-width:560px) { .des-admbar { gap:5px; padding:6px 8px; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; } .des-admbar::-webkit-scrollbar { display:none; } .des-admbar button { height:36px; padding:0 9px; font-size:11.5px; flex-shrink:0; white-space:nowrap; } .des-admbar .dab-t { display:none; } .des-admbar button.exit { margin-left:0; } }
+        /* tutorial animato con voce */
+        #des-tour { display:none; position:fixed; inset:0; z-index:6380; }
+        #des-tour.open { display:block; }
+        .dt-hole { position:fixed; border-radius:14px; box-shadow:0 0 0 9999px rgba(8,13,22,.68); transition:left .45s cubic-bezier(.3,.7,.2,1), top .45s cubic-bezier(.3,.7,.2,1), width .45s cubic-bezier(.3,.7,.2,1), height .45s cubic-bezier(.3,.7,.2,1); pointer-events:none; outline:3px solid #fde047; outline-offset:2px; }
+        .dt-hole.pulse { animation:dtPulse 1.4s ease-in-out infinite; }
+        @keyframes dtPulse { 0%,100% { outline-color:#fde047; outline-offset:2px; } 50% { outline-color:#facc15; outline-offset:7px; } }
+        .dt-card { position:fixed; left:50%; transform:translateX(-50%); width:min(440px, calc(100vw - 24px)); background:var(--bg-card); color:var(--text-main); border-radius:18px; box-shadow:0 14px 40px rgba(0,0,0,.4); padding:14px 16px 12px; transition:top .35s, bottom .35s; }
+        .dt-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+        .dt-step { font:800 11px 'Plus Jakarta Sans',sans-serif; color:var(--primary); text-transform:uppercase; letter-spacing:.5px; }
+        .dt-x { border:none; background:transparent; color:var(--text-sec); cursor:pointer; padding:4px; display:flex; }
+        .dt-card b { display:block; font-size:1.05rem; font-weight:800; margin-bottom:4px; }
+        .dt-card p { margin:0; font-size:0.9rem; line-height:1.45; color:var(--text-sec); font-weight:600; min-height:2.9em; }
+        .dt-dots { display:flex; gap:5px; justify-content:center; margin:10px 0 8px; }
+        .dt-dots i { width:7px; height:7px; border-radius:50%; background:var(--border); }
+        .dt-dots i.on { background:var(--primary); width:18px; border-radius:4px; }
+        .dt-ctl { display:flex; gap:6px; align-items:center; justify-content:center; }
+        .dt-ctl button { height:42px; min-width:42px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:0 10px; font:800 12.5px 'Plus Jakarta Sans',sans-serif; }
+        .dt-ctl .dt-play { background:var(--primary); color:#fff; border-color:var(--primary); min-width:56px; }
+        .dt-ctl .dt-start { background:var(--primary); color:#fff; border-color:var(--primary); padding:0 18px; font-size:14px; }
+        .dt-ctl .dt-txt { margin-left:auto; }
+        @media (max-width:420px) { .dt-ctl .dt-txt span:not(.material-icons-round) { display:none; } }
         /* guida */
         #des-guide { display:none; position:fixed; inset:0; z-index:6370; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity .25s; }
         #des-guide.open { opacity:1; }
@@ -2867,6 +2888,11 @@
         .dg-step p { margin:0; font-size:0.84rem; line-height:1.45; color:var(--text-sec); font-weight:600; }
         .dg-chip { display:inline-flex; align-items:center; gap:3px; padding:1px 7px; border-radius:6px; font-size:0.78rem; font-weight:800; border:1px solid var(--border); background:var(--bg); color:var(--text-main); white-space:nowrap; }
         .dg-chip .material-icons-round { font-size:14px; }
+        .dg-voice { display:flex; align-items:center; gap:10px; margin:10px 0 4px; padding:10px 12px; border-radius:14px; background:rgba(37,99,235,.08); border:1px solid rgba(37,99,235,.25); }
+        .dg-voice button { height:44px; padding:0 16px; border-radius:12px; border:none; background:var(--primary); color:#fff; font:800 14px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:6px; flex-shrink:0; }
+        .dg-voice button.on { background:#dc2626; }
+        .dg-voice span.t { font-size:0.8rem; font-weight:700; color:var(--text-sec); line-height:1.3; }
+        .dg-step.speaking { background:rgba(37,99,235,.08); border-radius:12px; margin:0 -8px; padding:12px 8px; box-shadow:inset 3px 0 0 var(--primary); }
         .dg-foot { display:flex; gap:8px; padding-top:10px; }
         .dg-foot button { flex:1; height:44px; border-radius:12px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font:800 14px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
         .dg-foot button.pri { background:var(--primary); color:#fff; border-color:var(--primary); }
@@ -3956,7 +3982,7 @@
         <button class="ov-btn" onclick="closeDesiderate()" title="Torna al calendario dei turni"><span class="material-icons-round">arrow_back</span><span class="l-long">Turni</span></button>
         <div class="des-title"><b>Ferie desiderate</b><small id="des-sub">Scrivi le ferie che vorresti</small></div>
         <div class="des-year"><button onclick="desChangeYear(-1)" id="des-y-prev" title="Anno prima"><span class="material-icons-round">chevron_left</span></button><span id="des-y-lbl"></span><button onclick="desChangeYear(1)" id="des-y-next" title="Anno dopo"><span class="material-icons-round">chevron_right</span></button></div>
-        <button class="ov-btn des-help-btn" onclick="desGuideOpen()" title="Come si usa"><span class="material-icons-round">help</span><span class="l-long">Guida</span></button>
+        <button class="ov-btn des-help-btn" onclick="desTourStart(true)" title="Come si usa: tutorial con voce"><span class="material-icons-round">help</span><span class="l-long">Guida</span></button>
     </div>
     <div class="des-bar2">
         <div class="des-seg" id="des-seg" role="tablist" aria-label="Visualizzazione">
@@ -4021,6 +4047,22 @@
     </div>
 </div>
 <div id="des-mode-menu" onclick="event.stopPropagation()"></div>
+<div id="des-tour" aria-live="polite">
+    <div class="dt-hole" id="dt-hole"></div>
+    <div class="dt-card" id="dt-card">
+        <div class="dt-top"><span class="dt-step" id="dt-step"></span><button class="dt-x" onclick="desTourEnd()" title="Chiudi il tutorial"><span class="material-icons-round">close</span></button></div>
+        <b id="dt-title"></b>
+        <p id="dt-text"></p>
+        <div class="dt-dots" id="dt-dots"></div>
+        <div class="dt-ctl">
+            <button onclick="desTourGo(-1)" title="Indietro"><span class="material-icons-round">skip_previous</span></button>
+            <button class="dt-play" id="dt-play" onclick="desTourPlay()"><span class="material-icons-round">pause</span></button>
+            <button onclick="desTourGo(1)" title="Avanti"><span class="material-icons-round">skip_next</span></button>
+            <button id="dt-mute" onclick="desTourMute()" title="Voce sì/no"><span class="material-icons-round">volume_up</span></button>
+            <button class="dt-txt" onclick="desTourEnd(); desGuideOpen()" title="Guida scritta"><span class="material-icons-round">menu_book</span><span>Guida scritta</span></button>
+        </div>
+    </div>
+</div>
 <div id="des-guide" onclick="desGuideClose(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -7250,6 +7292,7 @@
     }
     function closeDesiderate() {
         const v = document.getElementById('des-view'); if(!v) return;
+        if(desTour) desTourEnd();
         if(desDirty) desSaveNow();
         v.classList.remove('open'); document.body.classList.remove('des-open');
         document.getElementById('des-wheel').classList.add('collapsed');
@@ -7896,7 +7939,8 @@
     function desGuideHtml() {
         const c = (icon, t, bg) => `<span class="dg-chip"${bg ? ` style="background:${bg}"` : ''}>${icon ? `<span class="material-icons-round">${icon}</span>` : ''}${t}</span>`;
         const st = (n, t, p, adm) => `<div class="dg-step${adm ? ' adm' : ''}"><div class="dg-n">${n}</div><div><b>${t}</b><p>${p}</p></div></div>`;
-        return st(1, 'Chi sei', `L'app ti riconosce dal nome scelto in “Chi sei?”: scrivi solo nella <b>tua colonna</b> (la prima, con scritto TU). Se non l'hai ancora scelto te lo chiede.`)
+        const voice = desVoiceOk() ? `<div class="dg-voice"><button id="dg-voice-btn" onclick="desVoiceToggle()"><span class="material-icons-round">volume_up</span>Ascolta</button><span class="t" id="dg-voice-t">Una voce ti legge la guida, un passo alla volta.</span></div>` : '';
+        return voice + st(1, 'Chi sei', `L'app ti riconosce dal nome scelto in “Chi sei?”: scrivi solo nella <b>tua colonna</b> (la prima, con scritto TU). Se non l'hai ancora scelto te lo chiede.`)
             + st(2, 'Scegli cosa mettere', `Tocca il cerchio in basso a destra: si apre la ruota con ${c('beach_access', 'Ferie', 'var(--bg-cong)')} ${c('event_available', 'Permesso', 'var(--bg-perm)')} ${c('backspace', 'Cancella')} ${c('edit_note', 'Nota')}. Accanto al cerchio vedi sempre lo strumento scelto.`)
             + st(3, 'Tocca i giorni', `Tocca una casella della tua colonna. Per tanti giorni di fila <b>tieni premuto e trascina</b>, oppure usa ${c('date_range', 'Dal… al…')} e scrivi la prima e l'ultima data. Ritoccando un giorno lo togli.`)
             + st(4, 'Cambia visualizzazione', `In alto ci sono tre tasti: ${c('view_comfy', 'Tutti')} tutti gli operatori in una schermata, con quanti sono assenti ogni giorno; ${c('view_column', 'Colonne')} caselle grandi come il calendario turni; ${c('calendar_view_month', 'Anno')} i 12 mesi di una persona in una pagina (scegli di chi dal menu in alto). Con ${c('', '‹ 2027 ›')} cambi anno.`)
@@ -7912,15 +7956,157 @@
         const m = document.getElementById('des-guide'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
         try { localStorage.setItem('infermieri_des_guide', '1'); } catch(e) {}
     }
+    // ── tutorial animato: la voce spiega e si illuminano i tasti veri, uno alla volta ──
+    let desTour = null;   // { i, playing, mute, timer, steps }
+    function desTourSteps() {
+        const me = desMe();
+        const meTh = () => document.querySelector('#des-all thead th.me') || document.querySelector('#des-table th.me-col') || document.getElementById('des-sub');
+        const wheel = open => { const w = document.getElementById('des-wheel'); w.classList.toggle('collapsed', !open); desRenderWheel(); };
+        const mode = m => { if(desMode !== m) desSetMode(m); };
+        return [
+            { t:'Benvenuto', x:'Questo è il calendario delle ferie desiderate. Ti faccio vedere in un minuto come si usa. Puoi fermarmi quando vuoi.', el:() => document.querySelector('#des-view .des-title'), go:() => { wheel(false); mode('tutti'); } },
+            { t:'La tua colonna', x: me ? `Questa è la tua colonna, ${me.name}: è la prima e c'è scritto TU. Scrivi solo qui; le colonne dei colleghi le puoi solo guardare.` : 'Per scrivere devi prima scegliere chi sei: poi la tua colonna sarà la prima, con scritto TU.', el: meTh, go:() => { wheel(false); mode('tutti'); } },
+            { t:'Gli strumenti', x:'In basso a destra c\'è il cerchio degli strumenti. Toccalo e si apre la ruota.', el:() => document.getElementById('dw-hub'), go:() => wheel(false) },
+            { t:'La ruota', x:'Nella ruota scegli cosa mettere: Ferie, Permesso, Cancella, oppure Nota per scrivere un appunto su un giorno. Accanto al cerchio resta sempre scritto lo strumento scelto.', el:() => document.getElementById('des-wheel'), go:() => wheel(true), pad:4, round:true },
+            { t:'Tocca i giorni', x:'Poi tocca le caselle della tua colonna. Per tanti giorni di fila tieni premuto e trascina il dito. Ritoccando un giorno lo togli.', el: meTh, go:() => wheel(false) },
+            { t:'Dal giorno al giorno', x:'Con questo tasto scrivi un periodo intero: metti la prima e l\'ultima data, e l\'app riempie tutti i giorni.', el:() => document.getElementById('des-range-btn'), go:() => wheel(false) },
+            { t:'Le visualizzazioni', x:'Qui cambi visualizzazione. Tutti: tutti gli operatori in una schermata, con quanti sono assenti ogni giorno.', el:() => document.getElementById('des-seg'), go:() => mode('tutti') },
+            { t:'Vista Colonne', x:'Colonne: caselle grandi, come nel calendario dei turni.', el:() => document.querySelector('#des-seg button[data-m="cols"]'), go:() => mode('cols') },
+            { t:'Vista Anno', x:'Anno: i dodici mesi di una persona in una sola pagina. Dal menu in alto scegli di chi.', el:() => document.querySelector('#des-seg button[data-m="anno"]'), go:() => mode('anno') },
+            { t:'L\'anno', x:'Con queste frecce passi da un anno all\'altro.', el:() => document.querySelector('#des-view .des-year'), go:() => mode('tutti') },
+            { t:'I tuoi contatori', x:'Qui vedi quante ferie e quanti permessi hai usato. Non puoi superarli. Il quinto giorno di ferie di fila diventa riposo e non scala le ferie.', el:() => document.getElementById('des-sum') },
+            { t:'Giorni barrati', x:'Un giorno barrato con la spunta è già stato messo nei turni dal coordinatore, e non si cambia più da qui.', el: meTh },
+            { t:'Area admin', x:'Questo tasto è per il coordinatore, durante la riunione. Con la password compare una barra arancione per scrivere in tutte le colonne, barrare e importare le ferie nel calendario turni.', el:() => document.getElementById('des-adm-btn') },
+            { t:'Fatto!', x:'Per rivedere questo tutorial tocca il punto di domanda in alto. Buone ferie!', el:() => document.querySelector('#des-view .des-help-btn') }
+        ];
+    }
+    function desTourStart(gesture) {
+        vibrate();
+        document.getElementById('des-mode-menu').classList.remove('open');
+        try { localStorage.setItem('infermieri_des_guide', '1'); } catch(e) {}
+        desTour = { i:0, playing: !!gesture, mute: !desVoiceOk(), timer:null, steps: desTourSteps(), back: desMode };
+        document.getElementById('des-tour').classList.add('open');
+        desTourShow(true);
+    }
+    function desTourEnd() {
+        if(!desTour) return;
+        clearTimeout(desTour.timer); try { speechSynthesis.cancel(); } catch(e) {}
+        document.getElementById('des-wheel').classList.add('collapsed'); desRenderWheel();
+        const back = desTour.back; desTour = null;
+        document.getElementById('des-tour').classList.remove('open');
+        if(desMode !== 'tutti' && back === 'tutti') desSetMode('tutti');
+    }
+    function desTourShow(first) {
+        const T = desTour; if(!T) return;
+        clearTimeout(T.timer); try { speechSynthesis.cancel(); } catch(e) {}
+        const st = T.steps[T.i]; if(st.go) st.go();
+        document.getElementById('dt-step').textContent = `Passo ${T.i + 1} di ${T.steps.length}`;
+        document.getElementById('dt-title').textContent = st.t;
+        document.getElementById('dt-text').textContent = st.x;
+        document.getElementById('dt-dots').innerHTML = T.steps.map((_, k) => `<i class="${k === T.i ? 'on' : ''}"></i>`).join('');
+        document.getElementById('dt-mute').innerHTML = `<span class="material-icons-round">${T.mute ? 'volume_off' : 'volume_up'}</span>`;
+        const play = document.getElementById('dt-play');
+        if(!T.playing && first) { play.className = 'dt-start'; play.innerHTML = '<span class="material-icons-round">play_arrow</span>Avvia il tutorial'; }
+        else { play.className = 'dt-play'; play.innerHTML = `<span class="material-icons-round">${T.playing ? 'pause' : 'play_arrow'}</span>`; }
+        // la luce si sposta sul tasto (dopo che la vista si è ridisegnata)
+        setTimeout(() => desTourPlace(st), 80);
+        if(T.playing) desTourSpeak(st);
+    }
+    function desTourPlace(st) {
+        const hole = document.getElementById('dt-hole'), card = document.getElementById('dt-card');
+        const el = st.el && st.el(); let r = el ? el.getBoundingClientRect() : null;
+        if(!r || !r.width) r = { left: innerWidth / 2 - 60, top: innerHeight / 3, width: 120, height: 60, bottom: innerHeight / 3 + 60 };
+        const pad = st.pad != null ? st.pad : 6;
+        Object.assign(hole.style, { left:(r.left - pad) + 'px', top:(r.top - pad) + 'px', width:(r.width + pad * 2) + 'px', height:(r.height + pad * 2) + 'px', borderRadius: st.round ? '50%' : '14px' });
+        hole.classList.add('pulse');
+        // la scheda sta dalla parte opposta al tasto illuminato
+        const below = (r.top + r.height / 2) < innerHeight / 2;
+        if(below) { card.style.top = Math.min(innerHeight - 230, r.bottom + pad + 14) + 'px'; card.style.bottom = 'auto'; }
+        else { card.style.bottom = Math.min(innerHeight - 230, innerHeight - r.top + pad + 14) + 'px'; card.style.top = 'auto'; }
+    }
+    function desTourSpeak(st) {
+        const T = desTour; if(!T) return;
+        const next = () => { if(desTour === T && T.playing) T.timer = setTimeout(() => { if(T.i < T.steps.length - 1) { T.i++; desTourShow(); } else { T.playing = false; desTourShow(); } }, 700); };
+        if(T.mute || !desVoiceOk()) { T.timer = setTimeout(next, Math.max(3500, st.x.length * 62)); return; }
+        const u = new SpeechSynthesisUtterance(st.x.replace(/quinto/g, 'quinto'));
+        u.lang = 'it-IT'; const v = desVoicePick(); if(v) u.voice = v; u.rate = 0.97;
+        let done = false; const fin = () => { if(done) return; done = true; next(); };
+        u.onend = fin; u.onerror = fin;
+        // se il telefono non parla (volume o voce mancante) si va avanti comunque
+        T.timer = setTimeout(fin, Math.max(6000, st.x.length * 95));
+        try { speechSynthesis.speak(u); } catch(e) { fin(); }
+    }
+    function desTourPlay() {
+        const T = desTour; if(!T) return; vibrate();
+        if(T.playing) { T.playing = false; clearTimeout(T.timer); try { speechSynthesis.cancel(); } catch(e) {} desTourShow(); return; }
+        T.playing = true; if(T.i >= T.steps.length - 1) T.i = 0;
+        desTourShow();
+    }
+    function desTourGo(d) {
+        const T = desTour; if(!T) return; vibrate();
+        T.i = Math.max(0, Math.min(T.steps.length - 1, T.i + d));
+        desTourShow();
+    }
+    function desTourMute() {
+        const T = desTour; if(!T) return; vibrate();
+        if(!desVoiceOk()) { desToast('Questo telefono non ha la voce'); return; }
+        T.mute = !T.mute; desTourShow();
+    }
+    window.addEventListener('resize', () => { if(desTour) desTourPlace(desTour.steps[desTour.i]); });
+
+    // ── guida a voce (sintesi vocale del telefono, in italiano) ──
+    let desVoiceOn = false;
+    function desVoiceOk() { return typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance !== 'undefined'; }
+    function desVoicePick() {
+        const vs = speechSynthesis.getVoices() || [];
+        return vs.find(v => /^it[-_]IT/i.test(v.lang) && /google|alice|federica|elsa|luca|paola/i.test(v.name)) || vs.find(v => /^it/i.test(v.lang)) || null;
+    }
+    function desVoiceText(el) {
+        const t = el.cloneNode(true); t.querySelectorAll('.material-icons-round, .dg-n').forEach(x => x.remove());
+        const h = t.querySelector(':scope > div > b'), p = t.querySelector('p');
+        return ((h ? h.textContent + '. ' : '') + (p ? p.textContent : t.textContent)).replace(/‹\s*2027\s*›|‹[^›]*›/g, 'le frecce dell’anno').replace(/5°/g, 'quinto').replace(/…/g, '').replace(/\s+/g, ' ').trim();
+    }
+    function desVoiceUi() {
+        const b = document.getElementById('dg-voice-btn'); if(!b) return;
+        b.classList.toggle('on', desVoiceOn);
+        b.innerHTML = desVoiceOn ? '<span class="material-icons-round">stop</span>Ferma' : '<span class="material-icons-round">volume_up</span>Ascolta';
+    }
+    function desVoiceStop() {
+        desVoiceOn = false;
+        try { speechSynthesis.cancel(); } catch(e) {}
+        document.querySelectorAll('.dg-step.speaking').forEach(x => x.classList.remove('speaking'));
+        desVoiceUi();
+    }
+    function desVoiceToggle() {
+        vibrate();
+        if(!desVoiceOk()) return;
+        if(desVoiceOn) { desVoiceStop(); return; }
+        const steps = [...document.querySelectorAll('#dg-body .dg-step')]; if(!steps.length) return;
+        desVoiceOn = true; desVoiceUi();
+        try { speechSynthesis.cancel(); } catch(e) {}
+        const voice = desVoicePick();
+        const say = i => {
+            document.querySelectorAll('.dg-step.speaking').forEach(x => x.classList.remove('speaking'));
+            if(!desVoiceOn || i >= steps.length) { desVoiceStop(); return; }
+            const el = steps[i]; el.classList.add('speaking'); el.scrollIntoView({ behavior:'smooth', block:'center' });
+            const u = new SpeechSynthesisUtterance(desVoiceText(el));
+            u.lang = 'it-IT'; if(voice) u.voice = voice; u.rate = 0.95;
+            u.onend = () => { if(desVoiceOn) setTimeout(() => say(i + 1), 350); };
+            u.onerror = () => { if(desVoiceOn) say(i + 1); };
+            speechSynthesis.speak(u);
+        };
+        say(0);
+    }
     function desGuideClose(e) {
         if(e && e.target !== e.currentTarget) return;
+        desVoiceStop();
         const m = document.getElementById('des-guide'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
     }
     // la prima volta su questo telefono la guida si apre da sola (non sul PC del Pronto Soccorso, che chiede il nome)
     function desGuideFirst() {
         if(desIsPS()) return;
         let seen = false; try { seen = !!localStorage.getItem('infermieri_des_guide'); } catch(e) { seen = true; }
-        if(!seen && desMe()) setTimeout(desGuideOpen, 500);
+        if(!seen && desMe()) setTimeout(() => desTourStart(false), 600);
     }
 
     // ── accesso admin per la riunione (password semplice, solo su questo telefono finché resta aperto) ──
@@ -15934,6 +16120,7 @@
         'des-note': desCloseNote,
         'des-admin': desAdminClose,
         'des-guide': desGuideClose,
+        'des-tour': desTourEnd,
         'des-op': desPSClose,
         'des-log': desLogClose,
         'des-view': closeDesiderate,
