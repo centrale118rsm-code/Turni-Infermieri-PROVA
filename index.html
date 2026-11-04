@@ -2927,7 +2927,6 @@
         #des-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
         .des-ps-tag { display:inline-block; background:#0f766e; color:#fff; font-size:0.62rem; font-weight:900; padding:1px 6px; border-radius:5px; letter-spacing:.4px; vertical-align:1px; }
         #des-view.des-ps .des-bar { box-shadow:inset 0 -3px 0 #14b8a6; }
-        #des-view.des-ps #des-all td.c, #des-view.des-ps #des-table td[data-col] .cell { cursor:pointer; }
         #des-op, #des-log { display:none; position:fixed; inset:0; z-index:6370; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity .25s; }
         #des-op.open, #des-log.open { opacity:1; }
         #des-op .modal-content { max-width:520px; }
@@ -3979,15 +3978,14 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div class="header-text">
-                <h3><span class="material-icons-round" style="margin-right:10px">badge</span> CHI STA INSERENDO?</h3>
-                <span>PC Pronto Soccorso: il tuo nome resta nello storico con data e ora</span>
+                <h3><span class="material-icons-round" style="margin-right:10px">badge</span> OPERO A NOME DI?</h3>
+                <span>PC Pronto Soccorso: scrivi nella colonna di questa persona. Il nome resta nello storico con data e ora</span>
             </div>
             <button class="btn-close-modal" onclick="desPSClose()"><span class="material-icons-round">close</span></button>
         </div>
         <div class="dr-body">
             <div class="dop-list" id="dop-list"></div>
-            <div class="dop-other"><input type="text" id="dop-other" maxlength="40" autocomplete="off" placeholder="Non sei in elenco? Scrivi nome e cognome" onkeydown="if(event.key==='Enter')desPSChoose(this.value)"><button onclick="desPSChoose(document.getElementById('dop-other').value)"><span class="material-icons-round">check</span></button></div>
-            <div class="dn-hint">Dopo 5 minuti senza modifiche l’app chiede di nuovo il nome al prossimo che scrive.</div>
+            <div class="dn-hint">Dopo 5 minuti senza modifiche l’app lo chiede di nuovo.</div>
         </div>
     </div>
 </div>
@@ -7092,11 +7090,12 @@
     function desYearsAllowed() { const y = new Date().getFullYear(); return [y, y + 1]; }
     function desKeyName(n) { return String(n || '').toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'X'; }
     function desDocId(name, y) { return DATA_NS + y + '_' + desKeyName(name); }
-    function desMe() { return prefMe(); }
+    // dal PC Pronto Soccorso "io" è la persona a nome di cui si opera (scelta all'apertura)
+    function desMe() { return desIsPS() ? desDriverOf(desPSOperator()) : prefMe(); }
     function desMyName() { return userIdentity && userIdentity !== 'Ospite' ? userIdentity : null; }
-    // PC Pronto Soccorso: scrive nelle colonne di tutti, ma a ogni inserimento chiede chi è l'operatore
+    // PC Pronto Soccorso: all'apertura chiede "Opero a nome di?" e scrive nella colonna di quella persona
     function desIsPS() { return userIdentity === PS_NAME; }
-    function desAll() { return desAdmin || desIsPS(); }
+    function desAll() { return desAdmin; }
     function desDKey(d) { return desKeyName(d.originalName || d.name); }
     function desDaysOf(d) { return (d && desData[desDKey(d)]) || {}; }
     function desDriverOf(name) { const u = String(name || '').toUpperCase(); return drivers.find(d => d.name.toUpperCase() === u || String(d.originalName || '').toUpperCase() === u) || null; }
@@ -7156,7 +7155,8 @@
         desRenderAll(true);
         desListen();
         setCurrentView('Ferie desiderate');
-        if(!desMe() && !desIsPS()) {
+        if(desIsPS()) { desPSOp = null; desRenderAll(true); setTimeout(() => desPSPick(), 250); }
+        else if(!desMe()) {
             // non si sa ancora chi è: si chiede, poi si scrive solo nella sua colonna
             desPendingOpen = true;
             setTimeout(() => { desToast('Scegli chi sei: scriverai solo nella tua colonna'); openIdentityModal(); }, 250);
@@ -7175,7 +7175,7 @@
         desPendingOpen = false; desIdOk = false;
         const v = document.getElementById('des-view');
         if(!desIsPS()) desPSOp = null;
-        if(v && v.classList.contains('open')) { desRenderAll(false); if(desIsPS()) desToast('PC Pronto Soccorso: puoi scrivere nelle colonne di tutti'); else if(desMe()) desToast('Ora scrivi nella colonna di ' + desMe().name); }
+        if(v && v.classList.contains('open')) { desRenderAll(false); if(desIsPS()) { if(!desPSOperator()) setTimeout(() => desPSPick(), 250); } else if(desMe()) desToast('Ora scrivi nella colonna di ' + desMe().name); }
     }
     function desChangeYear(dir) {
         const ys = desYearsAllowed(), ny = desYear + dir;
@@ -7372,17 +7372,18 @@
         const el = document.getElementById('des-sum'); if(!el) return;
         const me = desMe();
         if(desAdmin && !me) { el.innerHTML = `<span class="des-pill"><b class="des-adm-tag">ADMIN</b> tocca o trascina nelle colonne di tutti</span>`; return; }
-        if(desIsPS()) {
+        if(desIsPS() && !me) {
             const op = desPSOperator(), save = { ok:['cloud_done', 'Salvato'], saving:['sync', 'Salvo…'], err:['cloud_off', 'Non salvato'], offline:['cloud_off', 'Senza rete'] }[desSaveState] || ['cloud_done', 'Salvato'];
-            el.innerHTML = `<span class="des-pill"><b class="des-ps-tag">PC PRONTO SOCCORSO</b> ${op ? `Operatore: <b>${esc(op)}</b>` : 'scegli l’operatore e tocca la colonna'}</span>`
-                + `<span class="des-who"><button onclick="desPSPick()">${op ? 'Cambia operatore' : 'Chi sei?'}</button> · <button onclick="desLogOpen()">Storico</button></span>`
+            el.innerHTML = `<span class="des-pill"><b class="des-ps-tag">PC PRONTO SOCCORSO</b> scegli a nome di chi operi</span>`
+                + `<span class="des-who"><button onclick="desPSPick()">Opero a nome di…</button> · <button onclick="desLogOpen()">Storico</button></span>`
                 + `<span class="des-save${desSaveState === 'err' || desSaveState === 'offline' ? ' err' : ''}" title="${save[1]}"><span class="material-icons-round">${save[0]}</span><span class="des-save-t">${save[1]}</span></span>`;
             return;
         }
         if(!me) { el.innerHTML = `<span>Per scrivere le tue ferie desiderate scegli chi sei.</span><span class="des-who"><button onclick="requestChangeIdentityDirect()">Scegli chi sei</button></span>`; return; }
         const c = desCount(desDaysOf(me), desYear), al = desAllow(me);
         const save = { ok:['cloud_done', 'Salvato'], saving:['sync', 'Salvo…'], err:['cloud_off', 'Non salvato'], offline:['cloud_off', 'Solo su questo telefono'] }[desSaveState] || ['cloud_done', 'Salvato'];
-        el.innerHTML = `<span class="des-pill${c.f > al.co ? ' over' : ''}"><i style="background:var(--bg-cong)"></i>Ferie <b>${c.f}</b>/${al.co}</span>`
+        el.innerHTML = (desIsPS() ? `<span class="des-pill"><b class="des-ps-tag">PC PS</b> a nome di <b>${esc(me.name)}</b></span><span class="des-who"><button onclick="desPSPick()">cambia</button> · <button onclick="desLogOpen()">Storico</button></span>` : '')
+            + `<span class="des-pill${c.f > al.co ? ' over' : ''}"><i style="background:var(--bg-cong)"></i>Ferie <b>${c.f}</b>/${al.co}</span>`
             + `<span class="des-pill${c.p > al.sp ? ' over' : ''}"><i style="background:var(--bg-perm)"></i>Permessi <b>${c.p}</b>/${al.sp}</span>`
             + (c.auto ? `<span class="des-pill"><i style="background:var(--c-R)"></i>Riposi al 5° giorno <b>${c.auto}</b></span>` : '')
             + `<span class="des-save${desSaveState === 'err' || desSaveState === 'offline' ? ' err' : ''}" title="${save[1]}"><span class="material-icons-round">${save[0]}</span><span class="des-save-t">${save[1]}</span></span>`;
@@ -7421,7 +7422,7 @@
         const d = who || desMe(); if(!d) return;
         desDirty = true; desDirtySet.add(desDKey(d));
         const me = desMe();
-        if(d === me) try { localStorage.setItem(desLocalKey(desYear), JSON.stringify({ name: desMyName(), days: desData[desDKey(me)] || {}, notes: desNotes[desDKey(me)] || {}, unsaved:true })); } catch(e) {}
+        if(d === me && !desIsPS()) try { localStorage.setItem(desLocalKey(desYear), JSON.stringify({ name: desMyName(), days: desData[desDKey(me)] || {}, notes: desNotes[desDKey(me)] || {}, unsaved:true })); } catch(e) {}
         clearTimeout(desSaveTimer); desSaveTimer = setTimeout(desSaveNow, 700);
         desSaveState = 'saving'; desRenderSum();
     }
@@ -7533,8 +7534,8 @@
     function desCellTap(key, idx) {
         const d = desDriverByIdx(idx); if(!d) return;
         if(Date.now() < desNoClickUntil) return;   // fine di un trascinamento
+        if(desPSNeed(() => desCellTap(key, idx), d)) return;   // PC Pronto Soccorso: prima "a nome di chi"
         if(!desCanEdit(d)) { desOtherTap(key, d.idx); return; }
-        if(desPSNeed(() => desCellTap(key, idx), d)) return;   // PC Pronto Soccorso: prima il nome dell'operatore
         if(desTool === 'N') { desOpenNote(key, false, d); return; }
         vibrate();
         if(desTool === 'B') { if(!desToggleOk([key], d) && !desDaysOf(d)[key]) desToast('Si barrano solo i giorni con ferie o permesso'); }
@@ -7547,7 +7548,7 @@
         if(desCanEdit(d)) { desCellTap(key, idx); return; }
         const nt = key && d ? desNotesOf(d)[key] : null;
         if(nt) { desOpenNote(key, true, d); return; }
-        desToast(desMe() ? 'Puoi scrivere solo nella tua colonna' : 'Scegli chi sei per scrivere nella tua colonna');
+        desToast(desIsPS() && desMe() ? 'Operi a nome di ' + desMe().name + ': per un’altra persona tocca “cambia”' : desMe() ? 'Puoi scrivere solo nella tua colonna' : 'Scegli chi sei per scrivere nella tua colonna');
     }
     async function desSaveNow() {
         clearTimeout(desSaveTimer); desSaveTimer = null;
@@ -7558,7 +7559,7 @@
         let failed = 0;
         for(const k of keys) {
             const d = drivers.find(x => desDKey(x) === k); if(!d) continue;
-            const mine = !!me && d === me, name = mine ? myName : (desDocNames[k] || d.name);
+            const mine = !!me && d === me && !desIsPS(), name = mine ? myName : (desDocNames[k] || d.name);
             const logs = desLogTake(k);
             try {
                 // le regole controllano che il nome sia quello scelto in "Chi sei?" da questo telefono (o che scriva l'admin)
@@ -7602,14 +7603,13 @@
         desPSPending = fn || null; desPSPick(d);
         return true;
     }
-    function desPSSubHtml() { const op = desPSOperator(); return `<b class="des-ps-tag">PC PS</b> ${op ? 'Operatore: <b>' + esc(op) + '</b>' : 'colonne di tutti'} · <button onclick="desPSPick()">${op ? 'cambia' : 'chi sei?'}</button>`; }
+    function desPSSubHtml() { const op = desPSOperator(); return `<b class="des-ps-tag">PC PS</b> ${op ? 'a nome di <b>' + esc(op) + '</b>' : 'nessuno scelto'} · <button onclick="desPSPick()">${op ? 'cambia' : 'scegli'}</button>`; }
     function desPSPick(d) {
         const m = document.getElementById('des-op'); if(m.classList.contains('open')) return;
         document.getElementById('des-wheel').classList.add('collapsed');
         const cur = desPSOperator(), sel = cur || (d ? d.name : '');
         const names = drivers.filter(x => !x.hidden).map(x => x.name);
         document.getElementById('dop-list').innerHTML = names.map(n => `<button class="${n === sel ? 'on' : ''}" onclick="desPSChoose(this.dataset.n)" data-n="${esc(n)}">${esc(n)}</button>`).join('');
-        document.getElementById('dop-other').value = sel && !names.includes(sel) ? sel : '';
         m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
     }
     function desPSClose(e) {
@@ -7618,13 +7618,13 @@
         const m = document.getElementById('des-op'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
     }
     function desPSChoose(name) {
-        name = String(name || '').replace(/\s+/g, ' ').trim().toUpperCase().slice(0, 40);
-        if(!name) { document.getElementById('dop-other').focus(); return; }
+        const dd = desDriverOf(name); if(!dd) return;
+        name = dd.name;
         vibrate();
         desPSOp = name; desPSOpAt = Date.now();
         const fn = desPSPending; desPSPending = null;
         const m = document.getElementById('des-op'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
-        desRenderAll(false); desToast('Operatore: ' + name + ' · resta nello storico con data e ora');
+        desIdOk = false; desRenderAll(true); desToast('Operi a nome di ' + name + ': resta nello storico con data e ora');
         if(fn) setTimeout(fn, 320);
     }
     // l'operatore scade da solo: si aggiorna la scritta in alto
@@ -7856,8 +7856,8 @@
     // ── periodo dal… al… ──
     function desRangeWho() { const s = document.getElementById('dr-who'); return desAll() && s && s.value ? desDriverByIdx(s.value) : desMe(); }
     function desOpenRange() {
+        if(desPSNeed(desOpenRange)) return;   // PC Pronto Soccorso: prima "a nome di chi"
         if(!desMe() && !desAll()) { desOtherTap(); return; }
-        if(desPSNeed(desOpenRange)) return;   // PC Pronto Soccorso: prima il nome dell'operatore
         const sw = document.getElementById('dr-who-row');
         sw.style.display = desAll() ? '' : 'none';
         if(desAll()) { const opD = desIsPS() ? desDriverOf(desPSOperator()) : null, def = desMode === 'anno' && desYgWho != null ? desYgWho : (desMe() ? desMe().idx : opD ? opD.idx : null); document.getElementById('dr-who').innerHTML = desCols().map(d => `<option value="${d.idx}"${d.idx === def ? ' selected' : ''}>${esc(d.name)}</option>`).join(''); }
