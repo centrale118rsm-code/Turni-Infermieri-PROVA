@@ -5494,6 +5494,7 @@
             { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori', color: MN_COLORS.cal, children: [
                 { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
+                (typeof isViewingArchive === 'function' && isViewingArchive()) ? null : { id:'nexty', icon:'fast_forward', label:'Vai al ' + (SHIFT_YEAR + 1), desc:'L’anno dopo è già qui, sotto dicembre: i turni si possono già scrivere', color: MN_COLORS.cal, run: () => goNextYear() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
                 { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
                 { id:'desid', icon:'beach_access', label:'Calendario ferie desiderate', desc:'Scrivi le ferie e i permessi che vorresti, nella tua colonna', color:'#16a34a', run: () => openDesiderate() },
@@ -5586,6 +5587,14 @@
         if(dd.classList.contains('open')) { closeMonthDropdown(); return; }
         renderMonthDropdown();
         dd.classList.add('open');
+    }
+    // primo giorno dell'anno dopo, che nel calendario sta già sotto dicembre
+    function goNextYear() {
+        vibrate();
+        const m = globalMonthsList.find(x => shiftRowYear(x.row) === SHIFT_YEAR + 1);
+        if(!m) { ccToast('L’anno dopo non è ancora nel calendario', true); return; }
+        if(calOverview) setCalView('normale');
+        setTimeout(() => { if(liteOn()) liteShowRow(m.row); liteScrollTo(document.getElementById(m.id), 120); }, calOverview ? 120 : 0);
     }
     function closeMonthDropdown() { document.getElementById('month-select-dropdown').classList.remove('open'); }
     function renderMonthDropdown() {
@@ -7522,13 +7531,18 @@
     // ── importazione nel calendario turni (admin) ──
     // Le ferie e i permessi desiderati non ancora barrati diventano C.O. e permessi nel calendario
     // dell'anno; le caselle che hanno già un'assenza non si toccano; i giorni importati si barrano.
+    // L'anno dopo è già nel calendario (sotto dicembre), quindi si può importare anche prima di capodanno,
+    // tranne le ferie di gennaio-marzo: fino a capodanno lì un C.O. vale come ferie dell'anno in corso
+    // (e a capodanno diventa "ferie residue"), quindi quelle si importano dal 1° gennaio.
+    function desImportEarly() { return desYear === activeYear + 1; }
     function desImportPlan() {
-        const y = desYear, plan = [], skipped = [];
+        const y = desYear, plan = [], skipped = [], early = desImportEarly();
         drivers.filter(d => !d.hidden).forEach(d => {
             const res = desResolve(desDaysOf(d), y), ok = desOkOf(d), orig = d.originalName || d.name;
             Object.keys(res).forEach(key => {
                 const r = res[key]; if(r.t === 'R' || ok[key]) return;   // il riposo del 5° giorno lo decide il ciclo dei turni
                 const [mm, dd] = key.split('-').map(Number);
+                if(early && r.t === 'F' && mm <= CO_CARRY_MONTHS) { skipped.push({ d, key }); return; }
                 plan.push({ d, key, m: mm - 1, cell: `${orig}__${Object.keys(MONTH_MAP)[mm - 1]}-${dd}`, sub: r.t === 'F' ? 'f' : 'p' });
             });
         });
@@ -7539,14 +7553,12 @@
         document.getElementById('des-wheel').classList.add('collapsed');
         const y = desYear;
         if(typeof dataSourceMode !== 'undefined' && dataSourceMode !== 'firebase') { alert('L’importazione funziona solo con i turni su Firebase.'); return; }
-        if(activeYear !== y) {
-            alert(`Il calendario turni ${y} non è ancora aperto (ora è aperto il ${activeYear}).\n\nL’importazione si potrà fare dal 1° gennaio ${y}, quando l’app passa da sola al nuovo anno. Fino ad allora puoi barrare a mano i giorni che inserisci nei turni.`);
-            return;
-        }
-        const { plan } = desImportPlan();
-        if(!plan.length) { desToast('Niente da importare: tutti i giorni sono già barrati'); return; }
+        if(activeYear !== y && !desImportEarly()) { alert(`Il calendario turni ${y} non c’è (ora è aperto il ${activeYear}).`); return; }
+        const { plan, skipped } = desImportPlan();
+        const later = skipped.length ? `\n\n${skipped.length} giorni di ferie tra gennaio e marzo restano fuori: fino a capodanno lì il C.O. conta come ferie del ${activeYear}. Si importano dal 1° gennaio ${y}.` : '';
+        if(!plan.length) { if(skipped.length) alert('Per ora niente da importare.' + later); else desToast('Niente da importare: tutti i giorni sono già barrati'); return; }
         const people = new Set(plan.map(p => p.d.idx)).size, f = plan.filter(p => p.sub === 'f').length, p = plan.length - f;
-        if(!confirm(`Importare nel calendario turni ${y}:\n• ${f} giorni di ferie (C.O.)\n• ${p} permessi\ndi ${people} ${people === 1 ? 'persona' : 'persone'}?\n\nLe caselle che hanno già un’assenza non vengono toccate. Prima si fa una copia di sicurezza; i giorni importati vengono barrati.`)) return;
+        if(!confirm(`Importare nel calendario turni ${y}:\n• ${f} giorni di ferie (C.O.)\n• ${p} permessi\ndi ${people} ${people === 1 ? 'persona' : 'persone'}?\n\nLe caselle che hanno già un’assenza non vengono toccate. Prima si fa una copia di sicurezza; i giorni importati vengono barrati.${later}`)) return;
         desImportRun(plan);
     }
     async function desImportRun(plan) {
