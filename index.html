@@ -14458,7 +14458,7 @@
             .legend { margin-top:6px; font-size:10px; color:#555; }
         </style></head><body><h1>Reperibili infermieri \u2014 ${RL_MN[m]} ${y}</h1>
             <table><thead><tr><th class="m" colspan="2">${RL_MN[m]}</th>${REP_SLOTS.map(x => `<th>${x.label.replace('-', ' - ')}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>
-            <p class="legend">In giallo le fasce cedute (c\u2019\u00e8 il nome di chi le copre). In turchese i festivi. Aggiornato al ${new Date().toLocaleString('it-IT')}.</p></body></html>`;
+            <p class="legend">Generato il ${new Date().toLocaleString('it-IT')}</p></body></html>`;
         const old = document.getElementById('rl-print-frame'); if(old) old.remove();
         const fr = document.createElement('iframe');
         fr.id = 'rl-print-frame'; fr.setAttribute('aria-hidden', 'true');
@@ -14494,7 +14494,7 @@
                 }
             });
             doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90);
-            doc.text(`In giallo le fasce cedute (con il nome di chi le copre). In turchese i festivi. Aggiornato al ${new Date().toLocaleString('it-IT')}.`, 12, doc.lastAutoTable.finalY + 6);
+            doc.text(`Generato il ${new Date().toLocaleString('it-IT')}`, 12, doc.lastAutoTable.finalY + 6);
             doc.save(`reperibili-infermieri-${RL_MN[m].toLowerCase()}-${y}.pdf`);
             ccToast('PDF scaricato');
         } catch(e) { console.error(e); ccToast('PDF non riuscito: controlla la connessione.', true); }
