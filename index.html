@@ -355,6 +355,9 @@
             .rep-now-pill { padding: 3px 10px 3px 8px; }
             .rep-now-name { max-width: 130px; }
         }
+        /* fine settimana: riga rossa spessa sotto la domenica */
+        #main-table tbody tr.wk-end > td { border-bottom: 4px solid #dc2626 !important; }
+        body.dark-mode #main-table tbody tr.wk-end > td { border-bottom-color: #ef4444 !important; }
         tbody td {
             padding: 2px; height: var(--cell-h); vertical-align: middle;
             border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border);
@@ -15924,6 +15927,7 @@
         let holKey = `${mIdx}-${dNum}`; let holidayName = HOLIDAYS[holKey]; let isRed = (dayIdx===0||dayIdx===6||holidayName);
         let dateClass = isRed ? "td-date date-red" : "td-date";
         if(mIdx === today.getMonth() && dNum === today.getDate() && today.getFullYear() === year) { tr.className = "today"; tr.id = "today-row"; }
+        if(dayIdx === 0) tr.classList.add('wk-end');   // domenica: riga rossa spessa sotto, fine settimana
 
         // conta M e P per il riepilogo giornaliero (sempre visibile) e per "Graziella"
         let countM = 0, countP = 0, countN = 0;
