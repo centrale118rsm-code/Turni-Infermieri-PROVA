@@ -38,24 +38,26 @@
             --header-bg: rgba(255, 255, 255, 0.82);
             --cell-h: 70px;
             --th-h: 40px;
-            --c-M: #0257d5; --t-M: #ffffff; --b-M: #bae6fd;
-            --c-P: #3f7fe0; --t-P: #ffffff; --b-P: #c7d2fe;
-            --c-N: #002a66; --t-N: #ffffff; --b-N: #c7d2fe;
-            --c-R: #ecfdf5; --t-R: #047857; --b-R: #6ee7b7;
-            --c-SM: #0b0038; --t-SM: #ffffff; --b-SM: #cbd5e1;
-            /* diurnisti: famiglia viola, distinta dal blu dei turnisti */
-            --c-dM: #6d28d9; --t-dM: #ffffff; --b-dM: #5b21b6;
-            --c-dP: #8b5cf6; --t-dP: #ffffff; --b-dP: #7c3aed;
-            --c-dR: #f5f3ff; --t-dR: #6d28d9; --b-dR: #ddd6fe;
-            --bg-ferie: #e2670f; --t-ferie: #ffffff; --b-ferie: #a15300;
-            --bg-rec: #b3005f; --t-rec: #ffe8f2; --b-rec: #c3006b;
-            --bg-cong: #e0c700; --t-cong: #000000; --b-cong: #fbff00;
+            /* turni: pastello in una scala di blu continua (mattina chiarissima → notte scura);
+               il colore pieno resta alle assenze, così le eccezioni si vedono subito */
+            --c-M: #e3eeff; --t-M: #1e3a8a; --b-M: #c9dcfb;
+            --c-P: #c3d9fb; --t-P: #1e3a8a; --b-P: #a9c7f5;
+            --c-N: #1e3a8a; --t-N: #ffffff; --b-N: #1e3a8a;
+            --c-R: #ffffff; --t-R: #64748b; --b-R: #e2e8f0;
+            --c-SM: #8fb0e0; --t-SM: #0f2350; --b-SM: #7fa2d6;
+            /* diurnisti: stessa scala ma in viola (mattina chiara → pomeriggio più pieno), distinti dal blu dei turnisti */
+            --c-dM: #ede9fe; --t-dM: #5b21b6; --b-dM: #ddd6fe;
+            --c-dP: #d9ccfb; --t-dP: #4c1d95; --b-dP: #c4b5fd;
+            --c-dR: #ffffff; --t-dR: #7c3aed; --b-dR: #ede9fe;
+            --bg-ferie: #f97316; --t-ferie: #ffffff; --b-ferie: #ea580c;
+            --bg-rec: #be185d; --t-rec: #ffffff; --b-rec: #9d174d;
+            --bg-cong: #facc15; --t-cong: #422006; --b-cong: #eab308;
             --bg-mal: #dc2626; --t-mal: #ffffff; --b-mal: #b91c1c;
             --bg-nl: #cceef2; --t-nl: #004147; --b-nl: #b2ebf2;
-            --bg-perm: #00c440; --t-perm: #00250e; --b-perm: #004e1c;
+            --bg-perm: #22c55e; --t-perm: #052e16; --b-perm: #16a34a;
             --bg-ng: #009fd6; --t-ng: #ffffff; --b-ng: #0099cc;
             --bg-stu: #ffffff; --t-stu: #dc2626; --b-stu: #dc2626;
-            --bg-pn: #0f3d21; --t-pn: #ffffff; --b-pn: #052e16;
+            --bg-pn: #166534; --t-pn: #ffffff; --b-pn: #14532d;
             --bg-coord: #ffffff; --t-coord: #dc0000; --b-coord: #dc0000;
             --bg-pl: #0f766e; --t-pl: #ffffff; --b-pl: #115e59;
             --bg-ps: #9a3412; --t-ps: #ffffff; --b-ps: #7c2d12;
@@ -69,9 +71,14 @@
         body.dark-mode {
             --bg: #080d18; --bg-card: #131b2a; --text-main: #eef2f8;
             --text-sec: #8592ac; --border: #22304a; --header-bg: rgba(8,13,24,0.9);
-            --c-dM: #5b21b6; --t-dM: #f5f3ff; --b-dM: #7c3aed;
-            --c-dP: #7c3aed; --t-dP: #f5f3ff; --b-dP: #8b5cf6;
-            --c-dR: #1c1433; --t-dR: #c4b5fd; --b-dR: #4c1d95;
+            --c-M: #1f3b63; --t-M: #dbeafe; --b-M: #2a4a78;
+            --c-P: #2b5590; --t-P: #eff6ff; --b-P: #3762a0;
+            --c-SM: #1a3058; --t-SM: #dbeafe; --b-SM: #284372;
+            --c-N: #0c1d46; --t-N: #ffffff; --b-N: #1e3a8a;
+            --c-R: #131b2a; --t-R: #94a3b8; --b-R: #22304a;
+            --c-dM: #3b2470; --t-dM: #ede9fe; --b-dM: #5b21b6;
+            --c-dP: #4c2f8a; --t-dP: #f5f3ff; --b-dP: #6d28d9;
+            --c-dR: #131b2a; --t-dR: #c4b5fd; --b-dR: #2e1f55;
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif; margin: 0;
@@ -358,6 +365,8 @@
         /* fine settimana: riga rossa spessa sotto la domenica */
         #main-table tbody tr.wk-end > td { border-bottom: 4px solid #dc2626 !important; }
         body.dark-mode #main-table tbody tr.wk-end > td { border-bottom-color: #ef4444 !important; }
+        #main-table tbody tr.wk-end > td.td-date::after { content: ''; position: absolute; right: -6px; bottom: -4px; width: 6px; height: 4px; background: #dc2626; pointer-events: none; }
+        body.dark-mode #main-table tbody tr.wk-end > td.td-date::after { background: #ef4444; }
         tbody td {
             padding: 2px; height: var(--cell-h); vertical-align: middle;
             border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border);
@@ -594,9 +603,12 @@
 
         /* ── M+N (Mattina + Notte) ── */
         .spec-mn {
-            background: linear-gradient(160deg, #026bfe 45%, #003785 55%);
-            color: #ffffff; border: 2px solid #bae6fd; font-size: 0.65rem;
+            background: linear-gradient(160deg, var(--c-M) 45%, var(--c-N) 55%);
+            color: #0f172a; border: 1px solid var(--b-P); font-size: 0.65rem;
         }
+        .spec-mn > * { text-shadow: 0 0 3px #fff, 0 0 3px #fff; }
+        body.dark-mode .spec-mn { color: #fff; }
+        body.dark-mode .spec-mn > * { text-shadow: 0 1px 2px rgba(0,0,0,.7); }
 
         /* ── GRAVIDANZA ── */
         .spec-gr { background: #fdf2f8; color: #db2777; border: 1px solid #f9a8d4; }
@@ -4571,9 +4583,9 @@
 
     const ADMIN_PASSWORD = "Barbieri!";
     const DEFAULT_COLORS = {
-        "--primary":"#1d4ed8","--c-M":"#0257d5","--c-P":"#3f7fe0","--c-N":"#002a66","--c-R":"#ecfdf5","--c-SM":"#0b0038",
-        "--bg-ferie":"#e2670f","--bg-rec":"#b3005f","--bg-cong":"#e0c700","--bg-mal":"#dc2626","--bg-nl":"#cceef2",
-        "--bg-perm":"#00c440","--bg-ng":"#009fd6","--bg-stu":"#ffffff","--bg-pn":"#0f3d21","--bg-coord":"#ffffff"
+        "--primary":"#1d4ed8","--c-M":"#e3eeff","--c-P":"#c3d9fb","--c-N":"#1e3a8a","--c-R":"#ffffff","--c-SM":"#8fb0e0",
+        "--bg-ferie":"#f97316","--bg-rec":"#be185d","--bg-cong":"#facc15","--bg-mal":"#dc2626","--bg-nl":"#cceef2",
+        "--bg-perm":"#22c55e","--bg-ng":"#009fd6","--bg-stu":"#ffffff","--bg-pn":"#166534","--bg-coord":"#ffffff"
     };
     let nameOverrides = Object.assign({}, DEFAULT_NAME_OVERRIDES_BAKED);
     let colorOverrides = Object.assign({}, DEFAULT_COLORS_BAKED);
