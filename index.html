@@ -3168,9 +3168,14 @@
         #net-offline .material-icons-round { font-size:16px; color:#fff; }
         #net-offline .net-txt { overflow:hidden; text-overflow:ellipsis; }
         @media print { #net-offline { display:none !important; } }
+        /* Bordo rosso PROVA: solo nelle copie di prova, non copre e non blocca nulla */
+        #prova-frame { position:fixed; inset:0; z-index:2147483000; pointer-events:none; border:5px solid #e11d2a; box-sizing:border-box; }
+        #prova-frame span { position:absolute; left:50%; top:env(safe-area-inset-top,0px); transform:translateX(-50%); background:#e11d2a; color:#fff; font:800 11px/1 system-ui,-apple-system,'Segoe UI',sans-serif; letter-spacing:2px; padding:3px 12px 4px; border-radius:0 0 8px 8px; box-shadow:0 2px 6px rgba(0,0,0,.25); }
+        @media print { #prova-frame { display:none !important; } }
     </style>
 </head>
 <body>
+<div id="prova-frame" aria-hidden="true"><span>PROVA</span></div>
 <div id="net-offline" role="status" onclick="netOfflineInfo()"><span class="material-icons-round">cloud_off</span><span class="net-txt">Senza rete</span></div>
 
 <div id="graziella-modal" onclick="closeGraziellaModal()">
