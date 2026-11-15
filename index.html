@@ -2770,6 +2770,8 @@
         .identity-btn.locked .identity-avatar { background:#a3adc2; }
         .identity-btn.locked .identity-name { text-decoration:line-through; text-decoration-thickness:2px; color:var(--text-sec); }
         .identity-lock-tag { font-size:0.55rem; font-weight:800; color:#dc2626; text-transform:uppercase; }
+        .identity-group { grid-column:1 / -1; display:flex; align-items:center; gap:10px; margin:10px 2px 0; font-size:.66rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#94a3b8; }
+        .identity-group::before, .identity-group::after { content:""; flex:1; height:1px; background:var(--border); }
         .identity-pw-tag .material-icons-round { font-size:14px; color:#94a3b8; }
         /* password: finestra per COORDINATORE/TEST e blocco "password per aprire l'app" */
         #pw-ask, #app-gate { display:none; position:fixed; inset:0; align-items:center; justify-content:center; padding:20px; }
@@ -4427,7 +4429,9 @@
     const PW_IDENTITIES = [COORD_ID, TEST_OP];
     function identityPwOk(pw) { const v = String(pw || '').trim().toLowerCase(); return v === 'coord' || v === 'coord.'; }
     function identityPwRemembered(name) { try { return localStorage.getItem('id_pw_ok_' + name) === '1'; } catch(e) { return false; } }
-    const IDENTITY_EXTRA_OPTIONS = ["Frisoni", COORD_ID, TEST_OP, PS_NAME, "Ospite"];
+    const IDENTITY_EXTRA_OPTIONS = ["Frisoni", "Ospite", PS_NAME, TEST_OP, COORD_ID];
+    // in "Chi sei?" in fondo, in gruppi: prima Ospite e PC Pronto Soccorso, poi TEST e COORDINATORE
+    const IDENTITY_GROUPS = { "Ospite": 'Altri accessi', [TEST_OP]: 'Con password' };
 
     // ── Finestra password (COORDINATORE / TEST) ──
     let pwAskCtx = null;
@@ -4659,6 +4663,7 @@
         const allOptions = names.concat(IDENTITY_EXTRA_OPTIONS);
         const c = document.getElementById('identity-list-container'); c.innerHTML = "";
         allOptions.forEach(name => {
+            if(IDENTITY_GROUPS[name]) { const h = document.createElement('div'); h.className = 'identity-group'; h.textContent = IDENTITY_GROUPS[name]; c.appendChild(h); }
             const isGuest = name === 'Ospite', isPS = name === PS_NAME, isPw = PW_IDENTITIES.includes(name);
             const isCurrent = name === userIdentity;
             const isLocked = !isGuest && !isPS && !isPw && !isCurrent && locked.has(name);
