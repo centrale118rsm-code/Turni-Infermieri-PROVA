@@ -14389,7 +14389,7 @@
     function cnCandidates(row, col) {
         const after = [], before = [];
         drivers.forEach(d => {
-            if(d.idx === col) return;
+            if(d.idx === col || d.test) return;
             if(finalData[row + 1] && cnIsNight(row + 1, d.idx)) after.push(cnPair(col, d.idx, row));
             if(row - 1 >= 1 && finalData[row - 1] && cnIsNight(row - 1, d.idx)) before.push(cnPair(d.idx, col, row - 1));
         });
