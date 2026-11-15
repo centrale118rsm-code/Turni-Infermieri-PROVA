@@ -753,47 +753,55 @@
         .col-role { font-size:0.7rem; font-weight:600; color:var(--text-sec); margin-top:2px; }
         .col-badge { font-size:0.75rem; font-weight:800; padding:6px 10px; border-radius:8px; min-width:35px; text-align:center; }
         .nurse-highlight .col-avatar { background:var(--primary); color:white; border:2px solid #1e40af; }
-        /* finestra della casella: l'intestazione prende lo stesso colore della casella nel calendario */
-        .modal-theme-M .modal-header { background:var(--c-M); } .modal-theme-M .header-text h3, .modal-theme-M .header-text span { color:var(--t-M); }
-        .modal-theme-P .modal-header { background:var(--c-P); } .modal-theme-P .header-text h3, .modal-theme-P .header-text span { color:var(--t-P); }
-        .modal-theme-N .modal-header { background:var(--c-N); } .modal-theme-N .header-text h3, .modal-theme-N .header-text span { color:var(--t-N); } .modal-theme-N .btn-close-modal { background:rgba(255,255,255,.2); color:#fff; }
-        .modal-theme-R .modal-header { background:var(--c-R); } .modal-theme-R .header-text h3, .modal-theme-R .header-text span { color:var(--t-R); }
-        .modal-theme-SM .modal-header { background:var(--c-SM); } .modal-theme-SM .header-text h3, .modal-theme-SM .header-text span { color:var(--t-SM); }
-        .modal-theme-MN .modal-header { background:linear-gradient(120deg, var(--c-M) 40%, var(--c-N) 75%); } .modal-theme-MN .header-text h3, .modal-theme-MN .header-text span { color:var(--t-M); }
-        #shift-modal .header-text span { opacity:.85; }
-        #shift-modal .modal-header { padding:16px 20px; }
-        .sm2-hchip { display:inline-block; margin-left:8px; padding:2px 9px; border-radius:999px; background:rgba(255,255,255,.55); font-style:normal; font-weight:800; font-size:0.8rem; vertical-align:1px; }
-        .modal-theme-N .sm2-hchip { background:rgba(255,255,255,.2); }
-        /* righe compatte: sigla del turno (colori del calendario), nome, orario solo se diverso, reperibile */
-        .sm2-sec { display:flex; align-items:center; gap:8px; padding:10px 20px 6px; font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--text-sec); background:var(--bg); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-        .sm2-sec:first-child { border-top:none; }
-        .sm2-sec .material-icons-round { font-size:17px; color:var(--primary); }
-        .sm2-sec .sm2-n { margin-left:auto; background:var(--bg-card); border:1px solid var(--border); border-radius:999px; padding:0 8px; font-size:0.7rem; color:var(--text-main); letter-spacing:0; }
+        /* ═══ Finestra della casella: scheda moderna centrata (non più foglio dal basso stile iOS) ═══ */
+        #shift-modal { align-items:center; padding:14px; background:rgba(15,23,42,.55); backdrop-filter:blur(3px); }
+        #shift-modal .modal-content { max-width:560px; border-radius:18px; max-height:88vh; box-shadow:0 24px 60px rgba(15,23,42,.35), 0 0 0 1px rgba(15,23,42,.06);
+            transform:translateY(14px) scale(.98); opacity:0; transition:transform .22s cubic-bezier(.2,.8,.2,1), opacity .18s ease; }
+        #shift-modal.open .modal-content { transform:none; opacity:1; }
+        #shift-modal .modal-header { background:var(--bg-card); border-bottom:1px solid var(--border); padding:16px 16px 14px 18px; align-items:flex-start; gap:12px; }
+        #shift-modal .header-text { display:flex; align-items:center; gap:14px; min-width:0; }
+        #shift-modal .header-text h3 { font-size:1.25rem; font-weight:800; letter-spacing:-.01em; color:var(--text-main); gap:0; }
+        #shift-modal .header-text span#modal-subtitle { display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; margin-top:3px; font-size:0.85rem; font-weight:600; color:var(--text-sec); }
+        .sm2-ico { flex:none; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; }
+        .sm2-ico .material-icons-round { font-size:26px; color:inherit; margin:0; }
+        #shift-modal .btn-close-modal { flex:none; width:34px; height:34px; border-radius:10px; background:var(--bg); color:var(--text-sec); }
+        #shift-modal .btn-close-modal:hover { color:var(--text-main); }
+        .sm2-hchip { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:6px; background:var(--bg); border:1px solid var(--border); color:var(--text-main); font-style:normal; font-weight:700; font-size:0.78rem; font-variant-numeric:tabular-nums; vertical-align:1px; }
+        #shift-modal .modal-body { background:var(--bg); padding:14px 16px 18px; display:flex; flex-direction:column; }
+        .sm2-sec { display:flex; align-items:center; gap:7px; margin:14px 2px 8px; font-size:0.8rem; font-weight:700; color:var(--text-sec); }
+        #modal-list > .sm2-sec:first-child { margin-top:0; }
+        .sm2-sec .material-icons-round { font-size:18px; color:var(--primary); }
+        .sm2-sec .sm2-n { margin-left:2px; min-width:20px; text-align:center; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; padding:0 6px; font-size:0.72rem; font-weight:800; color:var(--text-main); }
+        .sm2-sec .sm2-n.r { margin-left:auto; }
         .sm2-sec.rep .material-icons-round { color:#dc2626; }
         .sm2-sec.note .material-icons-round { color:#0d9488; }
-        .sm2-row { display:flex; align-items:center; gap:12px; padding:9px 20px; border-bottom:1px solid var(--border); background:var(--bg-card); }
-        .sm2-row:last-child { border-bottom:none; }
-        .sm2-tag { flex:none; width:38px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.78rem; letter-spacing:-0.2px; }
+        .sm2-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:8px; }
+        .sm2-row { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; min-width:0; }
+        .sm2-tag { flex:none; width:34px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.74rem; letter-spacing:-0.2px; }
         .sm2-who { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
-        .sm2-who b { font-size:0.92rem; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .sm2-who small { font-size:0.74rem; font-weight:600; color:var(--text-sec); }
-        .sm2-who .perm-note { margin-top:3px; align-self:flex-start; }
-        .sm2-pill { flex:none; font-size:0.66rem; font-weight:900; text-transform:uppercase; letter-spacing:.03em; padding:3px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
-        body.dark-mode .sm2-pill { background:rgba(220,38,38,.2); color:#fecaca; border-color:#7f1d1d; }
-        .sm2-empty { padding:14px 20px; text-align:center; color:var(--text-sec); font-size:0.85rem; background:var(--bg-card); }
-        .sm2-pad { padding:10px 20px 14px; background:var(--bg-card); }
+        .sm2-who b { font-size:0.88rem; font-weight:800; color:var(--text-main); line-height:1.2; overflow-wrap:anywhere; }
+        .sm2-who small { font-size:0.72rem; font-weight:600; color:var(--text-sec); line-height:1.25; }
+        .sm2-who .sm2-rp { color:#dc2626; font-weight:800; display:inline-flex; align-items:center; gap:3px; }
+        .sm2-who .sm2-rp .material-icons-round { font-size:13px; }
+        .sm2-who .perm-note { margin-top:4px; align-self:flex-start; white-space:normal; }
+        .sm2-row.has-perm { grid-column:1 / -1; }
+        .sm2-empty { padding:14px; text-align:center; color:var(--text-sec); font-size:0.85rem; background:var(--bg-card); border:1px dashed var(--border); border-radius:12px; }
+        .sm2-pad { padding:12px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; }
         .sm2-pad .note-day { margin-top:0; }
+        .sm2-pad.bare { padding:0; background:none; border:none; margin-top:10px; }
         .sm2-pad .cn-mine-btn { margin:0; }
-        .sm2-rep { display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:center; font-size:0.84rem; }
+        .sm2-rep { display:grid; grid-template-columns:auto 1fr; gap:6px 14px; align-items:center; font-size:0.84rem; }
         .sm2-rep span { font-weight:700; color:var(--text-sec); font-variant-numeric:tabular-nums; white-space:nowrap; }
         .sm2-rep span small { font-weight:600; opacity:.8; }
         .sm2-rep b { font-weight:800; color:var(--text-main); }
         .sm2-rep b.ced { color:#92400e; background:#fef3c7; border-radius:6px; padding:1px 6px; justify-self:start; }
         .sm2-rep b.ced small { font-weight:600; }
         body.dark-mode .sm2-rep b.ced { background:rgba(245,158,11,.2); color:#fcd34d; }
-        .sm2-rep-one { display:flex; align-items:center; gap:10px; font-size:0.88rem; }
-        .sm2-rep-one b { font-weight:900; }
-        .sm2-rep-one small { color:var(--text-sec); font-weight:600; }
+        .sm2-rep-one { display:flex; align-items:center; gap:12px; }
+        .sm2-rep-ico { flex:none; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#fee2e2; color:#dc2626; }
+        body.dark-mode .sm2-rep-ico { background:rgba(220,38,38,.2); color:#fca5a5; }
+        .sm2-rep-ico .material-icons-round { font-size:19px; }
+        @media (max-width:420px) { .sm2-grid { grid-template-columns:1fr 1fr; } #shift-modal { padding:10px; } #shift-modal .modal-body { padding:12px 12px 16px; } }
         .option-item {
             padding:18px 20px; display:flex; justify-content:space-between; align-items:center;
             font-weight:600; color:var(--text-main);
@@ -3456,11 +3464,12 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header" id="modal-header-bg">
             <div class="header-text">
-                <h3 id="modal-title">TITOLO</h3>
-                <span id="modal-subtitle">Data del giorno</span>
+                <div class="sm2-ico" id="modal-ico"></div>
+                <div><h3 id="modal-title">TITOLO</h3>
+                <span id="modal-subtitle">Data del giorno</span></div>
             </div>
-            <button class="btn-close-modal" onclick="closeShiftModal()">
-                <span class="material-icons-round">keyboard_arrow_down</span>
+            <button class="btn-close-modal" onclick="closeShiftModal()" aria-label="Chiudi">
+                <span class="material-icons-round">close</span>
             </button>
         </div>
         <div class="modal-body" id="modal-list"></div>
@@ -9253,10 +9262,9 @@
             else if(isWorking) isMatch = true;
             if(!isMatch) continue;
             const time = isD ? (SCHEDULE_DIURNI[rawV.toLowerCase()] || rawV) : (isMN(rawV) ? `M ${SCHEDULE['M']} · N ${SCHEDULE['N']}` : (SCHEDULE[uVal] || uVal));
-            const info = [isD ? 'Diurnista' : '', time !== stdTime ? time : ''].filter(Boolean).join(' · ');
-            cards.push(`<div class="sm2-row">${sm2Tag(rawV, uVal, isD)}<div class="sm2-who"><b>${esc(String(H[c]))}</b>${info ? `<small>${esc(info)}</small>` : ''}</div>${rep ? '<span class="sm2-pill">Reperibile</span>' : ''}</div>`);
+            cards.push(sm2Person(String(H[c]), rawV, uVal, isD, time, stdTime, rep, ''));
         }
-        return box(cards.length ? cards.join('') : '<div class="sm2-empty">Nessuno in questo turno</div>', cards.length);
+        return box(cards.length ? `<div class="sm2-grid">${cards.join('')}</div>` : '<div class="sm2-empty">Nessuno in questo turno</div>', cards.length);
     }
 
     // ═══ EQUITÀ DELL'ANNO ════════════════════════════════════════════════
@@ -15250,9 +15258,9 @@
         const R = repData(); const tit = R.tit[date]; if(!tit || !date) return '';
         const n = repDateAdd(date, 1);
         const fasce = [[date, 2], [date, 3], [n, 0], [n, 1]].map(([d, s]) => { const who = (R.days[d] || [])[s] || tit; return { d, s, who, ced: who !== tit }; });
-        const head = `<div class="sm2-sec rep"><span class="material-icons-round">phone_in_talk</span>Reperibilità<span class="sm2-n">13:00 › 13:00</span></div>`;
+        const head = `<div class="sm2-sec rep"><span class="material-icons-round">phone_in_talk</span>Reperibilità<span class="sm2-n r">13:00 › 13:00</span></div>`;
         // nessuna cessione: una riga sola con il titolare
-        if(!fasce.some(f => f.ced)) return `${head}<div class="sm2-pad"><div class="sm2-rep-one"><span class="sm2-tag" style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5"><span class="material-icons-round" style="font-size:17px">call</span></span><div class="sm2-who"><b>${esc(repDisplayName(tit))}</b><small>Tutte le fasce, fino alle 13:00 del ${esc(repDateLabel(n))}</small></div></div></div>`;
+        if(!fasce.some(f => f.ced)) return `${head}<div class="sm2-pad"><div class="sm2-rep-one"><span class="sm2-rep-ico"><span class="material-icons-round">call</span></span><div class="sm2-who"><b>${esc(repDisplayName(tit))}</b><small>Tutte le fasce, fino alle 13:00 del ${esc(repDateLabel(n))}</small></div></div></div>`;
         const rows = fasce.map(f => `<span>${REP_SLOTS[f.s].long}${f.s < 2 ? ` <small>(${esc(repDateLabel(f.d))})</small>` : ''}</span><b${f.ced ? ' class="ced"' : ''}>${esc(repDisplayName(f.who))}${f.ced ? ' <small>ceduta</small>' : ''}</b>`).join('');
         return `${head}<div class="sm2-pad"><div style="font-size:0.78rem;color:var(--text-sec);font-weight:600;margin-bottom:6px">Titolare: <b style="color:var(--text-main)">${esc(repDisplayName(tit))}</b></div><div class="sm2-rep">${rows}</div></div>`;
     }
@@ -16305,6 +16313,11 @@
         const cls = isD ? (uVal.charAt(0) === 'P' ? 'd-P' : 'd-M') : ({ M:'t-M', P:'t-P', N:'t-N', SM:'t-S' }[uVal] || '');
         return `<span class="sm2-tag ${cls}"${cls ? '' : ' style="background:var(--bg);color:var(--text-sec);border:1px solid var(--border)"'}>${esc(uVal)}</span>`;
     }
+    // riquadro di una persona: sigla colorata, nome, orario solo se diverso da quello del turno, reperibile
+    function sm2Person(name, rawV, uVal, isD, time, stdTime, rep, permNote) {
+        const sub = [isD ? 'Diurnista' : '', time !== stdTime ? time : ''].filter(Boolean).join(' · ');
+        return `<div class="sm2-row${permNote ? ' has-perm' : ''}">${sm2Tag(rawV, uVal, isD)}<div class="sm2-who"><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${rep ? '<small class="sm2-rp"><span class="material-icons-round">call</span>Reperibile</small>' : ''}${permNote || ''}</div></div>`;
+    }
     function openShiftModal(rowIndex, cellValue, month, day, weekDay) {
         vibrate();
         let modal = document.getElementById('shift-modal');
@@ -16321,17 +16334,21 @@
         else if(uShift==="R") content.classList.add("modal-theme-R");
         else if(uShift==="SM") content.classList.add("modal-theme-SM");
         else if(isMN(uShift)) content.classList.add("modal-theme-MN");
-        let fullText = "DETTAGLIO TURNO", icon = "info";
-        if(uShift==="M")  { fullText="MATTINA";    icon="wb_sunny";   }
-        if(uShift==="P")  { fullText="POMERIGGIO"; icon="wb_twilight";}
-        if(uShift==="N")  { fullText="NOTTE";       icon="bedtime";    }
-        if(uShift==="R")  { fullText="RIPOSO";      icon="weekend";    }
-        if(uShift==="SM") { fullText="SMONTO";      icon="logout";     }
-        if(isMN(uShift))  { fullText="MATTINA + NOTTE"; icon="brightness_4"; }
-        document.getElementById('modal-title').innerHTML = `<span class="material-icons-round">${icon}</span> ${fullText}`;
+        let fullText = "Chi è in turno", icon = "groups", icoCls = "";
+        if(uShift==="M")  { fullText="Mattina";    icon="wb_sunny";    icoCls="t-M"; }
+        if(uShift==="P")  { fullText="Pomeriggio"; icon="wb_twilight"; icoCls="t-P"; }
+        if(uShift==="N")  { fullText="Notte";      icon="bedtime";     icoCls="t-N"; }
+        // su un riposo (o un'assenza) la finestra mostra chi lavora quel giorno
+        if(uShift==="SM") { fullText="Smonto";     icon="logout";      icoCls="t-S"; }
+        if(isMN(uShift))  { fullText="Mattina + Notte"; icon="brightness_4"; icoCls="spec-mn"; }
+        document.getElementById('modal-title').textContent = fullText;
+        const ico = document.getElementById('modal-ico'); ico.className = 'sm2-ico ' + icoCls;
+        if(!icoCls) ico.style.cssText = 'background:var(--bg);color:var(--primary);border:1px solid var(--border)'; else ico.style.cssText = '';
+        ico.innerHTML = `<span class="material-icons-round">${icon}</span>`;
         // l'orario del turno si scrive una volta sola, in alto; nelle righe compare solo se è diverso
         const stdTime = ["M","P","N","SM"].includes(uShift) ? (SCHEDULE[uShift] || '') : '';
-        document.getElementById('modal-subtitle').innerHTML = `${esc(weekDay)} ${esc(String(day))} ${esc(month)}${stdTime ? `<em class="sm2-hchip">${esc(stdTime)}</em>` : ''}`;
+        const dIso = repRowDate(rowIndex), dLong = dIso ? new Date(dIso + 'T12:00:00').toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }).replace(/^./, c => c.toUpperCase()) : `${weekDay} ${day} ${month}`;
+        document.getElementById('modal-subtitle').innerHTML = `${esc(dLong)}${stdTime ? `<em class="sm2-hchip"><span class="material-icons-round" style="font-size:14px">schedule</span>${esc(stdTime)}</em>` : ''}`;
         list.innerHTML = "";
         let rowData = finalData[rowIndex];
         let foundNurses = [];
@@ -16364,19 +16381,14 @@
         foundNurses.sort((a, b) => ord(a) - ord(b));
         list.innerHTML += `<div class="sm2-sec"><span class="material-icons-round">medical_services</span>Infermieri in turno<span class="sm2-n">${foundNurses.length}</span></div>`;
         if(foundNurses.length > 0) {
-            foundNurses.forEach(n => {
-                const sub = [n.isDiurno ? 'Diurnista' : '', n.time !== stdTime ? n.time : ''].filter(Boolean).join(' · ');
-                list.innerHTML += `<div class="sm2-row">${sm2Tag(n.rawV, n.shift, n.isDiurno)}
-                    <div class="sm2-who"><b>${esc(n.name)}</b>${sub ? `<small>${sub}</small>` : ''}${n.permNote || ''}</div>
-                    ${n.rep ? '<span class="sm2-pill">Reperibile</span>' : ''}</div>`;
-            });
+            list.innerHTML += `<div class="sm2-grid">${foundNurses.map(n => sm2Person(n.name, n.rawV, n.shift, n.isDiurno, n.time, stdTime, n.rep, n.permNote)).join('')}</div>`;
         } else {
             list.innerHTML += `<div class="sm2-empty">Nessun infermiere in questo turno.</div>`;
         }
         { const me = myCalDriver();   // la mia notte: con chi posso cambiarla
           if(me && (uShift === 'N' || isMN(uShift)) && cnIsNight(rowIndex, me.idx)) {
             const c = cnCandidates(rowIndex, me.idx), n = c.after.concat(c.before).filter(p => !p.problems.length).length;
-            list.innerHTML += `<div class="sm2-pad"><button class="cn-mine-btn" onclick="cnOpen(${rowIndex},${me.idx})"><span class="material-icons-round">swap_vert</span><span><b>Cambia la tua notte con un collega</b><small>${n ? n + (n === 1 ? ' cambio possibile' : ' cambi possibili') + ' con chi ha la notte il giorno prima o dopo' : 'Vedi chi ha la notte il giorno prima o dopo'}</small></span></button></div>`;
+            list.innerHTML += `<div class="sm2-pad bare"><button class="cn-mine-btn" onclick="cnOpen(${rowIndex},${me.idx})"><span class="material-icons-round">swap_vert</span><span><b>Cambia la tua notte con un collega</b><small>${n ? n + (n === 1 ? ' cambio possibile' : ' cambi possibili') + ' con chi ha la notte il giorno prima o dopo' : 'Vedi chi ha la notte il giorno prima o dopo'}</small></span></button></div>`;
           } }
         list.innerHTML += otherTeamHtml(rowIndex, uShift);
         list.innerHTML += repDaySectionHtml(repRowDate(rowIndex));
