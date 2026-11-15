@@ -4423,7 +4423,7 @@
     // "PC Pronto Soccorso": account del PC condiviso, scrive le ferie desiderate di tutti (con lo storico)
     const PS_NAME = 'PC Pronto Soccorso';
     // COORDINATORE: account del coordinatore (invece di "Ospite"). TEST: operatore finto per le prove,
-    // con una colonna sua che vedono solo TEST e la Modifica turni, fuori da ogni conteggio.
+    // con una colonna sua che vede solo chi entra come TEST, fuori da ogni conteggio.
     // Tutti e due si scelgono con la password "coord" (chiesta una volta sola su ogni telefono).
     const COORD_ID = 'COORDINATORE', TEST_OP = 'TEST';
     const PW_IDENTITIES = [COORD_ID, TEST_OP];
@@ -15330,12 +15330,14 @@
     let rtCols = [];
     let rtMeIdx = null;
     let focusCols = [];   // colonne in evidenza (indici operatore), solo su questo schermo
-    function testColVisible() { return userIdentity === TEST_OP || coordEditModeActive; }
+    // colonna TEST: la vede solo chi è entrato come TEST (nessun altro, nemmeno il coordinatore)
+    function testColVisible() { return userIdentity === TEST_OP; }
     function rtVisibleCols() {
         const visibleDrivers = drivers.filter(d => !d.hidden);
         let list = (selectedDrivers.size === 0) ? visibleDrivers : visibleDrivers.filter(d => selectedDrivers.has(d.idx));
-        const td = testColVisible() && drivers.find(d => d.test);   // colonna TEST: solo per TEST (per prima) e in Modifica turni (in fondo)
-        if(td) list = (userIdentity === TEST_OP && !coordEditModeActive) ? [td].concat(list) : list.concat([td]);
+        const td = testColVisible() && drivers.find(d => d.test);
+        // da TEST si vede per prima; in Modifica turni da TEST resta solo la sua colonna, così le prove non toccano i colleghi
+        if(td) list = coordEditModeActive ? [td] : [td].concat(list);
         const me = prefMe(); rtMeIdx = me ? me.idx : null;
         // preferenza "la mia colonna per prima" (non in modifica turni: lì resta l'ordine vero)
         if(me && prefs.myColFirst && !coordEditModeActive && list.includes(me)) list = [me].concat(list.filter(d => d !== me));
