@@ -753,11 +753,47 @@
         .col-role { font-size:0.7rem; font-weight:600; color:var(--text-sec); margin-top:2px; }
         .col-badge { font-size:0.75rem; font-weight:800; padding:6px 10px; border-radius:8px; min-width:35px; text-align:center; }
         .nurse-highlight .col-avatar { background:var(--primary); color:white; border:2px solid #1e40af; }
-        .modal-theme-M .modal-header { background:linear-gradient(135deg,#e0f2fe,#f0f9ff); } .modal-theme-M .header-text h3 { color:#0c4a6e; }
-        .modal-theme-P .modal-header { background:linear-gradient(135deg,#e0e7ff,#eef2ff); } .modal-theme-P .header-text h3 { color:#312e81; }
-        .modal-theme-N .modal-header { background:linear-gradient(135deg,#1e293b,#0f172a); } .modal-theme-N .header-text h3 { color:white; } .modal-theme-N .header-text span { color:#94a3b8; } .modal-theme-N .btn-close-modal { background:#334155; color:white; }
-        .modal-theme-R .modal-header { background:linear-gradient(135deg,#dcfce7,#ecfdf5); } .modal-theme-R .header-text h3 { color:#064e3b; }
-        .modal-theme-SM .modal-header { background:linear-gradient(135deg,#64748b,#94a3b8); } .modal-theme-SM .header-text h3 { color:white; }
+        /* finestra della casella: l'intestazione prende lo stesso colore della casella nel calendario */
+        .modal-theme-M .modal-header { background:var(--c-M); } .modal-theme-M .header-text h3, .modal-theme-M .header-text span { color:var(--t-M); }
+        .modal-theme-P .modal-header { background:var(--c-P); } .modal-theme-P .header-text h3, .modal-theme-P .header-text span { color:var(--t-P); }
+        .modal-theme-N .modal-header { background:var(--c-N); } .modal-theme-N .header-text h3, .modal-theme-N .header-text span { color:var(--t-N); } .modal-theme-N .btn-close-modal { background:rgba(255,255,255,.2); color:#fff; }
+        .modal-theme-R .modal-header { background:var(--c-R); } .modal-theme-R .header-text h3, .modal-theme-R .header-text span { color:var(--t-R); }
+        .modal-theme-SM .modal-header { background:var(--c-SM); } .modal-theme-SM .header-text h3, .modal-theme-SM .header-text span { color:var(--t-SM); }
+        .modal-theme-MN .modal-header { background:linear-gradient(120deg, var(--c-M) 40%, var(--c-N) 75%); } .modal-theme-MN .header-text h3, .modal-theme-MN .header-text span { color:var(--t-M); }
+        #shift-modal .header-text span { opacity:.85; }
+        #shift-modal .modal-header { padding:16px 20px; }
+        .sm2-hchip { display:inline-block; margin-left:8px; padding:2px 9px; border-radius:999px; background:rgba(255,255,255,.55); font-style:normal; font-weight:800; font-size:0.8rem; vertical-align:1px; }
+        .modal-theme-N .sm2-hchip { background:rgba(255,255,255,.2); }
+        /* righe compatte: sigla del turno (colori del calendario), nome, orario solo se diverso, reperibile */
+        .sm2-sec { display:flex; align-items:center; gap:8px; padding:10px 20px 6px; font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--text-sec); background:var(--bg); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+        .sm2-sec:first-child { border-top:none; }
+        .sm2-sec .material-icons-round { font-size:17px; color:var(--primary); }
+        .sm2-sec .sm2-n { margin-left:auto; background:var(--bg-card); border:1px solid var(--border); border-radius:999px; padding:0 8px; font-size:0.7rem; color:var(--text-main); letter-spacing:0; }
+        .sm2-sec.rep .material-icons-round { color:#dc2626; }
+        .sm2-sec.note .material-icons-round { color:#0d9488; }
+        .sm2-row { display:flex; align-items:center; gap:12px; padding:9px 20px; border-bottom:1px solid var(--border); background:var(--bg-card); }
+        .sm2-row:last-child { border-bottom:none; }
+        .sm2-tag { flex:none; width:38px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.78rem; letter-spacing:-0.2px; }
+        .sm2-who { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+        .sm2-who b { font-size:0.92rem; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .sm2-who small { font-size:0.74rem; font-weight:600; color:var(--text-sec); }
+        .sm2-who .perm-note { margin-top:3px; align-self:flex-start; }
+        .sm2-pill { flex:none; font-size:0.66rem; font-weight:900; text-transform:uppercase; letter-spacing:.03em; padding:3px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
+        body.dark-mode .sm2-pill { background:rgba(220,38,38,.2); color:#fecaca; border-color:#7f1d1d; }
+        .sm2-empty { padding:14px 20px; text-align:center; color:var(--text-sec); font-size:0.85rem; background:var(--bg-card); }
+        .sm2-pad { padding:10px 20px 14px; background:var(--bg-card); }
+        .sm2-pad .note-day { margin-top:0; }
+        .sm2-pad .cn-mine-btn { margin:0; }
+        .sm2-rep { display:grid; grid-template-columns:auto 1fr; gap:4px 12px; align-items:center; font-size:0.84rem; }
+        .sm2-rep span { font-weight:700; color:var(--text-sec); font-variant-numeric:tabular-nums; white-space:nowrap; }
+        .sm2-rep span small { font-weight:600; opacity:.8; }
+        .sm2-rep b { font-weight:800; color:var(--text-main); }
+        .sm2-rep b.ced { color:#92400e; background:#fef3c7; border-radius:6px; padding:1px 6px; justify-self:start; }
+        .sm2-rep b.ced small { font-weight:600; }
+        body.dark-mode .sm2-rep b.ced { background:rgba(245,158,11,.2); color:#fcd34d; }
+        .sm2-rep-one { display:flex; align-items:center; gap:10px; font-size:0.88rem; }
+        .sm2-rep-one b { font-weight:900; }
+        .sm2-rep-one small { color:var(--text-sec); font-weight:600; }
         .option-item {
             padding:18px 20px; display:flex; justify-content:space-between; align-items:center;
             font-weight:600; color:var(--text-main);
@@ -9193,15 +9229,16 @@
     function otherTeamHtml(rowIndex, uShift) {
         const row = finalData[rowIndex]; if(!row) return '';
         const mese = row[0].v, giorno = parseInt(row[1].v), year = shiftRowYear(rowIndex);
-        const head = `<div class="ot-sec"><span class="material-icons-round">${OTHER_TEAM.icon}</span>${esc(OTHER_TEAM.title)}</div>`;
-        const box = inner => `<div id="ot-list" data-row="${rowIndex}" data-shift="${esc(uShift)}">${head}${inner}</div>`;
+        const head = n => `<div class="sm2-sec"><span class="material-icons-round">${OTHER_TEAM.icon}</span>${esc(OTHER_TEAM.title)}${n != null ? `<span class="sm2-n">${n}</span>` : ''}</div>`;
+        const box = (inner, n) => `<div id="ot-list" data-row="${rowIndex}" data-shift="${esc(uShift)}">${head(n)}${inner}</div>`;
+        const stdTime = ['M','P','N','SM'].includes(uShift) ? (SCHEDULE[uShift] || '') : '';
         if(!otherTeam) {
             if(!otherTeamLoading) loadOtherTeam();
             otherTeamLoading.then(() => { const el = document.getElementById('ot-list'); if(el && +el.dataset.row === rowIndex && otherTeam) el.outerHTML = otherTeamHtml(rowIndex, uShift); });
-            return box('<div class="ot-empty">Caricamento…</div>');
+            return box('<div class="sm2-empty">Caricamento…</div>');
         }
         const orow = otherRowFor(otherTeam, mese, giorno, year);
-        if(!orow) return box('<div class="ot-empty">Nessun dato per questo giorno</div>');
+        if(!orow) return box('<div class="sm2-empty">Nessun dato per questo giorno</div>');
         const H = otherTeam[0], cards = [];
         for(let c = 3; c < H.length; c++) {
             const cell = orow[c] || {}, sub = String(cell.subV || '').trim().toLowerCase();
@@ -9215,24 +9252,11 @@
             if(['M','P','N','SM'].includes(uShift)) { if(uVal === uShift) isMatch = true; if(isMN(rawV) && (uShift === 'M' || uShift === 'N')) isMatch = true; }
             else if(isWorking) isMatch = true;
             if(!isMatch) continue;
-            let time = isD ? (SCHEDULE_DIURNI[rawV.toLowerCase()] || rawV) : (isMN(rawV) ? `M: ${SCHEDULE['M']} / N: ${SCHEDULE['N']}` : (SCHEDULE[uVal] || uVal));
-            if(rep) time += ` &nbsp;<span style="color:#ef4444;font-weight:900;font-size:0.75rem;">(REPERIBILE)</span>`;
-            let badge = 'background:#e2e8f0;color:#475569';
-            if(uVal === 'M') badge = 'background:#dbeafe;color:#1e40af';
-            if(uVal === 'P') badge = 'background:#ffedd5;color:#9a3412';
-            if(uVal === 'N') badge = 'background:#1e293b;color:#f8fafc';
-            const nm = String(H[c]);
-            cards.push(`<div class="colleague-card">
-                <div class="col-avatar ot-avatar">${esc(nm.substring(0, 2).toUpperCase())}</div>
-                <div class="col-info">
-                    <div class="col-name">${esc(nm)}</div>
-                    <div class="col-role" style="font-size:0.8rem;color:var(--primary)">${time}</div>
-                    <div class="col-role" style="font-size:0.65rem">${isD ? 'Diurnista' : 'Turnista'}</div>
-                </div>
-                <div class="col-badge" style="${badge}">${esc(uVal)}</div>
-            </div>`);
+            const time = isD ? (SCHEDULE_DIURNI[rawV.toLowerCase()] || rawV) : (isMN(rawV) ? `M ${SCHEDULE['M']} · N ${SCHEDULE['N']}` : (SCHEDULE[uVal] || uVal));
+            const info = [isD ? 'Diurnista' : '', time !== stdTime ? time : ''].filter(Boolean).join(' · ');
+            cards.push(`<div class="sm2-row">${sm2Tag(rawV, uVal, isD)}<div class="sm2-who"><b>${esc(String(H[c]))}</b>${info ? `<small>${esc(info)}</small>` : ''}</div>${rep ? '<span class="sm2-pill">Reperibile</span>' : ''}</div>`);
         }
-        return box(cards.length ? cards.join('') : '<div class="ot-empty">Nessuno in questo turno</div>');
+        return box(cards.length ? cards.join('') : '<div class="sm2-empty">Nessuno in questo turno</div>', cards.length);
     }
 
     // ═══ EQUITÀ DELL'ANNO ════════════════════════════════════════════════
@@ -11127,10 +11151,10 @@
         const list = noteList().filter(n => n.date === iso), guest = prefOwner() === 'OSPITE';
         if(guest && !list.length) return '';
         const head = n => noteMine(n) ? `La tua nota${noteTo(n) === 'COORD' ? '' : ' ' + noteToChip(n)}` : `${esc(noteName(n))} ${noteToChip(n)}`;
-        return `<div class="note-day">
+        return `<div class="sm2-sec note"><span class="material-icons-round">sticky_note_2</span>Note del giorno${list.length ? `<span class="sm2-n">${list.length}</span>` : ''}</div><div class="sm2-pad"><div class="note-day">
             ${list.map(n => `<div class="note-day-it" onclick="${noteMine(n) ? `closeShiftModal();setTimeout(() => noteOpenEditor('${n.date}','${n.id}'), 220)` : `closeShiftModal();setTimeout(() => noteOpenChat('${n.id}'), 220)`}"><span class="material-icons-round">sticky_note_2</span><div><b>${head(n)}</b> ${notePrefChip(n)}<div>${esc(n.text || '')}</div><small>${esc(noteStatusTxt(n))}</small><div style="margin-top:5px">${noteChatChip(n, true)}</div></div></div>`).join('')}
             ${guest ? '' : `<button class="note-day-btn" onclick="closeShiftModal();setTimeout(() => noteOpenEditor('${iso}'), 220)"><span class="material-icons-round">edit_note</span>Scrivi una nota<small>al coordinatore, a un collega o a tutti</small></button>`}
-        </div>`;
+        </div></div>`;
     }
     // ── La mia pagina: note ricevute e scritte ─────────────────────────────
     function myNotesHtml() {
@@ -15225,15 +15249,12 @@
     function repDaySectionHtml(date) {
         const R = repData(); const tit = R.tit[date]; if(!tit || !date) return '';
         const n = repDateAdd(date, 1);
-        const rows = [[date, 2], [date, 3], [n, 0], [n, 1]].map(([d, s]) => {
-            const who = (R.days[d] || [])[s] || tit; const ced = who !== tit;
-            return `<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 10px;border-radius:8px;background:${ced ? '#fee2e2' : '#dcfce7'};color:${ced ? '#991b1b' : '#166534'};font-weight:800;font-size:0.8rem">
-                <span>${REP_SLOTS[s].long}${s < 2 ? ' <small style="font-weight:600;opacity:.75">(' + repDateLabel(d) + ')</small>' : ''}</span><span>${esc(repDisplayName(who))}${ced ? ' <small style="font-weight:600">(ceduta)</small>' : ''}</span></div>`;
-        }).join('');
-        return `<div style="margin-top:14px;padding:12px;border-radius:14px;border:1px solid var(--border);background:var(--bg)">
-            <div style="display:flex;align-items:center;gap:6px;font-weight:900;font-size:0.8rem;color:#dc2626;margin-bottom:8px"><span class="material-icons-round" style="font-size:17px">phone_in_talk</span> REPERIBILITÀ — 13:00 › 13:00</div>
-            <div style="font-weight:800;font-size:0.85rem;margin-bottom:8px">Titolare: ${esc(repDisplayName(tit))}</div>
-            <div style="display:flex;flex-direction:column;gap:5px">${rows}</div></div>`;
+        const fasce = [[date, 2], [date, 3], [n, 0], [n, 1]].map(([d, s]) => { const who = (R.days[d] || [])[s] || tit; return { d, s, who, ced: who !== tit }; });
+        const head = `<div class="sm2-sec rep"><span class="material-icons-round">phone_in_talk</span>Reperibilità<span class="sm2-n">13:00 › 13:00</span></div>`;
+        // nessuna cessione: una riga sola con il titolare
+        if(!fasce.some(f => f.ced)) return `${head}<div class="sm2-pad"><div class="sm2-rep-one"><span class="sm2-tag" style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5"><span class="material-icons-round" style="font-size:17px">call</span></span><div class="sm2-who"><b>${esc(repDisplayName(tit))}</b><small>Tutte le fasce, fino alle 13:00 del ${esc(repDateLabel(n))}</small></div></div></div>`;
+        const rows = fasce.map(f => `<span>${REP_SLOTS[f.s].long}${f.s < 2 ? ` <small>(${esc(repDateLabel(f.d))})</small>` : ''}</span><b${f.ced ? ' class="ced"' : ''}>${esc(repDisplayName(f.who))}${f.ced ? ' <small>ceduta</small>' : ''}</b>`).join('');
+        return `${head}<div class="sm2-pad"><div style="font-size:0.78rem;color:var(--text-sec);font-weight:600;margin-bottom:6px">Titolare: <b style="color:var(--text-main)">${esc(repDisplayName(tit))}</b></div><div class="sm2-rep">${rows}</div></div>`;
     }
 
     // ── Reperibili del mese (menu Calendario) ──────────────────────────────
@@ -16278,6 +16299,12 @@
         const prev = finalData[rowIndex - 1], cell = prev && prev[colIdx];
         return !!cell && isMN((cell.v || "").toString());
     }
+    // sigla del turno con gli stessi colori della casella del calendario
+    function sm2Tag(rawV, uVal, isD) {
+        if(isMN(rawV)) return '<span class="sm2-tag spec-mn">M+N</span>';
+        const cls = isD ? (uVal.charAt(0) === 'P' ? 'd-P' : 'd-M') : ({ M:'t-M', P:'t-P', N:'t-N', SM:'t-S' }[uVal] || '');
+        return `<span class="sm2-tag ${cls}"${cls ? '' : ' style="background:var(--bg);color:var(--text-sec);border:1px solid var(--border)"'}>${esc(uVal)}</span>`;
+    }
     function openShiftModal(rowIndex, cellValue, month, day, weekDay) {
         vibrate();
         let modal = document.getElementById('shift-modal');
@@ -16293,6 +16320,7 @@
         else if(uShift==="N") content.classList.add("modal-theme-N");
         else if(uShift==="R") content.classList.add("modal-theme-R");
         else if(uShift==="SM") content.classList.add("modal-theme-SM");
+        else if(isMN(uShift)) content.classList.add("modal-theme-MN");
         let fullText = "DETTAGLIO TURNO", icon = "info";
         if(uShift==="M")  { fullText="MATTINA";    icon="wb_sunny";   }
         if(uShift==="P")  { fullText="POMERIGGIO"; icon="wb_twilight";}
@@ -16301,7 +16329,9 @@
         if(uShift==="SM") { fullText="SMONTO";      icon="logout";     }
         if(isMN(uShift))  { fullText="MATTINA + NOTTE"; icon="brightness_4"; }
         document.getElementById('modal-title').innerHTML = `<span class="material-icons-round">${icon}</span> ${fullText}`;
-        document.getElementById('modal-subtitle').innerText = `${weekDay} ${day} ${month}`;
+        // l'orario del turno si scrive una volta sola, in alto; nelle righe compare solo se è diverso
+        const stdTime = ["M","P","N","SM"].includes(uShift) ? (SCHEDULE[uShift] || '') : '';
+        document.getElementById('modal-subtitle').innerHTML = `${esc(weekDay)} ${esc(String(day))} ${esc(month)}${stdTime ? `<em class="sm2-hchip">${esc(stdTime)}</em>` : ''}`;
         list.innerHTML = "";
         let rowData = finalData[rowIndex];
         let foundNurses = [];
@@ -16322,40 +16352,31 @@
                 if(isWorking) isMatch = true;
             }
             if(isMatch) {
-                let time = isD
-                    ? (diurniSched(rawV, repRowDate(rowIndex)) || rawV)
-                    : (isMN(rawV)
-                        ? `M: ${SCHEDULE["M"]} / N: ${SCHEDULE["N"]}`
-                        : (SCHEDULE[uVal] || uVal));
-                if(repData().tit[repRowDate(rowIndex)] === d.originalName) time += ` &nbsp;<span style="color:#ef4444;font-weight:900;font-size:0.75rem;">(REPERIBILE)</span>`;
-                let badgeStyle = "background:#e2e8f0;color:#475569";
-                if(uVal==="M") badgeStyle="background:#dbeafe;color:#1e40af";
-                if(uVal==="P") badgeStyle="background:#ffedd5;color:#9a3412";
-                if(uVal==="N") badgeStyle="background:#1e293b;color:#f8fafc";
+                const rep = repData().tit[repRowDate(rowIndex)] === d.originalName;
+                let time = isD ? (diurniSched(rawV, repRowDate(rowIndex)) || rawV)
+                    : (isMN(rawV) ? `M ${SCHEDULE["M"]} · N ${SCHEDULE["N"]}` : (SCHEDULE[uVal] || uVal));
                 const pm = permOfCell(rowIndex, d.idx);   // ore di permesso dentro il turno
                 const permNote = pm && !pm.full ? `<div class="perm-note">${esc(d.name)} ha preso ${permHFmt(pm.h)} di ${PERM_HOURLY[pm.k].label.toLowerCase()}${pm.k === 'pl' ? ' · conta nel conteggio assenze' : ''}</div>` : '';
-                foundNurses.push({ name:d.name, shift:uVal, time, style:badgeStyle, isDiurno:isD, permNote });
+                foundNurses.push({ name:d.name, rawV, shift:uVal, time, rep, isDiurno:isD, permNote });
             }
         });
+        const ord = n => n.isDiurno ? 9 : ({ M:0, P:2, N:3, SM:4 }[n.shift] ?? (isMN(n.rawV) ? 1 : 5));
+        foundNurses.sort((a, b) => ord(a) - ord(b));
+        list.innerHTML += `<div class="sm2-sec"><span class="material-icons-round">medical_services</span>Infermieri in turno<span class="sm2-n">${foundNurses.length}</span></div>`;
         if(foundNurses.length > 0) {
             foundNurses.forEach(n => {
-                list.innerHTML += `<div class="colleague-card nurse-highlight">
-                    <div class="col-avatar">${n.name.substring(0,2).toUpperCase()}</div>
-                    <div class="col-info">
-                        <div class="col-name">${n.name}</div>
-                        <div class="col-role" style="font-size:0.8rem;color:var(--primary)">${n.time}</div>
-                        <div class="col-role" style="font-size:0.65rem">${n.isDiurno?'Diurnista':'Turnista'}</div>${n.permNote || ''}
-                    </div>
-                    <div class="col-badge" style="${n.style}">${n.shift}</div>
-                </div>`;
+                const sub = [n.isDiurno ? 'Diurnista' : '', n.time !== stdTime ? n.time : ''].filter(Boolean).join(' · ');
+                list.innerHTML += `<div class="sm2-row">${sm2Tag(n.rawV, n.shift, n.isDiurno)}
+                    <div class="sm2-who"><b>${esc(n.name)}</b>${sub ? `<small>${sub}</small>` : ''}${n.permNote || ''}</div>
+                    ${n.rep ? '<span class="sm2-pill">Reperibile</span>' : ''}</div>`;
             });
         } else {
-            list.innerHTML += `<div style="padding:20px;text-align:center;color:#94a3b8;font-size:0.9rem">Nessun infermiere in questo turno.</div>`;
+            list.innerHTML += `<div class="sm2-empty">Nessun infermiere in questo turno.</div>`;
         }
         { const me = myCalDriver();   // la mia notte: con chi posso cambiarla
           if(me && (uShift === 'N' || isMN(uShift)) && cnIsNight(rowIndex, me.idx)) {
             const c = cnCandidates(rowIndex, me.idx), n = c.after.concat(c.before).filter(p => !p.problems.length).length;
-            list.innerHTML += `<button class="cn-mine-btn" onclick="cnOpen(${rowIndex},${me.idx})"><span class="material-icons-round">swap_vert</span><span><b>Cambia la tua notte con un collega</b><small>${n ? n + (n === 1 ? ' cambio possibile' : ' cambi possibili') + ' con chi ha la notte il giorno prima o dopo' : 'Vedi chi ha la notte il giorno prima o dopo'}</small></span></button>`;
+            list.innerHTML += `<div class="sm2-pad"><button class="cn-mine-btn" onclick="cnOpen(${rowIndex},${me.idx})"><span class="material-icons-round">swap_vert</span><span><b>Cambia la tua notte con un collega</b><small>${n ? n + (n === 1 ? ' cambio possibile' : ' cambi possibili') + ' con chi ha la notte il giorno prima o dopo' : 'Vedi chi ha la notte il giorno prima o dopo'}</small></span></button></div>`;
           } }
         list.innerHTML += otherTeamHtml(rowIndex, uShift);
         list.innerHTML += repDaySectionHtml(repRowDate(rowIndex));
