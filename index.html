@@ -2915,29 +2915,68 @@
         /* password: finestra per COORDINATORE/TEST e blocco "password per aprire l'app" */
         .gate-logo { display:block; width:96px; height:96px; margin:0 auto 14px; border-radius:22px; filter:drop-shadow(0 10px 22px rgba(15,42,99,.3)); }
         /* account personali: schermata d'accesso */
-        #acct-gate { display:none; position:fixed; inset:0; z-index:30500; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:calc(env(safe-area-inset-top, 0px) + 26px) 16px calc(env(safe-area-inset-bottom, 0px) + 26px); background:radial-gradient(circle at 30% 20%, rgba(37,99,235,.18), transparent 55%), radial-gradient(circle at 80% 80%, rgba(30,58,138,.2), transparent 55%), var(--bg); color:var(--text-main); font-family:'Plus Jakarta Sans',sans-serif; }
+        #acct-gate { display:none; position:fixed; inset:0; z-index:30500; overflow-y:auto; -webkit-overflow-scrolling:touch; background:var(--bg); color:var(--text-main); font-family:'Plus Jakarta Sans',sans-serif; text-align:left; }
         html.acct-need #acct-gate { display:block; }
         html.acct-need, html.acct-need body { overflow:hidden; }
-        #acct-gate .pw-card { max-width:440px; margin:0 auto; }
         #acct-gate [hidden] { display:none !important; }
-        .acct-search { position:relative; margin:0 0 12px; }
-        .acct-search .material-icons-round { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:20px; color:var(--text-sec); }
-        #acct-gate .acct-search input { padding-left:40px; text-align:left; font-size:.95rem; letter-spacing:0; font-weight:600; }
-        .acct-names { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; text-align:left; }
-        .acct-name { display:flex; flex-direction:column; justify-content:center; min-height:52px; padding:9px 12px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); cursor:pointer; font:inherit; text-align:left; }
-        .acct-name b { font-size:.86rem; font-weight:800; overflow-wrap:anywhere; }
-        .acct-name span { font-size:.76rem; color:var(--text-sec); font-weight:600; }
+        /* fascia scura in alto, con riga rossa */
+        .acct-top { position:relative; padding:calc(env(safe-area-inset-top, 0px) + 22px) 20px 44px; color:#fff; background:linear-gradient(135deg, #0b2257 0%, #13348a 100%); overflow:hidden; }
+        .acct-top::before { content:""; position:absolute; inset:0; background:repeating-linear-gradient(115deg, rgba(255,255,255,.045) 0 2px, transparent 2px 22px); pointer-events:none; }
+        .acct-top::after { content:""; position:absolute; left:0; right:0; bottom:0; height:5px; background:linear-gradient(90deg, #dc2626 0 34%, #f59e0b 34% 38%, transparent 38%); }
+        .acct-top-in { position:relative; max-width:760px; margin:0 auto; }
+        .acct-brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+        .acct-brand img { width:40px; height:40px; border-radius:10px; background:#fff; padding:2px; }
+        .acct-brand b { display:block; font-size:.74rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+        .acct-brand span { display:block; font-size:.72rem; opacity:.7; font-weight:600; }
+        .acct-kicker { font-size:.7rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:#93c5fd; margin-bottom:6px; }
+        .acct-top h1 { margin:0; font-size:1.75rem; line-height:1.15; font-weight:900; letter-spacing:-.02em; }
+        .acct-top p { margin:8px 0 0; font-size:.86rem; line-height:1.5; color:rgba(255,255,255,.78); max-width:520px; }
+        .acct-body { position:relative; max-width:760px; margin:-24px auto 0; padding:0 16px calc(env(safe-area-inset-bottom, 0px) + 28px); }
+        .acct-search { position:relative; margin:0 0 16px; }
+        .acct-search .material-icons-round { position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:22px; color:var(--primary); }
+        .acct-search input { width:100%; height:54px; padding:0 16px 0 50px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font:600 .98rem 'Plus Jakarta Sans',sans-serif; box-shadow:0 10px 30px rgba(11,34,87,.14); -webkit-appearance:none; }
+        .acct-search input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,.2), 0 10px 30px rgba(11,34,87,.14); }
+        .acct-names { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px; }
+        @media (min-width:700px) { .acct-names { grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); } }
+        .acct-name { position:relative; display:flex; align-items:center; gap:10px; min-height:54px; padding:8px 10px 8px 8px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); cursor:pointer; font:inherit; text-align:left; transition:border-color .15s, transform .1s; }
+        .acct-name:hover { border-color:var(--primary); }
         .acct-name:active { transform:scale(.98); }
-        .acct-name .material-icons-round { font-size:18px; color:var(--text-sec); }
-        .acct-grp { grid-column:1 / -1; display:flex; align-items:center; gap:10px; margin:8px 2px 0; font-size:.66rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#94a3b8; }
-        .acct-grp::before, .acct-grp::after { content:""; flex:1; height:1px; background:var(--border); }
-        .acct-wait { grid-column:1 / -1; padding:18px 0; text-align:center; color:var(--text-sec); font-size:.86rem; }
-        .acct-who { display:flex; align-items:center; gap:12px; margin:0 0 12px; text-align:left; }
-        .acct-who .acct-av { width:46px; height:46px; flex:none; border-radius:14px; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; }
-        .acct-who b { display:block; font-size:1.05rem; } .acct-who span { font-size:.8rem; color:var(--text-sec); }
-        #acct-gate .pw-card input + input { margin-top:8px; }
-        .acct-info { margin:14px 0 0; padding:10px 12px; border-radius:12px; background:rgba(37,99,235,.08); color:var(--text-sec); font-size:.76rem; line-height:1.45; text-align:left; }
+        .acct-mono { width:34px; height:34px; flex:none; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:900; letter-spacing:.02em; color:#fff; }
+        .acct-mono .material-icons-round { font-size:20px; }
+        .acct-nm { flex:1; min-width:0; }
+        .acct-nm b { display:block; font-size:.8rem; font-weight:800; line-height:1.2; overflow-wrap:normal; word-break:normal; hyphens:none; }   /* mai spezzare il cognome: a capo solo tra le parole */
+        .acct-nm span { display:block; font-size:.74rem; color:var(--text-sec); font-weight:600; }
+        .acct-go { font-size:18px !important; color:var(--text-sec); opacity:.6; }
+        @media (max-width:420px) { .acct-go { display:none; } }
+        .acct-grp { grid-column:1 / -1; margin:14px 0 2px; font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--text-sec); }
+        .acct-wait { grid-column:1 / -1; padding:22px 0; text-align:center; color:var(--text-sec); font-size:.86rem; }
+        .acct-foot { margin-top:18px; display:flex; align-items:center; gap:6px; font-size:.74rem; color:var(--text-sec); }
+        .acct-foot .material-icons-round { font-size:16px; }
+        /* passo password */
+        .acct-back { display:inline-flex; align-items:center; gap:4px; height:34px; padding:0 12px 0 6px; margin-bottom:18px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.08); color:#fff; font:700 .8rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .acct-back .material-icons-round { font-size:20px; }
+        .acct-who { display:flex; align-items:center; gap:14px; }
+        .acct-who .acct-mono { width:58px; height:58px; border-radius:12px; font-size:1.1rem; box-shadow:0 0 0 3px rgba(255,255,255,.18); }
+        .acct-who .acct-mono .material-icons-round { font-size:28px; }
+        .acct-who b { display:block; font-size:1.45rem; font-weight:900; letter-spacing:-.01em; line-height:1.15; overflow-wrap:normal; }
+        .acct-who span { display:block; font-size:.8rem; color:rgba(255,255,255,.72); font-weight:600; margin-top:2px; }
+        .acct-form { max-width:440px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:18px 18px 16px; box-shadow:0 10px 30px rgba(11,34,87,.12); }
+        .acct-steps { display:flex; gap:6px; margin:0 0 14px; }
+        .acct-steps i { flex:1; height:4px; border-radius:2px; background:var(--border); }
+        .acct-steps i.on { background:var(--primary); }
+        .acct-form p { margin:0 0 14px; font-size:.86rem; line-height:1.5; color:var(--text-sec); }
+        .acct-lbl { display:block; margin:0 0 6px; font-size:.68rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--text-sec); }
+        .acct-fld { position:relative; margin-bottom:12px; }
+        .acct-fld input { width:100%; height:50px; padding:0 48px 0 14px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font:700 1.05rem 'Plus Jakarta Sans',sans-serif; letter-spacing:.04em; -webkit-appearance:none; }
+        .acct-fld input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,.18); background:var(--bg-card); }
+        .acct-eye { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:38px; height:38px; border:0; border-radius:8px; background:transparent; color:var(--text-sec); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .acct-err { min-height:18px; margin:-4px 0 8px; font-size:.8rem; font-weight:700; color:#dc2626; }
+        .acct-ok { width:100%; height:52px; border:0; border-radius:8px; background:var(--primary); color:#fff; font:800 .95rem 'Plus Jakarta Sans',sans-serif; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; box-shadow:0 8px 20px rgba(37,99,235,.28); }
+        .acct-ok:disabled { opacity:.6; }
+        .acct-ok .material-icons-round { font-size:20px; }
+        .acct-info { margin:14px 0 0; padding:10px 12px; border-left:3px solid var(--primary); border-radius:0 8px 8px 0; background:rgba(37,99,235,.07); color:var(--text-sec); font-size:.78rem; line-height:1.5; }
         .acct-info b { color:var(--text-main); }
+        #acct-step-pw.shake .acct-form { animation:pwShake .35s; }
         .adm-acct-tbl { width:100%; border-collapse:collapse; font-size:.8rem; }
         .adm-acct-tbl th { text-align:left; font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-sec); padding:6px 8px; border-bottom:1px solid var(--border); }
         .adm-acct-tbl td { padding:7px 8px; border-bottom:1px solid var(--border); vertical-align:middle; }
@@ -3483,22 +3522,37 @@
 </head>
 <body>
 <div id="acct-gate" role="dialog" aria-modal="true" aria-label="Accesso">
-    <div class="pw-card" id="acct-step-list">
-        <img class="gate-logo" src="icon-118b-512.png" alt="118">
-        <h3>Accedi ai turni</h3>
-        <p>Tocca il tuo nome. Lo fai una volta sola: poi questo telefono resta collegato e l’app si apre direttamente sui turni.</p>
-        <div class="acct-search"><span class="material-icons-round">search</span><input id="acct-search" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Cerca il tuo cognome" oninput="acctRenderList()"></div>
-        <div class="acct-names" id="acct-names"><div class="acct-wait">Carico i nomi…</div></div>
-        <div class="pw-foot">I turni sono riservati al personale (privacy).</div>
+    <div id="acct-step-list">
+        <div class="acct-top"><div class="acct-top-in">
+            <div class="acct-brand"><img src="icon-118b-192.png" alt=""><div><b>Turni Infermieri</b><span>Centrale operativa 118</span></div></div>
+            <div class="acct-kicker">Accesso personale</div>
+            <h1>Chi sta entrando?</h1>
+            <p id="acct-list-text">Scegli il tuo nome. Lo fai una volta sola: poi questo telefono resta collegato e l’app si apre direttamente sui turni.</p>
+        </div></div>
+        <div class="acct-body">
+            <div class="acct-search"><span class="material-icons-round">search</span><input id="acct-search" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Cerca il tuo cognome" oninput="acctRenderList()"></div>
+            <div class="acct-names" id="acct-names"><div class="acct-wait">Carico i nomi…</div></div>
+            <div class="acct-foot"><span class="material-icons-round">verified_user</span>I turni sono riservati al personale (privacy).</div>
+        </div>
     </div>
-    <div class="pw-card" id="acct-step-pw" hidden>
-        <div class="acct-who"><div class="acct-av" id="acct-av"></div><div><b id="acct-who-name"></b><span id="acct-who-sub"></span></div></div>
-        <p id="acct-pw-text"></p>
-        <input type="password" id="acct-pw" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Password" onkeydown="if(event.key==='Enter')acctSubmit()">
-        <input type="password" id="acct-pw2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ripeti la password" onkeydown="if(event.key==='Enter')acctSubmit()" hidden>
-        <div class="pw-err" id="acct-err"></div>
-        <div class="pw-acts"><button onclick="acctBack()">Indietro</button><button class="pw-ok" id="acct-ok" onclick="acctSubmit()">Entra</button></div>
-        <div class="acct-info" id="acct-info"></div>
+    <div id="acct-step-pw" hidden>
+        <div class="acct-top"><div class="acct-top-in">
+            <button class="acct-back" onclick="acctBack()"><span class="material-icons-round">chevron_left</span>Cambia nome</button>
+            <div class="acct-who"><div class="acct-mono" id="acct-av"></div><div><b id="acct-who-name"></b><span id="acct-who-sub"></span></div></div>
+        </div></div>
+        <div class="acct-body">
+            <div class="acct-form">
+                <div class="acct-steps" id="acct-steps"><i class="on"></i><i class="on"></i><i></i></div>
+                <p id="acct-pw-text"></p>
+                <label class="acct-lbl" for="acct-pw" id="acct-lbl1">Password</label>
+                <div class="acct-fld"><input type="password" id="acct-pw" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')acctSubmit()"><button class="acct-eye" type="button" onclick="acctEye()" aria-label="Mostra password"><span class="material-icons-round" id="acct-eye-ico">visibility</span></button></div>
+                <div id="acct-pw2-wrap" hidden><label class="acct-lbl" for="acct-pw2">Ripeti la password</label>
+                <div class="acct-fld"><input type="password" id="acct-pw2" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')acctSubmit()"></div></div>
+                <div class="acct-err" id="acct-err"></div>
+                <button class="acct-ok" id="acct-ok" onclick="acctSubmit()"><span id="acct-ok-l">Entra</span><span class="material-icons-round">arrow_forward</span></button>
+                <div class="acct-info" id="acct-info"></div>
+            </div>
+        </div>
     </div>
 </div>
 <div id="prova-frame" aria-hidden="true"><span>PROVA</span></div>
@@ -4998,11 +5052,24 @@
         if(!names.length) { box.innerHTML = '<div class="acct-wait">Carico i nomi…</div>'; return; }
         const q = ((document.getElementById('acct-search') || {}).value || '').trim().toLowerCase();
         const hit = n => !q || acctLabel(n).toLowerCase().includes(q);
-        const btn = (n, ico) => `<button class="acct-name" onclick="acctPick(this.dataset.n)" data-n="${esc(n)}">${ico ? `<span class="material-icons-round">${ico}</span>` : ''}<b>${esc(n)}</b>${acctFirst(n) ? `<span>${esc(acctFirst(n))}</span>` : ''}</button>`;
+        const btn = (n, ico) => `<button class="acct-name" onclick="acctPick(this.dataset.n)" data-n="${esc(n)}">${acctMono(n)}<span class="acct-nm"><b>${esc(n)}</b>${acctFirst(n) ? `<span>${esc(acctFirst(n))}</span>` : ico ? '<span>Password coordinatore</span>' : ''}</span><span class="material-icons-round acct-go">chevron_right</span></button>`;
         const main = names.filter(hit), extra = ACCT_PW_NAMES.filter(hit);
         box.innerHTML = main.map(n => btn(n)).join('')
-            + (extra.length ? '<div class="acct-grp">Account con password del coordinatore</div>' + extra.map(n => btn(n, n === COORD_ID ? 'supervisor_account' : n === TEST_OP ? 'science' : 'computer')).join('') : '')
+            + (extra.length ? '<div class="acct-grp">Altri accessi</div>' + extra.map(n => btn(n, n === COORD_ID ? 'supervisor_account' : n === TEST_OP ? 'science' : 'computer')).join('') : '')
             + (!main.length && !extra.length ? '<div class="acct-wait">Nessun nome trovato</div>' : '');
+    }
+    // quadratino con le iniziali, colore fisso per ogni nome (icone per gli account del coordinatore)
+    const ACCT_HUES = [214, 199, 168, 262, 330, 24, 4, 142, 228, 286];
+    function acctMono(n) {
+        const ico = n === COORD_ID ? 'supervisor_account' : n === TEST_OP ? 'science' : n === PS_NAME ? 'computer' : '';
+        if(ico) return `<span class="acct-mono" style="background:#334155"><span class="material-icons-round">${ico}</span></span>`;
+        let h = 0; for(const ch of n) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+        return `<span class="acct-mono" style="background:hsl(${ACCT_HUES[h % ACCT_HUES.length]} 62% 42%)">${esc(n.substring(0, 2).toUpperCase())}</span>`;
+    }
+    function acctEye() {
+        const show = document.getElementById('acct-pw').type === 'password';
+        ['acct-pw', 'acct-pw2'].forEach(id => document.getElementById(id).type = show ? 'text' : 'password');
+        document.getElementById('acct-eye-ico').textContent = show ? 'visibility_off' : 'visibility';
     }
     function acctShowStep(step) {
         acctStep = step;
@@ -5013,7 +5080,8 @@
     function acctPick(n) {
         vibrate(); acctSel = n;
         const isPw = ACCT_PW_NAMES.includes(n), r = acctData[n] || {};
-        document.getElementById('acct-av').innerHTML = isPw ? `<span class="material-icons-round">${n === COORD_ID ? 'supervisor_account' : n === TEST_OP ? 'science' : 'computer'}</span>` : esc(n.substring(0, 2).toUpperCase());
+        const av = document.getElementById('acct-av'), mono = acctMono(n);
+        av.innerHTML = mono.replace(/^<span[^>]*>|<\/span>$/g, ''); av.style.background = (mono.match(/background:([^"]+)"/) || [])[1] || '';
         document.getElementById('acct-who-name').textContent = n;
         document.getElementById('acct-who-sub').textContent = isPw ? 'Account con la password del coordinatore' : (acctFirst(n) || 'Infermiere');
         acctSetPwMode(isPw ? 'coord' : 'pw', r);
@@ -5022,11 +5090,13 @@
     }
     function acctSetPwMode(mode, r) {
         const p1 = document.getElementById('acct-pw'), p2 = document.getElementById('acct-pw2');
-        p1.value = ''; p2.value = ''; p2.hidden = mode !== 'new';
+        p1.value = ''; p2.value = ''; document.getElementById('acct-pw2-wrap').hidden = mode !== 'new';
+        p1.type = p2.type = 'password'; document.getElementById('acct-eye-ico').textContent = 'visibility';
+        document.getElementById('acct-lbl1').textContent = mode === 'new' ? 'Nuova password' : 'Password';
+        document.getElementById('acct-steps').innerHTML = mode === 'coord' ? '' : '<i class="on"></i><i class="on"></i>' + (mode === 'new' ? '<i class="on"></i>' : '<i></i>');
         document.getElementById('acct-err').textContent = '';
-        const ok = document.getElementById('acct-ok'); ok.disabled = false; ok.textContent = mode === 'new' ? 'Salva ed entra' : 'Entra';
+        const ok = document.getElementById('acct-ok'); ok.disabled = false; document.getElementById('acct-ok-l').textContent = mode === 'new' ? 'Salva ed entra' : 'Entra';
         const t = document.getElementById('acct-pw-text'), info = document.getElementById('acct-info');
-        p1.placeholder = mode === 'new' ? 'Nuova password' : 'Password';
         if(mode === 'coord') { t.textContent = 'Inserisci la password del coordinatore.'; info.hidden = true; }
         else if(mode === 'new') { t.textContent = 'Primo accesso fatto. Ora scegli la tua password personale (almeno 4 caratteri, diversa da 118).'; info.hidden = false; info.innerHTML = 'Ti servirà solo se un giorno entri da un altro telefono o computer. <b>Se la dimentichi</b>, il coordinatore la riporta a 118 e ne scegli una nuova.'; }
         else {
@@ -5061,7 +5131,7 @@
             if(pw.length < 4) { acctBad('Almeno 4 caratteri'); return; }
             if(pw === ACCT_FIRST_PW) { acctBad('Scegline una diversa da 118'); return; }
             if(pw !== pw2) { acctBad('Le due password non sono uguali'); return; }
-            acctBusy = true; const ok = document.getElementById('acct-ok'); ok.disabled = true; ok.textContent = 'Salvo…';
+            acctBusy = true; const ok = document.getElementById('acct-ok'), okl = document.getElementById('acct-ok-l'); ok.disabled = true; okl.textContent = 'Salvo…';
             try {
                 const h = await acctHash(n, pw), cur = acctData[n] || {};
                 const rec = { h, at: new Date().toISOString(), by: getDeviceLabel() };
@@ -5069,7 +5139,7 @@
                 await acctSaveRec(n, rec);
                 acctData[n] = rec;
                 acctDone(n);
-            } catch(e) { ok.disabled = false; ok.textContent = 'Salva ed entra'; acctBad('Non riesco a salvare: controlla la connessione e riprova'); }
+            } catch(e) { ok.disabled = false; okl.textContent = 'Salva ed entra'; acctBad('Non riesco a salvare: controlla la connessione e riprova'); }
             acctBusy = false;
             return;
         }
@@ -5113,7 +5183,7 @@
         const ok = await ccConfirm('Esci dall’account', `Ora sei ${userIdentity || '—'}. Uscendo, su questo telefono dovrai rifare l’accesso con nome e password.`, 'Esci', 'danger');
         if(ok) acctLogout('menu');
     }
-    if(acctNeed) { try { const m = sessionStorage.getItem('acct_msg'); if(m) { sessionStorage.removeItem('acct_msg'); setTimeout(() => { const p = document.querySelector('#acct-step-list p'); if(p) p.innerHTML = '<b style="color:#dc2626">' + esc(m) + '</b>'; }, 0); } } catch(e) {} }
+    if(acctNeed) { try { const m = sessionStorage.getItem('acct_msg'); if(m) { sessionStorage.removeItem('acct_msg'); setTimeout(() => { const p = document.getElementById('acct-list-text'); if(p) p.innerHTML = '<b style="color:#dc2626">' + esc(m) + '</b>'; }, 0); } } catch(e) {} }
 
     // ── area admin: account ──
     function admRenderAccounts() {
