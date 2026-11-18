@@ -5098,11 +5098,11 @@
         const ok = document.getElementById('acct-ok'); ok.disabled = false; document.getElementById('acct-ok-l').textContent = mode === 'new' ? 'Salva ed entra' : 'Entra';
         const t = document.getElementById('acct-pw-text'), info = document.getElementById('acct-info');
         if(mode === 'coord') { t.textContent = 'Inserisci la password del coordinatore.'; info.hidden = true; }
-        else if(mode === 'new') { t.textContent = 'Primo accesso fatto. Ora scegli la tua password personale (almeno 4 caratteri, diversa da 118).'; info.hidden = false; info.innerHTML = 'Ti servirà solo se un giorno entri da un altro telefono o computer. <b>Se la dimentichi</b>, il coordinatore la riporta a 118 e ne scegli una nuova.'; }
+        else if(mode === 'new') { t.textContent = 'Primo accesso fatto. Ora scegli la tua password personale (almeno 4 caratteri, diversa da quella provvisoria).'; info.hidden = false; info.innerHTML = 'Ti servirà solo se un giorno entri da un altro telefono o computer. <b>Se la dimentichi</b>, chiedi al coordinatore: la riporta a quella provvisoria e ne scegli una nuova.'; }
         else {
             t.textContent = 'Inserisci la tua password.';
             info.hidden = false;
-            info.innerHTML = (r && r.h) ? '<b>Password dimenticata?</b> Chiedi al coordinatore di riportarla a 118.' : '<b>Primo accesso?</b> La password è <b>118</b>: subito dopo scegli la tua.';
+            info.innerHTML = (r && r.h) ? '<b>Password dimenticata?</b> Chiedi al coordinatore di riportarla a quella provvisoria.' : '<b>Primo accesso?</b> Usa la password provvisoria che ti ha dato il coordinatore: subito dopo scegli la tua.';
         }
         acctStep = mode === 'new' ? 'new' : 'pw';
     }
@@ -5129,7 +5129,7 @@
         if(acctStep === 'new') {
             const pw2 = document.getElementById('acct-pw2').value.trim();
             if(pw.length < 4) { acctBad('Almeno 4 caratteri'); return; }
-            if(pw === ACCT_FIRST_PW) { acctBad('Scegline una diversa da 118'); return; }
+            if(pw === ACCT_FIRST_PW) { acctBad('Scegline una diversa da quella provvisoria'); return; }
             if(pw !== pw2) { acctBad('Le due password non sono uguali'); return; }
             acctBusy = true; const ok = document.getElementById('acct-ok'), okl = document.getElementById('acct-ok-l'); ok.disabled = true; okl.textContent = 'Salvo…';
             try {
@@ -5152,7 +5152,7 @@
             return;
         }
         if(pw === ACCT_FIRST_PW) { vibrate(); acctSetPwMode('new'); setTimeout(() => document.getElementById('acct-pw').focus(), 60); return; }
-        acctBad('Password sbagliata: al primo accesso è 118');
+        acctBad('Password sbagliata');
     }
     function acctDone(n) {
         try { localStorage.setItem(ACCT_KEY, JSON.stringify({ name: n, at: new Date().toISOString() })); } catch(e) {}
