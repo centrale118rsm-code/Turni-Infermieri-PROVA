@@ -1398,6 +1398,18 @@
         .dd-rep { display:flex; flex-wrap:wrap; gap:2px 10px; align-items:center; padding-top:2px; font-size:0.68rem; font-weight:700; color:var(--text-sec); }
         .dd-rep b { color:var(--text-main); font-weight:800; }
         .dd-rep .ced { color:#dc2626; }
+        /* striscia "domani" all'apertura */
+        #tm-strip { position:fixed; left:50%; bottom:calc(16px + env(safe-area-inset-bottom,0px)); transform:translate(-50%, 140%); z-index:9300; width:calc(100% - 24px); max-width:460px; display:flex; align-items:center; gap:10px; padding:10px 8px 10px 12px; border-radius:14px; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border); box-shadow:0 12px 32px rgba(15,23,42,.22); cursor:pointer; transition:transform .35s cubic-bezier(.16,1,.3,1); }
+        #tm-strip.show { transform:translate(-50%, 0); }
+        #tm-strip .tm-code { flex:none; min-width:40px; height:34px; font-size:0.8rem; }
+        .tm-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; font-size:0.8rem; line-height:1.25; }
+        .tm-txt small { font-size:0.68rem; font-weight:700; color:var(--text-sec); text-transform:capitalize; }
+        .tm-txt b { font-size:0.9rem; font-weight:800; } .tm-txt b small { text-transform:none; }
+        .tm-txt span { color:var(--text-sec); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .tm-txt .tm-rep { color:#dc2626; font-weight:800; }
+        .tm-x { flex:none; width:32px; height:32px; border:none; border-radius:50%; background:var(--bg); color:var(--text-sec); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .tm-x .material-icons-round { font-size:18px; }
+        @media print { #tm-strip { display:none !important; } }
         /* scelta della vista */
         .cvp-modal { display:none; position:fixed; inset:0; z-index:9600; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:16px; }
         .cvp-modal.open { display:flex; }
@@ -1410,7 +1422,7 @@
         .cvp-opt b { display:block; font-size:0.9rem; font-weight:800; }
         .cvp-opt small { display:block; font-size:0.74rem; color:var(--text-sec); line-height:1.3; }
         /* vista compatta scelta fuori dalla modifica: nomi in testa più stretti */
-        body.cal-compact #main-table thead th:not(:first-child) { font-size:0.68rem; letter-spacing:0; }
+        body.cal-compact #main-table thead th:not(:first-child) { font-size:0.66rem; letter-spacing:-0.01em; padding-left:2px; padding-right:2px; text-overflow:clip; }
 
         /* ══ Vista d'insieme del calendario ══ */
         #ov-view { position:fixed; top:var(--header-h); left:0; right:0; bottom:0; z-index:950; background:var(--bg); display:none; flex-direction:column; }
@@ -7986,13 +7998,13 @@
             const dz = c === 'm' || c === 'p' || (c && c.charAt(0) >= 'a' && c.charAt(0) <= 'z' && !info.justified);
             const lc = String(c || '').toLowerCase();
             const into = lc === 'm+n' || isMN(String(c || '')) ? ['M', 'N'] : (c === 'M' || (dz && lc.startsWith('m'))) ? ['M'] : (c === 'P' || (dz && lc.startsWith('p'))) ? ['P'] : c === 'N' ? ['N'] : [];
-            into.forEach(k => g[k].push({ d, dz, mn: into.length > 1, raw: String((row[d.idx] || {}).v || '').trim() }));
+            into.forEach(k => g[k].push({ d, dz, mn: into.length > 1, raw: String((row[d.idx] || {}).v || '').trim(), code: c }));
         });
         const person = (x, sig) => {
             const rawVal = String((row[x.d.idx] || {}).v || '').trim();
             const click = `handleCellClick(${r},${x.d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const isRep = repT && (x.d.originalName === repT);
-            return `<button class="dd-p${me && x.d.idx === me.idx ? ' me' : ''}${x.dz ? ' dz' : ''}" onclick="${click}">${esc(x.d.name)}${sig || ''}${x.mn ? '<i>M+N</i>' : ''}${x.dz ? '<i style="--sw:var(--c-dM);--sf:var(--t-dM)">D</i>' : ''}${isRep ? '<i class="rp">REP</i>' : ''}</button>`;
+            return `<button class="dd-p${me && x.d.idx === me.idx ? ' me' : ''}${x.dz ? ' dz' : ''}" onclick="${click}">${esc(x.d.name)}${sig || ''}${x.mn ? '<i>M+N</i>' : ''}${x.dz ? `<i style="--sw:var(--c-dM);--sf:var(--t-dM)">${esc(ddDzTime(x.code, iso))}</i>` : ''}${isRep ? '<i class="rp">REP</i>' : ''}</button>`;
         };
         const lbl = (code, time) => `<div class="dd-lbl"><span class="cc-code" style="--sw:var(--c-${code});--sf:var(--t-${code})">${code}</span><small>${esc(time || '')}</small></div>`;
         const t = k => { const v = SCHEDULE[k] || ''; return v ? v.split('-')[0].trim() : ''; };
@@ -8008,6 +8020,50 @@
         }
         const wk = dt.getDay() === 0 ? ' wk-end' : '';
         return `<div class="dd-day${isToday ? ' today' : ''}${red ? ' red' : ''}${wk}" id="dd-r-${r}"><div class="dd-dh"><span class="dd-dn">${dt.getDate()}</span><span class="dd-dw"><b>${esc(wd)}</b>${hol ? `<small>${esc(hol)}</small>` : ''}</span>${isToday ? '<span class="dd-today">OGGI</span>' : ''}</div><div class="dd-rows">${rows}</div></div>`;
+    }
+    // ═══ DOMANI A COLPO D'OCCHIO ════════════════════════════════════════════
+    // All'apertura (una volta per apertura) una striscia in basso col proprio turno di domani e
+    // chi lavora insieme; si chiude da sola dopo qualche secondo, tocco = finestra della casella.
+    let tmDone = false, tmTimer = null;
+    function tmSoon() {
+        if(tmDone || SERVER_MODE || !finalData.length) return;
+        clearTimeout(tmTimer); tmTimer = setTimeout(tmShow, 2500);
+    }
+    function tmShow() {
+        if(tmDone) return;
+        const gate = document.getElementById('app-gate');
+        if(document.documentElement.classList.contains('gate-wait') || (gate && getComputedStyle(gate).display !== 'none') || document.visibilityState === 'hidden') { tmTimer = setTimeout(tmShow, 3000); return; }
+        const me = prefMe(); if(!me) { tmDone = true; return; }
+        const t = new Date(); t.setHours(0, 0, 0, 0); t.setDate(t.getDate() + 1);
+        const iso = ymd(t), r = repRowOfDate(iso); if(!r) { tmDone = true; return; }
+        tmDone = true;
+        const info = computeDayInfo(r, me.idx), meta = ccCodeMeta(info), c = String(info.code || '');
+        const R = repData(), isRep = R.tit[iso] === me.originalName;
+        const grp = k => { const u = String(k || ''); return isMN(u) ? ['M', 'N'] : (u === 'M' || u === 'm') ? ['M'] : (u === 'P' || u === 'p') ? ['P'] : u === 'N' ? ['N'] : []; };
+        const mine = info.justified ? [] : grp(c);
+        let txt;
+        if(mine.length) {
+            const mates = drivers.filter(d => !d.hidden && d.idx !== me.idx && grp(workCode(r, d.idx)).some(k => mine.includes(k))).map(d => d.name);
+            const lab = { M:'Mattina', P:'Pomeriggio', N:'Notte' }, time = c.charAt(0) >= 'a' && c.charAt(0) <= 'z' ? (diurniSched(c, iso) || '') : (SCHEDULE[c.toUpperCase()] || '');
+            txt = `<b>${mine.map(k => lab[k]).join(' + ')}</b>${time && mine.length === 1 ? ` <small>${esc(time)}</small>` : ''}${mates.length ? `<span>con ${esc(mates.join(', '))}</span>` : ''}`;
+        } else if(meta.kind === 'abs') txt = `<b>${esc(meta.label || meta.short)}</b>`;
+        else if(c === 'SM') txt = `<b>Smonto</b><span>riposo dopo la notte</span>`;
+        else txt = `<b>Riposo</b>`;
+        if(isRep) txt += `<span class="tm-rep">Reperibile dalle 13:00</span>`;
+        let el = document.getElementById('tm-strip');
+        if(!el) { el = document.createElement('div'); el.id = 'tm-strip'; document.body.appendChild(el); }
+        const row = finalData[r], rawVal = String((row[me.idx] || {}).v || '').trim();
+        el.onclick = () => { tmHide(); handleCellClick(r, me.idx, row[0].v, parseInt(row[1].v), RT_WEEKDAY_FMT.format(t).toUpperCase(), rawVal); };
+        const st = meta.colors ? `--sw:var(${meta.colors.bg});--sf:var(${meta.colors.fg})` : '--sw:#fff;--sf:#64748b';
+        el.innerHTML = `<span class="tm-code cc-code" style="${st}">${esc(meta.short || 'R')}</span><span class="tm-txt"><small>Domani, ${esc(t.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }))}</small>${txt}</span><button class="tm-x" onclick="event.stopPropagation();tmHide()" aria-label="Chiudi"><span class="material-icons-round">close</span></button>`;
+        requestAnimationFrame(() => el.classList.add('show'));
+        setTimeout(tmHide, 9000);
+    }
+    function tmHide() { const el = document.getElementById('tm-strip'); if(el) el.classList.remove('show'); }
+    // diurnista: il suo orario vero di quel giorno (inizio), non quello dei turnisti
+    function ddDzTime(code, iso) {
+        let t = ''; try { t = diurniSched(String(code || ''), iso) || ''; } catch(e) {}
+        const m = String(t).match(/(\d{1,2}[:.]\d{2})/); return m ? 'D ' + m[1].replace('.', ':') : 'D';
     }
     function ddScrollToday(instant) {
         const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -16193,8 +16249,9 @@
         } else if(focusCols.length) { thD.className = 'th-focus-clear'; thD.title = 'Mostra di nuovo tutte le colonne'; thD.innerHTML = 'DATA<br><span class="material-icons-round" style="font-size:16px">close</span>'; }
         else thD.innerText = "DATA";
         frag.appendChild(thD);
+        const shortNm = calCompactOn() ? compactNames(rtCols) : null;   // vista compatta: nomi accorciati senza ambiguità
         rtCols.forEach(d => {
-            let th = document.createElement('th'); th.innerText = d.name; if(d.idx === rtMeIdx) th.classList.add('me-col');
+            let th = document.createElement('th'); th.innerText = shortNm ? shortNm[d.idx] : d.name; if(shortNm) th.dataset.full = d.name; if(d.idx === rtMeIdx) th.classList.add('me-col');
             th.dataset.col = d.idx; const fc = colFocusCls(d.idx); if(fc) th.className += ' ' + fc;
             th.title = focusCols.includes(d.idx) ? 'Tocca per togliere dall\'evidenza' : 'Tocca per mettere in evidenza';
             if(coordEditModeActive) {
@@ -16221,6 +16278,21 @@
         });
         thead.innerHTML = ""; thead.appendChild(frag);
         thFitHeight();
+    }
+    // Nomi corti per la vista compatta: cognome tagliato alla lunghezza minima (almeno 4 lettere)
+    // che lo distingue dagli altri; con lo stesso inizio si aggiunge l'iniziale della parola dopo.
+    function compactNames(cols) {
+        const out = {}, words = cols.map(d => String(d.name || '').trim().split(/\s+/));
+        cols.forEach((d, i) => {
+            const w = words[i][0] || '';
+            let n = Math.min(4, w.length);
+            const clash = k => cols.some((o, j) => j !== i && (words[j][0] || '').slice(0, k) === w.slice(0, k));
+            while(n < w.length && clash(n)) n++;
+            let lbl = n < w.length ? w.slice(0, n) + '.' : w;
+            if(n >= w.length && clash(w.length) && words[i][1]) lbl = w + ' ' + words[i][1].charAt(0) + '.';
+            out[d.idx] = lbl;
+        });
+        return out;
     }
     function buildDayRow(i, today) {
         const year = shiftRowYear(i);
@@ -16306,6 +16378,7 @@
         liteObserve();
         if(calOverview) renderOverviewSoon();
         ddSync();
+        tmSoon();
     }
     // ═══ MODALITÀ LEGGERA ════════════════════════════════════════════════
     // Il calendario completo ha ~9.000 caselle: su iPhone Safari non fa in tempo a disegnarle
