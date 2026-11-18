@@ -1357,6 +1357,73 @@
         .opt-reset button { height:38px; padding:0 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-sec); font:700 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
         .opt-reset button .material-icons-round { font-size:17px; }
 
+        /* ══ Calendario giorno per giorno (scelta di ognuno in Opzioni) ══ */
+        #dd-view { position:fixed; top:var(--header-h); left:0; right:0; bottom:0; z-index:940; background:var(--bg); display:none; flex-direction:column; }
+        #dd-view.open { display:flex; }
+        body.cal-days { overflow:hidden; }
+        .dd-bar { display:flex; justify-content:center; padding:8px 10px; border-bottom:1px solid var(--border); background:var(--bg-card); flex-shrink:0; }
+        .dd-seg, .cvp-seg { display:flex; gap:4px; padding:3px; border-radius:12px; background:var(--bg); border:1px solid var(--border); }
+        .dd-seg button { display:inline-flex; align-items:center; gap:5px; height:32px; padding:0 12px; border:none; border-radius:9px; background:transparent; color:var(--text-sec); font:700 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .dd-seg button .material-icons-round { font-size:17px; }
+        .dd-seg button.on { background:var(--primary); color:#fff; }
+        .dd-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:0 10px 90px; }
+        #dd-body { max-width:640px; margin:0 auto; }
+        .dd-mh { position:sticky; top:0; z-index:2; margin:0 -10px; padding:7px 14px 6px; background:var(--month-bar-bg); color:#fff; font-size:0.85rem; font-weight:900; letter-spacing:.04em; text-transform:uppercase; }
+        .dd-more { display:block; margin:12px auto 0; height:36px; padding:0 14px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--primary); font:700 12.5px 'Plus Jakarta Sans',sans-serif; }
+        .dd-day { margin:7px 0; border:1px solid var(--border); border-radius:14px; background:var(--bg-card); overflow:hidden; scroll-margin-top:36px; }
+        .dd-day.today { border-color:#f97316; box-shadow:0 0 0 2px rgba(249,115,22,.35); }
+        .dd-day.wk-end { margin-bottom:14px; }
+        .dd-day.wk-end::after { content:''; display:block; height:4px; background:#dc2626; }
+        .dd-dh { display:flex; align-items:center; gap:8px; padding:5px 10px; border-bottom:1px solid var(--border); }
+        .dd-dn { font-size:1.1rem; font-weight:900; color:var(--text-main); line-height:1; min-width:30px; text-align:center; }
+        .dd-dw { flex:1; min-width:0; display:flex; flex-direction:column; }
+        .dd-dw b { font-size:0.78rem; font-weight:800; color:var(--text-main); text-transform:capitalize; }
+        .dd-dw small { font-size:0.7rem; font-weight:700; color:#dc2626; }
+        .dd-day.red .dd-dn, .dd-day.red .dd-dw b { color:#dc2626; }
+        .dd-today { font-size:0.62rem; font-weight:900; color:#fff; background:#f97316; border-radius:999px; padding:2px 8px; letter-spacing:.06em; }
+        .dd-rows { display:flex; flex-direction:column; }
+        .dd-row { display:flex; align-items:flex-start; gap:6px; padding:4px 8px; border-top:1px solid var(--border); }
+        .dd-row:first-child { border-top:none; }
+        .dd-lbl { flex:none; width:36px; display:flex; flex-direction:column; align-items:center; gap:0; padding-top:2px; }
+        .dd-lbl .cc-code { min-width:28px; height:18px; font-size:0.62rem; }
+        .dd-lbl small { font-size:0.52rem; font-weight:700; color:var(--text-sec); white-space:nowrap; }
+        .dd-ppl { flex:1; min-width:0; display:flex; flex-wrap:wrap; gap:3px; }
+        .dd-p { display:inline-flex; align-items:center; gap:3px; height:24px; padding:0 7px; border-radius:7px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:800 0.68rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; white-space:nowrap; }
+        .dd-p.me { border-color:var(--primary); box-shadow:inset 0 0 0 1px var(--primary); }
+        .dd-p.dz { color:#6d28d9; }
+        .dd-p i { font-style:normal; font-size:0.56rem; font-weight:900; padding:1px 4px; border-radius:4px; background:var(--sw, #e2e8f0); color:var(--sf, #334155); }
+        .dd-p .rp { background:#dc2626; color:#fff; }
+        .dd-row.abs .dd-p { height:22px; font-size:0.64rem; }
+        .dd-none { font-size:0.68rem; color:var(--text-sec); font-weight:600; padding:5px 0; }
+        .dd-rep { display:flex; flex-wrap:wrap; gap:2px 10px; align-items:center; padding-top:2px; font-size:0.68rem; font-weight:700; color:var(--text-sec); }
+        .dd-rep b { color:var(--text-main); font-weight:800; }
+        .dd-rep .ced { color:#dc2626; }
+        /* striscia "domani" all'apertura */
+        #tm-strip { position:fixed; left:50%; bottom:calc(16px + env(safe-area-inset-bottom,0px)); transform:translate(-50%, 140%); z-index:9300; width:calc(100% - 24px); max-width:460px; display:flex; align-items:center; gap:10px; padding:10px 8px 10px 12px; border-radius:14px; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border); box-shadow:0 12px 32px rgba(15,23,42,.22); cursor:pointer; transition:transform .35s cubic-bezier(.16,1,.3,1); }
+        #tm-strip.show { transform:translate(-50%, 0); }
+        #tm-strip .tm-code { flex:none; min-width:40px; height:34px; font-size:0.8rem; }
+        .tm-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; font-size:0.8rem; line-height:1.25; }
+        .tm-txt small { font-size:0.68rem; font-weight:700; color:var(--text-sec); text-transform:capitalize; }
+        .tm-txt b { font-size:0.9rem; font-weight:800; } .tm-txt b small { text-transform:none; }
+        .tm-txt span { color:var(--text-sec); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .tm-txt .tm-rep { color:#dc2626; font-weight:800; }
+        .tm-x { flex:none; width:32px; height:32px; border:none; border-radius:50%; background:var(--bg); color:var(--text-sec); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .tm-x .material-icons-round { font-size:18px; }
+        @media print { #tm-strip { display:none !important; } }
+        /* scelta della vista */
+        .cvp-modal { display:none; position:fixed; inset:0; z-index:9600; background:rgba(12,18,26,.45); align-items:center; justify-content:center; padding:16px; }
+        .cvp-modal.open { display:flex; }
+        .cvp-card { width:100%; max-width:420px; background:var(--bg-card); color:var(--text-main); border-radius:18px; padding:16px; box-shadow:0 20px 50px rgba(15,23,42,.25); }
+        .cvp-card h3 { margin:0 0 4px; font-size:1.05rem; font-weight:800; }
+        .cvp-card > small { display:block; color:var(--text-sec); font-size:0.78rem; margin-bottom:12px; }
+        .cvp-opt { display:flex; align-items:center; gap:12px; width:100%; padding:12px; margin-bottom:8px; border:1px solid var(--border); border-radius:12px; background:var(--bg); color:var(--text-main); text-align:left; cursor:pointer; font-family:inherit; }
+        .cvp-opt.on { border-color:var(--primary); box-shadow:inset 0 0 0 1px var(--primary); }
+        .cvp-opt .material-icons-round { font-size:26px; color:var(--primary); }
+        .cvp-opt b { display:block; font-size:0.9rem; font-weight:800; }
+        .cvp-opt small { display:block; font-size:0.74rem; color:var(--text-sec); line-height:1.3; }
+        /* vista compatta scelta fuori dalla modifica: nomi in testa più stretti */
+        body.cal-compact #main-table thead th:not(:first-child) { font-size:0.66rem; letter-spacing:-0.01em; padding-left:2px; padding-right:2px; text-overflow:clip; }
+
         /* ══ Vista d'insieme del calendario ══ */
         #ov-view { position:fixed; top:var(--header-h); left:0; right:0; bottom:0; z-index:950; background:var(--bg); display:none; flex-direction:column; }
         #ov-view.open { display:flex; }
@@ -4329,6 +4396,13 @@
     <div class="ov-adv-mini" id="ov-adv-mini"></div>
     <div class="ov-scroll" id="ov-scroll"><div class="ov-advice" id="ov-advice"></div><div id="ov-body"></div></div>
 </div>
+<div id="dd-view" aria-label="Calendario giorno per giorno">
+    <div class="dd-bar">
+        <div class="dd-seg" id="dd-seg"></div>
+    </div>
+    <div class="dd-scroll" id="dd-scroll"><div id="dd-body"></div></div>
+</div>
+<div id="cvp-modal" class="cvp-modal" onclick="closeCalViewPicker(event)"><div class="cvp-card" onclick="event.stopPropagation()" id="cvp-card"></div></div>
 <div id="ov-sheet" class="ov-sheet" onclick="ovCloseSheet(event)"><div class="ov-sheet-card" id="ov-sheet-card" onclick="event.stopPropagation()"></div></div>
 
 <!-- ══════════════ CALENDARIO FERIE DESIDERATE ══════════════ -->
@@ -6167,7 +6241,7 @@
     var PREF_DEFAULTS = {
         theme:'light', startPage:'calendario', startToday:true, lite: IS_IOS,
         myColFirst:false, highlightMe:true, showTimes:true, showRepBars:true, filter:null,
-        notifyChanges:true, notifyRep:true, notifyTomorrow:false, haptics:true
+        notifyChanges:true, notifyRep:true, notifyTomorrow:false, haptics:true, calView:'normale'
     };
     var prefs = null, prefsOwnerLoaded = null, prefsRemoteTimer = null;
     function prefOwner() { return (userIdentity && userIdentity !== 'Ospite') ? String(userIdentity).toUpperCase() : 'OSPITE'; }
@@ -6227,6 +6301,7 @@
         prefs[k] = v; prefs.updatedAt = Date.now(); savePrefsLocal(); prefsSaveRemoteSoon();
         if(noApply) return;
         if(k === 'theme') applyTheme();
+        else if(k === 'calView') calViewApply(true);
         else if(['myColFirst','highlightMe','showTimes','showRepBars','lite'].includes(k)) {
             applyBodyPrefClasses();
             if(k === 'lite') liteFrom = null;
@@ -6271,6 +6346,7 @@
             { group:'Calendario' },
             { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori', color: MN_COLORS.cal, children: [
                 { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
+                { id:'calview', icon:'view_day', label:'Come vedere il calendario', desc: ({ normale:'Ora: tabella', compatta:'Ora: compatta', giorni:'Ora: giorno per giorno' })[(prefs && prefs.calView) || 'normale'] + ' · scegli tu', color: MN_COLORS.cal, run: () => openCalViewPicker() },
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
                 (typeof isViewingArchive === 'function' && isViewingArchive()) ? null : { id:'nexty', icon:'fast_forward', label:'Vai al ' + (SHIFT_YEAR + 1), desc:'L’anno dopo è già qui, sotto dicembre: i turni si possono già scrivere', color: MN_COLORS.cal, run: () => goNextYear() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
@@ -6372,6 +6448,7 @@
         const m = globalMonthsList.find(x => shiftRowYear(x.row) === SHIFT_YEAR + 1);
         if(!m) { ccToast('L’anno dopo non è ancora nel calendario', true); return; }
         if(calOverview) setCalView('normale');
+        if(ddOn()) { ddScrollToMonth(MONTH_MAP[m.name], SHIFT_YEAR + 1); return; }
         setTimeout(() => { if(liteOn()) liteShowRow(m.row); liteScrollTo(document.getElementById(m.id), 120); }, calOverview ? 120 : 0);
     }
     function closeMonthDropdown() { document.getElementById('month-select-dropdown').classList.remove('open'); }
@@ -6385,7 +6462,7 @@
             const niceName = m.name.charAt(0) + m.name.slice(1).toLowerCase();
             let btn = document.createElement('div'); btn.className = 'month-btn' + (isCurrent ? ' month-current' : '');
             btn.innerHTML = `<span class="material-icons-round">${isCurrent ? 'today' : 'event'}</span><span>${niceName}</span>`;
-            btn.onclick = () => { vibrate(); closeMonthDropdown(); if(calOverview) { ovScrollTo('ov-m-' + MONTH_MAP[m.name]); return; } if(liteOn()) liteShowRow(m.row); liteScrollTo(document.getElementById(m.id), 120); };
+            btn.onclick = () => { vibrate(); closeMonthDropdown(); if(calOverview) { ovScrollTo('ov-m-' + MONTH_MAP[m.name]); return; } if(ddOn()) { ddScrollToMonth(MONTH_MAP[m.name], shiftRowYear(m.row)); return; } if(liteOn()) liteShowRow(m.row); liteScrollTo(document.getElementById(m.id), 120); };
             grid.appendChild(btn);
         });
     }
@@ -6880,6 +6957,7 @@
     }
     function scrollToToday(instant) {
         if(calOverview) { ovScrollToday(); return; }
+        if(ddOn()) { ddScrollToday(instant); return; }
         if(liteOn()) liteShowRow(liteTodayRow());
         const el = document.getElementById('today-row'); if(!el) return;
         liteScrollTo(el, todayTopOffset(el), instant);
@@ -7650,6 +7728,8 @@
             <div class="option-category-header"><span class="material-icons-round">calendar_month</span> Calendario</div>
             <div class="opt-block"><div class="opt-txt"><span>All’apertura mostra</span><small>La schermata con cui parte l’app.</small></div>
                 ${seg('startPage', [['calendario', 'Calendario', 'view_agenda'], ['me', 'La mia pagina', 'person']])}</div>
+            <div class="opt-block"><div class="opt-txt"><span>Come vedere il calendario</span><small>Tabella: come sempre. Compatta: caselle piccole con la sigla, più giorni e colleghi nello schermo. Giorni: una scheda per giorno con chi lavora, comoda sul telefono.</small></div>
+                ${seg('calView', [['normale', 'Tabella', 'table_chart'], ['compatta', 'Compatta', 'view_compact'], ['giorni', 'Giorni', 'view_day']])}</div>
             ${sw('startToday', 'Parti dal giorno di oggi', 'All’apertura il calendario scorre fino a oggi.')}
             ${sw('myColFirst', 'La mia colonna per prima', named ? 'I tuoi turni sempre nella prima colonna, accanto alla data.' : 'Disponibile dopo aver scelto chi sei.')}
             ${sw('highlightMe', 'Evidenzia la mia colonna', 'Colora leggermente la tua colonna per trovarla subito.')}
@@ -7692,7 +7772,7 @@
         vibrate();
         if(k === 'myColFirst' && v && !prefMe()) { ccToast('Scegli prima chi sei', true); renderOptions(); return; }
         setPref(k, v);
-        if(k === 'theme' || k === 'startPage') renderOptions();
+        if(k === 'theme' || k === 'startPage' || k === 'calView') renderOptions();
     }
     async function optReset() {
         const ok = await ccConfirm('Ripristinare le preferenze?', 'Tema, calendario, colleghi visibili e notifiche tornano come all’inizio.', 'Ripristina');
@@ -7845,6 +7925,153 @@
         else { ovCloseSheet(); setCurrentView('Tabella Turni'); }
     }
     function toggleCalView() { vibrate(); setCalView(calOverview ? 'dettaglio' : 'insieme'); }
+
+    // ═══ COME VEDERE IL CALENDARIO: tabella, compatta, giorno per giorno ═══════
+    // Ognuno sceglie per sé (prefs.calView, salvata con le altre preferenze). La compatta usa le
+    // caselle piccole della modifica turni; "Giorni" mostra una scheda per giorno con chi lavora.
+    const CAL_VIEWS = [
+        ['normale', 'Tabella', 'table_chart', 'Il calendario di sempre, con orari e fasce.'],
+        ['compatta', 'Compatta', 'view_compact', 'Caselle piccole con la sigla del turno: più giorni e colleghi nello schermo.'],
+        ['giorni', 'Giorno per giorno', 'view_day', 'Una scheda per giorno: chi fa mattina, pomeriggio e notte, assenti e reperibile.']
+    ];
+    function ddOn() { return !!(prefs && prefs.calView === 'giorni') && !coordEditModeActive && !SERVER_MODE; }
+    function calViewSet(v) { vibrate(); closeCalViewPicker(); if(prefs.calView !== v) setPref('calView', v); }
+    function calViewApply(changed) {
+        document.body.classList.toggle('cal-compact', calCompactOn());
+        if(finalData.length) renderTable(); else ddSync();
+        if(changed) setTimeout(() => scrollToToday(true), 60);
+    }
+    function openCalViewPicker() {
+        const cur = (prefs && prefs.calView) || 'normale';
+        document.getElementById('cvp-card').innerHTML = `<h3>Come vedere il calendario</h3><small>La scelta vale solo per te${prefMe() ? ' e la ritrovi su ogni telefono' : ''}. La cambi quando vuoi, anche da Opzioni.</small>`
+            + CAL_VIEWS.map(([v, l, ic, d]) => `<button class="cvp-opt ${cur === v ? 'on' : ''}" onclick="calViewSet('${v}')"><span class="material-icons-round">${ic}</span><span><b>${l}</b><small>${d}</small></span></button>`).join('');
+        document.getElementById('cvp-modal').classList.add('open');
+    }
+    function closeCalViewPicker(e) { if(e && e.target !== e.currentTarget) return; const m = document.getElementById('cvp-modal'); if(m) m.classList.remove('open'); }
+    let ddFrom = null, ddSig = '';
+    function ddSync() {
+        const v = document.getElementById('dd-view'); if(!v) return;
+        const on = ddOn();
+        v.classList.toggle('open', on); document.body.classList.toggle('cal-days', on);
+        if(on) ddRender();
+    }
+    function ddSegHtml() {
+        const cur = (prefs && prefs.calView) || 'normale';
+        return CAL_VIEWS.map(([v, l, ic]) => `<button class="${cur === v ? 'on' : ''}" onclick="calViewSet('${v}')"><span class="material-icons-round">${ic}</span>${v === 'giorni' ? 'Giorni' : l}</button>`).join('');
+    }
+    function ddRender() {
+        const box = document.getElementById('dd-body'); if(!box) return;
+        document.getElementById('dd-seg').innerHTML = ddSegHtml();
+        if(!finalData.length) { box.innerHTML = '<div class="dd-none" style="padding:20px;text-align:center">Sto caricando i turni…</div>'; return; }
+        const sc = document.getElementById('dd-scroll'), top = sc.scrollTop;
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        if(ddFrom === null) ddFrom = new Date(today.getFullYear(), today.getMonth(), 1);
+        const me = prefMe();
+        let active = drivers.filter(d => !d.hidden);
+        if(me && prefs.myColFirst && active.includes(me)) active = [me].concat(active.filter(d => d !== me));
+        if(selectedDrivers && selectedDrivers.size) active = active.filter(d => selectedDrivers.has(d.idx) || (me && d.idx === me.idx));
+        const R = repData();
+        let html = '', lastM = '', first = null;
+        for(let r = 1; r < finalData.length; r++) {
+            const iso = repRowDate(r); if(!iso) continue;
+            const dt = repDateObj(iso); if(dt < ddFrom) { if(first === null) first = r; continue; }
+            const mk = dt.getFullYear() + '-' + dt.getMonth();
+            if(mk !== lastM) { lastM = mk; html += `<div class="dd-mh" id="dd-m-${mk}">${MONTH_NAMES_IT[dt.getMonth()]} ${dt.getFullYear()}</div>`; }
+            html += ddDayHtml(r, dt, iso, active, me, R, today);
+        }
+        const more = ddFrom > repDateObj(repRowDate(1) || ymd(ddFrom)) ? `<button class="dd-more" onclick="ddShowEarlier()"><span class="material-icons-round" style="font-size:16px;vertical-align:-3px">expand_less</span> Mostra i mesi prima</button>` : '';
+        box.innerHTML = more + html;
+        sc.scrollTop = top;
+    }
+    function ddShowEarlier() { vibrate(); const sc = document.getElementById('dd-scroll'), h = sc.scrollHeight; ddFrom = new Date(1970, 0, 1); ddRender(); sc.scrollTop += sc.scrollHeight - h; }
+    function ddDayHtml(r, dt, iso, active, me, R, today) {
+        const row = finalData[r], mName = row[0].v, dNum = parseInt(row[1].v);
+        const wd = dt.toLocaleDateString('it-IT', { weekday:'long' });
+        const hol = HOLIDAYS[`${dt.getMonth()}-${dt.getDate()}`], red = dt.getDay() === 0 || !!hol || dt.getDay() === 6;
+        const isToday = dt.getTime() === today.getTime();
+        const dayWeek = RT_WEEKDAY_FMT.format(dt).toUpperCase();
+        const g = { M:[], P:[], N:[] }, abs = [];
+        const repT = R.tit[iso] || '';
+        active.forEach(d => {
+            const info = computeDayInfo(r, d.idx), c = info.code;
+            if(info.justified && !info.pnTail) { abs.push({ d, meta: ccCodeMeta(info) }); return; }
+            const dz = c === 'm' || c === 'p' || (c && c.charAt(0) >= 'a' && c.charAt(0) <= 'z' && !info.justified);
+            const lc = String(c || '').toLowerCase();
+            const into = lc === 'm+n' || isMN(String(c || '')) ? ['M', 'N'] : (c === 'M' || (dz && lc.startsWith('m'))) ? ['M'] : (c === 'P' || (dz && lc.startsWith('p'))) ? ['P'] : c === 'N' ? ['N'] : [];
+            into.forEach(k => g[k].push({ d, dz, mn: into.length > 1, raw: String((row[d.idx] || {}).v || '').trim(), code: c }));
+        });
+        const person = (x, sig) => {
+            const rawVal = String((row[x.d.idx] || {}).v || '').trim();
+            const click = `handleCellClick(${r},${x.d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+            const isRep = repT && (x.d.originalName === repT);
+            return `<button class="dd-p${me && x.d.idx === me.idx ? ' me' : ''}${x.dz ? ' dz' : ''}" onclick="${click}">${esc(x.d.name)}${sig || ''}${x.mn ? '<i>M+N</i>' : ''}${x.dz ? `<i style="--sw:var(--c-dM);--sf:var(--t-dM)">${esc(ddDzTime(x.code, iso))}</i>` : ''}${isRep ? '<i class="rp">REP</i>' : ''}</button>`;
+        };
+        const lbl = (code, time) => `<div class="dd-lbl"><span class="cc-code" style="--sw:var(--c-${code});--sf:var(--t-${code})">${code}</span><small>${esc(time || '')}</small></div>`;
+        const t = k => { const v = SCHEDULE[k] || ''; return v ? v.split('-')[0].trim() : ''; };
+        let rows = '';
+        [['M', 'Mattina'], ['P', 'Pomeriggio'], ['N', 'Notte']].forEach(([k]) => {
+            rows += `<div class="dd-row">${lbl(k, t(k))}<div class="dd-ppl">${g[k].length ? g[k].map(x => person(x)).join('') : '<span class="dd-none">Nessuno</span>'}</div></div>`;
+        });
+        if(abs.length) rows += `<div class="dd-row abs"><div class="dd-lbl"><span class="cc-code" style="--sw:#e2e8f0;--sf:#475569">ASS</span><small>assenti</small></div><div class="dd-ppl">${abs.map(x => person({ d: x.d }, `<i style="${x.meta.colors ? `--sw:var(${x.meta.colors.bg});--sf:var(${x.meta.colors.fg})` : ''}">${esc(x.meta.short)}</i>`)).join('')}</div></div>`;
+        if(repT) {
+            const n = repDateAdd(iso, 1);
+            const ced = [[iso, 2], [iso, 3], [n, 0], [n, 1]].map(([d, s]) => ({ s, who: (R.days[d] || [])[s] || repT })).filter(f => f.who !== repT);
+            rows += `<div class="dd-row"><div class="dd-lbl"><span class="cc-code" style="--sw:#dc2626;--sf:#fff">REP</span><small>13 › 13</small></div><div class="dd-ppl dd-rep"><span>Reperibile <b>${esc(repDisplayName(repT))}</b></span>${ced.map(f => `<span class="ced">${REP_SLOTS[f.s].label} <b class="ced">${esc(repDisplayName(f.who))}</b></span>`).join('')}</div></div>`;
+        }
+        const wk = dt.getDay() === 0 ? ' wk-end' : '';
+        return `<div class="dd-day${isToday ? ' today' : ''}${red ? ' red' : ''}${wk}" id="dd-r-${r}"><div class="dd-dh"><span class="dd-dn">${dt.getDate()}</span><span class="dd-dw"><b>${esc(wd)}</b>${hol ? `<small>${esc(hol)}</small>` : ''}</span>${isToday ? '<span class="dd-today">OGGI</span>' : ''}</div><div class="dd-rows">${rows}</div></div>`;
+    }
+    // ═══ DOMANI A COLPO D'OCCHIO ════════════════════════════════════════════
+    // All'apertura (una volta per apertura) una striscia in basso col proprio turno di domani e
+    // chi lavora insieme; si chiude da sola dopo qualche secondo, tocco = finestra della casella.
+    let tmDone = false, tmTimer = null;
+    function tmSoon() {
+        if(tmDone || SERVER_MODE || !finalData.length) return;
+        clearTimeout(tmTimer); tmTimer = setTimeout(tmShow, 2500);
+    }
+    function tmShow() {
+        if(tmDone) return;
+        const gate = document.getElementById('app-gate');
+        if(document.documentElement.classList.contains('gate-wait') || (gate && getComputedStyle(gate).display !== 'none') || document.visibilityState === 'hidden') { tmTimer = setTimeout(tmShow, 3000); return; }
+        const me = prefMe(); if(!me) { tmDone = true; return; }
+        const t = new Date(); t.setHours(0, 0, 0, 0); t.setDate(t.getDate() + 1);
+        const iso = ymd(t), r = repRowOfDate(iso); if(!r) { tmDone = true; return; }
+        tmDone = true;
+        const info = computeDayInfo(r, me.idx), meta = ccCodeMeta(info), c = String(info.code || '');
+        const R = repData(), isRep = R.tit[iso] === me.originalName;
+        const grp = k => { const u = String(k || ''); return isMN(u) ? ['M', 'N'] : (u === 'M' || u === 'm') ? ['M'] : (u === 'P' || u === 'p') ? ['P'] : u === 'N' ? ['N'] : []; };
+        const mine = info.justified ? [] : grp(c);
+        let txt;
+        if(mine.length) {
+            const mates = drivers.filter(d => !d.hidden && d.idx !== me.idx && grp(workCode(r, d.idx)).some(k => mine.includes(k))).map(d => d.name);
+            const lab = { M:'Mattina', P:'Pomeriggio', N:'Notte' }, time = c.charAt(0) >= 'a' && c.charAt(0) <= 'z' ? (diurniSched(c, iso) || '') : (SCHEDULE[c.toUpperCase()] || '');
+            txt = `<b>${mine.map(k => lab[k]).join(' + ')}</b>${time && mine.length === 1 ? ` <small>${esc(time)}</small>` : ''}${mates.length ? `<span>con ${esc(mates.join(', '))}</span>` : ''}`;
+        } else if(meta.kind === 'abs') txt = `<b>${esc(meta.label || meta.short)}</b>`;
+        else if(c === 'SM') txt = `<b>Smonto</b><span>riposo dopo la notte</span>`;
+        else txt = `<b>Riposo</b>`;
+        if(isRep) txt += `<span class="tm-rep">Reperibile dalle 13:00</span>`;
+        let el = document.getElementById('tm-strip');
+        if(!el) { el = document.createElement('div'); el.id = 'tm-strip'; document.body.appendChild(el); }
+        const row = finalData[r], rawVal = String((row[me.idx] || {}).v || '').trim();
+        el.onclick = () => { tmHide(); handleCellClick(r, me.idx, row[0].v, parseInt(row[1].v), RT_WEEKDAY_FMT.format(t).toUpperCase(), rawVal); };
+        const st = meta.colors ? `--sw:var(${meta.colors.bg});--sf:var(${meta.colors.fg})` : '--sw:#fff;--sf:#64748b';
+        el.innerHTML = `<span class="tm-code cc-code" style="${st}">${esc(meta.short || 'R')}</span><span class="tm-txt"><small>Domani, ${esc(t.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }))}</small>${txt}</span><button class="tm-x" onclick="event.stopPropagation();tmHide()" aria-label="Chiudi"><span class="material-icons-round">close</span></button>`;
+        requestAnimationFrame(() => el.classList.add('show'));
+        setTimeout(tmHide, 9000);
+    }
+    function tmHide() { const el = document.getElementById('tm-strip'); if(el) el.classList.remove('show'); }
+    // diurnista: il suo orario vero di quel giorno (inizio), non quello dei turnisti
+    function ddDzTime(code, iso) {
+        let t = ''; try { t = diurniSched(String(code || ''), iso) || ''; } catch(e) {}
+        const m = String(t).match(/(\d{1,2}[:.]\d{2})/); return m ? 'D ' + m[1].replace('.', ':') : 'D';
+    }
+    function ddScrollToday(instant) {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const el = document.querySelector('#dd-body .dd-day.today') || document.getElementById('dd-m-' + today.getFullYear() + '-' + today.getMonth());
+        const sc = document.getElementById('dd-scroll'); if(!el || !sc) return;
+        const mh = document.querySelector('#dd-body .dd-mh'); sc.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - (mh ? mh.offsetHeight : 34) - 6), behavior: instant ? 'auto' : 'smooth' });
+    }
+    function ddScrollToMonth(mi, y) { const el = document.getElementById('dd-m-' + y + '-' + mi); const sc = document.getElementById('dd-scroll'); if(el && sc) sc.scrollTo({ top: el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop, behavior: 'smooth' }); }
     // ═══ CALENDARIO FERIE DESIDERATE ═════════════════════════════════════
     // Un calendario come quello dei turni ma vuoto: ognuno scrive le ferie e i permessi
     // che vorrebbe, solo nella propria colonna (riconosciuta da "Chi sei?").
@@ -9961,7 +10188,8 @@
     // Caselle piccole con il colore e la sigla del turno e la sola scritta REP (niente orari né
     // fasce), per vedere più giorni e più colleghi insieme. Si accende dalla ruota strumenti.
     let calCompact = (() => { try { return localStorage.getItem('cal_compact_v1') === '1'; } catch(e) { return false; } })();
-    function calCompactOn() { return coordEditModeActive && calCompact && !calOverview; }
+    // fuori dalla modifica la vista compatta la sceglie ognuno per sé (Opzioni > Come vedere il calendario)
+    function calCompactOn() { if(calOverview) return false; return coordEditModeActive ? calCompact : !!(prefs && prefs.calView === 'compatta'); }
     const MINI_SHORT = { 't-M':'M', 't-P':'P', 't-N':'N', 't-S':'S', 't-SM':'S', 't-R':'R', 'd-M':'m', 'd-P':'p', 'd-R':'r',
         'spec-cong':'C.O.', 'spec-mal':'MAL', 'spec-gr':'GR', 'spec-ferie':'F.R.', 'spec-rec':'REC', 'spec-coord':'Z', 'spec-perm':'PERM',
         'spec-pn':'PN', 'spec-mn':'M+N', 'spec-nl':'NL', 'spec-ng':'NG', 'spec-stu':'STU', 'spec-pl':'PL', 'spec-ps':'PS', 'spec-xk':'DS', 'spec-xs':'SPO', 'spec-xl':'LUT', 'spec-xa':'MAT' };
@@ -9987,6 +10215,7 @@
     }
     function calCompactUi() {
         document.body.classList.toggle('cal-compact', calCompactOn());
+        try { ddSync(); } catch(e) {}
         ['tw-view-btn', 'tw-sat-view'].forEach(id => {
             const b = document.getElementById(id); if(!b) return;
             b.classList.toggle('on', calCompact);
@@ -16020,8 +16249,9 @@
         } else if(focusCols.length) { thD.className = 'th-focus-clear'; thD.title = 'Mostra di nuovo tutte le colonne'; thD.innerHTML = 'DATA<br><span class="material-icons-round" style="font-size:16px">close</span>'; }
         else thD.innerText = "DATA";
         frag.appendChild(thD);
+        const shortNm = calCompactOn() ? compactNames(rtCols) : null;   // vista compatta: nomi accorciati senza ambiguità
         rtCols.forEach(d => {
-            let th = document.createElement('th'); th.innerText = d.name; if(d.idx === rtMeIdx) th.classList.add('me-col');
+            let th = document.createElement('th'); th.innerText = shortNm ? shortNm[d.idx] : d.name; if(shortNm) th.dataset.full = d.name; if(d.idx === rtMeIdx) th.classList.add('me-col');
             th.dataset.col = d.idx; const fc = colFocusCls(d.idx); if(fc) th.className += ' ' + fc;
             th.title = focusCols.includes(d.idx) ? 'Tocca per togliere dall\'evidenza' : 'Tocca per mettere in evidenza';
             if(coordEditModeActive) {
@@ -16048,6 +16278,21 @@
         });
         thead.innerHTML = ""; thead.appendChild(frag);
         thFitHeight();
+    }
+    // Nomi corti per la vista compatta: cognome tagliato alla lunghezza minima (almeno 4 lettere)
+    // che lo distingue dagli altri; con lo stesso inizio si aggiunge l'iniziale della parola dopo.
+    function compactNames(cols) {
+        const out = {}, words = cols.map(d => String(d.name || '').trim().split(/\s+/));
+        cols.forEach((d, i) => {
+            const w = words[i][0] || '';
+            let n = Math.min(4, w.length);
+            const clash = k => cols.some((o, j) => j !== i && (words[j][0] || '').slice(0, k) === w.slice(0, k));
+            while(n < w.length && clash(n)) n++;
+            let lbl = n < w.length ? w.slice(0, n) + '.' : w;
+            if(n >= w.length && clash(w.length) && words[i][1]) lbl = w + ' ' + words[i][1].charAt(0) + '.';
+            out[d.idx] = lbl;
+        });
+        return out;
     }
     function buildDayRow(i, today) {
         const year = shiftRowYear(i);
@@ -16132,6 +16377,8 @@
         else fitCalendarCells();
         liteObserve();
         if(calOverview) renderOverviewSoon();
+        ddSync();
+        tmSoon();
     }
     // ═══ MODALITÀ LEGGERA ════════════════════════════════════════════════
     // Il calendario completo ha ~9.000 caselle: su iPhone Safari non fa in tempo a disegnarle
