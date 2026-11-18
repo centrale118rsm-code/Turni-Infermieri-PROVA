@@ -4765,6 +4765,9 @@
     // mai la password. Ogni telefono la chiede una volta e poi la ricorda (localStorage); se l'admin la cambia,
     // la richiede a tutti. Non vale per il motore (?server=1).
     // NB: è un blocco della pagina, non dei dati: chi sa usare Firebase può ancora leggerli (vedi area admin).
+    // La prova e l'ufficiale leggono le STESSE impostazioni (DATA_NS 'prova_' su entrambe): la prova usa un campo suo,
+    // così una password provata qui non blocca l'app ufficiale (successo il 18/11/2026). L'ufficiale usa 'appGate'.
+    const GATE_FIELD = 'appGateProva';
     const GATE_KEY = 'app_gate_' + DATA_NS, GATE_OK_KEY = 'app_gate_ok_' + DATA_NS;
     let appGate = null;
     let appGatePw = '';
@@ -5071,8 +5074,8 @@
             // senza rete un documento che manca dalla copia sul dispositivo non vuol dire che non esista: niente copia iniziale
             if(!doc.exists) { if(!doc.metadata.fromCache) { gateWaitEnd(); seedNamespaceSettings(); } resolveConfigReady(); return; }
             const data = doc.data();
-            if(!SERVER_MODE && !doc.metadata.fromCache) gateApply(data.appGate || null);
-            else if(!SERVER_MODE && data.appGate) gateApply(data.appGate);
+            if(!SERVER_MODE && !doc.metadata.fromCache) gateApply(data[GATE_FIELD] || null);
+            else if(!SERVER_MODE && data[GATE_FIELD]) gateApply(data[GATE_FIELD]);
             if(data.dataSource !== undefined) dataSourceMode = data.dataSource === 'firebase' ? 'firebase' : 'excel';
             if(data.activeYear !== undefined && data.activeYear) {
                 const prevYear = activeYear; activeYear = +data.activeYear;
@@ -5639,7 +5642,7 @@
         const hash = await gateHash(pw);
         const g = { on: true, hash, pw, ver: ((appGate && appGate.ver) || 0) + 1, by: 'Admin · ' + getDeviceLabel(), at: new Date().toISOString() };
         gateSessionHash = hash;   // ora resta aperta; alla prossima apertura la chiede anche a chi l'ha impostata (Mat: tutti, coordinatore compreso)
-        try { await saveSettingsFields({ appGate: g }); gateApply(g); admRenderGate(); showAdminToast('Password attivata'); vibrate(); }
+        try { await saveSettingsFields({ [GATE_FIELD]: g }); gateApply(g); admRenderGate(); showAdminToast('Password attivata'); vibrate(); }
         catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
     }
     function admGateShowPw(btn) {
@@ -5658,7 +5661,7 @@
         if(!appGate || !appGate.hash) return;
         const g = Object.assign({}, appGate, appGatePw ? { pw: appGatePw } : {}, { on: !!on, at: new Date().toISOString(), by: 'Admin · ' + getDeviceLabel() });
         if(on) gateSessionHash = g.hash;
-        try { await saveSettingsFields({ appGate: g }); gateApply(g); admRenderGate(); showAdminToast(on ? 'Password riattivata' : 'Password disattivata'); vibrate(); }
+        try { await saveSettingsFields({ [GATE_FIELD]: g }); gateApply(g); admRenderGate(); showAdminToast(on ? 'Password riattivata' : 'Password disattivata'); vibrate(); }
         catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
     }
 
