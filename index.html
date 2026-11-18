@@ -2844,6 +2844,7 @@
         .identity-group::before, .identity-group::after { content:""; flex:1; height:1px; background:var(--border); }
         .identity-pw-tag .material-icons-round { font-size:14px; color:#94a3b8; }
         /* password: finestra per COORDINATORE/TEST e blocco "password per aprire l'app" */
+        .gate-logo { display:block; width:96px; height:96px; margin:0 auto 14px; border-radius:22px; filter:drop-shadow(0 10px 22px rgba(15,42,99,.3)); }
         #pw-ask, #app-gate { display:none; position:fixed; inset:0; align-items:center; justify-content:center; padding:20px; }
         #pw-ask { z-index:10600; background:rgba(0,0,0,.6); }
         #app-gate { z-index:30000; background:radial-gradient(circle at 30% 20%, rgba(37,99,235,.18), transparent 55%), radial-gradient(circle at 80% 80%, rgba(30,58,138,.2), transparent 55%), var(--bg); }
@@ -3415,9 +3416,9 @@
 </div>
 <div id="app-gate" role="dialog" aria-modal="true">
     <div class="pw-card" id="app-gate-card">
-        <div class="pw-ico"><span class="material-icons-round">lock</span></div>
+        <img class="gate-logo" src="icon-118b-512.png" alt="118">
         <h3>Turni Infermieri 118</h3>
-        <p>Per vedere i turni serve la password. La chiedi al coordinatore: su questo telefono la metti una volta sola.</p>
+        <p>Per entrare serve la password d’accesso. La metti solo la prima volta: poi questo telefono la ricorda.</p>
         <input type="password" id="app-gate-input" autocomplete="off" placeholder="Password" onkeydown="if(event.key==='Enter')gateSubmit()">
         <div class="pw-err" id="app-gate-err"></div>
         <div class="pw-acts"><button class="pw-ok" onclick="gateSubmit()">Entra</button></div>
@@ -4760,13 +4761,14 @@
     // NB: è un blocco della pagina, non dei dati: chi sa usare Firebase può ancora leggerli (vedi area admin).
     const GATE_KEY = 'app_gate_' + DATA_NS, GATE_OK_KEY = 'app_gate_ok_' + DATA_NS;
     let appGate = null;
-    let appGatePw = '';   // password in chiaro (settings.appGate.pw) solo per mostrarla nell'area admin; non va nella copia del telefono
+    let appGatePw = '';
+    let gateSessionHash = '';   // sbloccato solo per questa apertura (chi ha appena impostato la password in admin): alla prossima apertura la chiede anche a lui   // password in chiaro (settings.appGate.pw) solo per mostrarla nell'area admin; non va nella copia del telefono
     async function gateHash(pw) {
         const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('turni118|' + String(pw || '').trim().toLowerCase()));
         return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
     }
     function gateOkHash() { try { return localStorage.getItem(GATE_OK_KEY) || ''; } catch(e) { return ''; } }
-    function gateLocked() { return !SERVER_MODE && !!(appGate && appGate.on && appGate.hash) && gateOkHash() !== appGate.hash; }
+    function gateLocked() { return !SERVER_MODE && !!(appGate && appGate.on && appGate.hash) && gateOkHash() !== appGate.hash && gateSessionHash !== appGate.hash; }
     function gateApply(g) {
         const prevSig = JSON.stringify([appGate, appGatePw]);
         appGatePw = (g && typeof g === 'object' && typeof g.pw === 'string') ? g.pw : '';
@@ -5612,7 +5614,7 @@
                     <button class="adm-btn primary" onclick="admGateSave()"><span class="material-icons-round">lock</span>${has ? 'Cambia e attiva' : 'Salva e attiva'}</button></div>
                 ${has ? `<div class="adm-gate-row"><button class="adm-btn" onclick="admGateToggle(${on ? 'false' : 'true'})"><span class="material-icons-round">${on ? 'lock_open' : 'lock'}</span>${on ? 'Disattiva' : 'Riattiva la stessa password'}</button>${on ? `<button class="adm-btn" onclick="admGateForget()"><span class="material-icons-round">phonelink_lock</span>Richiedila su questo telefono</button>` : ''}</div>` : ''}
                 <ul class="adm-gate-list">
-                    <li>Ogni telefono la chiede <b>una volta sola</b>, poi la ricorda.</li>
+                    <li>Ogni telefono la chiede <b>una volta sola</b>, alla prima apertura, poi la ricorda. Vale per tutti, coordinatore e admin compresi: anche questo telefono la chiederà alla prossima apertura.</li>
                     <li>Se la <b>cambi</b>, tutti dovranno mettere quella nuova (anche chi l’aveva già).</li>
                     <li>Maiuscole e minuscole non contano. La password resta scritta qui, così non la perdi.</li>
                     <li>Il motore delle notifiche e il calendario sul telefono (iPhone/Google) continuano a funzionare.</li>
@@ -5624,7 +5626,7 @@
         if(pw.length < 4) { showAdminToast('Almeno 4 caratteri'); return; }
         const hash = await gateHash(pw);
         const g = { on: true, hash, pw, ver: ((appGate && appGate.ver) || 0) + 1, by: 'Admin · ' + getDeviceLabel(), at: new Date().toISOString() };
-        try { localStorage.setItem(GATE_OK_KEY, hash); } catch(e) {}   // su questo telefono resta aperta
+        gateSessionHash = hash;   // ora resta aperta; alla prossima apertura la chiede anche a chi l'ha impostata (Mat: tutti, coordinatore compreso)
         try { await saveSettingsFields({ appGate: g }); gateApply(g); admRenderGate(); showAdminToast('Password attivata'); vibrate(); }
         catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
     }
@@ -5637,12 +5639,13 @@
     // per provarla: questo telefono "dimentica" di averla già messa e mostra subito la schermata della password
     function admGateForget() {
         try { localStorage.removeItem(GATE_OK_KEY); } catch(e) {}
+        gateSessionHash = '';
         vibrate(); gateApply(appGate);
     }
     async function admGateToggle(on) {
         if(!appGate || !appGate.hash) return;
         const g = Object.assign({}, appGate, appGatePw ? { pw: appGatePw } : {}, { on: !!on, at: new Date().toISOString(), by: 'Admin · ' + getDeviceLabel() });
-        if(on) try { localStorage.setItem(GATE_OK_KEY, g.hash); } catch(e) {}
+        if(on) gateSessionHash = g.hash;
         try { await saveSettingsFields({ appGate: g }); gateApply(g); admRenderGate(); showAdminToast(on ? 'Password riattivata' : 'Password disattivata'); vibrate(); }
         catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
     }
