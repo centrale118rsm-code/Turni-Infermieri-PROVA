@@ -3016,6 +3016,10 @@
         .adm-acct-tbl td { padding:7px 8px; border-bottom:1px solid var(--border); vertical-align:middle; }
         .adm-acct-tbl td.act { text-align:right; white-space:nowrap; }
         .adm-acct-tbl td:first-child { min-width:230px; }
+        .adm-acct-guide h4 { display:flex; align-items:center; gap:8px; margin:0 0 8px; font-size:.92rem; font-weight:800; }
+        .adm-acct-guide h4 .material-icons-round { font-size:20px; color:var(--primary); }
+        .adm-acct-guide ul { margin:0; padding-left:18px; font-size:.8rem; line-height:1.55; color:var(--text-sec); }
+        .adm-acct-guide li { margin:3px 0; } .adm-acct-guide b { color:var(--text-main); }
         .adm-acct-tbl td.act .adm-btn { margin-left:4px; }
         .adm-acct-tbl input { width:100%; min-width:90px; max-width:170px; height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:600 .8rem 'Plus Jakarta Sans',sans-serif; }
         @media (max-width:640px) { .adm-acct-tbl thead { display:none; } .adm-acct-tbl tr { display:grid; grid-template-columns:1fr auto; gap:6px 10px; padding:10px 0; border-bottom:1px solid var(--border); } .adm-acct-tbl td { border:0; padding:0; } .adm-acct-tbl td.act { grid-column:1 / -1; text-align:left; } .adm-acct-tbl td.act .adm-btn { margin:0 6px 0 0; } }
@@ -5377,8 +5381,41 @@
             <span><em>${x.ph}</em> telefoni collegati</span><span><em>${x.fam}</em> accessi familiari · <em>${x.fph}</em> telefoni</span></div>`).join('')}</div>`;
         const tabs = Object.keys(ACCT_TEAMS).map(k => `<button class="adm-btn sm${k === admAcctTeam ? ' primary' : ''}" onclick="admAcctTeam='${k}';admAcctOpen={};admRenderAccounts()"><span class="material-icons-round">${ACCT_TEAMS[k].ico}</span>${ACCT_TEAMS[k].Many}</button>`).join(' ')
             + ` <button class="adm-btn sm${admAcctTeam === 'fam' ? ' primary' : ''}" onclick="admAcctTeam='fam';admRenderAccounts()"><span class="material-icons-round">family_restroom</span>Familiari</button>`
+            + ` <button class="adm-btn sm${admAcctTeam === 'guida' ? ' primary' : ''}" onclick="admAcctTeam='guida';admRenderAccounts()"><span class="material-icons-round">menu_book</span>Guida</button>`
             + ` <button class="adm-btn sm" onclick="admAcctLoadDevs(true)"><span class="material-icons-round">refresh</span>Aggiorna</button>`;
         const fmtT = d => { try { return new Date(d).toLocaleString('it-IT', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }); } catch(e) { return ''; } };
+        if(admAcctTeam === 'guida') {
+            const sec = (ico, title, items) => `<div class="adm-card adm-acct-guide"><h4><span class="material-icons-round">${ico}</span>${title}</h4><ul>${items.map(x => `<li>${x}</li>`).join('')}</ul></div>`;
+            box.innerHTML = `<div class="adm-card"><div style="display:flex;gap:6px;flex-wrap:wrap">${tabs}</div></div>`
+                + sec('login', 'Come si entra', [
+                    'Ogni app mostra <b>solo i suoi nomi</b>: gli infermieri nella prova infermieri, gli autisti nella prova autisti.',
+                    'Primo accesso: il proprio nome e la password provvisoria <b>118</b> (non è scritta da nessuna parte nell’app: la mandi tu sul gruppo). Subito dopo l’app obbliga a sceglierne una personale (almeno 4 caratteri, diversa da 118).',
+                    'Fatto l’accesso il telefono <b>resta collegato per sempre</b>: la schermata d’accesso non compare più e l’app si apre sui turni.',
+                    'COORDINATORE e TEST entrano con la password del coordinatore (<b>coord</b>).',
+                    'Le password scelte non le vede nessuno, nemmeno tu: l’app tiene solo un’impronta da cui non si risale alla password.'])
+                + sec('sync_alt', 'Infermieri e autisti insieme', [
+                    'Chi è entrato in una app vede anche l’altra, <b>in sola lettura</b>: turni e note “per tutti” (tasto <b>Note</b> nella barra in basso). Non vede le note al coordinatore o personali e non può cambiare nulla.',
+                    'Il tasto in alto (A.S. / 118) apre l’altra prova <b>portando con sé l’accesso</b>: serve sull’iPhone, dove le app installate sulla Home non condividono la memoria.',
+                    'Se qualcuno apre l’altra app direttamente, in fondo all’elenco c’è “Sei un infermiere/autista? Entra con il tuo account”.',
+                    '“Esci dall’account” (menu ☰ › Impostazioni, o barra in basso) fa uscire da <b>tutte e due</b> le app su quel telefono.'])
+                + sec('family_restroom', 'Familiari', [
+                    'L’operatore crea un codice di 6 cifre da <b>☰ › Impostazioni › Accesso per un familiare</b> e lo manda al parente.',
+                    'Il parente, nella schermata d’accesso, tocca <b>Sono un familiare</b>, sceglie il nome e scrive il codice. Vede <b>solo i turni di quella persona</b>, in sola lettura.',
+                    'Il codice si vede solo quando viene creato. Se l’operatore ne crea uno nuovo o lo disattiva, i familiari collegati escono subito.',
+                    'Qui in <b>Familiari</b> vedi chi ha un codice attivo, quando l’ha creato e quali telefoni lo usano. Con <b>Togli</b> lo disattivi tu.'])
+                + sec('admin_panel_settings', 'Cosa puoi fare da qui', [
+                    '<b>Riporta a 118</b>: per chi ha dimenticato la password. Rientra con 118 e ne sceglie una nuova; i telefoni già collegati restano collegati.',
+                    '<b>Blocca</b>: la persona (e i suoi familiari) esce subito da tutti i telefoni e non può rientrare finché non tocchi <b>Sblocca</b>.',
+                    '<b>Nome</b>: il nome di battesimo, che compare accanto al cognome nella schermata d’accesso.',
+                    'Il numerino con il telefono accanto al cognome dice quanti telefoni sono collegati: toccalo per vedere quali e da quale app. <b>Aggiorna</b> rilegge i telefoni.',
+                    'Le schede Infermieri e Autisti mostrano lo stesso elenco da tutte e due le app: puoi gestire tutti da qui.'])
+                + sec('shield', 'Da ricordare', [
+                    'Vale <b>solo sulle prove</b>: le app ufficiali restano libere.',
+                    'È un blocco della schermata: i dati su Firebase restano leggibili da chi sa dove guardare. Per proteggere davvero i dati servono regole Firebase legate agli account, da fare quando si porterà sulle ufficiali.',
+                    'Se un telefono cancella i dati del browser (o Safari dopo molti giorni senza aprire l’app, se non è installata sulla Home) bisogna rifare l’accesso con la propria password.'])
+                ;
+            return;
+        }
         if(admAcctTeam === 'fam') {
             const rows = [];
             Object.keys(ACCT_TEAMS).forEach(k => acctTeamNames(k).forEach(n => { const r = acctRec(k, n); if(!r.fam) return; const fl = devs['fam|' + k + '|' + n] || [];
