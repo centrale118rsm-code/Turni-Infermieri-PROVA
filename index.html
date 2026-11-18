@@ -16,6 +16,8 @@
     <link rel="apple-touch-icon" href="apple-touch-icon-118b.png">
     <link rel="icon" type="image/png" href="icon-118b-192.png">
     <title>INFERMIERI 2026</title>
+    <script>/* account personali (solo prova): chi non ha ancora fatto l'accesso vede SUBITO la schermata d'accesso; chi l'ha fatto non la vede mai */
+    (function(){try{if(/[?&]server(=|&|$)/.test(location.search))return;if(!localStorage.getItem('acct_login_prova_'))document.documentElement.classList.add('acct-need');}catch(e){}})();</script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -2912,6 +2914,37 @@
         .identity-pw-tag .material-icons-round { font-size:14px; color:#94a3b8; }
         /* password: finestra per COORDINATORE/TEST e blocco "password per aprire l'app" */
         .gate-logo { display:block; width:96px; height:96px; margin:0 auto 14px; border-radius:22px; filter:drop-shadow(0 10px 22px rgba(15,42,99,.3)); }
+        /* account personali: schermata d'accesso */
+        #acct-gate { display:none; position:fixed; inset:0; z-index:30500; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:calc(env(safe-area-inset-top, 0px) + 26px) 16px calc(env(safe-area-inset-bottom, 0px) + 26px); background:radial-gradient(circle at 30% 20%, rgba(37,99,235,.18), transparent 55%), radial-gradient(circle at 80% 80%, rgba(30,58,138,.2), transparent 55%), var(--bg); color:var(--text-main); font-family:'Plus Jakarta Sans',sans-serif; }
+        html.acct-need #acct-gate { display:block; }
+        html.acct-need, html.acct-need body { overflow:hidden; }
+        #acct-gate .pw-card { max-width:440px; margin:0 auto; }
+        #acct-gate [hidden] { display:none !important; }
+        .acct-search { position:relative; margin:0 0 12px; }
+        .acct-search .material-icons-round { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:20px; color:var(--text-sec); }
+        #acct-gate .acct-search input { padding-left:40px; text-align:left; font-size:.95rem; letter-spacing:0; font-weight:600; }
+        .acct-names { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; text-align:left; }
+        .acct-name { display:flex; flex-direction:column; justify-content:center; min-height:52px; padding:9px 12px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); cursor:pointer; font:inherit; text-align:left; }
+        .acct-name b { font-size:.86rem; font-weight:800; overflow-wrap:anywhere; }
+        .acct-name span { font-size:.76rem; color:var(--text-sec); font-weight:600; }
+        .acct-name:active { transform:scale(.98); }
+        .acct-name .material-icons-round { font-size:18px; color:var(--text-sec); }
+        .acct-grp { grid-column:1 / -1; display:flex; align-items:center; gap:10px; margin:8px 2px 0; font-size:.66rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#94a3b8; }
+        .acct-grp::before, .acct-grp::after { content:""; flex:1; height:1px; background:var(--border); }
+        .acct-wait { grid-column:1 / -1; padding:18px 0; text-align:center; color:var(--text-sec); font-size:.86rem; }
+        .acct-who { display:flex; align-items:center; gap:12px; margin:0 0 12px; text-align:left; }
+        .acct-who .acct-av { width:46px; height:46px; flex:none; border-radius:14px; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; }
+        .acct-who b { display:block; font-size:1.05rem; } .acct-who span { font-size:.8rem; color:var(--text-sec); }
+        #acct-gate .pw-card input + input { margin-top:8px; }
+        .acct-info { margin:14px 0 0; padding:10px 12px; border-radius:12px; background:rgba(37,99,235,.08); color:var(--text-sec); font-size:.76rem; line-height:1.45; text-align:left; }
+        .acct-info b { color:var(--text-main); }
+        .adm-acct-tbl { width:100%; border-collapse:collapse; font-size:.8rem; }
+        .adm-acct-tbl th { text-align:left; font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-sec); padding:6px 8px; border-bottom:1px solid var(--border); }
+        .adm-acct-tbl td { padding:7px 8px; border-bottom:1px solid var(--border); vertical-align:middle; }
+        .adm-acct-tbl td.act { text-align:right; white-space:nowrap; }
+        .adm-acct-tbl td.act .adm-btn { margin-left:4px; }
+        .adm-acct-tbl input { width:100%; min-width:90px; max-width:170px; height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:600 .8rem 'Plus Jakarta Sans',sans-serif; }
+        @media (max-width:640px) { .adm-acct-tbl thead { display:none; } .adm-acct-tbl tr { display:grid; grid-template-columns:1fr auto; gap:6px 10px; padding:10px 0; border-bottom:1px solid var(--border); } .adm-acct-tbl td { border:0; padding:0; } .adm-acct-tbl td.act { grid-column:1 / -1; text-align:left; } .adm-acct-tbl td.act .adm-btn { margin:0 6px 0 0; } }
         #pw-ask, #app-gate { display:none; position:fixed; inset:0; align-items:center; justify-content:center; padding:20px; }
         #pw-ask { z-index:10600; background:rgba(0,0,0,.6); }
         html.gate-wait #app-gate { display:flex !important; }
@@ -3449,6 +3482,25 @@
     </style>
 </head>
 <body>
+<div id="acct-gate" role="dialog" aria-modal="true" aria-label="Accesso">
+    <div class="pw-card" id="acct-step-list">
+        <img class="gate-logo" src="icon-118b-512.png" alt="118">
+        <h3>Accedi ai turni</h3>
+        <p>Tocca il tuo nome. Lo fai una volta sola: poi questo telefono resta collegato e l’app si apre direttamente sui turni.</p>
+        <div class="acct-search"><span class="material-icons-round">search</span><input id="acct-search" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Cerca il tuo cognome" oninput="acctRenderList()"></div>
+        <div class="acct-names" id="acct-names"><div class="acct-wait">Carico i nomi…</div></div>
+        <div class="pw-foot">I turni sono riservati al personale (privacy).</div>
+    </div>
+    <div class="pw-card" id="acct-step-pw" hidden>
+        <div class="acct-who"><div class="acct-av" id="acct-av"></div><div><b id="acct-who-name"></b><span id="acct-who-sub"></span></div></div>
+        <p id="acct-pw-text"></p>
+        <input type="password" id="acct-pw" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Password" onkeydown="if(event.key==='Enter')acctSubmit()">
+        <input type="password" id="acct-pw2" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ripeti la password" onkeydown="if(event.key==='Enter')acctSubmit()" hidden>
+        <div class="pw-err" id="acct-err"></div>
+        <div class="pw-acts"><button onclick="acctBack()">Indietro</button><button class="pw-ok" id="acct-ok" onclick="acctSubmit()">Entra</button></div>
+        <div class="acct-info" id="acct-info"></div>
+    </div>
+</div>
 <div id="prova-frame" aria-hidden="true"><span>PROVA</span></div>
 <div id="net-offline" role="status" onclick="netOfflineInfo()"><span class="material-icons-round">cloud_off</span><span class="net-txt">Senza rete</span></div>
 
@@ -3700,6 +3752,7 @@
                 <button class="admin-tab-btn" data-tab="ruota" onclick="switchAdminTab('ruota',this)"><span class="material-icons-round">casino</span><span class="adm-nav-l">Ruota della sfiga</span></button>
                 <button class="admin-tab-btn" data-tab="registro" onclick="switchAdminTab('registro',this)"><span class="material-icons-round">history</span><span class="adm-nav-l">Registro modifiche</span></button>
                 <div class="adm-nav-grp">Configurazione</div>
+                <button class="admin-tab-btn" data-tab="account" onclick="switchAdminTab('account',this)"><span class="material-icons-round">manage_accounts</span><span class="adm-nav-l">Account infermieri</span></button>
                 <button class="admin-tab-btn" data-tab="password" onclick="switchAdminTab('password',this)"><span class="material-icons-round">lock</span><span class="adm-nav-l">Password app</span></button>
                 <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span><span class="adm-nav-l">Aspetto</span></button>
                 <button class="admin-tab-btn" data-tab="operatori" onclick="switchAdminTab('operatori',this)"><span class="material-icons-round">badge</span><span class="adm-nav-l">Nomi operatori</span></button>
@@ -3722,6 +3775,7 @@
             <div class="admin-tab-panel" id="admin-tab-errori"><div id="adm-errori"></div></div>
             <div class="admin-tab-panel" id="admin-tab-identita"><div id="adm-identita"></div></div>
             <div class="admin-tab-panel" id="admin-tab-ruota"><div id="adm-ruota"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-account"><div id="adm-accounts"></div></div>
             <div class="admin-tab-panel" id="admin-tab-password"><div id="adm-password"></div></div>
             <div class="admin-tab-panel" id="admin-tab-registro"><div id="adm-registro"></div></div>
 
@@ -4891,7 +4945,212 @@
     if(GATE_ENABLED && !SERVER_MODE) { let known = true; try { known = localStorage.getItem(GATE_KEY) !== null; } catch(e) {}
         if(!known) { document.documentElement.classList.add('gate-wait'); setTimeout(gateWaitEnd, 12000); } }   // 12 s: senza rete non si resta bloccati
     function gateWaitEnd() { document.documentElement.classList.remove('gate-wait'); }
-    let userIdentity = SERVER_MODE ? null : (localStorage.getItem('infermieri_identity_name') || null);
+    // ── Account personali (solo PROVA, 18/11/2026) ──────────────────────────────
+    // Ogni infermiere entra con il suo nome e la sua password. Primo accesso con la password provvisoria 118,
+    // poi ognuno sceglie la sua. Fatto l'accesso, il telefono resta collegato per sempre (localStorage ACCT_KEY):
+    // a chi è già collegato la schermata d'accesso non compare mai, nemmeno per un attimo (la decide lo script
+    // in <head> prima del primo disegno). COORDINATORE, TEST e PC Pronto Soccorso entrano con la password "coord".
+    // Dati: settings.accountsProva[NOME] = { h (impronta SHA-256, mai la password), at, by, first (nome di battesimo), blocked }.
+    // L'ufficiale legge lo stesso documento settings ma ignora questo campo: lì l'app resta libera.
+    // NB: è un blocco della pagina, non dei dati (le regole Firebase non sono cambiate).
+    const ACCT_ENABLED = true;
+    const ACCT_FIELD = 'accountsProva';
+    const ACCT_KEY = 'acct_login_' + DATA_NS;   // lo stesso nome è scritto nello script in <head>
+    const ACCT_FIRST_PW = '118';
+    const ACCT_PW_NAMES = [COORD_ID, TEST_OP, PS_NAME];
+    let acctNeed = false;
+    try { acctNeed = ACCT_ENABLED && !SERVER_MODE && !localStorage.getItem(ACCT_KEY); } catch(e) {}
+    if(!acctNeed) document.documentElement.classList.remove('acct-need');
+    let acctData = {}, acctLoaded = false, acctSel = null, acctStep = 'list', acctStartupPending = false, acctBusy = false;
+    function acctMine() { try { const a = JSON.parse(localStorage.getItem(ACCT_KEY) || 'null'); return a && a.name ? a : null; } catch(e) { return null; } }
+    async function acctHash(name, pw) {
+        const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('acct118|' + name + '|' + String(pw || '').trim().toLowerCase()));
+        return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+    function acctFirst(n) { const r = acctData[n]; return r && typeof r.first === 'string' ? r.first.trim() : ''; }
+    function acctLabel(n) { const f = acctFirst(n); return f ? n + ' ' + f : n; }
+    // i nomi: le colonne del calendario (anche quelle nascoste), più chi non ha colonna (Frisoni)
+    function acctNames() {
+        const set = new Set();
+        try { (drivers || []).forEach(d => { if(d && d.name && !d.test) set.add(d.name); }); } catch(e) {}
+        if(!set.size && operatorConfig) {
+            (operatorConfig.baseNames || []).forEach(n => set.add(n));
+            (operatorConfig.added || []).forEach(o => o && o.name && set.add(o.name));
+            Object.keys(operatorConfig.removed || {}).forEach(n => set.delete(n));
+        }
+        if(!set.size) return [];
+        IDENTITY_EXTRA_OPTIONS.forEach(n => { if(n !== 'Ospite' && !ACCT_PW_NAMES.includes(n)) set.add(n); });
+        return [...set].sort((a, b) => a.localeCompare(b, 'it', { sensitivity:'base' }));
+    }
+    function acctApply(map, fromCache) {
+        if(!ACCT_ENABLED || SERVER_MODE) return;
+        acctData = (map && typeof map === 'object') ? map : {};
+        if(!fromCache) acctLoaded = true;
+        const me = acctMine();
+        // bloccato dall'admin: questo telefono esce e torna alla schermata d'accesso
+        if(me && !fromCache && acctData[me.name] && acctData[me.name].blocked) { acctLogout('blocked'); return; }
+        if(acctNeed) acctRenderList();
+        if(admTab === 'account' && document.getElementById('adm-accounts') && !document.querySelector('#adm-accounts input:focus')) try { admRenderAccounts(); } catch(e) {}
+    }
+    function acctRenderList() {
+        const box = document.getElementById('acct-names'); if(!box || !acctNeed) return;
+        const names = acctNames();
+        if(!names.length) { box.innerHTML = '<div class="acct-wait">Carico i nomi…</div>'; return; }
+        const q = ((document.getElementById('acct-search') || {}).value || '').trim().toLowerCase();
+        const hit = n => !q || acctLabel(n).toLowerCase().includes(q);
+        const btn = (n, ico) => `<button class="acct-name" onclick="acctPick(this.dataset.n)" data-n="${esc(n)}">${ico ? `<span class="material-icons-round">${ico}</span>` : ''}<b>${esc(n)}</b>${acctFirst(n) ? `<span>${esc(acctFirst(n))}</span>` : ''}</button>`;
+        const main = names.filter(hit), extra = ACCT_PW_NAMES.filter(hit);
+        box.innerHTML = main.map(n => btn(n)).join('')
+            + (extra.length ? '<div class="acct-grp">Account con password del coordinatore</div>' + extra.map(n => btn(n, n === COORD_ID ? 'supervisor_account' : n === TEST_OP ? 'science' : 'computer')).join('') : '')
+            + (!main.length && !extra.length ? '<div class="acct-wait">Nessun nome trovato</div>' : '');
+    }
+    function acctShowStep(step) {
+        acctStep = step;
+        document.getElementById('acct-step-list').hidden = step !== 'list';
+        document.getElementById('acct-step-pw').hidden = step === 'list';
+        document.getElementById('acct-gate').scrollTop = 0;
+    }
+    function acctPick(n) {
+        vibrate(); acctSel = n;
+        const isPw = ACCT_PW_NAMES.includes(n), r = acctData[n] || {};
+        document.getElementById('acct-av').innerHTML = isPw ? `<span class="material-icons-round">${n === COORD_ID ? 'supervisor_account' : n === TEST_OP ? 'science' : 'computer'}</span>` : esc(n.substring(0, 2).toUpperCase());
+        document.getElementById('acct-who-name').textContent = n;
+        document.getElementById('acct-who-sub').textContent = isPw ? 'Account con la password del coordinatore' : (acctFirst(n) || 'Infermiere');
+        acctSetPwMode(isPw ? 'coord' : 'pw', r);
+        acctShowStep('pw');
+        setTimeout(() => { const i = document.getElementById('acct-pw'); if(i) i.focus(); }, 60);
+    }
+    function acctSetPwMode(mode, r) {
+        const p1 = document.getElementById('acct-pw'), p2 = document.getElementById('acct-pw2');
+        p1.value = ''; p2.value = ''; p2.hidden = mode !== 'new';
+        document.getElementById('acct-err').textContent = '';
+        const ok = document.getElementById('acct-ok'); ok.disabled = false; ok.textContent = mode === 'new' ? 'Salva ed entra' : 'Entra';
+        const t = document.getElementById('acct-pw-text'), info = document.getElementById('acct-info');
+        p1.placeholder = mode === 'new' ? 'Nuova password' : 'Password';
+        if(mode === 'coord') { t.textContent = 'Inserisci la password del coordinatore.'; info.hidden = true; }
+        else if(mode === 'new') { t.textContent = 'Primo accesso fatto. Ora scegli la tua password personale (almeno 4 caratteri, diversa da 118).'; info.hidden = false; info.innerHTML = 'Ti servirà solo se un giorno entri da un altro telefono o computer. <b>Se la dimentichi</b>, il coordinatore la riporta a 118 e ne scegli una nuova.'; }
+        else {
+            t.textContent = 'Inserisci la tua password.';
+            info.hidden = false;
+            info.innerHTML = (r && r.h) ? '<b>Password dimenticata?</b> Chiedi al coordinatore di riportarla a 118.' : '<b>Primo accesso?</b> La password è <b>118</b>: subito dopo scegli la tua.';
+        }
+        acctStep = mode === 'new' ? 'new' : 'pw';
+    }
+    function acctBack() { vibrate(); acctSel = null; acctShowStep('list'); }
+    function acctBad(msg) {
+        document.getElementById('acct-err').textContent = msg;
+        const c = document.getElementById('acct-step-pw'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+        vibrate();
+    }
+    function acctSaveRec(n, rec) {
+        if(!fbReady) return Promise.reject(new Error('offline'));
+        const clean = {}; Object.keys(rec).forEach(k => { if(rec[k] !== undefined) clean[k] = rec[k]; });
+        const ref = cfgRef('settings');
+        return ref.update(new firebase.firestore.FieldPath(ACCT_FIELD, n), clean).catch(e => {
+            if(e && e.code === 'not-found') return ref.set({ [ACCT_FIELD]: { [n]: clean } }, { merge:true });
+            throw e;
+        });
+    }
+    async function acctSubmit() {
+        if(acctBusy || !acctSel) return;
+        const n = acctSel, pw = document.getElementById('acct-pw').value.trim();
+        if(!pw) { acctBad('Scrivi la password'); return; }
+        if(ACCT_PW_NAMES.includes(n)) { if(identityPwOk(pw)) acctDone(n); else acctBad('Password sbagliata'); return; }
+        if(acctStep === 'new') {
+            const pw2 = document.getElementById('acct-pw2').value.trim();
+            if(pw.length < 4) { acctBad('Almeno 4 caratteri'); return; }
+            if(pw === ACCT_FIRST_PW) { acctBad('Scegline una diversa da 118'); return; }
+            if(pw !== pw2) { acctBad('Le due password non sono uguali'); return; }
+            acctBusy = true; const ok = document.getElementById('acct-ok'); ok.disabled = true; ok.textContent = 'Salvo…';
+            try {
+                const h = await acctHash(n, pw), cur = acctData[n] || {};
+                const rec = { h, at: new Date().toISOString(), by: getDeviceLabel() };
+                if(cur.first) rec.first = cur.first;
+                await acctSaveRec(n, rec);
+                acctData[n] = rec;
+                acctDone(n);
+            } catch(e) { ok.disabled = false; ok.textContent = 'Salva ed entra'; acctBad('Non riesco a salvare: controlla la connessione e riprova'); }
+            acctBusy = false;
+            return;
+        }
+        if(!acctLoaded) { acctBad('Serve la connessione internet per entrare. Riprova tra poco.'); return; }
+        const r = acctData[n] || {};
+        if(r.blocked) { acctBad('Account bloccato: chiedi al coordinatore'); return; }
+        if(r.h) {
+            if(await acctHash(n, pw) === r.h) acctDone(n);
+            else acctBad('Password sbagliata');
+            return;
+        }
+        if(pw === ACCT_FIRST_PW) { vibrate(); acctSetPwMode('new'); setTimeout(() => document.getElementById('acct-pw').focus(), 60); return; }
+        acctBad('Password sbagliata: al primo accesso è 118');
+    }
+    function acctDone(n) {
+        try { localStorage.setItem(ACCT_KEY, JSON.stringify({ name: n, at: new Date().toISOString() })); } catch(e) {}
+        if(ACCT_PW_NAMES.includes(n)) try { localStorage.setItem('id_pw_ok_' + n, '1'); } catch(e) {}
+        acctNeed = false;
+        userIdentity = n;
+        try { localStorage.setItem('infermieri_identity_name', n); } catch(e) {}
+        document.documentElement.classList.remove('acct-need');
+        vibrate();
+        try { applySplashWelcome(); } catch(e) {}
+        try { writeIdentityToSession(); persistIdentityToUidBackup(); checkIfIAmCoordinator(); } catch(e) {}
+        try { prefsEnsureOwner(); prefsPullRemote(); pushSyncOwner(); notifClaimLegacy(); updateBadge(); } catch(e) {}
+        try { if(typeof desAfterIdentity === 'function') desAfterIdentity(); } catch(e) {}
+        // i tocchi sulla schermata d'accesso fermano il "parti da oggi": si riporta oggi in cima
+        try { if(prefs.startToday !== false && !calOverview) startAtToday(); } catch(e) {}   // anche dopo che arrivano le preferenze della persona (ridisegno)
+        if(acctStartupPending) { acctStartupPending = false; try { showStartupMessages(); if(prefs.startPage === 'me') setTimeout(openMyPage, 400); } catch(e) {} }
+    }
+    // "Esci": il telefono torna alla schermata d'accesso (anche quando l'admin blocca l'account)
+    function acctLogout(why) {
+        try { localStorage.removeItem(ACCT_KEY); localStorage.removeItem('infermieri_identity_name'); } catch(e) {}
+        try { if(why === 'blocked') sessionStorage.setItem('acct_msg', 'Il tuo account è stato bloccato dal coordinatore.'); } catch(e) {}
+        userIdentity = null;
+        try { writeIdentityToSession(); persistIdentityToUidBackup(); } catch(e) {}
+        setTimeout(() => location.reload(), 400);
+    }
+    async function acctAskLogout() {
+        closeMenu(); vibrate();
+        const ok = await ccConfirm('Esci dall’account', `Ora sei ${userIdentity || '—'}. Uscendo, su questo telefono dovrai rifare l’accesso con nome e password.`, 'Esci', 'danger');
+        if(ok) acctLogout('menu');
+    }
+    if(acctNeed) { try { const m = sessionStorage.getItem('acct_msg'); if(m) { sessionStorage.removeItem('acct_msg'); setTimeout(() => { const p = document.querySelector('#acct-step-list p'); if(p) p.innerHTML = '<b style="color:#dc2626">' + esc(m) + '</b>'; }, 0); } } catch(e) {} }
+
+    // ── area admin: account ──
+    function admRenderAccounts() {
+        const box = document.getElementById('adm-accounts'); if(!box) return;
+        const names = acctNames();
+        const fmt = iso => { try { return new Date(iso).toLocaleDateString('it-IT', { day:'numeric', month:'short', year:'numeric' }); } catch(e) { return ''; } };
+        const nSet = names.filter(n => acctData[n] && acctData[n].h).length, nBlk = names.filter(n => acctData[n] && acctData[n].blocked).length;
+        const rows = names.map(n => {
+            const r = acctData[n] || {}, a = esc(n);
+            const st = r.blocked ? '<span class="adm-pill err">Bloccato</span>' : r.h ? `<span class="adm-pill ok">Password scelta</span> <span class="adm-muted">${esc(fmt(r.at))}</span>` : '<span class="adm-pill muted">Provvisoria 118</span>';
+            return `<tr><td><b>${a}</b></td><td><input value="${esc(r.first || '')}" placeholder="Nome" data-n="${a}" onchange="admAcctFirst(this.dataset.n, this.value)"></td><td>${st}</td>
+                <td class="act">${r.h ? `<button class="adm-btn sm" data-n="${a}" onclick="admAcctReset(this.dataset.n)"><span class="material-icons-round">restart_alt</span>Riporta a 118</button>` : ''}
+                <button class="adm-btn sm" data-n="${a}" onclick="admAcctBlock(this.dataset.n, ${r.blocked ? 'false' : 'true'})"><span class="material-icons-round">${r.blocked ? 'lock_open' : 'block'}</span>${r.blocked ? 'Sblocca' : 'Blocca'}</button></td></tr>`;
+        }).join('');
+        box.innerHTML = `<div class="adm-card">
+                <div class="adm-muted" style="font-size:.8rem;line-height:1.5">Ogni infermiere entra con il suo nome e una password. <b>Primo accesso: 118</b>, poi ognuno sceglie la sua. Fatto l’accesso il telefono resta collegato e non la chiede più. COORDINATORE, TEST e PC Pronto Soccorso entrano con la password del coordinatore.</div>
+                <div style="margin-top:8px"><span class="adm-pill ok">${nSet} con password scelta</span> <span class="adm-pill muted">${names.length - nSet} ancora a 118</span>${nBlk ? ` <span class="adm-pill err">${nBlk} bloccati</span>` : ''}</div></div>
+            <div class="adm-card"><table class="adm-acct-tbl"><thead><tr><th>Cognome</th><th>Nome</th><th>Stato</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="adm-muted">Carico i nomi…</td></tr>'}</tbody></table>
+                <div class="adm-muted" style="font-size:.74rem;margin-top:8px">Il nome di battesimo compare nella schermata d’accesso accanto al cognome. <b>Riporta a 118</b>: per chi ha dimenticato la password (i telefoni già collegati restano collegati). <b>Blocca</b>: la persona esce subito da tutti i telefoni e non può più entrare finché non la sblocchi.</div></div>
+            <div class="adm-note" style="margin-top:12px"><span class="material-icons-round">info</span><div><b>Cosa protegge.</b> Senza accesso la pagina non mostra i turni. È un blocco della pagina: i dati su Firebase restano leggibili da chi sa dove guardare. La protezione vera dei dati richiede regole Firebase legate agli account, da fare quando si porterà sull’app ufficiale.</div></div>`;
+    }
+    async function admAcctUpdate(n, patch, msg) {
+        const rec = Object.assign({}, acctData[n] || {}, patch);
+        Object.keys(rec).forEach(k => { if(rec[k] === null || rec[k] === '' || rec[k] === false) delete rec[k]; });
+        try { await acctSaveRec(n, rec); acctData[n] = rec; admRenderAccounts(); showAdminToast(msg); vibrate(); }
+        catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
+    }
+    function admAcctFirst(n, v) { admAcctUpdate(n, { first: String(v || '').trim().replace(/\s+/g, ' ').slice(0, 40) }, 'Nome salvato'); }
+    async function admAcctReset(n) {
+        if(!(await ccConfirm('Riporta a 118', `${n} entrerà con la password 118 e poi ne sceglierà una nuova. I telefoni già collegati restano collegati.`, 'Riporta a 118'))) return;
+        admAcctUpdate(n, { h: null, at: null, by: null, resetAt: new Date().toISOString() }, n + ': password riportata a 118');
+    }
+    async function admAcctBlock(n, on) {
+        if(on && !(await ccConfirm('Blocca account', `${n} esce subito da tutti i telefoni e non potrà entrare finché non lo sblocchi.`, 'Blocca', 'danger'))) return;
+        admAcctUpdate(n, { blocked: on ? true : null }, on ? n + ' bloccato' : n + ' sbloccato');
+    }
+    let userIdentity = (SERVER_MODE || acctNeed) ? null : ((acctMine() || {}).name || localStorage.getItem('infermieri_identity_name') || null);   // con l'account l'identità è il nome dell'accesso
     console.log('[Identità] Letta da localStorage all\'avvio:', userIdentity || '(nessuna)');
     let identityRecoveryPromise = null;
 
@@ -4966,7 +5225,7 @@
     // proviamo a recuperare l'identità dal profilo anonimo Firebase, che è
     // collegato allo stesso dispositivo/browser in modo indipendente.
     async function tryRecoverIdentityFromUid() {
-        if(userIdentity || !fbReady) return;
+        if(userIdentity || !fbReady || acctNeed) return;   // senza accesso non si recupera il nome da solo
         try {
             const uid = fbAuth.currentUser && fbAuth.currentUser.uid;
             console.log('[Identità] Tentativo recupero da UID Firebase:', uid || '(uid assente)');
@@ -5099,6 +5358,7 @@
         if(typeof desAfterIdentity === 'function') desAfterIdentity();
     }
     function requestChangeIdentity() {
+        if(ACCT_ENABLED) { acctAskLogout(); return; }   // con gli account si cambia utente uscendo e rientrando
         closeMenu(); vibrate();
         requestChangeIdentityDirect();
     }
@@ -5151,6 +5411,7 @@
             // senza rete un documento che manca dalla copia sul dispositivo non vuol dire che non esista: niente copia iniziale
             if(!doc.exists) { if(!doc.metadata.fromCache) { gateWaitEnd(); seedNamespaceSettings(); } resolveConfigReady(); return; }
             const data = doc.data();
+            if(!SERVER_MODE) acctApply(data[ACCT_FIELD] || null, doc.metadata.fromCache);
             if(!SERVER_MODE && !doc.metadata.fromCache) gateApply(data[GATE_FIELD] || null);
             else if(!SERVER_MODE && data[GATE_FIELD]) gateApply(data[GATE_FIELD]);
             if(data.dataSource !== undefined) dataSourceMode = data.dataSource === 'firebase' ? 'firebase' : 'excel';
@@ -5464,7 +5725,8 @@
         turni:      ['Orari turni', 'Orari standard dei turni'],
         testi:      ['Avvisi', 'Avviso all’apertura e avvisi aggiuntivi'],
         esporta:    ['Esporta', 'Copia del file con le impostazioni attuali'],
-        password:   ['Password app', 'Password per aprire l’app, ricordata su ogni telefono']
+        password:   ['Password app', 'Password per aprire l’app, ricordata su ogni telefono'],
+        account:    ['Account infermieri', 'Accesso personale con nome e password (solo prova)']
     };
     let admData = null, admLoading = null, admTab = 'panoramica';
     let admErrPeriod = 1, admErrKind = 'tutti', admErrShowResolved = false, admAccFilter = 'tutti', admAccSearch = '', admAccHideTests = true;
@@ -5545,7 +5807,7 @@
     }
     function admRenderTab() {
         if(!document.getElementById('admin-panel-modal') || document.getElementById('admin-panel-modal').style.display === 'none') return;
-        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, password: admRenderGate, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
+        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, password: admRenderGate, account: admRenderAccounts, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
         if(f) { try { f(); } catch(e) { console.warn('Pannello admin:', e); } }
     }
     const admLoadingHtml = () => `<div class="adm-empty"><span class="material-icons-round adm-spin">autorenew</span>Carico i dati…</div>`;
@@ -6384,7 +6646,7 @@
             { id:'imp', icon:'tune', label:'Impostazioni', desc:'Tema, notifiche, utente, aggiornamento', color: MN_COLORS.imp, children: [
                 { id:'dark', icon: dark ? 'dark_mode' : 'light_mode', label:'Tema scuro', desc: dark ? 'Attivo' : 'Disattivato', color: MN_COLORS.imp, toggle: dark, stay:true, run: () => { toggleDarkMode(); renderMenu(); } },
                 { id:'opts', icon:'settings', label:'Opzioni dell\u2019app', desc:'Le tue preferenze: tema, calendario, notifiche', color: MN_COLORS.imp, run: () => openOptionsModal() },
-                { id:'user', icon:'switch_account', label:'Cambia utente', desc: userIdentity ? 'Ora sei ' + userIdentity : 'Scegli chi sei', color: MN_COLORS.imp, run: () => requestChangeIdentity() },
+                { id:'user', icon: ACCT_ENABLED ? 'logout' : 'switch_account', label: ACCT_ENABLED ? 'Esci dall’account' : 'Cambia utente', desc: userIdentity ? 'Ora sei ' + userIdentity : 'Scegli chi sei', color: MN_COLORS.imp, run: () => requestChangeIdentity() },
                 { id:'reload', icon:'refresh', label:'Aggiorna l\u2019app', desc:'Ricarica per avere l\u2019ultima versione', color: MN_COLORS.imp, run: () => { vibrate(); location.reload(); } }
             ] },
             { group:'Aiuto' },
@@ -6616,6 +6878,7 @@
         setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
         setTimeout(async () => {
             if(SERVER_MODE) return;
+            if(acctNeed) { acctStartupPending = true; acctRenderList(); checkForScheduleChanges(); return; }   // messaggi all'apertura dopo l'accesso
             if(!userIdentity && identityRecoveryPromise) { try { await identityRecoveryPromise; } catch(e) {} }
             prefsEnsureOwner(); prefsPullRemote();
             if(userIdentity) { writeIdentityToSession(); persistIdentityToUidBackup(); showStartupMessages(); if(prefs.startPage === 'me') setTimeout(openMyPage, 400); }
