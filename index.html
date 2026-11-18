@@ -2844,8 +2844,14 @@
         .identity-group::before, .identity-group::after { content:""; flex:1; height:1px; background:var(--border); }
         .identity-pw-tag .material-icons-round { font-size:14px; color:#94a3b8; }
         /* password: finestra per COORDINATORE/TEST e blocco "password per aprire l'app" */
+        .gate-logo { display:block; width:96px; height:96px; margin:0 auto 14px; border-radius:22px; filter:drop-shadow(0 10px 22px rgba(15,42,99,.3)); }
         #pw-ask, #app-gate { display:none; position:fixed; inset:0; align-items:center; justify-content:center; padding:20px; }
         #pw-ask { z-index:10600; background:rgba(0,0,0,.6); }
+        html.gate-wait #app-gate { display:flex !important; }
+        html.gate-wait #app-gate-card { display:none; }
+        #app-gate-wait { display:none; width:110px; height:110px; border-radius:24px; animation:gateWaitPulse 1.2s ease-in-out infinite alternate; }
+        html.gate-wait #app-gate-wait { display:block; }
+        @keyframes gateWaitPulse { from { opacity:.55; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
         #app-gate { z-index:30000; background:radial-gradient(circle at 30% 20%, rgba(37,99,235,.18), transparent 55%), radial-gradient(circle at 80% 80%, rgba(30,58,138,.2), transparent 55%), var(--bg); }
         .pw-card { width:100%; max-width:360px; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:24px 22px 20px; box-shadow:0 20px 50px rgba(15,23,42,.25); text-align:center; color:var(--text-main); }
         .pw-card .pw-ico { width:56px; height:56px; margin:0 auto 12px; border-radius:16px; background:rgba(37,99,235,.12); color:var(--primary); display:flex; align-items:center; justify-content:center; }
@@ -2865,6 +2871,11 @@
         .adm-gate-row input { flex:1; min-width:160px; height:38px; padding:0 12px; border-radius:9px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:700 .9rem 'Plus Jakarta Sans',sans-serif; }
         .adm-gate-st { display:flex; align-items:center; gap:10px; font-size:.84rem; }
         .adm-gate-st .material-icons-round { font-size:28px; }
+        .adm-gate-cur { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:12px; padding:10px 12px; border-radius:10px; background:var(--bg); border:1px solid var(--border); font-size:.84rem; }
+        .adm-gate-cur > b { font:800 1.05rem 'Plus Jakarta Sans',sans-serif; letter-spacing:.04em; color:var(--text-main); user-select:all; }
+        .adm-gate-cur .adm-btn { margin-left:auto; }
+        .adm-gate-cur.none { align-items:flex-start; font-size:.78rem; line-height:1.45; color:var(--text-main); }
+        .adm-gate-cur.none .material-icons-round { font-size:20px; color:#d97706; }
         .adm-gate-list { margin:6px 0 0; padding-left:18px; font-size:.8rem; line-height:1.55; color:var(--text-main); }
         .identity-btn.pending { opacity:0.5; pointer-events:none; animation:identityPulse 1.2s ease-in-out infinite; }
         .identity-pending-tag { font-size:0.55rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; }
@@ -3409,10 +3420,11 @@
     </div>
 </div>
 <div id="app-gate" role="dialog" aria-modal="true">
+    <img id="app-gate-wait" src="icon-118b-512.png" alt="">
     <div class="pw-card" id="app-gate-card">
-        <div class="pw-ico"><span class="material-icons-round">lock</span></div>
+        <img class="gate-logo" src="icon-118b-512.png" alt="118">
         <h3>Turni Infermieri 118</h3>
-        <p>Per vedere i turni serve la password. La chiedi al coordinatore: su questo telefono la metti una volta sola.</p>
+        <p>Per entrare serve la password d’accesso. La metti solo la prima volta: poi questo telefono la ricorda.</p>
         <input type="password" id="app-gate-input" autocomplete="off" placeholder="Password" onkeydown="if(event.key==='Enter')gateSubmit()">
         <div class="pw-err" id="app-gate-err"></div>
         <div class="pw-acts"><button class="pw-ok" onclick="gateSubmit()">Entra</button></div>
@@ -4755,16 +4767,24 @@
     // NB: è un blocco della pagina, non dei dati: chi sa usare Firebase può ancora leggerli (vedi area admin).
     const GATE_KEY = 'app_gate_' + DATA_NS, GATE_OK_KEY = 'app_gate_ok_' + DATA_NS;
     let appGate = null;
+    let appGatePw = '';
+    let gateSessionHash = '';   // sbloccato solo per questa apertura (chi ha appena impostato la password in admin): alla prossima apertura la chiede anche a lui   // password in chiaro (settings.appGate.pw) solo per mostrarla nell'area admin; non va nella copia del telefono
     async function gateHash(pw) {
         const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('turni118|' + String(pw || '').trim().toLowerCase()));
         return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
     }
     function gateOkHash() { try { return localStorage.getItem(GATE_OK_KEY) || ''; } catch(e) { return ''; } }
-    function gateLocked() { return !SERVER_MODE && !!(appGate && appGate.on && appGate.hash) && gateOkHash() !== appGate.hash; }
+    function gateLocked() { return !SERVER_MODE && !!(appGate && appGate.on && appGate.hash) && gateOkHash() !== appGate.hash && gateSessionHash !== appGate.hash; }
     function gateApply(g) {
+        const prevSig = JSON.stringify([appGate, appGatePw]);
+        appGatePw = (g && typeof g === 'object' && typeof g.pw === 'string') ? g.pw : '';
+        gateWaitEnd();
         appGate = (g && typeof g === 'object') ? { on: !!g.on, hash: g.hash || '', ver: g.ver || 0, by: g.by || '', at: g.at || '' } : null;
         try { localStorage.setItem(GATE_KEY, JSON.stringify(appGate)); } catch(e) {}
         const el = document.getElementById('app-gate'); if(!el) return;
+        // area admin aperta: si aggiorna se la password è cambiata (senza cancellare quello che si sta scrivendo)
+        const ai = document.getElementById('adm-gate-pw');
+        if(document.getElementById('adm-password') && prevSig !== JSON.stringify([appGate, appGatePw]) && !(ai && ai.value)) try { admRenderGate(); } catch(e) {}
         const lock = gateLocked(), was = el.style.display === 'flex';
         el.style.display = lock ? 'flex' : 'none';
         document.documentElement.style.overflow = lock ? 'hidden' : '';
@@ -4786,6 +4806,11 @@
     // ?server=1: l'app viene aperta dal motore su GitHub solo per leggere i turni (niente sessioni, popup o scritture).
     const SERVER_MODE = new URLSearchParams(location.search).has('server');
     if(!SERVER_MODE) { try { const g = JSON.parse(localStorage.getItem(GATE_KEY) || 'null'); if(g) gateApply(g); } catch(e) {} }   // blocco subito, prima che arrivino le impostazioni
+    // Prima apertura su questo telefono: non si sa ancora se serve la password, quindi i turni restano coperti
+    // finché non arrivano le impostazioni (senza, si vedevano i turni per qualche secondo prima della password).
+    if(!SERVER_MODE) { let known = true; try { known = localStorage.getItem(GATE_KEY) !== null; } catch(e) {}
+        if(!known) { document.documentElement.classList.add('gate-wait'); setTimeout(gateWaitEnd, 12000); } }   // 12 s: senza rete non si resta bloccati
+    function gateWaitEnd() { document.documentElement.classList.remove('gate-wait'); }
     let userIdentity = SERVER_MODE ? null : (localStorage.getItem('infermieri_identity_name') || null);
     console.log('[Identità] Letta da localStorage all\'avvio:', userIdentity || '(nessuna)');
     let identityRecoveryPromise = null;
@@ -5044,7 +5069,7 @@
         if(!fbReady) return;
         cfgRef('settings').onSnapshot(doc => {
             // senza rete un documento che manca dalla copia sul dispositivo non vuol dire che non esista: niente copia iniziale
-            if(!doc.exists) { if(!doc.metadata.fromCache) seedNamespaceSettings(); resolveConfigReady(); return; }
+            if(!doc.exists) { if(!doc.metadata.fromCache) { gateWaitEnd(); seedNamespaceSettings(); } resolveConfigReady(); return; }
             const data = doc.data();
             if(!SERVER_MODE && !doc.metadata.fromCache) gateApply(data.appGate || null);
             else if(!SERVER_MODE && data.appGate) gateApply(data.appGate);
@@ -5594,13 +5619,16 @@
                 <div class="adm-gate-st"><span class="material-icons-round" style="color:${on ? '#16a34a' : '#94a3b8'}">${on ? 'lock' : 'lock_open'}</span>
                     <div><b>${on ? 'Attiva' : has ? 'Spenta' : 'Nessuna password'}</b> ${on ? '<span class="adm-pill ok">l’app chiede la password</span>' : '<span class="adm-pill muted">l’app si apre senza password</span>'}
                     ${has ? `<div class="adm-muted" style="font-size:.74rem">Impostata${when ? ' il ' + admEsc(when) : ''}${g.by ? ' da ' + admEsc(g.by) : ''}</div>` : ''}</div></div>
+                ${has ? (appGatePw ? `<div class="adm-gate-cur"><span class="adm-muted">Password attuale</span><b id="adm-gate-cur-pw" class="hid">${'•'.repeat(Math.max(4, appGatePw.length))}</b>
+                        <button class="adm-btn sm" onclick="admGateShowPw(this)"><span class="material-icons-round">visibility</span>Mostra</button></div>`
+                    : `<div class="adm-gate-cur none"><span class="material-icons-round">help_outline</span><span>Questa password è stata scelta prima che l’app la ricordasse, quindi non si può mostrare. Scrivila qui sotto e premi <b>Cambia e attiva</b>: da quel momento la vedi qui.</span></div>`) : ''}
                 <div class="adm-gate-row"><input id="adm-gate-pw" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${has ? 'Nuova password' : 'Scegli la password'}">
                     <button class="adm-btn primary" onclick="admGateSave()"><span class="material-icons-round">lock</span>${has ? 'Cambia e attiva' : 'Salva e attiva'}</button></div>
-                ${has ? `<div class="adm-gate-row"><button class="adm-btn" onclick="admGateToggle(${on ? 'false' : 'true'})"><span class="material-icons-round">${on ? 'lock_open' : 'lock'}</span>${on ? 'Disattiva' : 'Riattiva la stessa password'}</button></div>` : ''}
+                ${has ? `<div class="adm-gate-row"><button class="adm-btn" onclick="admGateToggle(${on ? 'false' : 'true'})"><span class="material-icons-round">${on ? 'lock_open' : 'lock'}</span>${on ? 'Disattiva' : 'Riattiva la stessa password'}</button>${on ? `<button class="adm-btn" onclick="admGateForget()"><span class="material-icons-round">phonelink_lock</span>Richiedila su questo telefono</button>` : ''}</div>` : ''}
                 <ul class="adm-gate-list">
-                    <li>Ogni telefono la chiede <b>una volta sola</b>, poi la ricorda.</li>
+                    <li>Ogni telefono la chiede <b>una volta sola</b>, alla prima apertura, poi la ricorda. Vale per tutti, coordinatore e admin compresi: anche questo telefono la chiederà alla prossima apertura.</li>
                     <li>Se la <b>cambi</b>, tutti dovranno mettere quella nuova (anche chi l’aveva già).</li>
-                    <li>Maiuscole e minuscole non contano. La password non viene salvata: se la dimentichi, ne scegli una nuova.</li>
+                    <li>Maiuscole e minuscole non contano. La password resta scritta qui, così non la perdi.</li>
                     <li>Il motore delle notifiche e il calendario sul telefono (iPhone/Google) continuano a funzionare.</li>
                 </ul></div>
             <div class="adm-note" style="margin-top:12px"><span class="material-icons-round">info</span><div><b>Cosa protegge davvero.</b> Chi apre il link dell’app senza password non vede i turni. Però è un blocco della pagina: i dati su Firebase, il file Excel e i calendari .ics nel repository restano leggibili da chi sa dove guardare. Per una protezione vera servono anche regole Firebase legate alla password: vedi la proposta nel progetto.</div></div>`;
@@ -5609,15 +5637,27 @@
         const inp = document.getElementById('adm-gate-pw'), pw = (inp && inp.value || '').trim();
         if(pw.length < 4) { showAdminToast('Almeno 4 caratteri'); return; }
         const hash = await gateHash(pw);
-        const g = { on: true, hash, ver: ((appGate && appGate.ver) || 0) + 1, by: 'Admin · ' + getDeviceLabel(), at: new Date().toISOString() };
-        try { localStorage.setItem(GATE_OK_KEY, hash); } catch(e) {}   // su questo telefono resta aperta
+        const g = { on: true, hash, pw, ver: ((appGate && appGate.ver) || 0) + 1, by: 'Admin · ' + getDeviceLabel(), at: new Date().toISOString() };
+        gateSessionHash = hash;   // ora resta aperta; alla prossima apertura la chiede anche a chi l'ha impostata (Mat: tutti, coordinatore compreso)
         try { await saveSettingsFields({ appGate: g }); gateApply(g); admRenderGate(); showAdminToast('Password attivata'); vibrate(); }
         catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
     }
+    function admGateShowPw(btn) {
+        const b = document.getElementById('adm-gate-cur-pw'); if(!b) return;
+        const hid = b.classList.toggle('hid');
+        b.textContent = hid ? '•'.repeat(Math.max(4, appGatePw.length)) : appGatePw;
+        btn.innerHTML = `<span class="material-icons-round">${hid ? 'visibility' : 'visibility_off'}</span>${hid ? 'Mostra' : 'Nascondi'}`;
+    }
+    // per provarla: questo telefono "dimentica" di averla già messa e mostra subito la schermata della password
+    function admGateForget() {
+        try { localStorage.removeItem(GATE_OK_KEY); } catch(e) {}
+        gateSessionHash = '';
+        vibrate(); gateApply(appGate);
+    }
     async function admGateToggle(on) {
         if(!appGate || !appGate.hash) return;
-        const g = Object.assign({}, appGate, { on: !!on, at: new Date().toISOString(), by: 'Admin · ' + getDeviceLabel() });
-        if(on) try { localStorage.setItem(GATE_OK_KEY, g.hash); } catch(e) {}
+        const g = Object.assign({}, appGate, appGatePw ? { pw: appGatePw } : {}, { on: !!on, at: new Date().toISOString(), by: 'Admin · ' + getDeviceLabel() });
+        if(on) gateSessionHash = g.hash;
         try { await saveSettingsFields({ appGate: g }); gateApply(g); admRenderGate(); showAdminToast(on ? 'Password riattivata' : 'Password disattivata'); vibrate(); }
         catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
     }
