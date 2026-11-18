@@ -2847,6 +2847,11 @@
         .gate-logo { display:block; width:96px; height:96px; margin:0 auto 14px; border-radius:22px; filter:drop-shadow(0 10px 22px rgba(15,42,99,.3)); }
         #pw-ask, #app-gate { display:none; position:fixed; inset:0; align-items:center; justify-content:center; padding:20px; }
         #pw-ask { z-index:10600; background:rgba(0,0,0,.6); }
+        html.gate-wait #app-gate { display:flex !important; }
+        html.gate-wait #app-gate-card { display:none; }
+        #app-gate-wait { display:none; width:110px; height:110px; border-radius:24px; animation:gateWaitPulse 1.2s ease-in-out infinite alternate; }
+        html.gate-wait #app-gate-wait { display:block; }
+        @keyframes gateWaitPulse { from { opacity:.55; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
         #app-gate { z-index:30000; background:radial-gradient(circle at 30% 20%, rgba(37,99,235,.18), transparent 55%), radial-gradient(circle at 80% 80%, rgba(30,58,138,.2), transparent 55%), var(--bg); }
         .pw-card { width:100%; max-width:360px; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:24px 22px 20px; box-shadow:0 20px 50px rgba(15,23,42,.25); text-align:center; color:var(--text-main); }
         .pw-card .pw-ico { width:56px; height:56px; margin:0 auto 12px; border-radius:16px; background:rgba(37,99,235,.12); color:var(--primary); display:flex; align-items:center; justify-content:center; }
@@ -3415,6 +3420,7 @@
     </div>
 </div>
 <div id="app-gate" role="dialog" aria-modal="true">
+    <img id="app-gate-wait" src="icon-118b-512.png" alt="">
     <div class="pw-card" id="app-gate-card">
         <img class="gate-logo" src="icon-118b-512.png" alt="118">
         <h3>Turni Infermieri 118</h3>
@@ -4772,6 +4778,7 @@
     function gateApply(g) {
         const prevSig = JSON.stringify([appGate, appGatePw]);
         appGatePw = (g && typeof g === 'object' && typeof g.pw === 'string') ? g.pw : '';
+        gateWaitEnd();
         appGate = (g && typeof g === 'object') ? { on: !!g.on, hash: g.hash || '', ver: g.ver || 0, by: g.by || '', at: g.at || '' } : null;
         try { localStorage.setItem(GATE_KEY, JSON.stringify(appGate)); } catch(e) {}
         const el = document.getElementById('app-gate'); if(!el) return;
@@ -4799,6 +4806,11 @@
     // ?server=1: l'app viene aperta dal motore su GitHub solo per leggere i turni (niente sessioni, popup o scritture).
     const SERVER_MODE = new URLSearchParams(location.search).has('server');
     if(!SERVER_MODE) { try { const g = JSON.parse(localStorage.getItem(GATE_KEY) || 'null'); if(g) gateApply(g); } catch(e) {} }   // blocco subito, prima che arrivino le impostazioni
+    // Prima apertura su questo telefono: non si sa ancora se serve la password, quindi i turni restano coperti
+    // finché non arrivano le impostazioni (senza, si vedevano i turni per qualche secondo prima della password).
+    if(!SERVER_MODE) { let known = true; try { known = localStorage.getItem(GATE_KEY) !== null; } catch(e) {}
+        if(!known) { document.documentElement.classList.add('gate-wait'); setTimeout(gateWaitEnd, 12000); } }   // 12 s: senza rete non si resta bloccati
+    function gateWaitEnd() { document.documentElement.classList.remove('gate-wait'); }
     let userIdentity = SERVER_MODE ? null : (localStorage.getItem('infermieri_identity_name') || null);
     console.log('[Identità] Letta da localStorage all\'avvio:', userIdentity || '(nessuna)');
     let identityRecoveryPromise = null;
@@ -5057,7 +5069,7 @@
         if(!fbReady) return;
         cfgRef('settings').onSnapshot(doc => {
             // senza rete un documento che manca dalla copia sul dispositivo non vuol dire che non esista: niente copia iniziale
-            if(!doc.exists) { if(!doc.metadata.fromCache) seedNamespaceSettings(); resolveConfigReady(); return; }
+            if(!doc.exists) { if(!doc.metadata.fromCache) { gateWaitEnd(); seedNamespaceSettings(); } resolveConfigReady(); return; }
             const data = doc.data();
             if(!SERVER_MODE && !doc.metadata.fromCache) gateApply(data.appGate || null);
             else if(!SERVER_MODE && data.appGate) gateApply(data.appGate);
