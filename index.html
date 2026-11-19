@@ -5443,7 +5443,7 @@
             Object.keys(ACCT_TEAMS).forEach(k => acctTeamNames(k).forEach(n => { const r = acctRec(k, n); if(!r.fam) return; const fl = devs['fam|' + k + '|' + n] || [];
                 rows.push(`<tr><td><b>${esc(n)}</b><div class="adm-muted">${ACCT_TEAMS[k].Cap}${acctFirst(k, n) ? ' · ' + esc(acctFirst(k, n)) : ''}</div></td><td>${esc(fmtT(r.fam.at))}</td>
                     <td>${fl.length ? `<ul class="adm-dev-list" style="margin:0">${fl.map(d => `<li><span class="material-icons-round" style="font-size:13px;vertical-align:-2px">smartphone</span> ${esc(d.dev)}${d.app ? ' · app ' + esc(ACCT_TEAMS[d.app] ? ACCT_TEAMS[d.app].many : d.app) : ''}${d.at ? ' · ultimo uso ' + esc(fmtT(d.at)) : ''}</li>`).join('')}</ul>` : '<span class="adm-muted">Nessun telefono ancora</span>'}</td>
-                    <td class="act"><button class="adm-btn sm" onclick="admAcctTeam='${k}';admAcctFamOff('${esc(n).replace(/'/g, '&#39;')}').then(()=>{admAcctTeam='fam';admRenderAccounts()})"><span class="material-icons-round">link_off</span>Togli</button></td></tr>`); }));
+                    <td class="act"><button class="adm-btn sm" data-k="${k}" data-n="${esc(n)}" onclick="admAcctTeam=this.dataset.k;admAcctFamOff(this.dataset.n).then(()=>{admAcctTeam='fam';admRenderAccounts()})"><span class="material-icons-round">link_off</span>Togli</button></td></tr>`); }));
             box.innerHTML = `<div class="adm-card"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${tabs}</div>${sumHtml}</div>
                 <div class="adm-card"><table class="adm-acct-tbl"><thead><tr><th>Di chi</th><th>Codice creato</th><th>Telefoni dei familiari</th><th></th></tr></thead><tbody>${rows.join('') || '<tr><td colspan="4" class="adm-muted">Nessun accesso familiare attivo.</td></tr>'}</tbody></table>
                 <div class="adm-muted" style="font-size:.74rem;margin-top:8px">Il codice lo crea l’operatore dal suo menu (☰ › Impostazioni › Accesso per un familiare) e si vede solo in quel momento. Il familiare vede solo i turni di quella persona, in sola lettura. <b>Togli</b>: il codice smette di funzionare e i familiari escono subito.</div></div>`;
@@ -5642,6 +5642,12 @@
         try { const a = JSON.parse(localStorage.getItem('infermieri_identity_locked') || 'null'); return Array.isArray(a) ? new Set(a) : null; } catch(e) { return null; }
     }
     async function openIdentityModal() {
+        // con gli account il nome non si sceglie più da "Chi sei?" (sarebbe entrare come un altro senza password)
+        if(ACCT_ENABLED && !SERVER_MODE) {
+            const a = acctMine();
+            if(a && (a.team === 'all' || ACCT_PW_NAMES.includes(a.name))) { ccToast('Con questo accesso non hai una colonna: per scrivere le tue cose entra con il tuo nome.', true); return; }
+            acctAskLogout(); return;
+        }
         const known = identityLockedCache || savedLockedIdentities();
         renderIdentityList(known || new Set(), !known);
         const m = document.getElementById('identity-modal'); m.style.display = 'flex';
