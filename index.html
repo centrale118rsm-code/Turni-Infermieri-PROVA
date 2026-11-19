@@ -5128,9 +5128,21 @@
             throw e;
         });
     }
+    // Con la memoria offline di Firebase, se i dati in memoria sono uguali a quelli del server lo snapshot dal server
+    // non arriva mai (fromCache resta vero): l'elenco va chiesto al server una volta, direttamente.
+    let acctSrvP = null;
+    function acctServerLoad() {
+        if(acctLoaded) return Promise.resolve(true);
+        if(!acctSrvP) acctSrvP = Promise.resolve().then(() => { if(!acctRegOk()) throw new Error('offline'); return acctRegRef().get({ source: 'server' }); })
+            .then(d => { const x = d.exists ? (d.data() || {}) : {}; acctApply(x[ACCT_FIELD] || null, false); return true; })
+            .catch(e => { console.warn('Elenco account dal server:', e && (e.code || e.message)); return false; })
+            .finally(() => { setTimeout(() => { acctSrvP = null; }, 3000); });
+        return acctSrvP;
+    }
     function acctApply(map, fromCache) {
         if(!ACCT_ENABLED || SERVER_MODE) return;
         acctReg = (map && typeof map === 'object') ? map : {};
+        if(fromCache && !acctLoaded) acctServerLoad();
         if(!fromCache) {
             acctLoaded = true;
             const a = acctRead(), k = acctKind(a);
@@ -5241,6 +5253,7 @@
             acctBusy = false;
             return;
         }
+        if(!acctLoaded) await acctServerLoad();
         if(!acctLoaded) { acctBad('Serve la connessione internet per entrare. Riprova tra poco.'); return; }
         const r = acctRec(t, n);
         if(acctStep === 'fam') {
