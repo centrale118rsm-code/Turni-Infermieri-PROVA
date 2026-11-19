@@ -16,6 +16,10 @@
     <link rel="apple-touch-icon" href="apple-touch-icon-118b.png">
     <link rel="icon" type="image/png" href="icon-118b-192.png">
     <title>INFERMIERI 2026</title>
+    <script>/* account personali (solo le prove): chi non ha ancora fatto l'accesso vede SUBITO la schermata d'accesso; chi l'ha fatto non la vede mai.
+       Stessa chiave nell'app autisti: entrare in una vale per tutte e due (l'altra app si vede in sola lettura). */
+    (function(){try{if(/[?&]server(=|&|$)/.test(location.search))return;var T='inf',h=document.documentElement,a=null;try{a=JSON.parse(localStorage.getItem('acct118_prova')||'null');}catch(e){}
+    if(!a||!a.name||(a.view==='fam'&&a.team!==T)){h.classList.add('acct-need');return;}if(a.view==='fam'){h.classList.add('acct-ro','acct-fam');return;}if(a.team!==T&&a.team!=='all')h.classList.add('acct-ro');}catch(e){}})();</script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -2912,6 +2916,113 @@
         .identity-pw-tag .material-icons-round { font-size:14px; color:#94a3b8; }
         /* password: finestra per COORDINATORE/TEST e blocco "password per aprire l'app" */
         .gate-logo { display:block; width:96px; height:96px; margin:0 auto 14px; border-radius:22px; filter:drop-shadow(0 10px 22px rgba(15,42,99,.3)); }
+        /* account personali: schermata d'accesso */
+        #acct-gate { display:none; position:fixed; inset:0; z-index:30500; overflow-y:auto; -webkit-overflow-scrolling:touch; background:var(--bg); color:var(--text-main); font-family:'Plus Jakarta Sans',sans-serif; text-align:left; }
+        html.acct-need #acct-gate { display:block; }
+        html.acct-need, html.acct-need body { overflow:hidden; }
+        #acct-gate [hidden] { display:none !important; }
+        /* fascia scura in alto, con riga rossa */
+        .acct-top { position:relative; padding:calc(env(safe-area-inset-top, 0px) + 22px) 20px 44px; color:#fff; background:linear-gradient(135deg, #0b2257 0%, #13348a 100%); overflow:hidden; }
+        .acct-top::before { content:""; position:absolute; inset:0; background:repeating-linear-gradient(115deg, rgba(255,255,255,.045) 0 2px, transparent 2px 22px); pointer-events:none; }
+        .acct-top::after { content:""; position:absolute; left:0; right:0; bottom:0; height:5px; background:linear-gradient(90deg, #dc2626 0 34%, #f59e0b 34% 38%, transparent 38%); }
+        .acct-top-in { position:relative; max-width:760px; margin:0 auto; }
+        .acct-brand { display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+        .acct-brand img { width:40px; height:40px; border-radius:10px; background:#fff; padding:2px; }
+        .acct-brand b { display:block; font-size:.74rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+        .acct-brand span { display:block; font-size:.72rem; opacity:.7; font-weight:600; }
+        .acct-kicker { font-size:.7rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:#93c5fd; margin-bottom:6px; }
+        .acct-top h1 { margin:0; font-size:1.75rem; line-height:1.15; font-weight:900; letter-spacing:-.02em; }
+        .acct-top p { margin:8px 0 0; font-size:.86rem; line-height:1.5; color:rgba(255,255,255,.78); max-width:520px; }
+        .acct-body { position:relative; max-width:760px; margin:-24px auto 0; padding:0 16px calc(env(safe-area-inset-bottom, 0px) + 28px); }
+        .acct-search { position:relative; margin:0 0 16px; }
+        .acct-search .material-icons-round { position:absolute; left:16px; top:50%; transform:translateY(-50%); font-size:22px; color:var(--primary); }
+        .acct-search input { width:100%; height:54px; padding:0 16px 0 50px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font:600 .98rem 'Plus Jakarta Sans',sans-serif; box-shadow:0 10px 30px rgba(11,34,87,.14); -webkit-appearance:none; }
+        .acct-search input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,.2), 0 10px 30px rgba(11,34,87,.14); }
+        .acct-names { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px; }
+        @media (min-width:700px) { .acct-names { grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); } }
+        .acct-name { position:relative; display:flex; align-items:center; gap:10px; min-height:54px; padding:8px 10px 8px 8px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); cursor:pointer; font:inherit; text-align:left; transition:border-color .15s, transform .1s; }
+        .acct-name:hover { border-color:var(--primary); }
+        .acct-name:active { transform:scale(.98); }
+        .acct-mono { width:34px; height:34px; flex:none; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:900; letter-spacing:.02em; color:#fff; }
+        .acct-mono .material-icons-round { font-size:20px; }
+        .acct-nm { flex:1; min-width:0; }
+        .acct-nm b { display:block; font-size:.8rem; font-weight:800; line-height:1.2; overflow-wrap:normal; word-break:normal; hyphens:none; }   /* mai spezzare il cognome: a capo solo tra le parole */
+        .acct-nm span { display:block; font-size:.74rem; color:var(--text-sec); font-weight:600; }
+        .acct-go { font-size:18px !important; color:var(--text-sec); opacity:.6; }
+        @media (max-width:420px) { .acct-go { display:none; } }
+        .acct-grp { grid-column:1 / -1; margin:14px 0 2px; font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--text-sec); }
+        .acct-wait { grid-column:1 / -1; padding:22px 0; text-align:center; color:var(--text-sec); font-size:.86rem; }
+        .acct-foot { margin-top:18px; display:flex; align-items:center; gap:6px; font-size:.74rem; color:var(--text-sec); }
+        .acct-foot .material-icons-round { font-size:16px; }
+        /* passo password */
+        .acct-back { display:inline-flex; align-items:center; gap:4px; height:34px; padding:0 12px 0 6px; margin-bottom:18px; border-radius:8px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.08); color:#fff; font:700 .8rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .acct-back .material-icons-round { font-size:20px; }
+        .acct-who { display:flex; align-items:center; gap:14px; }
+        .acct-who .acct-mono { width:58px; height:58px; border-radius:12px; font-size:1.1rem; box-shadow:0 0 0 3px rgba(255,255,255,.18); }
+        .acct-who .acct-mono .material-icons-round { font-size:28px; }
+        .acct-who b { display:block; font-size:1.45rem; font-weight:900; letter-spacing:-.01em; line-height:1.15; overflow-wrap:normal; }
+        .acct-who span { display:block; font-size:.8rem; color:rgba(255,255,255,.72); font-weight:600; margin-top:2px; }
+        .acct-form { max-width:440px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:18px 18px 16px; box-shadow:0 10px 30px rgba(11,34,87,.12); }
+        .acct-steps { display:flex; gap:6px; margin:0 0 14px; }
+        .acct-steps i { flex:1; height:4px; border-radius:2px; background:var(--border); }
+        .acct-steps i.on { background:var(--primary); }
+        .acct-form p { margin:0 0 14px; font-size:.86rem; line-height:1.5; color:var(--text-sec); }
+        .acct-lbl { display:block; margin:0 0 6px; font-size:.68rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--text-sec); }
+        .acct-fld { position:relative; margin-bottom:12px; }
+        .acct-fld input { width:100%; height:50px; padding:0 48px 0 14px; border-radius:8px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font:700 1.05rem 'Plus Jakarta Sans',sans-serif; letter-spacing:.04em; -webkit-appearance:none; }
+        .acct-fld input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,.18); background:var(--bg-card); }
+        .acct-eye { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:38px; height:38px; border:0; border-radius:8px; background:transparent; color:var(--text-sec); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .acct-err { min-height:18px; margin:-4px 0 8px; font-size:.8rem; font-weight:700; color:#dc2626; }
+        .acct-ok { width:100%; height:52px; border:0; border-radius:8px; background:var(--primary); color:#fff; font:800 .95rem 'Plus Jakarta Sans',sans-serif; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; box-shadow:0 8px 20px rgba(37,99,235,.28); }
+        .acct-ok:disabled { opacity:.6; }
+        .acct-ok .material-icons-round { font-size:20px; }
+        .acct-info { margin:14px 0 0; padding:10px 12px; border-left:3px solid var(--primary); border-radius:0 8px 8px 0; background:rgba(37,99,235,.07); color:var(--text-sec); font-size:.78rem; line-height:1.5; }
+        .acct-info b { color:var(--text-main); }
+        #acct-step-pw.shake .acct-form { animation:pwShake .35s; }
+        .acct-alt { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+        .acct-alt button { display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 14px; border-radius:8px; border:1px dashed var(--border); background:transparent; color:var(--text-main); font:700 .84rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .acct-alt button .material-icons-round { font-size:20px; color:var(--primary); }
+        /* sola lettura: familiare (solo i turni di una persona) e autisti (tutto il calendario) */
+        html.acct-ro #hdr-menu-btn, html.acct-ro #hdr-coord-exit, html.acct-ro #hdr-coord-edit, html.acct-ro .app-actions button[onclick="openNotifCenter()"] { display:none !important; }
+        html.acct-fam .driver-filter-btn, html.acct-fam .rep-now, html.acct-fam #acct-ro-notes { display:none !important; }
+        html.acct-fam #main-table td { pointer-events:none; }
+        #acct-ro-bar { display:none; position:fixed; left:50%; transform:translateX(-50%); bottom:calc(env(safe-area-inset-bottom, 0px) + 14px); z-index:9000; align-items:center; gap:10px; max-width:calc(100% - 24px); padding:8px 8px 8px 14px; border-radius:10px; background:#0b2257; color:#fff; box-shadow:0 10px 30px rgba(11,34,87,.35); font:600 .8rem 'Plus Jakarta Sans',sans-serif; }
+        html.acct-ro #acct-ro-bar { display:flex; }
+        #acct-ro-bar .material-icons-round { font-size:18px; color:#93c5fd; }
+        #acct-ro-bar b { font-weight:800; }
+        #acct-ro-text { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        #acct-ro-bar button { flex:none; height:32px; padding:0 12px; border-radius:7px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.1); color:#fff; font:700 .76rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        /* finestra "Accesso per un familiare" dell'infermiere */
+        #fam-modal { display:none; position:fixed; inset:0; z-index:10650; background:rgba(11,34,87,.55); align-items:center; justify-content:center; padding:16px; }
+        #fam-modal .acct-form { width:100%; max-width:420px; box-shadow:0 20px 50px rgba(0,0,0,.3); }
+        #fam-modal h3 { margin:0 0 8px; font-size:1.1rem; font-weight:900; display:flex; align-items:center; gap:8px; }
+        #fam-modal h3 .material-icons-round { color:var(--primary); }
+        .fam-code { margin:6px 0 12px; padding:14px; border-radius:8px; background:var(--bg); border:1.5px dashed var(--primary); text-align:center; font:900 2rem 'Plus Jakarta Sans',sans-serif; letter-spacing:.3em; color:var(--text-main); user-select:text; }
+        .fam-acts { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+        .fam-acts .acct-ok.sec { background:var(--bg); color:var(--text-main); border:1px solid var(--border); box-shadow:none; }
+        .adm-dev { display:inline-flex; align-items:center; gap:3px; margin-left:6px; padding:2px 7px; border-radius:999px; background:var(--bg); border:1px solid var(--border); font-size:.68rem; font-weight:800; color:var(--text-sec); cursor:pointer; vertical-align:1px; }
+        .adm-dev .material-icons-round { font-size:13px; }
+        .adm-dev-list { margin:6px 0 0; padding:0; list-style:none; font-size:.72rem; color:var(--text-sec); }
+        .adm-dev-list li { padding:2px 0; }
+        .adm-acct-sum { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px; }
+        .adm-acct-sum > div { padding:10px 12px; border-radius:10px; background:var(--bg); border:1px solid var(--border); display:flex; flex-direction:column; gap:2px; font-size:.76rem; color:var(--text-sec); }
+        .adm-acct-sum b { display:flex; align-items:center; gap:6px; font-size:.86rem; color:var(--text-main); margin-bottom:2px; }
+        .adm-acct-sum b .material-icons-round { font-size:18px; color:var(--primary); }
+        .adm-acct-sum em { font-style:normal; font-weight:800; color:var(--text-main); }
+        /* nelle prove il tasto per l'altra app si vede anche sul telefono */
+        .hdr-btn.hdr-link.acct-link { display:inline-flex !important; }
+        .adm-acct-tbl { width:100%; border-collapse:collapse; font-size:.8rem; }
+        .adm-acct-tbl th { text-align:left; font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-sec); padding:6px 8px; border-bottom:1px solid var(--border); }
+        .adm-acct-tbl td { padding:7px 8px; border-bottom:1px solid var(--border); vertical-align:middle; }
+        .adm-acct-tbl td.act { text-align:right; white-space:nowrap; }
+        .adm-acct-tbl td:first-child { min-width:230px; }
+        .adm-acct-guide h4 { display:flex; align-items:center; gap:8px; margin:0 0 8px; font-size:.92rem; font-weight:800; }
+        .adm-acct-guide h4 .material-icons-round { font-size:20px; color:var(--primary); }
+        .adm-acct-guide ul { margin:0; padding-left:18px; font-size:.8rem; line-height:1.55; color:var(--text-sec); }
+        .adm-acct-guide li { margin:3px 0; } .adm-acct-guide b { color:var(--text-main); }
+        .adm-acct-tbl td.act .adm-btn { margin-left:4px; }
+        .adm-acct-tbl input { width:100%; min-width:90px; max-width:170px; height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-main); font:600 .8rem 'Plus Jakarta Sans',sans-serif; }
+        @media (max-width:640px) { .adm-acct-tbl thead { display:none; } .adm-acct-tbl tr { display:grid; grid-template-columns:1fr auto; gap:6px 10px; padding:10px 0; border-bottom:1px solid var(--border); } .adm-acct-tbl td { border:0; padding:0; } .adm-acct-tbl td.act { grid-column:1 / -1; text-align:left; } .adm-acct-tbl td.act .adm-btn { margin:0 6px 0 0; } }
         #pw-ask, #app-gate { display:none; position:fixed; inset:0; align-items:center; justify-content:center; padding:20px; }
         #pw-ask { z-index:10600; background:rgba(0,0,0,.6); }
         html.gate-wait #app-gate { display:flex !important; }
@@ -3449,6 +3560,43 @@
     </style>
 </head>
 <body>
+<div id="acct-gate" role="dialog" aria-modal="true" aria-label="Accesso">
+    <div id="acct-step-list">
+        <div class="acct-top"><div class="acct-top-in">
+            <div class="acct-brand"><img src="icon-118b-192.png" alt=""><div><b>Turni Infermieri</b><span>Centrale operativa 118</span></div></div>
+            <div class="acct-kicker">Accesso personale</div>
+            <h1>Chi sta entrando?</h1>
+            <p id="acct-list-text">Scegli il tuo nome. Lo fai una volta sola: poi questo telefono resta collegato e l’app si apre direttamente sui turni.</p>
+        </div></div>
+        <div class="acct-body">
+            <div class="acct-search"><span class="material-icons-round">search</span><input id="acct-search" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Cerca il tuo cognome" oninput="acctRenderList()"></div>
+            <div class="acct-names" id="acct-names"><div class="acct-wait">Carico i nomi…</div></div>
+            <div class="acct-alt" id="acct-alt"><button onclick="acctFamStart(true)"><span class="material-icons-round">family_restroom</span>Sono un familiare</button></div>
+            <div class="acct-foot"><span class="material-icons-round">verified_user</span>I turni sono riservati al personale (privacy).</div>
+        </div>
+    </div>
+    <div id="acct-step-pw" hidden>
+        <div class="acct-top"><div class="acct-top-in">
+            <button class="acct-back" onclick="acctBack()"><span class="material-icons-round">chevron_left</span>Cambia nome</button>
+            <div class="acct-who"><div class="acct-mono" id="acct-av"></div><div><b id="acct-who-name"></b><span id="acct-who-sub"></span></div></div>
+        </div></div>
+        <div class="acct-body">
+            <div class="acct-form">
+                <div class="acct-steps" id="acct-steps"><i class="on"></i><i class="on"></i><i></i></div>
+                <p id="acct-pw-text"></p>
+                <label class="acct-lbl" for="acct-pw" id="acct-lbl1">Password</label>
+                <div class="acct-fld"><input type="password" id="acct-pw" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')acctSubmit()"><button class="acct-eye" type="button" onclick="acctEye()" aria-label="Mostra password"><span class="material-icons-round" id="acct-eye-ico">visibility</span></button></div>
+                <div id="acct-pw2-wrap" hidden><label class="acct-lbl" for="acct-pw2">Ripeti la password</label>
+                <div class="acct-fld"><input type="password" id="acct-pw2" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')acctSubmit()"></div></div>
+                <div class="acct-err" id="acct-err"></div>
+                <button class="acct-ok" id="acct-ok" onclick="acctSubmit()"><span id="acct-ok-l">Entra</span><span class="material-icons-round">arrow_forward</span></button>
+                <div class="acct-info" id="acct-info"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="acct-ro-bar"><span class="material-icons-round">visibility</span><span id="acct-ro-text">Sola lettura</span><button id="acct-ro-notes" onclick="noteOpenHub()">Note</button><button onclick="acctAskLogout()">Esci</button></div>
+<div id="fam-modal" onclick="if(event.target===this)famClose()"><div class="acct-form" id="fam-box"></div></div>
 <div id="prova-frame" aria-hidden="true"><span>PROVA</span></div>
 <div id="net-offline" role="status" onclick="netOfflineInfo()"><span class="material-icons-round">cloud_off</span><span class="net-txt">Senza rete</span></div>
 
@@ -3700,6 +3848,7 @@
                 <button class="admin-tab-btn" data-tab="ruota" onclick="switchAdminTab('ruota',this)"><span class="material-icons-round">casino</span><span class="adm-nav-l">Ruota della sfiga</span></button>
                 <button class="admin-tab-btn" data-tab="registro" onclick="switchAdminTab('registro',this)"><span class="material-icons-round">history</span><span class="adm-nav-l">Registro modifiche</span></button>
                 <div class="adm-nav-grp">Configurazione</div>
+                <button class="admin-tab-btn" data-tab="account" onclick="switchAdminTab('account',this)"><span class="material-icons-round">manage_accounts</span><span class="adm-nav-l">Account e accessi</span></button>
                 <button class="admin-tab-btn" data-tab="password" onclick="switchAdminTab('password',this)"><span class="material-icons-round">lock</span><span class="adm-nav-l">Password app</span></button>
                 <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span><span class="adm-nav-l">Aspetto</span></button>
                 <button class="admin-tab-btn" data-tab="operatori" onclick="switchAdminTab('operatori',this)"><span class="material-icons-round">badge</span><span class="adm-nav-l">Nomi operatori</span></button>
@@ -3722,6 +3871,7 @@
             <div class="admin-tab-panel" id="admin-tab-errori"><div id="adm-errori"></div></div>
             <div class="admin-tab-panel" id="admin-tab-identita"><div id="adm-identita"></div></div>
             <div class="admin-tab-panel" id="admin-tab-ruota"><div id="adm-ruota"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-account"><div id="adm-accounts"></div></div>
             <div class="admin-tab-panel" id="admin-tab-password"><div id="adm-password"></div></div>
             <div class="admin-tab-panel" id="admin-tab-registro"><div id="adm-registro"></div></div>
 
@@ -4340,7 +4490,7 @@
                 <span id="driver-filter-badge" class="badge-dot"></span>
             </button>
             <span class="hdr-sep hdr-hide-sm"></span>
-            <button class="hdr-btn hdr-link hdr-hide-sm" onclick="vibrate();window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/','_blank')" title="Apri i turni autisti">
+            <button class="hdr-btn hdr-link hdr-hide-sm acct-link" onclick="acctOpenOther(ACCT_OTHER_URL)" title="Apri i turni autisti (prova)">
                 <span class="hdr-as">A.S.</span><span class="hdr-lbl">Autisti</span>
             </button>
             <button class="hdr-btn" onclick="openNotifCenter()" title="Notifiche">
@@ -4891,7 +5041,443 @@
     if(GATE_ENABLED && !SERVER_MODE) { let known = true; try { known = localStorage.getItem(GATE_KEY) !== null; } catch(e) {}
         if(!known) { document.documentElement.classList.add('gate-wait'); setTimeout(gateWaitEnd, 12000); } }   // 12 s: senza rete non si resta bloccati
     function gateWaitEnd() { document.documentElement.classList.remove('gate-wait'); }
-    let userIdentity = SERVER_MODE ? null : (localStorage.getItem('infermieri_identity_name') || null);
+    // configurazione dell'app (le due prove hanno lo stesso codice degli account, cambia solo questo)
+    const ACCT_TEAM = 'inf', ACCT_OTHER = 'aut';
+    const ACCT_TEAMS = { inf: { one:'infermiere', many:'infermieri', Many:'Infermieri', Cap:'Infermiere', ico:'medical_services' }, aut: { one:'autista', many:'autisti', Many:'Autisti', Cap:'Autista', ico:'local_shipping' } };
+    const ACCT_PW_NAMES = [COORD_ID, TEST_OP];
+    const ACCT_PW_ICONS = {};
+    const ACCT_EXTRA_NAMES = IDENTITY_EXTRA_OPTIONS.filter(n => n !== 'Ospite' && n !== PS_NAME && !ACCT_PW_NAMES.includes(n));   // Frisoni (senza colonna)
+    // accessi completi condivisi (password unica, valgono in tutte e due le app): nome nell'elenco → nome usato in questa app
+    const ACCT_SHARED_ID = { 'CENTRALE 118': 'CENTRALE 118', 'PRONTO SOCCORSO': PS_NAME };
+    const ACCT_IDENTITY_KEY = 'infermieri_identity_name';
+    const ACCT_OTHER_URL = 'https://centrale118rsm-code.github.io/PROVA-MODIFICHE-TURNI/';   // la prova autisti
+    function acctRegRef() { return cfgRef('settings'); }
+    function acctRegOk() { return !!fbReady; }
+    function acctIdsCol() { return db.collection('infermieri26_identities'); }
+    function acctUid() { return fbReady && fbAuth.currentUser ? fbAuth.currentUser.uid : null; }
+    // ── Account personali (solo le PROVE infermieri e autisti, 18-19/11/2026) ──────────────
+    // Ogni app ha nella schermata d'accesso solo i suoi nomi (infermieri qui, autisti là). Primo accesso con la
+    // password provvisoria, poi ognuno sceglie la sua. Fatto l'accesso il telefono resta collegato per sempre:
+    // a chi è già collegato la schermata non compare mai (la decide lo script in <head> prima del primo disegno).
+    // L'accesso vale per TUTTE E DUE le app (stessa memoria, chiave ACCT_KEY senza prefisso): chi è entrato
+    // nell'altra app qui vede i turni in sola lettura. Sull'iPhone le app installate hanno memorie separate:
+    // il tasto che apre l'altra app porta con sé l'accesso (#acct=…), oppure si entra col link in fondo.
+    // FAMILIARE: codice di 6 cifre creato dall'operatore dal suo menu: solo i suoi turni, in sola lettura.
+    // Elenco unico degli account (le due app) nel Firebase infermieri: infermieri26_config/prova_settings
+    //   accountsProva = { inf:{NOME:rec}, aut:{NOME:rec}, roster:{inf:[nomi], aut:[nomi]} }
+    //   rec = { h (impronta SHA-256, mai la password), at, by, first (nome), blocked, fam:{h, at} }
+    // L'ufficiale infermieri legge lo stesso documento ma ignora questo campo: lì l'app resta libera.
+    // Telefoni collegati: infermieri26_identities/{uid} con acctV:1 (Firebase infermieri).
+    // NB: è un blocco della pagina, non dei dati (le regole Firebase non sono cambiate).
+    const ACCT_ENABLED = true;
+    const ACCT_FIELD = 'accountsProva';
+    const ACCT_KEY = 'acct118_prova';   // stessa chiave nelle due app e nello script in <head>
+    const ACCT_FIRST_PW = '118';
+    // CENTRALE 118 e PRONTO SOCCORSO: password unica (maiuscole contano), solo l'impronta qui; accesso completo nelle due app
+    const ACCT_SHARED = Object.keys(ACCT_SHARED_ID), ACCT_SHARED_H = '0b08d46632a180894a1362372dd7987a92fc5bee9e64546e50395c6c8598683a';
+    const ACCT_SHARED_ICONS = { 'CENTRALE 118': 'support_agent', 'PRONTO SOCCORSO': 'local_hospital' };
+    function acctIdOf(a) { return a && a.team === 'all' ? (ACCT_SHARED_ID[a.name] || a.name) : (a && a.name); }
+    const ACCT_T = ACCT_TEAMS[ACCT_TEAM], ACCT_O = ACCT_TEAMS[ACCT_OTHER];
+    function acctRead() { try { const a = JSON.parse(localStorage.getItem(ACCT_KEY) || 'null'); return a && a.name && (ACCT_TEAMS[a.team] || a.team === 'all') ? a : null; } catch(e) { return null; } }
+    // own = operatore di questa app · other = entrato dall'altra app (sola lettura) · fam = familiare (sola lettura) · need = serve l'accesso
+    function acctKind(a) { if(!a) return 'need'; if(a.team === 'all') return ACCT_SHARED_ID[a.name] ? 'own' : 'need'; if(a.view === 'fam') return a.team === ACCT_TEAM ? 'fam' : 'need'; return a.team === ACCT_TEAM ? 'own' : 'other'; }
+    const ACCT_ME0 = acctRead();
+    let acctNeed = ACCT_ENABLED && !SERVER_MODE && acctKind(ACCT_ME0) === 'need';
+    const ACCT_RO = (!ACCT_ENABLED || SERVER_MODE || acctNeed || acctKind(ACCT_ME0) === 'own') ? null : ACCT_ME0;
+    (function() { const h = document.documentElement; h.classList.toggle('acct-need', acctNeed); h.classList.toggle('acct-ro', !!ACCT_RO); h.classList.toggle('acct-fam', !!(ACCT_RO && ACCT_RO.view === 'fam')); })();
+    function acctMine() { const a = acctRead(); return a && acctKind(a) === 'own' ? a : null; }
+    let acctReg = {}, acctLoaded = false, acctSel = null, acctStep = 'list', acctStartupPending = false, acctBusy = false;
+    let acctListTeam = ACCT_TEAM, acctFamMode = false, acctDevSent = false, acctLinkTok = '';
+    function acctMap(t) { const m = acctReg && acctReg[t]; return m && typeof m === 'object' && !Array.isArray(m) ? m : {}; }
+    function acctRec(t, n) { const r = acctMap(t)[n]; return r && typeof r === 'object' ? r : {}; }
+    async function acctSha(txt) {
+        const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+        return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+    function acctHash(t, name, pw) { return acctSha('acct118|' + t + '|' + name + '|' + String(pw || '').trim().toLowerCase()); }
+    function famHash(t, name, code) { return acctHash(t, 'fam|' + name, code); }
+    function acctFirst(t, n) { const r = acctRec(t, n); return typeof r.first === 'string' ? r.first.trim() : ''; }
+    function acctSortNames(arr) { return [...new Set(arr)].sort((a, b) => a.localeCompare(b, 'it', { sensitivity:'base' })); }
+    // i nomi di questa app: le colonne del calendario (anche quelle nascoste) più chi non ha colonna
+    function acctOwnNames(onlyLive) {
+        const set = new Set();
+        try { (drivers || []).forEach(d => { if(d && d.name && !d.test) set.add(d.name); }); } catch(e) {}
+        if(!set.size && !onlyLive && typeof operatorConfig !== 'undefined' && operatorConfig) {
+            (operatorConfig.baseNames || []).forEach(n => set.add(n));
+            (operatorConfig.added || []).forEach(o => o && o.name && set.add(o.name));
+            Object.keys(operatorConfig.removed || {}).forEach(n => set.delete(n));
+        }
+        if(!set.size) return [];
+        ACCT_EXTRA_NAMES.forEach(n => set.add(n));
+        return acctSortNames([...set]);
+    }
+    function acctRoster(t) { const r = acctReg && acctReg.roster && acctReg.roster[t]; return Array.isArray(r) ? r.filter(x => typeof x === 'string') : []; }
+    function acctTeamNames(t) { if(t === ACCT_TEAM) { const own = acctOwnNames(); return own.length ? own : acctRoster(t); } return acctSortNames(acctRoster(t)); }
+    // ogni app scrive l'elenco dei suoi nomi, così l'altra app può mostrarli (accesso dal link in fondo, admin)
+    function acctRosterSync() {
+        if(!ACCT_ENABLED || SERVER_MODE || !acctLoaded || !acctRegOk()) return;
+        const own = acctOwnNames(true); if(!own.length || JSON.stringify(own) === JSON.stringify(acctRoster(ACCT_TEAM))) return;
+        acctRegRef().update(new firebase.firestore.FieldPath(ACCT_FIELD, 'roster', ACCT_TEAM), own).catch(() => {});
+    }
+    function acctSaveRec(t, n, rec) {
+        if(!acctRegOk()) return Promise.reject(new Error('offline'));
+        const clean = {}; Object.keys(rec).forEach(k => { if(rec[k] !== undefined && rec[k] !== null && rec[k] !== '' && rec[k] !== false) clean[k] = rec[k]; });
+        const ref = acctRegRef();
+        return ref.update(new firebase.firestore.FieldPath(ACCT_FIELD, t, n), clean).catch(e => {
+            if(e && e.code === 'not-found') return ref.set({ [ACCT_FIELD]: { [t]: { [n]: clean } } }, { merge:true });
+            throw e;
+        });
+    }
+    function acctApply(map, fromCache) {
+        if(!ACCT_ENABLED || SERVER_MODE) return;
+        acctReg = (map && typeof map === 'object') ? map : {};
+        if(!fromCache) {
+            acctLoaded = true;
+            const a = acctRead(), k = acctKind(a);
+            if(k === 'fam') { const r = acctRec(a.team, a.famOf); if(r.blocked || !r.fam || r.fam.at !== a.famAt) { acctLogout('fam'); return; } }
+            else if((k === 'own' || k === 'other') && a.team !== 'all') { if(acctRec(a.team, a.name).blocked) { acctLogout('blocked'); return; } }
+            acctRosterSync(); acctLinkPrep(); acctTryHandoff(); acctRegisterDevice();
+        }
+        if(acctNeed) acctRenderList();
+        if(typeof admTab !== 'undefined' && admTab === 'account' && document.getElementById('adm-accounts') && !document.querySelector('#adm-accounts input:focus')) try { admRenderAccounts(); } catch(e) {}
+    }
+    // ── schermata d'accesso ──
+    function acctMono(n) {
+        const ico = n === COORD_ID ? 'supervisor_account' : n === TEST_OP ? 'science' : ACCT_PW_ICONS[n] || ACCT_SHARED_ICONS[n] || '';
+        if(ico) return `<span class="acct-mono" style="background:#334155"><span class="material-icons-round">${ico}</span></span>`;
+        let h = 0; for(const ch of n) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+        const hues = [214, 199, 168, 262, 330, 24, 4, 142, 228, 286];
+        return `<span class="acct-mono" style="background:hsl(${hues[h % hues.length]} 62% 42%)">${esc(n.substring(0, 2).toUpperCase())}</span>`;
+    }
+    function acctRenderList() {
+        const box = document.getElementById('acct-names'); if(!box || !acctNeed) return;
+        const t = acctListTeam, T = ACCT_TEAMS[t], own = t === ACCT_TEAM;
+        document.querySelector('#acct-step-list h1').textContent = acctFamMode ? 'Di chi vuoi vedere i turni?' : own ? 'Chi sta entrando?' : `Sei un ${T.one}?`;
+        document.querySelector('#acct-step-list .acct-kicker').textContent = acctFamMode ? 'Accesso familiare' : 'Accesso ' + T.many;
+        const lt = document.getElementById('acct-list-text');
+        if(!lt.dataset.msg) lt.textContent = acctFamMode ? `Scegli il nome del tuo familiare: poi ti serve il codice che crea dal suo menu. Vedrai solo i suoi turni.`
+            : own ? 'Scegli il tuo nome. Lo fai una volta sola: poi questo telefono resta collegato e l’app si apre direttamente sui turni.'
+            : `Entra con il tuo account degli ${T.many}: qui vedrai i turni degli ${ACCT_T.many} in sola lettura.`;
+        document.getElementById('acct-alt').innerHTML = acctFamMode
+            ? `<button onclick="acctFamStart(false)"><span class="material-icons-round">arrow_back</span>Non sono un familiare</button>`
+            : (own ? `<button onclick="acctFamStart(true)"><span class="material-icons-round">family_restroom</span>Sono un familiare</button><button onclick="acctSwitchTeam('${ACCT_OTHER}')"><span class="material-icons-round">${ACCT_O.ico}</span>Sei un ${ACCT_O.one}? Entra con il tuo account</button>`
+                   : `<button onclick="acctSwitchTeam('${ACCT_TEAM}')"><span class="material-icons-round">arrow_back</span>Torna agli ${ACCT_T.many}</button>`);
+        const names = acctTeamNames(t);
+        if(!names.length) { box.innerHTML = `<div class="acct-wait">${own || !acctLoaded ? 'Carico i nomi…' : 'Elenco non ancora disponibile: riprova più tardi.'}</div>`; return; }
+        const q = ((document.getElementById('acct-search') || {}).value || '').trim().toLowerCase();
+        const hit = n => !q || (n + ' ' + acctFirst(t, n)).toLowerCase().includes(q);
+        const btn = n => `<button class="acct-name" onclick="acctPick(this.dataset.n)" data-n="${esc(n)}">${acctMono(n)}<span class="acct-nm"><b>${esc(n)}</b>${acctFirst(t, n) ? `<span>${esc(acctFirst(t, n))}</span>` : ACCT_PW_NAMES.includes(n) ? '<span>Password coordinatore</span>' : ACCT_SHARED.includes(n) ? '<span>Infermieri e autisti</span>' : ''}</span><span class="material-icons-round acct-go">chevron_right</span></button>`;
+        const main = names.filter(hit), extra = (own && !acctFamMode) ? ACCT_SHARED.concat(ACCT_PW_NAMES).filter(hit) : [];
+        box.innerHTML = main.map(btn).join('')
+            + (extra.length ? '<div class="acct-grp">Altri accessi</div>' + extra.map(btn).join('') : '')
+            + (!main.length && !extra.length ? '<div class="acct-wait">Nessun nome trovato</div>' : '');
+    }
+    function acctSwitchTeam(t) { vibrate(); acctListTeam = t; acctFamMode = false; const q = document.getElementById('acct-search'); if(q) q.value = ''; acctRenderList(); document.getElementById('acct-gate').scrollTop = 0; }
+    function acctFamStart(on) { vibrate(); acctFamMode = !!on; acctListTeam = ACCT_TEAM; const q = document.getElementById('acct-search'); if(q) q.value = ''; acctRenderList(); document.getElementById('acct-gate').scrollTop = 0; }
+    function acctEye() {
+        const show = document.getElementById('acct-pw').type === 'password';
+        ['acct-pw', 'acct-pw2'].forEach(id => document.getElementById(id).type = show ? 'text' : 'password');
+        document.getElementById('acct-eye-ico').textContent = show ? 'visibility_off' : 'visibility';
+    }
+    function acctShowStep(step) {
+        document.getElementById('acct-step-list').hidden = step !== 'list';
+        document.getElementById('acct-step-pw').hidden = step === 'list';
+        document.getElementById('acct-gate').scrollTop = 0;
+    }
+    function acctPick(n) {
+        vibrate(); acctSel = n;
+        const t = acctListTeam, isPw = ACCT_PW_NAMES.includes(n) && t === ACCT_TEAM, isSh = ACCT_SHARED.includes(n) && t === ACCT_TEAM && !acctFamMode, r = acctRec(t, n);
+        const av = document.getElementById('acct-av'), mono = acctMono(n);
+        av.innerHTML = mono.replace(/^<span[^>]*>|<\/span>$/g, ''); av.style.background = (mono.match(/background:([^"]+)"/) || [])[1] || '';
+        document.getElementById('acct-who-name').textContent = n;
+        document.getElementById('acct-who-sub').textContent = acctFamMode ? 'Accesso familiare · solo i suoi turni' : isSh ? 'Accesso completo · infermieri e autisti' : isPw ? 'Account con la password del coordinatore' : (acctFirst(t, n) || ACCT_TEAMS[t].Cap);
+        acctSetPwMode(acctFamMode ? 'fam' : isSh ? 'shared' : isPw ? 'coord' : 'pw', r);
+        acctShowStep('pw');
+        setTimeout(() => { const i = document.getElementById('acct-pw'); if(i) i.focus(); }, 60);
+    }
+    function acctSetPwMode(mode, r) {
+        const p1 = document.getElementById('acct-pw'), p2 = document.getElementById('acct-pw2');
+        p1.value = ''; p2.value = ''; document.getElementById('acct-pw2-wrap').hidden = mode !== 'new';
+        p1.type = p2.type = 'password'; document.getElementById('acct-eye-ico').textContent = 'visibility';
+        p1.inputMode = mode === 'fam' ? 'numeric' : '';
+        document.getElementById('acct-lbl1').textContent = mode === 'new' ? 'Nuova password' : mode === 'fam' ? 'Codice familiare' : 'Password';
+        document.getElementById('acct-steps').innerHTML = (mode === 'coord' || mode === 'fam' || mode === 'shared') ? '' : '<i class="on"></i><i class="on"></i>' + (mode === 'new' ? '<i class="on"></i>' : '<i></i>');
+        document.getElementById('acct-err').textContent = '';
+        const ok = document.getElementById('acct-ok'); ok.disabled = false; document.getElementById('acct-ok-l').textContent = mode === 'new' ? 'Salva ed entra' : 'Entra';
+        const t = document.getElementById('acct-pw-text'), info = document.getElementById('acct-info');
+        info.hidden = false;
+        if(mode === 'coord') { t.textContent = 'Inserisci la password del coordinatore.'; info.hidden = true; }
+        else if(mode === 'shared') { t.textContent = 'Inserisci la password di questo accesso.'; info.innerHTML = 'Accesso completo, valido nell’app degli infermieri e in quella degli autisti. <b>Maiuscole e minuscole contano.</b>'; }
+        else if(mode === 'fam') { t.textContent = `Scrivi il codice che ti ha dato ${acctSel}.`; info.innerHTML = `Il codice lo crea l’${ACCT_T.one} dal suo menu <b>☰ › Impostazioni › Accesso per un familiare</b>. Vedrai solo i suoi turni, senza poter cambiare nulla.`; }
+        else if(mode === 'new') { t.textContent = 'Primo accesso fatto. Ora scegli la tua password personale (almeno 4 caratteri, diversa da quella provvisoria).'; info.innerHTML = 'Vale per l’app degli infermieri e per quella degli autisti. <b>Se la dimentichi</b>, chiedi al coordinatore: la riporta a quella provvisoria e ne scegli una nuova.'; }
+        else { t.textContent = 'Inserisci la tua password.'; info.innerHTML = (r && r.h) ? '<b>Password dimenticata?</b> Chiedi al coordinatore di riportarla a quella provvisoria.' : '<b>Primo accesso?</b> Usa la password provvisoria che ti ha dato il coordinatore: subito dopo scegli la tua.'; }
+        acctStep = mode;
+    }
+    function acctBack() { vibrate(); acctSel = null; acctShowStep('list'); }
+    function acctBad(msg) {
+        document.getElementById('acct-err').textContent = msg;
+        const c = document.getElementById('acct-step-pw'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+        vibrate();
+    }
+    async function acctSubmit() {
+        if(acctBusy || !acctSel) return;
+        const n = acctSel, t = acctListTeam, pw = document.getElementById('acct-pw').value.trim();
+        if(!pw) { acctBad(acctStep === 'fam' ? 'Scrivi il codice' : 'Scrivi la password'); return; }
+        if(acctStep === 'shared') { if(await acctSha('acct118|all|' + pw) === ACCT_SHARED_H) acctFinish({ team: 'all', name: n }); else acctBad('Password sbagliata'); return; }
+        if(acctStep === 'coord') { if(identityPwOk(pw)) acctFinish({ team: t, name: n }); else acctBad('Password sbagliata'); return; }
+        if(acctStep === 'new') {
+            const pw2 = document.getElementById('acct-pw2').value.trim();
+            if(pw.length < 4) { acctBad('Almeno 4 caratteri'); return; }
+            if(pw === ACCT_FIRST_PW) { acctBad('Scegline una diversa da quella provvisoria'); return; }
+            if(pw !== pw2) { acctBad('Le due password non sono uguali'); return; }
+            acctBusy = true; const ok = document.getElementById('acct-ok'), okl = document.getElementById('acct-ok-l'); ok.disabled = true; okl.textContent = 'Salvo…';
+            try {
+                const rec = Object.assign({}, acctRec(t, n), { h: await acctHash(t, n, pw), at: new Date().toISOString(), by: getDeviceLabel() });
+                delete rec.resetAt;
+                await acctSaveRec(t, n, rec);
+                if(!acctReg[t]) acctReg[t] = {}; acctReg[t][n] = rec;
+                acctFinish({ team: t, name: n });
+            } catch(e) { ok.disabled = false; okl.textContent = 'Salva ed entra'; acctBad('Non riesco a salvare: controlla la connessione e riprova'); }
+            acctBusy = false;
+            return;
+        }
+        if(!acctLoaded) { acctBad('Serve la connessione internet per entrare. Riprova tra poco.'); return; }
+        const r = acctRec(t, n);
+        if(acctStep === 'fam') {
+            if(r.blocked || !r.fam || !r.fam.h) { acctBad(`${n} non ha ancora creato un codice per i familiari`); return; }
+            if(await famHash(t, n, pw) !== r.fam.h) { acctBad('Codice sbagliato'); return; }
+            acctFinish({ team: t, name: 'Ospite', view: 'fam', famOf: n, famAt: r.fam.at });
+            return;
+        }
+        if(r.blocked) { acctBad('Account bloccato: chiedi al coordinatore'); return; }
+        if(r.h) { if(await acctHash(t, n, pw) === r.h) acctFinish({ team: t, name: n }); else acctBad('Password sbagliata'); return; }
+        if(pw === ACCT_FIRST_PW) { vibrate(); acctSetPwMode('new'); setTimeout(() => document.getElementById('acct-pw').focus(), 60); return; }
+        acctBad('Password sbagliata');
+    }
+    // accesso fatto: un operatore di questa app entra subito; familiare o operatore dell'altra app → si ricarica (sola lettura dal primo disegno)
+    function acctFinish(rec) {
+        rec = Object.assign({ at: new Date().toISOString() }, rec);
+        try { localStorage.setItem(ACCT_KEY, JSON.stringify(rec)); } catch(e) {}
+        if((rec.team === ACCT_TEAM || rec.team === 'all') && !rec.view) { acctDone(acctIdOf(rec)); return; }
+        try { localStorage.setItem(ACCT_IDENTITY_KEY, 'Ospite'); } catch(e) {}
+        vibrate(); document.getElementById('acct-ok').disabled = true;
+        setTimeout(() => location.reload(), 150);
+    }
+    function acctDone(n) {
+        if(ACCT_PW_NAMES.includes(n)) try { localStorage.setItem('id_pw_ok_' + n, '1'); } catch(e) {}
+        acctNeed = false;
+        userIdentity = n;
+        try { localStorage.setItem(ACCT_IDENTITY_KEY, n); } catch(e) {}
+        document.documentElement.classList.remove('acct-need');
+        vibrate();
+        try { applySplashWelcome(); } catch(e) {}
+        try { writeIdentityToSession(); persistIdentityToUidBackup(); checkIfIAmCoordinator(); } catch(e) {}
+        try { prefsEnsureOwner(); prefsPullRemote(); pushSyncOwner(); notifClaimLegacy(); updateBadge(); } catch(e) {}
+        try { if(typeof desAfterIdentity === 'function') desAfterIdentity(); } catch(e) {}
+        acctDevSent = false; acctRegisterDevice(); acctLinkPrep();
+        // i tocchi sulla schermata d'accesso fermano il "parti da oggi": si riporta oggi in cima
+        try { if(prefs.startToday !== false && !calOverview) startAtToday(); } catch(e) {}   // anche dopo che arrivano le preferenze della persona (ridisegno)
+        if(acctStartupPending) { acctStartupPending = false; try { showStartupMessages(); if(prefs.startPage === 'me') setTimeout(openMyPage, 400); } catch(e) {} }
+    }
+    // "Esci": il telefono torna alla schermata d'accesso (vale per le due app: la memoria è la stessa)
+    function acctLogout(why) {
+        try { localStorage.removeItem(ACCT_KEY); localStorage.removeItem(ACCT_IDENTITY_KEY); } catch(e) {}
+        const msg = { blocked: 'Il tuo account è stato bloccato dal coordinatore.', fam: 'Il codice familiare non è più valido: chiedine uno nuovo.' }[why];
+        try { if(msg) sessionStorage.setItem('acct_msg', msg); } catch(e) {}
+        userIdentity = null;
+        try { if(!ACCT_RO) { writeIdentityToSession(); persistIdentityToUidBackup(); } } catch(e) {}
+        try { if(acctRegOk() && acctUid()) acctIdsCol().doc(acctUid()).set({ acctV: 0 }, { merge:true }).catch(() => {}); } catch(e) {}
+        setTimeout(() => location.reload(), 400);
+    }
+    async function acctAskLogout() {
+        try { closeMenu(); } catch(e) {} vibrate();
+        const a = acctRead();
+        const who = !a ? '' : a.view === 'fam' ? `Stai guardando i turni di ${a.famOf}.` : `Sei entrato come ${a.name}.`;
+        const ok = await ccConfirm('Esci dall’account', `${who} Uscendo, su questo telefono dovrai rifare l’accesso (anche nell’app degli ${ACCT_O.many}).`, 'Esci', 'danger');
+        if(ok) acctLogout('menu');
+    }
+    if(acctNeed) { try { const m = sessionStorage.getItem('acct_msg'); if(m) { sessionStorage.removeItem('acct_msg'); const p = document.getElementById('acct-list-text'); if(p) { p.dataset.msg = '1'; p.innerHTML = '<b style="color:#fecaca">' + esc(m) + '</b>'; } } } catch(e) {} }
+    // barra in basso nella sola lettura
+    if(ACCT_RO) { const el = document.getElementById('acct-ro-text'); if(el) el.innerHTML = ACCT_RO.view === 'fam' ? `Turni di <b>${esc(ACCT_RO.famOf)}</b> · sola lettura` : `<b>${esc(ACCT_RO.name)}</b> · sola lettura`; }
+    // ── passaggio all'altra app: il link porta con sé l'accesso (sull'iPhone le app installate non condividono la memoria) ──
+    async function acctLinkPrep() {
+        acctLinkTok = '';
+        const a = acctRead(); if(!a || a.view || a.team === 'all' || ACCT_PW_NAMES.includes(a.name)) return;
+        const r = acctRec(a.team, a.name); if(!r.h) return;
+        try { acctLinkTok = btoa(unescape(encodeURIComponent(JSON.stringify({ t: a.team, n: a.name, k: await acctSha(r.h + '|link118') })))).replace(/=+$/, ''); } catch(e) {}
+    }
+    function acctOpenOther(url) { vibrate(); window.open(url + (acctLinkTok ? '#acct=' + encodeURIComponent(acctLinkTok) : ''), '_blank'); }
+    async function acctTryHandoff() {
+        const m = /[#&]acct=([^&]+)/.exec(location.hash || ''); if(!m) return;
+        try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
+        if(!acctNeed) return;
+        try {
+            const o = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1])))));
+            const r = acctRec(o.t, o.n);
+            if(!ACCT_TEAMS[o.t] || !r.h || r.blocked || await acctSha(r.h + '|link118') !== o.k) return;
+            acctFinish({ team: o.t, name: o.n });
+        } catch(e) {}
+    }
+    // telefoni collegati (per l'area admin): un documento per telefono nel Firebase infermieri
+    function acctRegisterDevice() {
+        if(acctDevSent || SERVER_MODE || !acctRegOk() || !acctUid()) return;
+        const a = acctRead(); if(!a || acctKind(a) === 'need') return;
+        acctDevSent = true;
+        acctIdsCol().doc(acctUid()).set({ acctV: 1, acctTeam: a.team, acctName: a.view === 'fam' ? '' : a.name, acctView: a.view || '', famOf: a.famOf || '', acctApp: ACCT_TEAM, acctDevice: getDeviceLabel(), acctSeen: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }).catch(() => { acctDevSent = false; });
+    }
+    // ── "Accesso per un familiare" (menu dell'operatore) ──
+    function famCanUse() { const a = acctMine(); return !!(a && a.team !== 'all' && !ACCT_PW_NAMES.includes(a.name)); }
+    function famOpen(code) {
+        try { closeMenu(); } catch(e) {}
+        const a = acctMine(); if(!a) return;
+        const r = acctRec(ACCT_TEAM, a.name), f = r.fam, box = document.getElementById('fam-box');
+        const when = f && f.at ? new Date(f.at).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' }) : '';
+        box.innerHTML = `<h3><span class="material-icons-round">family_restroom</span>Accesso per un familiare</h3>`
+            + (code ? `<p>Ecco il codice. Mandalo al tuo familiare: nella schermata d’accesso tocca <b>Sono un familiare</b>, sceglie <b>${esc(a.name)}</b> e scrive questo codice.</p><div class="fam-code">${esc(code)}</div><div class="acct-info">Vedrà solo i tuoi turni, senza poter cambiare nulla. Il codice si vede solo adesso: se lo perdi, ne crei uno nuovo.</div>`
+                : f ? `<p>Il codice per i familiari è <b>attivo</b> dal ${esc(when)}.</p><div class="acct-info">Per sicurezza il codice non si può rivedere. Se l’hai perso, creane uno nuovo: quello vecchio smette di funzionare e chi lo usava esce.</div>`
+                : `<p>Un parente può vedere i tuoi turni sul suo telefono, <b>in sola lettura</b> e senza vedere quelli dei colleghi. Crea un codice e mandaglielo.</p>`)
+            + `<div class="fam-acts">${code ? '' : `<button class="acct-ok" onclick="famCreate()"><span class="material-icons-round">key</span><span>${f ? 'Crea un nuovo codice' : 'Crea il codice'}</span></button>`}
+                ${f && !code ? `<button class="acct-ok sec" onclick="famRemove()"><span class="material-icons-round">link_off</span><span>Disattiva l’accesso familiare</span></button>` : ''}
+                <button class="acct-ok sec" onclick="famClose()"><span>Chiudi</span></button></div>`;
+        document.getElementById('fam-modal').style.display = 'flex';
+    }
+    function famClose() { document.getElementById('fam-modal').style.display = 'none'; }
+    async function famCreate() {
+        const a = acctMine(); if(!a) return;
+        const n = new Uint32Array(1); crypto.getRandomValues(n);
+        const code = String(n[0] % 1000000).padStart(6, '0');
+        try {
+            const rec = Object.assign({}, acctRec(ACCT_TEAM, a.name), { fam: { h: await famHash(ACCT_TEAM, a.name, code), at: new Date().toISOString() } });
+            await acctSaveRec(ACCT_TEAM, a.name, rec);
+            if(!acctReg[ACCT_TEAM]) acctReg[ACCT_TEAM] = {}; acctReg[ACCT_TEAM][a.name] = rec;
+            vibrate(); famOpen(code);
+        } catch(e) { ccToast('Non riesco a salvare: controlla la connessione', true); }
+    }
+    async function famRemove() {
+        const a = acctMine(); if(!a) return;
+        if(!(await ccConfirm('Disattiva l’accesso familiare', 'Il codice smette di funzionare e chi lo usava esce subito.', 'Disattiva', 'danger'))) return;
+        try { const rec = Object.assign({}, acctRec(ACCT_TEAM, a.name)); delete rec.fam; await acctSaveRec(ACCT_TEAM, a.name, rec); acctReg[ACCT_TEAM][a.name] = rec; vibrate(); famOpen(); }
+        catch(e) { ccToast('Non riesco a salvare: controlla la connessione', true); }
+    }
+
+    // ── area admin: account (tutte e due le app: l'elenco è unico) ──
+    let admAcctTeam = ACCT_TEAM, admAcctDevs = null, admAcctDevAt = 0, admAcctOpen = {};
+    async function admAcctLoadDevs(force) {
+        if(!acctRegOk()) return;
+        if(!force && admAcctDevs && Date.now() - admAcctDevAt < 60000) return;
+        try {
+            const snap = await acctIdsCol().where('acctV', '==', 1).get();
+            const out = {};
+            snap.forEach(d => { const x = d.data() || {}; const key = x.acctView === 'fam' ? 'fam|' + x.acctTeam + '|' + x.famOf : x.acctTeam + '|' + x.acctName; (out[key] = out[key] || []).push({ dev: x.acctDevice || 'Dispositivo', app: x.acctApp, at: x.acctSeen && x.acctSeen.toDate ? x.acctSeen.toDate() : null }); });
+            Object.values(out).forEach(l => l.sort((a, b) => (b.at || 0) - (a.at || 0)));
+            admAcctDevs = out; admAcctDevAt = Date.now();
+        } catch(e) { admAcctDevs = admAcctDevs || {}; }
+        admRenderAccounts();
+    }
+    function admRenderAccounts() {
+        const box = document.getElementById('adm-accounts'); if(!box) return;
+        if(!admAcctDevs) admAcctLoadDevs();
+        const devs = admAcctDevs || {};
+        // riepilogo di tutte e due le app
+        const sum = Object.keys(ACCT_TEAMS).map(k => {
+            const nm = acctTeamNames(k), fam = nm.filter(n => acctRec(k, n).fam);
+            return { k, n: nm.length, set: nm.filter(n => acctRec(k, n).h).length, blk: nm.filter(n => acctRec(k, n).blocked).length,
+                ph: nm.reduce((x, n) => x + (devs[k + '|' + n] || []).length, 0), fam: fam.length, fph: fam.reduce((x, n) => x + (devs['fam|' + k + '|' + n] || []).length, 0) };
+        });
+        const sumHtml = `<div class="adm-acct-sum">${sum.map(x => `<div><b><span class="material-icons-round">${ACCT_TEAMS[x.k].ico}</span>${ACCT_TEAMS[x.k].Many}</b>
+            <span><em>${x.set}</em>/${x.n} con password scelta</span><span><em>${x.n - x.set}</em> ancora provvisoria${x.blk ? ` · <em style="color:#dc2626">${x.blk}</em> bloccati` : ''}</span>
+            <span><em>${x.ph}</em> telefoni collegati</span><span><em>${x.fam}</em> accessi familiari · <em>${x.fph}</em> telefoni</span></div>`).join('')}</div>`;
+        const tabs = Object.keys(ACCT_TEAMS).map(k => `<button class="adm-btn sm${k === admAcctTeam ? ' primary' : ''}" onclick="admAcctTeam='${k}';admAcctOpen={};admRenderAccounts()"><span class="material-icons-round">${ACCT_TEAMS[k].ico}</span>${ACCT_TEAMS[k].Many}</button>`).join(' ')
+            + ` <button class="adm-btn sm${admAcctTeam === 'fam' ? ' primary' : ''}" onclick="admAcctTeam='fam';admRenderAccounts()"><span class="material-icons-round">family_restroom</span>Familiari</button>`
+            + ` <button class="adm-btn sm${admAcctTeam === 'guida' ? ' primary' : ''}" onclick="admAcctTeam='guida';admRenderAccounts()"><span class="material-icons-round">menu_book</span>Guida</button>`
+            + ` <button class="adm-btn sm" onclick="admAcctLoadDevs(true)"><span class="material-icons-round">refresh</span>Aggiorna</button>`;
+        const fmtT = d => { try { return new Date(d).toLocaleString('it-IT', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }); } catch(e) { return ''; } };
+        if(admAcctTeam === 'guida') {
+            const sec = (ico, title, items) => `<div class="adm-card adm-acct-guide"><h4><span class="material-icons-round">${ico}</span>${title}</h4><ul>${items.map(x => `<li>${x}</li>`).join('')}</ul></div>`;
+            box.innerHTML = `<div class="adm-card"><div style="display:flex;gap:6px;flex-wrap:wrap">${tabs}</div></div>`
+                + sec('login', 'Come si entra', [
+                    'Ogni app mostra <b>solo i suoi nomi</b>: gli infermieri nella prova infermieri, gli autisti nella prova autisti.',
+                    'Primo accesso: il proprio nome e la password provvisoria <b>118</b> (non è scritta da nessuna parte nell’app: la mandi tu sul gruppo). Subito dopo l’app obbliga a sceglierne una personale (almeno 4 caratteri, diversa da 118).',
+                    'Fatto l’accesso il telefono <b>resta collegato per sempre</b>: la schermata d’accesso non compare più e l’app si apre sui turni.',
+                    'COORDINATORE e TEST entrano con la password del coordinatore (<b>coord</b>).',
+                    '<b>CENTRALE 118</b> e <b>PRONTO SOCCORSO</b> (in “Altri accessi”) entrano con la password <b>Cerotto1</b> (C maiuscola): accesso completo come prima, in tutte e due le app.',
+                    'Le password scelte non le vede nessuno, nemmeno tu: l’app tiene solo un’impronta da cui non si risale alla password.'])
+                + sec('sync_alt', 'Infermieri e autisti insieme', [
+                    'Chi è entrato in una app vede anche l’altra, <b>in sola lettura</b>: turni e note “per tutti” (tasto <b>Note</b> nella barra in basso). Non vede le note al coordinatore o personali e non può cambiare nulla.',
+                    'Il tasto in alto (A.S. / 118) apre l’altra prova <b>portando con sé l’accesso</b>: serve sull’iPhone, dove le app installate sulla Home non condividono la memoria.',
+                    'Se qualcuno apre l’altra app direttamente, in fondo all’elenco c’è “Sei un infermiere/autista? Entra con il tuo account”.',
+                    '“Esci dall’account” (menu ☰ › Impostazioni, o barra in basso) fa uscire da <b>tutte e due</b> le app su quel telefono.'])
+                + sec('family_restroom', 'Familiari', [
+                    'L’operatore crea un codice di 6 cifre da <b>☰ › Impostazioni › Accesso per un familiare</b> e lo manda al parente.',
+                    'Il parente, nella schermata d’accesso, tocca <b>Sono un familiare</b>, sceglie il nome e scrive il codice. Vede <b>solo i turni di quella persona</b>, in sola lettura.',
+                    'Il codice si vede solo quando viene creato. Se l’operatore ne crea uno nuovo o lo disattiva, i familiari collegati escono subito.',
+                    'Qui in <b>Familiari</b> vedi chi ha un codice attivo, quando l’ha creato e quali telefoni lo usano. Con <b>Togli</b> lo disattivi tu.'])
+                + sec('admin_panel_settings', 'Cosa puoi fare da qui', [
+                    '<b>Riporta a 118</b>: per chi ha dimenticato la password. Rientra con 118 e ne sceglie una nuova; i telefoni già collegati restano collegati.',
+                    '<b>Blocca</b>: la persona (e i suoi familiari) esce subito da tutti i telefoni e non può rientrare finché non tocchi <b>Sblocca</b>.',
+                    '<b>Nome</b>: il nome di battesimo, che compare accanto al cognome nella schermata d’accesso.',
+                    'Il numerino con il telefono accanto al cognome dice quanti telefoni sono collegati: toccalo per vedere quali e da quale app. <b>Aggiorna</b> rilegge i telefoni.',
+                    'Le schede Infermieri e Autisti mostrano lo stesso elenco da tutte e due le app: puoi gestire tutti da qui.'])
+                + sec('shield', 'Da ricordare', [
+                    'Vale <b>solo sulle prove</b>: le app ufficiali restano libere.',
+                    'È un blocco della schermata: i dati su Firebase restano leggibili da chi sa dove guardare. Per proteggere davvero i dati servono regole Firebase legate agli account, da fare quando si porterà sulle ufficiali.',
+                    'Se un telefono cancella i dati del browser (o Safari dopo molti giorni senza aprire l’app, se non è installata sulla Home) bisogna rifare l’accesso con la propria password.'])
+                ;
+            return;
+        }
+        if(admAcctTeam === 'fam') {
+            const rows = [];
+            Object.keys(ACCT_TEAMS).forEach(k => acctTeamNames(k).forEach(n => { const r = acctRec(k, n); if(!r.fam) return; const fl = devs['fam|' + k + '|' + n] || [];
+                rows.push(`<tr><td><b>${esc(n)}</b><div class="adm-muted">${ACCT_TEAMS[k].Cap}${acctFirst(k, n) ? ' · ' + esc(acctFirst(k, n)) : ''}</div></td><td>${esc(fmtT(r.fam.at))}</td>
+                    <td>${fl.length ? `<ul class="adm-dev-list" style="margin:0">${fl.map(d => `<li><span class="material-icons-round" style="font-size:13px;vertical-align:-2px">smartphone</span> ${esc(d.dev)}${d.app ? ' · app ' + esc(ACCT_TEAMS[d.app] ? ACCT_TEAMS[d.app].many : d.app) : ''}${d.at ? ' · ultimo uso ' + esc(fmtT(d.at)) : ''}</li>`).join('')}</ul>` : '<span class="adm-muted">Nessun telefono ancora</span>'}</td>
+                    <td class="act"><button class="adm-btn sm" onclick="admAcctTeam='${k}';admAcctFamOff('${esc(n).replace(/'/g, '&#39;')}').then(()=>{admAcctTeam='fam';admRenderAccounts()})"><span class="material-icons-round">link_off</span>Togli</button></td></tr>`); }));
+            box.innerHTML = `<div class="adm-card"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${tabs}</div>${sumHtml}</div>
+                <div class="adm-card"><table class="adm-acct-tbl"><thead><tr><th>Di chi</th><th>Codice creato</th><th>Telefoni dei familiari</th><th></th></tr></thead><tbody>${rows.join('') || '<tr><td colspan="4" class="adm-muted">Nessun accesso familiare attivo.</td></tr>'}</tbody></table>
+                <div class="adm-muted" style="font-size:.74rem;margin-top:8px">Il codice lo crea l’operatore dal suo menu (☰ › Impostazioni › Accesso per un familiare) e si vede solo in quel momento. Il familiare vede solo i turni di quella persona, in sola lettura. <b>Togli</b>: il codice smette di funzionare e i familiari escono subito.</div></div>`;
+            return;
+        }
+        const t = admAcctTeam, T = ACCT_TEAMS[t], names = acctTeamNames(t);
+        const fmt = d => { try { return new Date(d).toLocaleDateString('it-IT', { day:'numeric', month:'short', year:'numeric' }); } catch(e) { return ''; } };
+        const devList = (l, ico) => l.map(d => `<li><span class="material-icons-round" style="font-size:13px;vertical-align:-2px">${ico}</span> ${esc(d.dev)}${d.app && d.app !== t ? ' · app ' + esc(ACCT_TEAMS[d.app] ? ACCT_TEAMS[d.app].many : d.app) : ''}${d.at ? ' · ' + esc(fmt(d.at)) : ''}</li>`).join('');
+        const rows = names.map(n => {
+            const r = acctRec(t, n), a = esc(n), dl = devs[t + '|' + n] || [], fl = devs['fam|' + t + '|' + n] || [], open = admAcctOpen[t + '|' + n];
+            const st = r.blocked ? '<span class="adm-pill err">Bloccato</span>' : r.h ? `<span class="adm-pill ok">Password scelta</span> <span class="adm-muted">${esc(fmt(r.at))}</span>` : '<span class="adm-pill muted">Provvisoria</span>';
+            const chips = `<span class="adm-dev" data-k="${a}" onclick="admAcctToggle(this.dataset.k)" title="Telefoni collegati"><span class="material-icons-round">smartphone</span>${dl.length}</span>${r.fam ? `<span class="adm-dev" data-k="${a}" onclick="admAcctToggle(this.dataset.k)" title="Accesso familiare attivo"><span class="material-icons-round">family_restroom</span>${fl.length}</span>` : ''}`;
+            const list = open ? `<ul class="adm-dev-list">${dl.length ? devList(dl, 'smartphone') : '<li>Nessun telefono collegato</li>'}${r.fam ? `<li><b>Familiari</b> (codice del ${esc(fmt(r.fam.at))})</li>` + (fl.length ? devList(fl, 'family_restroom') : '<li>Nessun telefono di familiari</li>') : ''}</ul>` : '';
+            return `<tr><td><b>${a}</b>${chips}${list}</td><td><input value="${esc(r.first || '')}" placeholder="Nome" data-n="${a}" onchange="admAcctFirst(this.dataset.n, this.value)"></td><td>${st}</td>
+                <td class="act">${r.h ? `<button class="adm-btn sm" data-n="${a}" onclick="admAcctReset(this.dataset.n)"><span class="material-icons-round">restart_alt</span>Riporta a 118</button>` : ''}
+                ${r.fam ? `<button class="adm-btn sm" data-n="${a}" onclick="admAcctFamOff(this.dataset.n)"><span class="material-icons-round">link_off</span>Togli familiare</button>` : ''}
+                <button class="adm-btn sm" data-n="${a}" onclick="admAcctBlock(this.dataset.n, ${r.blocked ? 'false' : 'true'})"><span class="material-icons-round">${r.blocked ? 'lock_open' : 'block'}</span>${r.blocked ? 'Sblocca' : 'Blocca'}</button></td></tr>`;
+        }).join('');
+        box.innerHTML = `<div class="adm-card">
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${tabs}</div>${sumHtml}
+                <div class="adm-muted" style="font-size:.8rem;line-height:1.5;margin-top:10px">Un solo elenco per le due app di prova: ognuno entra dalla sua app con nome e password (<b>primo accesso: 118</b>, poi la sceglie) e così può vedere anche l’app degli altri, in sola lettura. Fatto l’accesso il telefono resta collegato. COORDINATORE e TEST entrano con la password del coordinatore.</div>
+                </div>
+            <div class="adm-card"><table class="adm-acct-tbl"><thead><tr><th>Cognome · telefoni</th><th>Nome</th><th>Stato</th><th></th></tr></thead><tbody>${rows || `<tr><td colspan="4" class="adm-muted">${t === ACCT_TEAM ? 'Carico i nomi…' : `Elenco degli ${T.many} non ancora disponibile: compare quando qualcuno apre l’app degli ${T.many}.`}</td></tr>`}</tbody></table>
+                <div class="adm-muted" style="font-size:.74rem;margin-top:8px">Tocca <span class="material-icons-round" style="font-size:13px;vertical-align:-2px">smartphone</span> per vedere i telefoni collegati (e quelli dei familiari). Il nome di battesimo compare nella schermata d’accesso. <b>Riporta a 118</b>: per chi ha dimenticato la password (i telefoni già collegati restano collegati). <b>Blocca</b>: la persona (e i suoi familiari) escono subito da tutti i telefoni.</div></div>
+            <div class="adm-note" style="margin-top:12px"><span class="material-icons-round">info</span><div><b>Cosa protegge.</b> Senza accesso la pagina non mostra i turni. È un blocco della pagina: i dati su Firebase restano leggibili da chi sa dove guardare. La protezione vera dei dati richiede regole Firebase legate agli account, da fare quando si porterà sulle app ufficiali.</div></div>`;
+    }
+    function admAcctToggle(n) { const k = admAcctTeam + '|' + n; admAcctOpen[k] = !admAcctOpen[k]; admRenderAccounts(); }
+    async function admAcctUpdate(n, patch, msg) {
+        const t = admAcctTeam, rec = Object.assign({}, acctRec(t, n), patch);
+        Object.keys(rec).forEach(k => { if(rec[k] === null || rec[k] === '' || rec[k] === false) delete rec[k]; });
+        try { await acctSaveRec(t, n, rec); if(!acctReg[t]) acctReg[t] = {}; acctReg[t][n] = rec; admRenderAccounts(); showAdminToast(msg); vibrate(); }
+        catch(e) { showAdminToast('Errore: ' + (e.code || e.message)); }
+    }
+    function admAcctFirst(n, v) { admAcctUpdate(n, { first: String(v || '').trim().replace(/\s+/g, ' ').slice(0, 40) }, 'Nome salvato'); }
+    async function admAcctReset(n) {
+        if(!(await ccConfirm('Riporta a 118', `${n} entrerà con la password provvisoria 118 e poi ne sceglierà una nuova. I telefoni già collegati restano collegati.`, 'Riporta a 118'))) return;
+        admAcctUpdate(n, { h: null, at: null, by: null, resetAt: new Date().toISOString() }, n + ': password riportata a 118');
+    }
+    async function admAcctFamOff(n) {
+        if(!(await ccConfirm('Togli accesso familiare', `Il codice familiare di ${n} smette di funzionare e i familiari escono subito.`, 'Togli', 'danger'))) return;
+        admAcctUpdate(n, { fam: null }, n + ': accesso familiare tolto');
+    }
+    async function admAcctBlock(n, on) {
+        if(on && !(await ccConfirm('Blocca account', `${n} (e i suoi familiari) escono subito da tutti i telefoni e non potrà entrare finché non lo sblocchi.`, 'Blocca', 'danger'))) return;
+        admAcctUpdate(n, { blocked: on ? true : null }, on ? n + ' bloccato' : n + ' sbloccato');
+    }
+    let userIdentity = (SERVER_MODE || acctNeed) ? null : ACCT_RO ? 'Ospite' : (acctIdOf(acctMine()) || localStorage.getItem('infermieri_identity_name') || null);   // con l'account l'identità è il nome dell'accesso
     console.log('[Identità] Letta da localStorage all\'avvio:', userIdentity || '(nessuna)');
     let identityRecoveryPromise = null;
 
@@ -4966,7 +5552,7 @@
     // proviamo a recuperare l'identità dal profilo anonimo Firebase, che è
     // collegato allo stesso dispositivo/browser in modo indipendente.
     async function tryRecoverIdentityFromUid() {
-        if(userIdentity || !fbReady) return;
+        if(userIdentity || !fbReady || acctNeed) return;   // senza accesso non si recupera il nome da solo
         try {
             const uid = fbAuth.currentUser && fbAuth.currentUser.uid;
             console.log('[Identità] Tentativo recupero da UID Firebase:', uid || '(uid assente)');
@@ -5099,6 +5685,7 @@
         if(typeof desAfterIdentity === 'function') desAfterIdentity();
     }
     function requestChangeIdentity() {
+        if(ACCT_ENABLED) { acctAskLogout(); return; }   // con gli account si cambia utente uscendo e rientrando
         closeMenu(); vibrate();
         requestChangeIdentityDirect();
     }
@@ -5151,6 +5738,7 @@
             // senza rete un documento che manca dalla copia sul dispositivo non vuol dire che non esista: niente copia iniziale
             if(!doc.exists) { if(!doc.metadata.fromCache) { gateWaitEnd(); seedNamespaceSettings(); } resolveConfigReady(); return; }
             const data = doc.data();
+            if(!SERVER_MODE) acctApply(data[ACCT_FIELD] || null, doc.metadata.fromCache);
             if(!SERVER_MODE && !doc.metadata.fromCache) gateApply(data[GATE_FIELD] || null);
             else if(!SERVER_MODE && data[GATE_FIELD]) gateApply(data[GATE_FIELD]);
             if(data.dataSource !== undefined) dataSourceMode = data.dataSource === 'firebase' ? 'firebase' : 'excel';
@@ -5464,7 +6052,8 @@
         turni:      ['Orari turni', 'Orari standard dei turni'],
         testi:      ['Avvisi', 'Avviso all’apertura e avvisi aggiuntivi'],
         esporta:    ['Esporta', 'Copia del file con le impostazioni attuali'],
-        password:   ['Password app', 'Password per aprire l’app, ricordata su ogni telefono']
+        password:   ['Password app', 'Password per aprire l’app, ricordata su ogni telefono'],
+        account:    ['Account e accessi', 'Infermieri, autisti e familiari: un solo elenco per le due prove']
     };
     let admData = null, admLoading = null, admTab = 'panoramica';
     let admErrPeriod = 1, admErrKind = 'tutti', admErrShowResolved = false, admAccFilter = 'tutti', admAccSearch = '', admAccHideTests = true;
@@ -5545,7 +6134,7 @@
     }
     function admRenderTab() {
         if(!document.getElementById('admin-panel-modal') || document.getElementById('admin-panel-modal').style.display === 'none') return;
-        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, password: admRenderGate, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
+        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, password: admRenderGate, account: admRenderAccounts, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
         if(f) { try { f(); } catch(e) { console.warn('Pannello admin:', e); } }
     }
     const admLoadingHtml = () => `<div class="adm-empty"><span class="material-icons-round adm-spin">autorenew</span>Carico i dati…</div>`;
@@ -6294,6 +6883,7 @@
         document.body.classList.toggle('lite', !!prefs.lite);
     }
     function prefsApplyFilter() {
+        if(ACCT_RO && ACCT_RO.view === 'fam') { selectedDrivers = new Set(drivers.filter(d => d.name === ACCT_RO.famOf || d.originalName === ACCT_RO.famOf).map(d => d.idx)); return; }   // familiare: solo la sua colonna
         if(prefs.filter == null) {   // prima volta: si riprende il filtro che c'era su questo dispositivo
             try { const arr = JSON.parse(localStorage.getItem('selected_nurses') || 'null'); if(Array.isArray(arr) && arr.length) { prefs.filter = drivers.filter(d => arr.includes(d.idx)).map(d => d.originalName || d.name); savePrefsLocal(); } } catch(e) {}
         }
@@ -6375,7 +6965,7 @@
             ] },
             { id:'link', icon:'apps', label:'Collegamenti', desc:'Richieste e turni autisti', color: MN_COLORS.link, children: [
                 { id:'req', icon:'assignment', label:'Richieste', desc:'Ferie, permessi, cambi turno, cessioni', color: MN_COLORS.link, run: () => window.openRichiestePanel && window.openRichiestePanel() },
-                { id:'as', icon:'open_in_new', label:'Turni autisti', desc:'Apre l\u2019app degli autisti soccorritori', color: MN_COLORS.link, run: () => window.open('https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/', '_blank') }
+                { id:'as', icon:'open_in_new', label:'Turni autisti', desc:'Apre la prova degli autisti (con il tuo accesso)', color: MN_COLORS.link, run: () => acctOpenOther(ACCT_OTHER_URL) }
             ] },
             { group:'Gestione' },
             { id:'coord', icon:'supervisor_account', label:'Area coordinatore', desc:'Accesso riservato', color: MN_COLORS.coord, lock:true, run: () => openCoordLoginModal() },
@@ -6384,7 +6974,8 @@
             { id:'imp', icon:'tune', label:'Impostazioni', desc:'Tema, notifiche, utente, aggiornamento', color: MN_COLORS.imp, children: [
                 { id:'dark', icon: dark ? 'dark_mode' : 'light_mode', label:'Tema scuro', desc: dark ? 'Attivo' : 'Disattivato', color: MN_COLORS.imp, toggle: dark, stay:true, run: () => { toggleDarkMode(); renderMenu(); } },
                 { id:'opts', icon:'settings', label:'Opzioni dell\u2019app', desc:'Le tue preferenze: tema, calendario, notifiche', color: MN_COLORS.imp, run: () => openOptionsModal() },
-                { id:'user', icon:'switch_account', label:'Cambia utente', desc: userIdentity ? 'Ora sei ' + userIdentity : 'Scegli chi sei', color: MN_COLORS.imp, run: () => requestChangeIdentity() },
+                ...(ACCT_ENABLED && famCanUse() ? [{ id:'fam', icon:'family_restroom', label:'Accesso per un familiare', desc:'Fai vedere i tuoi turni a un parente', color: MN_COLORS.imp, run: () => famOpen() }] : []),
+                { id:'user', icon: ACCT_ENABLED ? 'logout' : 'switch_account', label: ACCT_ENABLED ? 'Esci dall’account' : 'Cambia utente', desc: userIdentity ? 'Ora sei ' + userIdentity : 'Scegli chi sei', color: MN_COLORS.imp, run: () => requestChangeIdentity() },
                 { id:'reload', icon:'refresh', label:'Aggiorna l\u2019app', desc:'Ricarica per avere l\u2019ultima versione', color: MN_COLORS.imp, run: () => { vibrate(); location.reload(); } }
             ] },
             { group:'Aiuto' },
@@ -6616,6 +7207,9 @@
         setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
         setTimeout(async () => {
             if(SERVER_MODE) return;
+            acctRosterSync();
+            if(ACCT_RO) return;   // sola lettura (familiare o operatore dell'altra app): niente nome, messaggi o avvisi
+            if(acctNeed) { acctStartupPending = true; acctRenderList(); checkForScheduleChanges(); return; }   // messaggi all'apertura dopo l'accesso
             if(!userIdentity && identityRecoveryPromise) { try { await identityRecoveryPromise; } catch(e) {} }
             prefsEnsureOwner(); prefsPullRemote();
             if(userIdentity) { writeIdentityToSession(); persistIdentityToUidBackup(); showStartupMessages(); if(prefs.startPage === 'me') setTimeout(openMyPage, 400); }
