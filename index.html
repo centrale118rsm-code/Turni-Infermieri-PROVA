@@ -18980,5 +18980,72 @@
 })();
 </script>
 
+<!-- ══════════════ ESEMPIO RICHIESTE (solo nelle app PROVA) ══════════════
+     Linguetta rossa sotto quella blu delle Richieste: apre una copia di esempio del
+     portale Richieste (cartella richieste-esempio). Legge i dati veri ma tutto quello che
+     si invia resta solo su questo telefono: serve a provare le novità prima di pubblicarle. -->
+<style>
+    #esempio-handle {
+        position: fixed; right: 0; top: calc(50% + 38px);
+        width: 24px; padding: 10px 0; border-radius: 12px 0 0 12px;
+        background: #dc2626; color: #fff; box-shadow: -3px 0 12px rgba(0,0,0,0.25);
+        display: flex; flex-direction: column; align-items: center; gap: 4px;
+        cursor: pointer; z-index: 2600; border: none;
+    }
+    #esempio-handle .material-icons-round { font-size: 16px; color: #fff; }
+    #esempio-handle .eh-txt { writing-mode: vertical-rl; transform: rotate(180deg); font: 800 9px/1 'Plus Jakarta Sans', 'Inter', sans-serif; letter-spacing: 0.6px; text-transform: uppercase; white-space: nowrap; }
+    #esempio-panel {
+        position: fixed; inset: 0; z-index: 2550; background: var(--bg, #fff);
+        transform: translateX(100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+        box-shadow: -10px 0 30px rgba(0,0,0,0.25); display: flex; flex-direction: column;
+    }
+    #esempio-panel.open { transform: translateX(0); }
+    #esempio-panel .ep-head {
+        flex-shrink: 0; display: flex; align-items: center; gap: 8px; background: #dc2626; color: #fff;
+        padding: env(safe-area-inset-top) 8px 0 14px; height: calc(46px + env(safe-area-inset-top));
+        font-weight: 800; font-size: 0.78rem; letter-spacing: 0.6px;
+    }
+    #esempio-panel .ep-head button {
+        margin-left: auto; width: 32px; height: 32px; border-radius: 50%; border: none;
+        background: rgba(255,255,255,0.18); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    #esempio-panel iframe { flex: 1; border: none; width: 100%; background: #fff; }
+    body.esempio-open #side-drag-handle, body.des-open #esempio-handle { display: none; }
+    #side-drag-handle.is-open ~ #esempio-handle { display: none; }
+</style>
+<button type="button" id="esempio-handle" title="Esempio richieste (prove, non arrivano a nessuno)" onclick="toggleEsempioPanel()">
+    <span class="material-icons-round">science</span><span class="eh-txt">Esempio richieste</span>
+</button>
+<div id="esempio-panel" aria-hidden="true">
+    <div class="ep-head">
+        <span class="material-icons-round">science</span>
+        <span>ESEMPIO RICHIESTE · solo prove</span>
+        <button type="button" onclick="closeEsempioPanel()" title="Chiudi"><span class="material-icons-round">chevron_right</span></button>
+    </div>
+    <iframe id="esempio-iframe" title="Esempio richieste"></iframe>
+</div>
+<script>
+    (function() {
+        const panel = document.getElementById('esempio-panel'), frame = document.getElementById('esempio-iframe');
+        let loadedFor;
+        function load() {
+            let who = ''; try { who = (typeof userIdentity !== 'undefined' && userIdentity) ? userIdentity : ''; } catch (e) {}
+            if (loadedFor === who) return;
+            const url = new URL('richieste-esempio/', location.href);
+            if (who) url.searchParams.set('nome', who);
+            frame.src = url.toString(); loadedFor = who;
+        }
+        window.openEsempioPanel = function() {
+            load(); panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('esempio-open');
+            if (window.closeRichiestePanel) try { window.closeRichiestePanel(); } catch (e) {}
+        };
+        window.closeEsempioPanel = function() {
+            panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('esempio-open');
+        };
+        window.toggleEsempioPanel = function() { panel.classList.contains('open') ? window.closeEsempioPanel() : window.openEsempioPanel(); };
+    })();
+</script>
 </body>
 </html>
