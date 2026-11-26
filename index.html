@@ -744,6 +744,7 @@
             transition:0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.04);
         }
         .month-btn .material-icons-round { font-size:17px; color:var(--primary); flex-shrink:0; }
+        @media (max-width:420px) { .month-btn { padding:11px 8px; gap:6px; font-size:0.8rem; } .month-btn .material-icons-round { font-size:15px; } }   /* "Settembre", "Novembre" non toccano più il bordo */
         .month-btn:active { transform:scale(0.98); background:var(--bg-card); border-color:var(--primary); }
         .month-btn.month-current { background:linear-gradient(135deg, rgba(29,78,216,0.1), rgba(29,78,216,0.03)); border-color:rgba(29,78,216,0.3); }
         .month-btn.month-current .material-icons-round { color:var(--primary); }
@@ -874,6 +875,9 @@
         .me-day .what { flex:1; min-width:0; font-size:0.82rem; color:var(--text-main); font-weight:600; }
         .me-day .what small { display:block; color:var(--text-sec); font-weight:600; font-size:0.72rem; }
         .me-rep { font-size:0.62rem; font-weight:800; color:#fff; background:#dc2626; border-radius:5px; padding:2px 6px; white-space:nowrap; }
+        .me-day .what small { white-space:nowrap; }
+        .me-day .me-rep { white-space:normal; max-width:78px; text-align:center; line-height:1.25; flex:none; }
+        .me-hcap { font-size:0.7rem; color:var(--text-sec); font-weight:600; margin-top:2px; }
         .me-hours { display:flex; align-items:flex-end; justify-content:space-between; gap:10px; }
         .me-hours b { font-size:1.6rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
         .me-hours b small { font-size:0.85rem; color:var(--text-sec); font-weight:700; }
@@ -2752,6 +2756,7 @@
         .dinner-check-item input { display:none; }
         .dinner-check-icon { width:22px; height:22px; border-radius:6px; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; transition:0.2s; }
         .dinner-check-item.checked .dinner-check-icon { background:var(--primary); border-color:var(--primary); color:white; }
+        .dinner-check-item:not(.checked) .dinner-check-icon .material-icons-round { visibility:hidden; }   /* casella vuota = non scelto */
         .dinner-section-title { font-size:0.75rem; font-weight:800; color:var(--text-sec); padding:20px 20px 8px; text-transform:uppercase; letter-spacing:0.5px; }
         .month-selector { display:flex; overflow-x:auto; gap:8px; padding:0 20px 10px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
         .chip-month { background:var(--bg); color:var(--text-sec); border:1px solid var(--border); }
@@ -3454,7 +3459,7 @@
             #eq-modal .modal-content, #abs-modal .modal-content { max-height:94vh; }
             #eq-modal .hc-header-badge .header-text > span, #abs-modal .hc-header-badge .header-text > span { margin-left:0; }
             #eq-modal .ab-toolbar, #abs-modal .ab-toolbar { padding:8px 10px; flex-direction:column; align-items:flex-start; }
-            #eq-modal .eq-cats { flex-wrap:nowrap; overflow-x:auto; width:100%; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+            #eq-modal .eq-cats { flex-wrap:nowrap; overflow-x:auto; width:100%; -webkit-overflow-scrolling:touch; scrollbar-width:none; -webkit-mask-image:linear-gradient(90deg,#000 85%,transparent); mask-image:linear-gradient(90deg,#000 85%,transparent); padding-right:28px; }   /* sfumatura a destra: si capisce che scorre */
             #eq-modal .eq-cats::-webkit-scrollbar { display:none; }
             #eq-modal .eq-cats button { flex:none; }
             #eq-modal .hg-wrap, #abs-modal .hg-wrap, #eq-modal #eq-pairs { padding:0 10px; }
@@ -4535,6 +4540,14 @@
         </button>
     </div>
     <iframe id="richieste-iframe" title="Richieste"></iframe>
+    <div id="rp-status" hidden><span class="material-icons-round rp-ico">hourglass_top</span><b id="rp-st-t">Apro le Richieste…</b><small id="rp-st-s"></small><button type="button" id="rp-st-retry" hidden onclick="rpRetry()"><span class="material-icons-round">refresh</span>Riprova</button></div>
+    <style>
+        #richieste-panel #rp-status { position:absolute; left:0; right:0; bottom:0; top:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px; text-align:center; background:var(--bg); color:var(--text-main); z-index:2; }
+        #richieste-panel #rp-status[hidden] { display:none; }
+        #rp-status .rp-ico { font-size:40px; color:var(--primary); }
+        #rp-status small { color:var(--text-sec); font-size:.82rem; max-width:300px; line-height:1.4; }
+        #rp-status button { margin-top:6px; display:inline-flex; align-items:center; gap:6px; border:none; border-radius:12px; padding:10px 18px; background:var(--primary); color:#fff; font-weight:800; cursor:pointer; }
+    </style>
 </div>
 
 <div id="ov-view" aria-label="Vista d’insieme">
@@ -4913,7 +4926,10 @@
         fbReady = true;
     } catch(e) { console.error("Errore inizializzazione Firebase:", e); }
 
-    const ADMIN_PASSWORD = "Barbieri!";
+    // Password: nella pagina ci sono solo le impronte (SHA-256), mai le password in chiaro (26/11/2026).
+    const ADMIN_PW_H = ['a4aaff931382bae0a9c9c33f41b072989c2c8ef5b69a2a3f7af7a97376810aaf'];
+    async function pwHash(pw) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('pw118|' + String(pw || ''))); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+    async function pwMatch(pw, list) { try { return list.includes(await pwHash(pw)); } catch(e) { return false; } }
     const DEFAULT_COLORS = {
         "--primary":"#1d4ed8","--c-M":"#c3d9fb","--c-P":"#e3eeff","--c-N":"#4a76c4","--c-R":"#ffffff","--c-SM":"#9dbbe8",
         "--bg-ferie":"#f97316","--bg-rec":"#be185d","--bg-cong":"#facc15","--bg-mal":"#dc2626","--bg-nl":"#cceef2",
@@ -4950,7 +4966,8 @@
     // Tutti e due si scelgono con la password "coord" (chiesta una volta sola su ogni telefono).
     const COORD_ID = 'COORDINATORE', TEST_OP = 'TEST';
     const PW_IDENTITIES = [COORD_ID, TEST_OP];
-    function identityPwOk(pw) { const v = String(pw || '').trim().toLowerCase(); return v === 'coord' || v === 'coord.'; }
+    const ID_PW_H = ['891b6e0c4ece0366a19496170fe1d5945195deff862cbccc058dcea350963bb2', '4402503b9ecdaa8a6a505ff84dab56a22e076cb373f9106cb2458d6e3c18569a'];
+    function identityPwOk(pw) { return pwMatch(String(pw || '').trim().toLowerCase(), ID_PW_H); }
     function identityPwRemembered(name) { try { return localStorage.getItem('id_pw_ok_' + name) === '1'; } catch(e) { return false; } }
     const IDENTITY_EXTRA_OPTIONS = ["Frisoni", "Ospite", PS_NAME, TEST_OP, COORD_ID];
     // in "Chi sei?" in fondo, in gruppi: prima Ospite e PC Pronto Soccorso, poi TEST e COORDINATORE
@@ -5236,7 +5253,7 @@
         const n = acctSel, t = acctListTeam, pw = document.getElementById('acct-pw').value.trim();
         if(!pw) { acctBad(acctStep === 'fam' ? 'Scrivi il codice' : 'Scrivi la password'); return; }
         if(acctStep === 'shared') { if(await acctSha('acct118|all|' + pw) === ACCT_SHARED_H) acctFinish({ team: 'all', name: n }); else acctBad('Password sbagliata'); return; }
-        if(acctStep === 'coord') { if(identityPwOk(pw)) acctFinish({ team: t, name: n }); else acctBad('Password sbagliata'); return; }
+        if(acctStep === 'coord') { if(await identityPwOk(pw)) acctFinish({ team: t, name: n }); else acctBad('Password sbagliata'); return; }
         if(acctStep === 'new') {
             const pw2 = document.getElementById('acct-pw2').value.trim();
             if(pw.length < 4) { acctBad('Almeno 4 caratteri'); return; }
@@ -5940,10 +5957,10 @@
         setTimeout(() => { m.classList.add('open'); document.getElementById('admin-pw-input').focus(); }, 10);
     }
     function closeAdminLoginModal(e) { if(e && e.target !== e.currentTarget) return; let m = document.getElementById('admin-login-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300); }
-    function checkAdminPassword() {
+    async function checkAdminPassword() {
         vibrate();
         const val = document.getElementById('admin-pw-input').value;
-        if(val === ADMIN_PASSWORD) {
+        if(await pwMatch(val, ADMIN_PW_H)) {
             closeAdminLoginModal();
             setTimeout(openAdminPanel, 250);
         } else {
@@ -6781,7 +6798,7 @@
         currentNotifTab = "attive";
 
     // ── Conteggio Orario / Area Coordinatore: stato globale ──────────────────
-    const COORD_PASSWORD = "cord.";
+    const COORD_PW_H = ['ecb111b62599ec5b2b9077f52493656ba27ca9f8d59c99fbda8753632ac73dba', '4402503b9ecdaa8a6a505ff84dab56a22e076cb373f9106cb2458d6e3c18569a', '891b6e0c4ece0366a19496170fe1d5945195deff862cbccc058dcea350963bb2'];   // area coordinatore: vale anche la password della scelta COORDINATORE
     let rawFinalData = [];                 // dati "puri" letti dall'ultimo Excel caricato
     let manualOverrides = {};              // chiave "NOME__MESE-giorno" -> {v,subV,customMinutes}
     let excelSyncedMarks = {};             // key -> valore (JSON) già segnato come riportato su Excel
@@ -6847,7 +6864,7 @@
     var IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     if(IS_IOS) document.documentElement.classList.add('ios');
     var PREF_DEFAULTS = {
-        theme:'light', startPage:'calendario', startToday:true, lite: IS_IOS,
+        theme:'auto', startPage:'calendario', startToday:true, lite: IS_IOS,
         myColFirst:false, highlightMe:true, showTimes:true, showRepBars:true, filter:null,
         notifyChanges:true, notifyRep:true, notifyTomorrow:false, haptics:true, calView:'normale'
     };
@@ -6856,7 +6873,7 @@
     function loadPrefs() {
         const owner = prefOwner(); prefsOwnerLoaded = owner;
         let p = null; try { p = JSON.parse(localStorage.getItem('prefs_v1__' + owner) || 'null'); } catch(e) {}
-        if(!p) p = { theme: localStorage.getItem('theme') === 'dark' ? 'dark' : 'light' };   // primo avvio: si parte dal tema usato finora
+        if(!p) { const old = localStorage.getItem('theme'); p = { theme: old === 'dark' ? 'dark' : old === 'light' ? 'light' : 'auto' }; }   // primo avvio: il tema usato finora, altrimenti quello del telefono
         return prefsFix(Object.assign({}, PREF_DEFAULTS, p));
     }
     // L'app si apre sempre nel calendario normale: la "Vista d'insieme" come pagina iniziale non
@@ -6925,7 +6942,7 @@
     function toggleMenu() {
         vibrate(); let m = document.getElementById('menu-dropdown');
         if(m.style.display === 'flex') { m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 100); }
-        else { menuPath = []; renderMenu(); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10); }
+        else { try { noteCloseHub(); } catch(e) {} menuPath = []; renderMenu(); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10); }
     }
     function closeMenu() { const m = document.getElementById('menu-dropdown'); if(m && m.style.display === 'flex') toggleMenu(); }
 
@@ -8662,7 +8679,7 @@
             const lab = { M:'Mattina', P:'Pomeriggio', N:'Notte' }, time = c.charAt(0) >= 'a' && c.charAt(0) <= 'z' ? (diurniSched(c, iso) || '') : (SCHEDULE[c.toUpperCase()] || '');
             txt = `<b>${mine.map(k => lab[k]).join(' + ')}</b>${time && mine.length === 1 ? ` <small>${esc(time)}</small>` : ''}${mates.length ? `<span>con ${esc(mates.join(', '))}</span>` : ''}`;
         } else if(meta.kind === 'abs') txt = `<b>${esc(meta.label || meta.short)}</b>`;
-        else if(c === 'SM') txt = `<b>Smonto</b><span>riposo dopo la notte</span>`;
+        else if(/^SM?$/i.test(c)) txt = `<b>Smonto</b><span>riposo dopo la notte</span>`;
         else txt = `<b>Riposo</b>`;
         if(isRep) txt += `<span class="tm-rep">Reperibile dalle 13:00</span>`;
         let el = document.getElementById('tm-strip');
@@ -8675,6 +8692,8 @@
         setTimeout(tmHide, 9000);
     }
     function tmHide() { const el = document.getElementById('tm-strip'); if(el) el.classList.remove('show'); }
+    // la striscia non deve coprire le finestre: al primo tocco altrove (menu, casella, pulsanti) sparisce
+    document.addEventListener('pointerdown', e => { const el = document.getElementById('tm-strip'); if(el && el.classList.contains('show') && !el.contains(e.target)) tmHide(); }, true);
     // diurnista: il suo orario vero di quel giorno (inizio), non quello dei turnisti
     function ddDzTime(code, iso) {
         let t = ''; try { t = diurniSched(String(code || ''), iso) || ''; } catch(e) {}
@@ -9615,7 +9634,7 @@
     }
 
     // ── accesso admin per la riunione (password semplice, solo su questo telefono finché resta aperto) ──
-    const DES_ADMIN_PW = '00';
+    const DES_ADMIN_H = ['fae848e91ad34aacc53d7afd83762610ce73a840ae9e24ba84dc248725c05346'];
     function desAdminOpen() {
         document.getElementById('des-mode-menu').classList.remove('open');
         if(desAdmin) { desAdminExit(); return; }
@@ -9626,8 +9645,8 @@
         if(e && e.target !== e.currentTarget) return;
         const m = document.getElementById('des-admin'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 300);
     }
-    function desAdminLogin() {
-        if(document.getElementById('da-pw').value.trim() !== DES_ADMIN_PW) { document.getElementById('da-err').textContent = 'Password sbagliata'; vibrate(); return; }
+    async function desAdminLogin() {
+        if(!(await pwMatch(document.getElementById('da-pw').value.trim(), DES_ADMIN_H))) { document.getElementById('da-err').textContent = 'Password sbagliata'; vibrate(); return; }
         desAdmin = true; desAdminClose(); vibrate();
         desRenderAll(false); desToast('Admin: puoi modificare le desiderate di tutti');
         if(desMode === 'anno') desSetMode('tutti');
@@ -11887,6 +11906,16 @@
         document.getElementById('richiesta-alert-text').innerHTML = fresh.slice(0, 4).map(n => box(n.id, `${esc(noteName(n))}${noteTo(n) === 'ALL' ? ' · a tutti' : ''}${n.date ? ' · ' + esc(noteWhen(n.date)) : ''}`, `${NOTE_PREFS[n.pref] && noteTo(n) === 'COORD' ? '<b>Preferisce ' + NOTE_PREFS[n.pref].label.toLowerCase() + '.</b> ' : ''}${esc(n.text || '')}`, repCount(n))).join('')
             + freshRep.slice(0, 4).map(({ n, r }) => box(n.id, `${esc(noteReplyName(r))} ha risposto ${esc(repOf(n))}${n.date ? ' · ' + esc(noteWhen(n.date)) : ''}`, `<i>“${esc((n.text || '').slice(0, 70))}${(n.text || '').length > 70 ? '…' : ''}”</i><br><b style="color:var(--text)">${esc(r.text)}</b>`, 'Apri la chat')).join('')
             + (tot > 8 ? `<div style="font-size:0.8rem;color:var(--text-sec)">…e altre ${tot - 8}</div>` : '');
+        noteAlertWhenFree(0);
+    }
+    // L'avviso delle note nuove aspetta che l'operatore chiuda la finestra che sta usando
+    // (menu, scheda del giorno, conteggi…): prima compariva sopra, a metà di quello che si faceva.
+    function noteAlertBusy() {
+        const dd = document.getElementById('menu-dropdown'); if(dd && dd.style.display === 'flex') return true;
+        return [...document.querySelectorAll('.open')].some(e => e.id !== 'richiesta-alert-modal' && e.id !== 'tm-strip' && e.offsetHeight > 200 && getComputedStyle(e).position === 'fixed');
+    }
+    function noteAlertWhenFree(tries) {
+        if(tries < 48 && noteAlertBusy()) { setTimeout(() => noteAlertWhenFree(tries + 1), 2500); return; }   // al massimo 2 minuti
         const m = document.getElementById('richiesta-alert-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 100);
         if(navigator.vibrate) navigator.vibrate([40, 60, 40]);
     }
@@ -11935,6 +11964,7 @@
         noteHubRender();
         el.style.display = 'flex'; requestAnimationFrame(() => el.classList.add('open'));
     }
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') { const h = document.getElementById('note-hub'); if(h && h.classList.contains('open')) noteCloseHub(); } });
     function noteCloseHub() { const el = document.getElementById('note-hub'); if(!el) return; el.classList.remove('open'); setTimeout(() => { if(!el.classList.contains('open')) el.style.display = 'none'; }, 180); }
     function noteHubRender() {
         const el = document.getElementById('note-hub'); if(!el) return;
@@ -12717,12 +12747,13 @@
             <div class="me-card"><h4><span class="material-icons-round">event</span>Prossimi 7 giorni</h4>${next || '<small>Nessun turno in calendario.</small>'}</div>
             <div class="me-card"><h4><span class="material-icons-round">schedule</span>Ore di ${MONTH_NAMES_IT[mi]}</h4>
                 <div class="me-hours"><b>${fmtHM(worked)} <small>/ ${fmtHM(target)}</small></b></div>
+                <div class="me-hcap">ore del mese in calendario · su ore da contratto</div>
                 <div class="me-bar"><i style="width:${Math.min(100, target ? worked / target * 100 : 0).toFixed(0)}%"></i></div>
                 <div class="me-kv"><span>Fatte finora</span><b>${fmtHM(workedSoFar)}</b></div>
                 <div class="me-kv"><span>Saldo da gennaio a oggi</span><b class="${bal < 0 ? 'neg' : 'pos'}">${fmtHM(bal, true) || '0:00'}</b></div>
             </div>
             <div class="me-card"><h4><span class="material-icons-round">beach_access</span>Assenze ${SHIFT_YEAR}</h4>
-                <div class="me-counters">${cnt(ab.allow.co, ab.max.co, 'C.O.')}${cnt(ab.allow.sp, ab.max.sp, 'Straordinari')}${cnt(ab.allow.pn, ab.max.pn, 'Notte')}</div>
+                <div class="me-counters">${cnt(ab.allow.co, ab.max.co, 'C.O.')}${cnt(ab.allow.sp, ab.max.sp, 'Perm. straord.')}${cnt(ab.allow.pn, ab.max.pn, 'Perm. notte')}</div>
                 ${(ab.counts.m || ab.counts.r) ? `<div class="me-kv"><span>Malattia \u00b7 recuperi</span><b>${ab.counts.m || 0} \u00b7 ${ab.counts.r || 0} giorni</b></div>` : ''}
             </div>
             <div class="me-card"><h4><span class="material-icons-round">phone_in_talk</span>Reperibilit\u00e0</h4>
@@ -12963,21 +12994,24 @@
 
     // ═══ STAMPA DEL MESE (PDF per la bacheca) ═════════════════════════════
     async function printMonthPick() {
-        const now = new Date(), cur = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : 0;
-        const opts = [cur - 1, cur, cur + 1].filter(m => m >= 0 && m <= 11);
+        // mese prima, questo e il dopo, anche a cavallo d'anno (a dicembre si stampa gennaio dell'anno dopo, se c'è già)
+        const now = new Date(), base = now.getFullYear() === SHIFT_YEAR ? now.getMonth() : 0;
+        const has = (y, m) => { for(let r = 1; r < finalData.length; r++) { const iso = repRowDate(r); if(iso && iso.startsWith(y + '-' + String(m + 1).padStart(2, '0'))) return true; } return false; };
+        const opts = [base - 1, base, base + 1].map(k => ({ y: SHIFT_YEAR + Math.floor(k / 12), m: ((k % 12) + 12) % 12, cur: k === base })).filter(o => has(o.y, o.m));
         const choice = await ccDialog('Stampa del mese', 'Scegli il mese: scarico un PDF A4 orizzontale con i turni di tutti, pronto da appendere.',
-            opts.map(m => ({ label: MONTH_NAMES_IT[m].charAt(0).toUpperCase() + MONTH_NAMES_IT[m].slice(1), kind: m === cur ? 'primary' : '', value: String(m) })).concat([{ label:'Annulla', kind:'ghost', value:null }]));
-        if(choice !== null && choice !== undefined) printMonthPdf(+choice);
+            opts.map(o => ({ label: MONTH_NAMES_IT[o.m].charAt(0).toUpperCase() + MONTH_NAMES_IT[o.m].slice(1) + (o.y !== SHIFT_YEAR ? ' ' + o.y : ''), kind: o.cur ? 'primary' : '', value: o.y + '-' + o.m })).concat([{ label:'Annulla', kind:'ghost', value:null }]));
+        if(choice !== null && choice !== undefined) { const [y, m] = String(choice).split('-').map(Number); printMonthPdf(m, false, y); }
     }
-    async function printMonthPdf(mi, returnDoc) {
+    async function printMonthPdf(mi, returnDoc, year) {
+        year = year || SHIFT_YEAR;
         try {
             ccToast('Preparo il PDF\u2026');
             const jsPDF = await repEnsurePdfLib();
-            const days = buildDaysIndex().filter(dd => dd.monthIdx === mi);
+            const days = year === SHIFT_YEAR ? buildDaysIndex().filter(dd => dd.monthIdx === mi) : (() => { const l = []; for(let r = 1; r < finalData.length; r++) { const iso = repRowDate(r); if(!iso) continue; const dt = new Date(iso + 'T12:00:00'); if(dt.getFullYear() === year && dt.getMonth() === mi) l.push({ rowIdx: r, monthIdx: mi, day: dt.getDate(), date: dt }); } return l; })();
             const ops = drivers.filter(d => !d.hidden);
             const R = repData(), css = getComputedStyle(document.documentElement);
             const hex = v => { const c = (css.getPropertyValue(v) || '').trim(); const m = /^#([0-9a-f]{6})$/i.exec(c); return m ? [parseInt(m[1].slice(0,2),16), parseInt(m[1].slice(2,4),16), parseInt(m[1].slice(4,6),16)] : null; };
-            const title = MONTH_NAMES_IT[mi].charAt(0).toUpperCase() + MONTH_NAMES_IT[mi].slice(1) + ' ' + SHIFT_YEAR;
+            const title = MONTH_NAMES_IT[mi].charAt(0).toUpperCase() + MONTH_NAMES_IT[mi].slice(1) + ' ' + year;
             const wd = ['D','L','M','M','G','V','S'];
             const head = [['Infermiere', ...days.map(dd => `${dd.day}\n${wd[dd.date.getDay()]}`)]];
             const metas = ops.map(d => days.map(dd => ccCodeMeta(computeDayInfo(dd.rowIdx, d.idx))));
@@ -13006,7 +13040,7 @@
                 }
             });
             if(returnDoc) return doc;
-            doc.save(`turni-infermieri-${MONTH_NAMES_IT[mi]}-${SHIFT_YEAR}.pdf`);
+            doc.save(`turni-infermieri-${MONTH_NAMES_IT[mi]}-${year}.pdf`);
             ccToast('PDF scaricato');
         } catch(e) { console.error(e); ccToast('PDF non creato: controlla la connessione.', true); }
     }
@@ -13216,10 +13250,16 @@
     function renderHoursGridOld() {
         const el = document.getElementById('hg-grid'); if(!el) return;
         document.getElementById('hg-month').innerHTML = `${MONTH_NAMES_IT[hgMonth].charAt(0).toUpperCase() + MONTH_NAMES_IT[hgMonth].slice(1)} <small>${SHIFT_YEAR}</small>`;
-        const days = buildDaysIndex().filter(dd => dd.monthIdx === hgMonth);
+        const allDays = buildDaysIndex(), days = allDays.filter(dd => dd.monthIdx === hgMonth);
         const map = {}, weeks = [];
         days.forEach(dd => { const k = ymd(getWeekRange(dd.date).start); if(!map[k]) { map[k] = []; weeks.push(k); } map[k].push(dd); });
-        const cols = weeks.map((k, i) => { const g = map[k]; return { label: 'Sett. ' + (i + 1), sub: g[0].day + (g.length > 1 ? '\u2013' + g[g.length - 1].day : ''), days: g }; });
+        // Settimana a cavallo di due mesi (es. solo domenica 1): il saldo si calcola sulla settimana intera,
+        // altrimenti un giorno da solo risultava tutto "in più" (+6:00) e colorava la casella di verde.
+        // Le ore del mese restano quelle dei soli giorni del mese.
+        const byWeek = {}; allDays.forEach(dd => { const k = ymd(getWeekRange(dd.date).start); (byWeek[k] = byWeek[k] || []).push(dd); });
+        const mon3 = m => MONTH_NAMES_IT[m].slice(0, 3);
+        const cols = weeks.map((k, i) => { const g = map[k], full = byWeek[k] || g, part = full.length > g.length;
+            return { label: 'Sett. ' + (i + 1), sub: part ? `${full[0].day} ${mon3(full[0].monthIdx)}\u2013${full[full.length - 1].day} ${mon3(full[full.length - 1].monthIdx)}` : g[0].day + (g.length > 1 ? '\u2013' + g[g.length - 1].day : '') + ' ' + mon3(hgMonth), days: g, full, part }; });
         const today = new Date(); today.setHours(0,0,0,0);
         const me = userIdentity ? userIdentity.toUpperCase() : '';
         const rows = drivers.filter(d => !d.hidden).map(d => {
@@ -13229,12 +13269,14 @@
                 const w = c.days.reduce((a, dd) => a + computeDayInfo(dd.rowIdx, d.idx).minutes, 0);
                 const t = contractMinutesFor(ch, c.days.map(dd => dd.date), d.idx);
                 tot += w; tgt += t; run += w - t; spark.push(run);
-                return { w, t, delta: w - t, future: c.days[0].date > today };
+                if(!c.part) return { w, t, delta: w - t, future: c.days[0].date > today };
+                const wf = c.full.reduce((a, dd) => a + computeDayInfo(dd.rowIdx, d.idx).minutes, 0), tf = contractMinutesFor(ch, c.full.map(dd => dd.date), d.idx);
+                return { w: wf, t: tf, delta: wf - tf, future: c.full[0].date > today };
             });
             return { d, ch, cells, tot, tgt, spark, isMe: me && (d.name.toUpperCase() === me || (d.originalName || '').toUpperCase() === me) };
         });
         rows.sort((a, b) => (b.isMe - a.isMe));
-        const headL = '<th class="hg-name">Operatore</th>', head = `${cols.map(c => `<th>${c.label}<small>${c.sub} ${MONTH_NAMES_IT[hgMonth].slice(0,3)}</small></th>`).join('')}<th class="hg-tot">Ore del mese</th>`;
+        const headL = '<th class="hg-name">Operatore</th>', head = `${cols.map(c => `<th>${c.label}<small>${c.sub}</small></th>`).join('')}<th class="hg-tot">Ore del mese</th>`;
         const body = rows.map(r => {
             const tints = r.cells.map(c => hgTint(c.delta));
             const tds = r.cells.map((c, i) => {
@@ -14165,11 +14207,11 @@
     // chiudendo e riaprendo l'app serve di nuovo la password.
     try { localStorage.removeItem(COORD_SESSION_KEY); } catch(e) {}   // vecchio accesso "permanente"
     function coordSessionSet(on) {
-        try { if(on) sessionStorage.setItem(COORD_SESSION_KEY, coordToken(COORD_PASSWORD)); else sessionStorage.removeItem(COORD_SESSION_KEY); } catch(e) {}
+        try { if(on) sessionStorage.setItem(COORD_SESSION_KEY, coordToken('coord-ok-v2')); else sessionStorage.removeItem(COORD_SESSION_KEY); } catch(e) {}
         updateCoordExitBtn();
         if(opNotesVer) notesAfterChange();   // le note degli operatori si vedono solo da coordinatore
     }
-    function isCoordLoggedIn() { try { return sessionStorage.getItem(COORD_SESSION_KEY) === coordToken(COORD_PASSWORD); } catch(e) { return false; } }
+    function isCoordLoggedIn() { try { return sessionStorage.getItem(COORD_SESSION_KEY) === coordToken('coord-ok-v2'); } catch(e) { return false; } }
     function updateCoordExitBtn() { document.body.classList.toggle('coord-session', isCoordLoggedIn()); }
     document.addEventListener('DOMContentLoaded', updateCoordExitBtn);
     // Pulsante rosso nella barra: esce subito (chiedendo prima delle modifiche non salvate).
@@ -14312,15 +14354,17 @@
         setTimeout(() => document.getElementById('cc-pw').focus(), 60);
     }
     function showConsoleApp(section) {
+        // "Importa da Excel" serve solo quando i turni vivono su Firebase: col file Excel la voce resta nascosta
+        try { const ib = document.querySelector('#cc-app [data-sec="importa"]'); if(ib) ib.style.display = dataSourceMode === 'firebase' ? '' : 'none'; } catch(e) {}
         document.getElementById('cc-login').classList.remove('show');
         document.getElementById('cc-app').classList.add('show');
         ccGo(section || 'panoramica');
         setTimeout(chkMaybeAuto, 600);   // se nei turni c'è qualcosa che non torna, la finestra si apre da sola (una volta per sessione)
     }
-    function coordLogin(e) {
+    async function coordLogin(e) {
         if(e) e.preventDefault();
         const val = document.getElementById('cc-pw').value;
-        if(val === COORD_PASSWORD) {
+        if(await pwMatch(val.trim(), COORD_PW_H) || await pwMatch(val.trim().toLowerCase(), COORD_PW_H)) {
             coordSessionSet(true);
             vibrate(); showConsoleApp(ccPendingSection || 'panoramica'); ccPendingSection = null;
         } else {
@@ -17287,8 +17331,8 @@
         else if(uShift==="SM") content.classList.add("modal-theme-SM");
         else if(isMN(uShift)) content.classList.add("modal-theme-MN");
         let fullText = "Chi è in turno", icon = "groups", icoCls = "";
-        if(uShift==="M")  { fullText="Mattina";    icon="wb_sunny";    icoCls="t-M"; }
-        if(uShift==="P")  { fullText="Pomeriggio"; icon="wb_twilight"; icoCls="t-P"; }
+        if(uShift==="M")  { fullText=valStr === "m" ? "Mattina diurno" : "Mattina";    icon="wb_sunny";    icoCls="t-M"; }
+        if(uShift==="P")  { fullText=valStr === "p" ? "Pomeriggio diurno" : "Pomeriggio"; icon="wb_twilight"; icoCls="t-P"; }
         if(uShift==="N")  { fullText="Notte";      icon="bedtime";     icoCls="t-N"; }
         // su un riposo (o un'assenza) la finestra mostra chi lavora quel giorno
         if(uShift==="SM") { fullText="Smonto";     icon="logout";      icoCls="t-S"; }
@@ -17298,8 +17342,10 @@
         if(!icoCls) ico.style.cssText = 'background:var(--bg);color:var(--primary);border:1px solid var(--border)'; else ico.style.cssText = '';
         ico.innerHTML = `<span class="material-icons-round">${icon}</span>`;
         // l'orario del turno si scrive una volta sola, in alto; nelle righe compare solo se è diverso
-        const stdTime = ["M","P","N","SM"].includes(uShift) ? (SCHEDULE[uShift] || '') : '';
-        const dIso = repRowDate(rowIndex), dLong = dIso ? new Date(dIso + 'T12:00:00').toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }).replace(/^./, c => c.toUpperCase()) : `${weekDay} ${day} ${month}`;
+        const dIso = repRowDate(rowIndex);
+        // casella di un diurnista (m, p): in alto il SUO orario, non quello dei turnisti
+        const stdTime = /^[mp]$/.test(valStr) ? (diurniSched(valStr, dIso || undefined) || SCHEDULE[uShift] || '') : ["M","P","N","SM"].includes(uShift) ? (SCHEDULE[uShift] || '') : '';
+        const dLong = dIso ? new Date(dIso + 'T12:00:00').toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }).replace(/^./, c => c.toUpperCase()) : `${weekDay} ${day} ${month}`;
         document.getElementById('modal-subtitle').innerHTML = `${esc(dLong)}${stdTime ? `<em class="sm2-hchip"><span class="material-icons-round" style="font-size:14px">schedule</span>${esc(stdTime)}</em>` : ''}`;
         list.innerHTML = "";
         let rowData = finalData[rowIndex];
@@ -17920,6 +17966,31 @@
 
         function W() { return window.innerWidth; }
 
+        // Se il portale non si carica (rete debole o assente) il pannello non resta bianco:
+        // compare un messaggio con "Riprova".
+        let rpTimer = null;
+        function rpShow(kind) {
+            const st = document.getElementById('rp-status'); if(!st) return;
+            if(!kind) { st.hidden = true; return; }
+            st.hidden = false;
+            st.querySelector('.rp-ico').textContent = kind === 'err' ? 'wifi_off' : 'hourglass_top';
+            document.getElementById('rp-st-t').textContent = kind === 'err' ? 'Le Richieste non si aprono' : 'Apro le Richieste…';
+            document.getElementById('rp-st-s').textContent = kind === 'err' ? (navigator.onLine === false ? 'Il telefono è senza connessione.' : 'La connessione è lenta o il sito non risponde.') + ' Riprova tra poco.' : '';
+            document.getElementById('rp-st-retry').hidden = kind !== 'err';
+        }
+        function rpWatch(fr) {
+            rpShow('wait'); clearTimeout(rpTimer);
+            rpTimer = setTimeout(() => rpShow('err'), 20000);
+            fr.onload = () => {
+                clearTimeout(rpTimer);
+                // stesso sito (github.io): se la pagina non è arrivata il documento è vuoto o non leggibile
+                let ok = false, same = true; try { same = new URL(fr.src).origin === location.origin; } catch(e) {}
+                try { const d = fr.contentDocument; ok = d ? !!(d.body && d.body.childElementCount) : !same; } catch(e) { ok = !same; }
+                rpShow(ok ? null : 'err');
+            };
+        }
+        window.rpRetry = function() { iframeLoaded = false; ensureLoaded(); };
+
         function ensureLoaded(reqId) {
             const identity = (typeof userIdentity !== 'undefined' && userIdentity) ? userIdentity : null;
             // Passa l'identità già selezionata qui in Turni Infermieri, così nel portale
@@ -17930,6 +18001,7 @@
                 const url = new URL(RICHIESTE_URL);
                 if (identity) url.searchParams.set('nome', identity);
                 if (reqId) url.searchParams.set('richiesta', reqId);
+                rpWatch(iframe);
                 iframe.src = url.toString();
                 iframeLoaded = true;
                 iframeLoadedIdentity = identity;
@@ -19045,6 +19117,21 @@
             document.body.classList.remove('esempio-open');
         };
         window.toggleEsempioPanel = function() { panel.classList.contains('open') ? window.closeEsempioPanel() : window.openEsempioPanel(); };
+    })();
+</script>
+<style>
+    #side-drag-handle, #esempio-handle { transition: opacity .25s ease; }
+    body.side-scrolling #side-drag-handle:not(.is-open), body.side-scrolling #esempio-handle { opacity: .18; pointer-events: none; }
+</style>
+<script>
+    // Linguette Richieste (blu) ed Esempio (rossa): mentre si scorre il calendario o una tabella
+    // diventano quasi trasparenti, così non coprono l'ultima colonna; tornano appena ci si ferma.
+    (function () {
+        let t = null;
+        document.addEventListener('scroll', () => {
+            document.body.classList.add('side-scrolling');
+            clearTimeout(t); t = setTimeout(() => document.body.classList.remove('side-scrolling'), 900);
+        }, true);
     })();
 </script>
 </body>
