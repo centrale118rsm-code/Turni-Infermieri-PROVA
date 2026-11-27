@@ -4052,7 +4052,7 @@
         <div class="modal-header hc-header-badge">
             <div class="header-text">
                 <h3><span class="material-icons-round">balance</span>Equità dell’anno</h3>
-                <span>Notti, weekend, festivi e reperibilità di ognuno, rispetto alla media</span>
+                <span>Notti, weekend, festivi e reperibilità di ognuno, rispetto alla media della squadra</span>
             </div>
             <button class="btn-close-modal" onclick="closeEquity()"><span class="material-icons-round">close</span></button>
         </div>
@@ -18068,6 +18068,102 @@
         window.openRichiestePanel = function(reqId) { ensureLoaded(reqId); snapTo(0, true); };
     })();
 </script>
+<!-- ══════════════ EQUITÀ DELL'ANNO: classifiche (come nelle autisti PROVA) ══════════════ -->
+<style>
+/* ═══ Equità dell'anno, versione semplificata  ═══ */
+.nq { --hi:#ea580c; --hi-bg:rgba(234,88,12,.16); --lo:#2563eb; --lo-bg:rgba(37,99,235,.14); --pos:#16a34a; --neg:#dc2626; display:flex; flex-direction:column; gap:12px; padding:4px 0 6px; color:var(--text-main); }
+.nq .hi { color:var(--hi); } .nq .lo { color:var(--lo); } .nq .pos { color:var(--pos); } .nq .neg { color:var(--neg); }
+.nq-empty { padding:30px; text-align:center; color:var(--text-sec); }
+.nq-hero, .nq-bars { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:14px; }
+.nq-leg { display:flex; flex-wrap:wrap; gap:6px 14px; font-size:.74rem; color:var(--text-sec); margin-top:10px; align-items:center; }
+.nq-leg span { display:inline-flex; align-items:center; gap:5px; }
+.nq-leg i { width:11px; height:11px; border-radius:3px; display:inline-block; }
+.nq-leg u, .nq-key { display:inline-block; width:0; height:13px; border-left:2px dashed var(--text-main); }
+.nq-key { width:12px; height:12px; border:none; border-radius:3px; vertical-align:-2px; }
+.nq-key.hi { background:rgba(234,88,12,.35); } .nq-key.lo { background:rgba(37,99,235,.3); }
+/* barre orizzontali */
+.nq-row { display:grid; grid-template-columns:92px 1fr 48px; align-items:center; gap:8px; padding:5px 4px; border-radius:10px; }
+.nq-row.me { background:rgba(29,78,216,.08); box-shadow:inset 3px 0 0 var(--primary); }
+.nq-n { font-size:.8rem; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.nq-track { position:relative; height:22px; background:var(--bg); border-radius:7px; }
+.nq-track > i { position:absolute; top:0; bottom:0; left:0; border-radius:7px; background:var(--c, #64748b); }
+.nq-track > i.hi { background:var(--hi); } .nq-track > i.lo { background:var(--lo); }
+.nq-track.sym > i { background:var(--pos); } .nq-track.sym > i.neg { background:var(--neg); } .nq-track.sym > i:not(.neg):not(.pos) { background:#94a3b8; }
+.nq-track > u { position:absolute; top:-4px; bottom:-4px; border-left:2px dashed var(--text-main); opacity:.7; }
+.nq-v { font-size:1.15rem; font-weight:800; text-align:right; font-variant-numeric:tabular-nums; }
+/* classifica: bottoni delle voci e riquadro della media */
+.nq-chips { display:grid; grid-template-columns:repeat(auto-fill, minmax(104px, 1fr)); gap:6px; }
+.nq-chips button { display:flex; align-items:center; gap:6px; padding:9px 10px; border-radius:12px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font:inherit; font-size:.8rem; font-weight:700; cursor:pointer; text-align:left; }
+.nq-chips button .material-icons-round { font-size:18px; color:var(--c); }
+.nq-chips button.on { background:var(--c); border-color:var(--c); color:#fff; } .nq-chips button.on .material-icons-round { color:#fff; }
+.nq-hero { display:flex; flex-wrap:wrap; align-items:center; gap:14px; border-left:6px solid var(--c); }
+.nq-hero > .material-icons-round { font-size:30px; color:var(--c); width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:color-mix(in srgb, var(--c) 14%, transparent); }
+.nq-hero small { display:block; font-size:.78rem; color:var(--text-sec); font-weight:700; }
+.nq-hero b { display:block; font-size:2.4rem; line-height:1.05; font-weight:800; }
+.nq-hero em { font-style:normal; font-size:.75rem; color:var(--text-sec); }
+.nq-hl { display:flex; flex-direction:column; gap:4px; margin-left:auto; font-size:.82rem; font-weight:700; }
+.nq-hl b { font-size:1rem; }
+@media (max-width:600px) {
+  .nq-row { grid-template-columns:78px 1fr 44px; gap:6px; }
+  .nq-hero b { font-size:2rem; }
+}
+</style>
+<script>
+    // ═══ EQUITÀ DELL'ANNO (versione 3, semplificata) ═════════════════════
+    // "Classifiche": una voce alla volta (scelta con i bottoni in alto), la media in grande,
+    // chi ne ha di più e di meno, e una barra per persona con la linea tratteggiata della media.
+    // Le schede "Chi lavora con chi" e "Diurnisti e turnisti" restano come prima.
+    const NQ = [
+        { k: 'notti', l: 'Notti', s: 'Notti', ic: 'dark_mode', col: '#4f46e5', doers: true },
+        { k: 'we', l: 'Weekend', s: 'Week', sub: 'sabati + domeniche', ic: 'weekend', col: '#0891b2' },
+        { k: 'fest', l: 'Festivi', s: 'Fest', ic: 'celebration', col: '#db2777' },
+        { k: 'repT', l: 'Reperibilità', s: 'Rep', sub: 'turni da titolare', ic: 'phone_in_talk', col: '#16a34a' },
+        { k: 'repF', l: 'Rep. festive', s: 'Rep F', sub: 'domeniche e festivi', ic: 'event', col: '#ea580c' },
+        { k: 'repCop', l: 'Rep. coperte', s: 'Cop', sub: 'ore fatte per i colleghi', ic: 'handshake', col: '#9333ea', fmt: m => Math.round(m / 60), doers: true },
+        { k: 'saldo', l: 'Saldo ore', s: 'Saldo', sub: 'ore fatte meno ore dovute', ic: 'schedule', col: '#475569', signed: true, fmt: m => fmtHM(m, true) || '0:00' }
+    ];
+    let nqMetric = 'notti';
+    const nqTxt = (c, v) => c.fmt ? c.fmt(v) : (Math.round(v * 10) / 10).toString().replace('.', ',');
+    const nqAvg = (c, rows) => { const set = c.doers ? rows.filter(r => r[c.k] > 0) : rows; return set.length ? set.reduce((a, r) => a + r[c.k], 0) / set.length : 0; };
+    // livello rispetto alla media: 'hi' oltre +20%, 'lo' oltre −20%
+    const nqLvl = (c, v, a) => { if(c.signed) return Math.abs(v) < 30 ? '' : (v < 0 ? 'neg' : 'pos'); if(c.doers && !v) return ''; if(!(a > 0)) return ''; const q = v / a; return q >= 1.2 ? 'hi' : (q <= 0.8 ? 'lo' : ''); };
+    function nqSetMetric(k) { vibrate(); nqMetric = k; renderEquity(); }
+
+    EQ_CATS.splice(0, 3, { k: 'tutto', label: 'Equità', icon: 'balance', desc: '' });
+    const nqOldRender = window.renderEquity;
+    window.renderEquity = function() {
+        if(eqCat !== 'tutto') return nqOldRender();
+        document.querySelectorAll('#eq-modal .ab-period button').forEach(b => b.classList.toggle('active', b.dataset.p === eqPeriod));
+        document.getElementById('eq-cats').innerHTML = EQ_CATS.map(c => `<button class="${c.k === eqCat ? 'on' : ''}" onclick="eqSetCat('${c.k}')"><span class="material-icons-round">${c.icon}</span>${c.label}</button>`).join('');
+        document.getElementById('eq-pairs').innerHTML = '';
+        const { rows, days } = computeEquity();
+        const avg = {}; NQ.forEach(c => avg[c.k] = nqAvg(c, rows));
+        const html = !rows.length ? '<div class="nq-empty">Nessun dato nel periodo.</div>' : nqClassifica(rows, avg);
+        document.getElementById('eq-grid').innerHTML = `<div class="nq">${html}</div>`;
+        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati${eqPeriod === 'oggi' ? ', fino a oggi' : ', tutto il ' + SHIFT_YEAR}. <span class="nq-key hi"></span> oltre il 20% sopra la media, <span class="nq-key lo"></span> oltre il 20% sotto. Per notti e reperibilità coperte la media conta solo chi ne fa.`;
+    };
+
+    // ── Classifiche ──────────────────────────────────────────────────
+    function nqClassifica(rows, avg) {
+        const c = NQ.find(x => x.k === nqMetric) || NQ[0];
+        const chips = `<div class="nq-chips">${NQ.map(x => `<button class="${x.k === c.k ? 'on' : ''}" style="--c:${x.col}" onclick="nqSetMetric('${x.k}')"><span class="material-icons-round">${x.ic}</span>${x.l}</button>`).join('')}</div>`;
+        const list = rows.slice().sort((a, b) => b[c.k] - a[c.k]);
+        const a = avg[c.k], top = list[0], low = c.doers ? list.filter(r => r[c.k] > 0).pop() : list[list.length - 1];
+        const hero = `<div class="nq-hero" style="--c:${c.col}"><span class="material-icons-round">${c.ic}</span><div><small>${c.l}${c.sub ? ' · ' + c.sub : ''}</small><b>${c.signed ? '' : nqTxt(c, a)}</b><em>${c.signed ? 'chi ha ore in più e chi in meno' : 'media della squadra'}</em></div>
+            ${!c.signed && top && low ? `<div class="nq-hl"><span class="hi">▲ ${esc(top.d.name)} <b>${nqTxt(c, top[c.k])}</b></span><span class="lo">▼ ${esc(low.d.name)} <b>${nqTxt(c, low[c.k])}</b></span></div>` : ''}</div>`;
+        let bars;
+        if(c.signed) {
+            const m = Math.max(60, ...list.map(r => Math.abs(r[c.k])));
+            bars = list.map(r => { const v = r[c.k], w = Math.abs(v) / m * 50, lv = nqLvl(c, v);
+                return `<div class="nq-row ${r.isMe ? 'me' : ''}"><span class="nq-n">${esc(r.d.name)}</span><div class="nq-track sym"><i class="${lv}" style="${v < 0 ? `right:50%` : `left:50%`};width:${w}%"></i><u style="left:50%"></u></div><b class="nq-v ${lv}">${nqTxt(c, v)}</b></div>`; }).join('');
+        } else {
+            const m = Math.max(1, ...list.map(r => r[c.k]));
+            bars = list.map(r => { const v = r[c.k], lv = nqLvl(c, v, a);
+                return `<div class="nq-row ${r.isMe ? 'me' : ''}"><span class="nq-n">${esc(r.d.name)}</span><div class="nq-track"><i class="${lv}" style="width:${v / m * 100}%;--c:${c.col}"></i><u style="left:${a / m * 100}%"></u></div><b class="nq-v ${lv}">${nqTxt(c, v)}</b></div>`; }).join('');
+        }
+        return chips + hero + `<div class="nq-bars">${bars}<div class="nq-leg"><u></u> ${c.signed ? 'pari: né ore in più né in meno' : 'linea della media'}</div></div>`;
+    }
+</script>
 <!-- ══════════════ GUIDA DELL'APP (menu ☰ › Guida) ══════════════
      Blocco autonomo: stile, finestra e codice. Le animazioni sono piccole scene finte
      (un telefono disegnato) ma le voci dei menu vengono lette dal menu VERO dell'app,
@@ -18659,10 +18755,10 @@
     T(cOr, { id:'equita', t:'Equità dell’anno', icon:'balance', when:() => has('openEquity'),
         sub:'Notti, weekend, festivi e reperibilità di ognuno, rispetto alla media.',
         steps:['<b>☰ › Equità dell’anno</b>; scegli <b>Fino a oggi</b> o <b>Anno intero</b>.',
-            'Categorie: <b>Panoramica</b>, <b>Notti e weekend</b>, <b>Reperibilità</b>, <b>Chi lavora con chi</b>, <b>Diurnisti e turnisti</b>.',
-            'Ogni valore è confrontato con la media della squadra.'],
-        anim:[MENU(['equita'], 0), SCR({ title:'Equità dell’anno', icon:'balance', col:'#0f766e', st:1, say:'Scegli la categoria',
-                body:[{ seg:['Fino a oggi', 'Anno intero'], on:0 }, { seg:['Panoramica', 'Notti', 'Reperib.', 'Coppie'], on:0, hit:1 }, row('dark_mode', 'ANNA', 'Notti 42 · media 40', '#1e3a8a'), row('dark_mode', 'SARA', 'Notti 38 · media 40', '#1e3a8a')] })],
+            'Nella scheda <b>Equità</b> tocca una voce (notti, weekend, festivi, reperibilità, saldo ore…): vedi la media in grande, chi ne ha di più e di meno e una barra per persona.',
+            'La linea tratteggiata è la media della squadra. Ci sono anche <b>Chi lavora con chi</b> e <b>Diurnisti e turnisti</b>.'],
+        anim:[MENU(['equita'], 0), SCR({ title:'Equità dell’anno', icon:'balance', col:'#0f766e', st:1, say:'Scegli la voce',
+                body:[{ seg:['Fino a oggi', 'Anno intero'], on:0 }, { seg:['Notti', 'Weekend', 'Festivi', 'Reperib.'], on:0, hit:1 }, row('dark_mode', 'ANNA', 'Notti 42 · media 40', '#1e3a8a'), row('dark_mode', 'SARA', 'Notti 38 · media 40', '#1e3a8a')] })],
         try:{ label:'Apri Equità dell’anno', run:() => openEquity() } });
 
     // 8 ─ AREA RICHIESTE
