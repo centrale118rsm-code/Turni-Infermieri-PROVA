@@ -368,7 +368,12 @@
         }
         /* fine settimana: riga rossa spessa sotto la domenica */
         /* fine settimana (domenica): uno spazio vuoto leggero prima del lunedì, al posto della riga rossa (27/11/2026) */
-        #main-table tbody tr.wk-end > td, body.dark-mode #main-table tbody tr.wk-end > td { border-bottom: 12px solid var(--bg) !important; }
+        #main-table tbody tr.wk-end > td, body.dark-mode #main-table tbody tr.wk-end > td {
+            border-bottom: 24px solid transparent !important;
+            background-image: linear-gradient(180deg, var(--wk-gap-a), var(--wk-gap-b)) !important; background-origin: border-box !important;
+            background-size: 100% 24px !important; background-position: bottom !important; background-repeat: no-repeat !important; }
+        :root { --wk-gap-a: #eef2fb; --wk-gap-b: #d6e0f3; }
+        body.dark-mode { --wk-gap-a: #172033; --wk-gap-b: #24324d; }
         tbody td {
             padding: 2px; height: var(--cell-h); vertical-align: middle;
             border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border);
