@@ -5065,7 +5065,7 @@
     const ACCT_PW_ICONS = {};
     const ACCT_EXTRA_NAMES = IDENTITY_EXTRA_OPTIONS.filter(n => n !== 'Ospite' && n !== PS_NAME && !ACCT_PW_NAMES.includes(n));   // Frisoni (senza colonna)
     // accessi completi condivisi (password unica, valgono in tutte e due le app): nome nell'elenco → nome usato in questa app
-    const ACCT_SHARED_ID = { 'CENTRALE 118': 'CENTRALE 118', 'PRONTO SOCCORSO': PS_NAME };
+    const ACCT_SHARED_ID = { 'CENTRALE 118 1': 'CENTRALE 118 1', 'CENTRALE 118 2': 'CENTRALE 118 2', 'GUARDIOLA': 'GUARDIOLA', 'PRONTO SOCCORSO': PS_NAME, 'CENTRALE 118': 'CENTRALE 118' };
     const ACCT_IDENTITY_KEY = 'infermieri_identity_name';
     const ACCT_OTHER_URL = 'https://centrale118rsm-code.github.io/PROVA-MODIFICHE-TURNI/';   // la prova autisti
     function acctRegRef() { return cfgRef('settings'); }
@@ -5091,8 +5091,9 @@
     const ACCT_KEY = 'acct118_prova';   // stessa chiave nelle due app e nello script in <head>
     const ACCT_FIRST_PW = '118';
     // CENTRALE 118 e PRONTO SOCCORSO: password unica (maiuscole contano), solo l'impronta qui; accesso completo nelle due app
-    const ACCT_SHARED = Object.keys(ACCT_SHARED_ID), ACCT_SHARED_H = '0b08d46632a180894a1362372dd7987a92fc5bee9e64546e50395c6c8598683a';
-    const ACCT_SHARED_ICONS = { 'CENTRALE 118': 'support_agent', 'PRONTO SOCCORSO': 'local_hospital' };
+    // nell'elenco solo questi; 'CENTRALE 118' (vecchio, unico) resta valido per i telefoni già collegati
+    const ACCT_SHARED = ['CENTRALE 118 1', 'CENTRALE 118 2', 'GUARDIOLA', 'PRONTO SOCCORSO'], ACCT_SHARED_H = '0b08d46632a180894a1362372dd7987a92fc5bee9e64546e50395c6c8598683a';
+    const ACCT_SHARED_ICONS = { 'CENTRALE 118 1': 'support_agent', 'CENTRALE 118 2': 'support_agent', 'GUARDIOLA': 'security', 'PRONTO SOCCORSO': 'local_hospital' };
     function acctIdOf(a) { return a && a.team === 'all' ? (ACCT_SHARED_ID[a.name] || a.name) : (a && a.name); }
     const ACCT_T = ACCT_TEAMS[ACCT_TEAM], ACCT_O = ACCT_TEAMS[ACCT_OTHER];
     function acctRead() { try { const a = JSON.parse(localStorage.getItem(ACCT_KEY) || 'null'); return a && a.name && (ACCT_TEAMS[a.team] || a.team === 'all') ? a : null; } catch(e) { return null; } }
@@ -5430,7 +5431,7 @@
                     'Primo accesso: il proprio nome e la password provvisoria <b>118</b> (non è scritta da nessuna parte nell’app: la mandi tu sul gruppo). Subito dopo l’app obbliga a sceglierne una personale (almeno 4 caratteri, diversa da 118).',
                     'Fatto l’accesso il telefono <b>resta collegato per sempre</b>: la schermata d’accesso non compare più e l’app si apre sui turni.',
                     'COORDINATORE e TEST entrano con la password del coordinatore (<b>coord</b>).',
-                    '<b>CENTRALE 118</b> e <b>PRONTO SOCCORSO</b> (in “Altri accessi”) entrano con la password <b>Cerotto1</b> (C maiuscola): accesso completo come prima, in tutte e due le app.',
+                    '<b>CENTRALE 118 1</b>, <b>CENTRALE 118 2</b>, <b>GUARDIOLA</b> e <b>PRONTO SOCCORSO</b> (in “Altri accessi”) entrano con la password <b>Cerotto1</b> (C maiuscola): accesso completo come prima, in tutte e due le app.',
                     'Le password scelte non le vede nessuno, nemmeno tu: l’app tiene solo un’impronta da cui non si risale alla password.'])
                 + sec('sync_alt', 'Infermieri e autisti insieme', [
                     'Chi è entrato in una app vede anche l’altra, <b>in sola lettura</b>: turni e note “per tutti” (tasto <b>Note</b> nella barra in basso). Non vede le note al coordinatore o personali e non può cambiare nulla.',
